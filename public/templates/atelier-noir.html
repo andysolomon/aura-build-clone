@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atelier Noir — Architecture &amp; Interiors, Lisbon · Oslo</title>
+  <meta name="description" content="Atelier Noir is an architecture studio designing quiet, light-led buildings in Lisbon and Oslo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'], sans: ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: { paper: '#f2f1ec', ink: '#111110', stone: '#8a8780' }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    @keyframes rise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+    .rise { animation: rise 1.2s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+    .wipe { animation: wipe 1.6s .3s cubic-bezier(.77,0,.18,1) both; }
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
+    .reveal.in { opacity: 1; transform: none; }
+    .fins { background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.16) 0 2px, transparent 2px 22px); }
+    .boards { background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 1px, transparent 1px 14px); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 24s linear infinite; }
+    .grid-facade { background-color: #c7c4bd; background-image: repeating-linear-gradient(90deg, #c7c4bd 0 18px, transparent 18px 62px), repeating-linear-gradient(0deg, #c7c4bd 0 22px, #2a2a29 22px 70px); }
+    .work-card .visual { transition: transform 1.2s cubic-bezier(.16,1,.3,1); }
+    .work-card:hover .visual { transform: scale(1.04); }
+  </style>
+</head>
+<body class="bg-paper font-sans text-ink antialiased selection:bg-ink selection:text-paper">
+
+  <!-- Nav -->
+  <header class="sticky top-0 z-50 border-b border-ink/10 bg-paper/85 backdrop-blur-md">
+    <nav class="mx-auto flex max-w-[1360px] items-center justify-between px-6 py-5 md:px-10" aria-label="Primary">
+      <a href="#" class="font-serif text-2xl leading-none tracking-tight">Atelier Noir<sup class="ml-0.5 font-sans text-[10px]">®</sup></a>
+      <ul class="hidden items-center gap-10 text-[13px] md:flex">
+        <li><a href="#work" class="group"><span class="text-stone">(01)</span> <span class="border-b border-transparent transition group-hover:border-ink">Work</span></a></li>
+        <li><a href="#studio" class="group"><span class="text-stone">(02)</span> <span class="border-b border-transparent transition group-hover:border-ink">Studio</span></a></li>
+        <li><a href="#approach" class="group"><span class="text-stone">(03)</span> <span class="border-b border-transparent transition group-hover:border-ink">Approach</span></a></li>
+        <li><a href="#recognition" class="group"><span class="text-stone">(04)</span> <span class="border-b border-transparent transition group-hover:border-ink">Recognition</span></a></li>
+      </ul>
+      <a href="#contact" class="group inline-flex items-center gap-2 rounded-full border border-ink px-4 py-2 text-[13px] transition hover:bg-ink hover:text-paper">Enquire <iconify-icon icon="lucide:arrow-up-right" class="transition group-hover:rotate-45"></iconify-icon></a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="mx-auto max-w-[1360px] px-6 pt-8 md:px-10">
+      <div class="rise flex flex-wrap justify-between gap-2 text-[12px] uppercase tracking-[0.18em] text-stone">
+        <span>Architecture &amp; Interiors — Lisbon / Oslo</span>
+        <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-ink"></span>On site: Casa Mirante, Sintra</span>
+      </div>
+      <div class="relative">
+        <h1 class="rise mt-6 font-serif text-[18vw] leading-[0.86] tracking-[-0.035em] md:text-[9.6rem] lg:text-[11rem]" style="animation-delay:.1s">
+          Quiet buildings<br>for <em class="italic text-stone">loud</em> cities.
+        </h1>
+        <a href="#contact" class="rise absolute bottom-2 right-2 hidden h-40 w-40 lg:block" style="animation-delay:.45s" aria-label="Accepting 2027 commissions">
+          <svg viewBox="0 0 160 160" class="spin absolute inset-0 h-full w-full" aria-hidden="true"><defs><path id="circ" d="M80,80 m-62,0 a62,62 0 1,1 124,0 a62,62 0 1,1 -124,0"/></defs><text font-size="11" font-family="Instrument Sans, sans-serif" fill="#111" letter-spacing="2"><textPath href="#circ" textLength="386" lengthAdjust="spacing">ACCEPTING 2027 COMMISSIONS · EST. 2009 ·</textPath></text></svg>
+          <span class="absolute inset-[38px] grid place-items-center rounded-full bg-ink text-paper transition hover:scale-105"><iconify-icon icon="lucide:arrow-down-right" class="text-3xl"></iconify-icon></span>
+        </a>
+      </div>
+      <div class="mt-10 grid gap-10 md:grid-cols-12">
+        <div class="rise md:col-span-4 lg:col-span-3" style="animation-delay:.25s">
+          <p class="text-[15px] leading-relaxed text-ink/75">We are a studio of nineteen architects shaping homes, cultural spaces and housing around one material that never runs out: daylight.</p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a href="#work" class="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-[13px] text-paper transition hover:bg-ink/80">Selected work <iconify-icon icon="lucide:arrow-down"></iconify-icon></a>
+            <a href="#contact" class="inline-flex items-center gap-2 rounded-full border border-ink/25 px-5 py-3 text-[13px] transition hover:border-ink">Start a project</a>
+          </div>
+        </div>
+        <figure class="wipe relative md:col-span-8 lg:col-span-9">
+          <svg viewBox="0 0 960 430" class="block h-auto w-full" role="img" aria-label="Elevation drawing of a cantilevered concrete house above a reflecting pool">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2e0da"/><stop offset="1" stop-color="#cfccc5"/></linearGradient>
+              <linearGradient id="base" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9d6cf"/><stop offset="1" stop-color="#b9b5ad"/></linearGradient>
+              <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3a38"/><stop offset="1" stop-color="#151514"/></linearGradient>
+              <linearGradient id="pool" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2b"/><stop offset="1" stop-color="#8f8c85"/></linearGradient>
+              <pattern id="fin" width="22" height="10" patternUnits="userSpaceOnUse"><rect width="3" height="10" fill="#9c988f"/></pattern>
+            </defs>
+            <rect width="960" height="430" fill="url(#sky)"/>
+            <circle cx="790" cy="96" r="54" fill="none" stroke="#111" stroke-opacity=".25"/>
+            <rect x="110" y="196" width="560" height="160" fill="url(#base)"/>
+            <rect x="130" y="250" width="420" height="106" fill="url(#fin)"/>
+            <rect x="560" y="262" width="70" height="94" fill="#1c1c1b"/>
+            <polygon points="300,196 670,196 670,236 300,216" fill="#000" fill-opacity=".22"/>
+            <rect x="300" y="104" width="560" height="96" fill="url(#dark)"/>
+            <rect x="330" y="134" width="500" height="28" fill="#0a0a0a"/>
+            <rect x="330" y="134" width="500" height="2" fill="#f2f1ec" fill-opacity=".55"/>
+            <rect x="300" y="198" width="560" height="4" fill="#0a0a0a"/>
+            <rect x="0" y="356" width="960" height="74" fill="url(#pool)"/>
+            <g opacity=".28"><rect x="300" y="360" width="560" height="38" fill="#0a0a0a"/><rect x="110" y="360" width="190" height="30" fill="#e8e6e0"/></g>
+            <line x1="0" y1="356" x2="960" y2="356" stroke="#111" stroke-width="1.5"/>
+            <rect x="232" y="333" width="8" height="23" rx="3.5" fill="#111"/><circle cx="236" cy="326.5" r="4.5" fill="#111"/>
+            <g font-family="Instrument Sans, sans-serif" font-size="11" fill="#111" letter-spacing="1.5">
+              <line x1="890" y1="104" x2="890" y2="356" stroke="#111" stroke-opacity=".6"/>
+              <line x1="882" y1="104" x2="898" y2="104" stroke="#111"/><line x1="882" y1="200" x2="898" y2="200" stroke="#111"/><line x1="882" y1="356" x2="898" y2="356" stroke="#111"/>
+              <text x="906" y="108">+9.60</text><text x="906" y="204">+6.40</text><text x="906" y="350">±0.00</text>
+              <text x="24" y="36">SECTION A—A</text><text x="24" y="54" fill-opacity=".55">CASA MIRANTE · 1:200</text>
+            </g>
+          </svg>
+          <figcaption class="mt-3 flex justify-between text-[12px] text-stone"><span>Fig. 01 — Casa Mirante, Sintra (2026)</span><span>Board-marked concrete, larch, glass</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Studio statement -->
+    <section id="studio" class="mx-auto max-w-[1360px] px-6 py-28 md:px-10 md:py-40">
+      <div class="grid gap-10 md:grid-cols-12">
+        <p class="reveal text-[12px] uppercase tracking-[0.18em] text-stone md:col-span-3">(02) The studio</p>
+        <p class="reveal font-serif text-4xl leading-[1.1] tracking-[-0.01em] md:col-span-9 md:text-6xl">We draw slowly, build carefully and leave out everything a building doesn’t need — so that what remains <em class="text-stone">can be felt</em>.</p>
+      </div>
+      <dl class="mt-20 grid grid-cols-2 border-t border-ink/15 md:grid-cols-4">
+        <div class="reveal border-b border-ink/15 py-8 pr-6 md:border-b-0 md:border-r">
+          <dt class="text-[12px] uppercase tracking-[0.16em] text-stone">Founded</dt>
+          <dd class="mt-3 font-serif text-6xl">2009</dd>
+        </div>
+        <div class="reveal border-b border-ink/15 py-8 pl-6 md:border-b-0 md:border-r md:pr-6">
+          <dt class="text-[12px] uppercase tracking-[0.16em] text-stone">Buildings completed</dt>
+          <dd class="mt-3 font-serif text-6xl">64</dd>
+        </div>
+        <div class="reveal py-8 pr-6 md:border-r md:pl-6">
+          <dt class="text-[12px] uppercase tracking-[0.16em] text-stone">International awards</dt>
+          <dd class="mt-3 font-serif text-6xl">11</dd>
+        </div>
+        <div class="reveal py-8 pl-6"><dt class="text-[12px] uppercase tracking-[0.16em] text-stone">Studios</dt><dd class="mt-3 font-serif text-6xl">2</dd></div>
+      </dl>
+    </section>
+
+    <!-- Work -->
+    <section id="work" class="mx-auto max-w-[1360px] px-6 pb-28 md:px-10">
+      <div class="reveal flex items-end justify-between border-b border-ink pb-6">
+        <h2 class="font-serif text-6xl tracking-[-0.02em] md:text-8xl">Selected work</h2>
+        <p class="hidden text-[13px] text-stone md:block">2016 — 2026 · 4 of 64</p>
+      </div>
+      <div class="mt-12 grid gap-x-8 gap-y-16 md:grid-cols-12">
+        <article class="work-card reveal md:col-span-7">
+          <a href="#" class="block">
+            <div class="relative aspect-[4/3] overflow-hidden bg-[#cfccc5]">
+              <div class="visual absolute inset-0 bg-gradient-to-b from-[#dedcd6] to-[#bfbcb4]">
+                <div class="absolute inset-x-0 bottom-0 h-[26%] bg-gradient-to-b from-[#3b3b39] to-[#777470]"></div>
+                <div class="absolute left-[12%] right-[22%] top-[34%] h-[13%] bg-[#f5f4f0] shadow-[0_30px_40px_-10px_rgba(0,0,0,.35)]"></div>
+                <div class="absolute left-[16%] right-[30%] top-[47%] h-[27%] bg-[#141413]"></div>
+                <div class="fins absolute left-[16%] right-[30%] top-[47%] h-[27%] opacity-70"></div>
+                <div class="absolute left-[56%] top-[54%] h-[20%] w-[6%] bg-[#e9e7e1]/80"></div>
+              </div>
+            </div>
+            <div class="mt-5 flex items-baseline justify-between gap-4">
+              <h3 class="font-serif text-3xl">Casa Mirante</h3><span class="text-[13px] text-stone">Sintra, PT · 2026</span>
+            </div>
+            <p class="mt-1 text-[13px] text-stone">Private residence — 420 m²</p>
+          </a>
+        </article>
+        <article class="work-card reveal md:col-span-5 md:mt-32">
+          <a href="#" class="block">
+            <div class="relative aspect-[3/4] overflow-hidden bg-[#1a1a19]">
+              <div class="visual absolute inset-0 bg-gradient-to-b from-[#262625] to-[#0e0e0d]">
+                <div class="boards absolute bottom-[14%] left-[18%] right-[18%] top-[22%] bg-[#8b8984] [clip-path:polygon(50%_0,100%_32%,100%_100%,0_100%,0_32%)]"></div>
+                <div class="absolute bottom-[14%] left-[46%] h-[26%] w-[8%] bg-[#f2f0ea] shadow-[0_0_60px_10px_rgba(242,240,234,.25)]"></div>
+                <div class="absolute inset-x-0 bottom-0 h-[14%] bg-[#d6d4ce]"></div>
+              </div>
+            </div>
+            <div class="mt-5 flex items-baseline justify-between gap-4">
+              <h3 class="font-serif text-3xl">Fjordhall</h3><span class="text-[13px] text-stone">Stavanger, NO · 2024</span>
+            </div>
+            <p class="mt-1 text-[13px] text-stone">Concert hall &amp; boathouse — 1,800 m²</p>
+          </a>
+        </article>
+        <article class="work-card reveal md:col-span-5">
+          <a href="#" class="block">
+            <div class="relative aspect-square overflow-hidden">
+              <div class="visual grid-facade absolute inset-0"></div>
+              <div class="absolute inset-x-0 bottom-0 h-[12%] bg-[#111110]"></div>
+            </div>
+            <div class="mt-5 flex items-baseline justify-between gap-4">
+              <h3 class="font-serif text-3xl">Rua Nova Housing</h3><span class="text-[13px] text-stone">Lisbon, PT · 2023</span>
+            </div>
+            <p class="mt-1 text-[13px] text-stone">48 affordable homes — 5,200 m²</p>
+          </a>
+        </article>
+        <article class="work-card reveal md:col-span-7 md:mt-24">
+          <a href="#" class="block">
+            <div class="relative aspect-[16/10] overflow-hidden bg-[#d3d0c9]">
+              <div class="visual absolute inset-0 bg-gradient-to-b from-[#d9d6cf] to-[#b3afa7]">
+                <div class="absolute bottom-[18%] left-1/2 h-[64%] w-[34%] -translate-x-1/2 rounded-t-full bg-[#0f0f0e]"></div>
+                <div class="absolute bottom-[18%] left-1/2 h-[46%] w-[18%] -translate-x-1/2 rounded-t-full bg-gradient-to-b from-[#f4f2ec] to-[#a9a59c]"></div>
+                <div class="absolute inset-x-0 bottom-0 h-[18%] bg-gradient-to-b from-[#9c988f] to-[#cfccc5]"></div>
+              </div>
+            </div>
+            <div class="mt-5 flex items-baseline justify-between gap-4">
+              <h3 class="font-serif text-3xl">Kiln Pavilion</h3><span class="text-[13px] text-stone">Porto, PT · 2021</span>
+            </div>
+            <p class="mt-1 text-[13px] text-stone">Ceramics studio &amp; gallery — 260 m²</p>
+          </a>
+        </article>
+      </div>
+      <div class="reveal mt-16 text-center"><a href="#" class="inline-flex items-center gap-2 border-b border-ink pb-1 text-[14px] transition hover:gap-4">View all 64 projects <iconify-icon icon="lucide:arrow-right"></iconify-icon></a></div>
+    </section>
+
+    <!-- Approach -->
+    <section id="approach" class="border-t border-ink/15">
+      <div class="mx-auto max-w-[1360px] px-6 py-28 md:px-10">
+        <div class="grid gap-10 md:grid-cols-12">
+          <p class="reveal text-[12px] uppercase tracking-[0.18em] text-stone md:col-span-3">(03) Approach</p>
+          <h2 class="reveal font-serif text-5xl leading-[1.02] tracking-[-0.02em] md:col-span-9 md:text-7xl">Four questions we ask of every site.</h2>
+        </div>
+        <ol class="mt-16 grid gap-px bg-ink/15 md:grid-cols-4">
+          <li class="reveal group bg-paper p-8 transition hover:bg-ink hover:text-paper md:min-h-[320px]"><span class="font-serif text-5xl italic">i.</span>
+            <h3 class="mt-10 text-lg font-medium">Where does the light arrive?</h3>
+            <p class="mt-3 text-[14px] leading-relaxed opacity-70">We track the sun across the site for a full year before placing a single wall.</p>
+          </li>
+          <li class="reveal group bg-paper p-8 transition hover:bg-ink hover:text-paper md:min-h-[320px]"><span class="font-serif text-5xl italic">ii.</span>
+            <h3 class="mt-10 text-lg font-medium">What was here before?</h3>
+            <p class="mt-3 text-[14px] leading-relaxed opacity-70">Old walls, trees and paths are kept, reused or remembered in the plan.</p>
+          </li>
+          <li class="reveal group bg-paper p-8 transition hover:bg-ink hover:text-paper md:min-h-[320px]"><span class="font-serif text-5xl italic">iii.</span>
+            <h3 class="mt-10 text-lg font-medium">What will age well?</h3>
+            <p class="mt-3 text-[14px] leading-relaxed opacity-70">Lime, stone, timber and concrete — materials that look better at fifty than at five.</p>
+          </li>
+          <li class="reveal group bg-paper p-8 transition hover:bg-ink hover:text-paper md:min-h-[320px]"><span class="font-serif text-5xl italic">iv.</span>
+            <h3 class="mt-10 text-lg font-medium">What can we leave out?</h3>
+            <p class="mt-3 text-[14px] leading-relaxed opacity-70">Every element must earn its place. The best detail is often the one you remove.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="bg-ink text-paper">
+      <div class="mx-auto max-w-[1360px] px-6 py-28 md:px-10 md:py-36">
+        <iconify-icon icon="lucide:quote" class="reveal text-4xl text-paper/40"></iconify-icon>
+        <blockquote class="reveal mt-8 max-w-5xl font-serif text-4xl leading-[1.12] md:text-6xl">“They spent the first month just listening — to us, to the wind off the fjord. The hall they gave us sounds like the place it stands in.”</blockquote>
+        <div class="reveal mt-12 flex items-center gap-4 text-[14px]">
+          <span class="grid h-12 w-12 place-items-center rounded-full border border-paper/30 font-serif text-xl">IH</span>
+          <span><span class="block">Ingrid Halvorsen</span><span class="text-paper/50">Director, Stavanger Fjord Ensemble</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recognition -->
+    <section id="recognition" class="mx-auto max-w-[1360px] px-6 py-28 md:px-10">
+      <div class="grid gap-10 md:grid-cols-12">
+        <p class="reveal text-[12px] uppercase tracking-[0.18em] text-stone md:col-span-3">(04) Recognition</p>
+        <div class="md:col-span-9">
+          <ul class="reveal border-t border-ink">
+            <li class="group grid grid-cols-12 items-baseline gap-4 border-b border-ink/15 py-5 transition hover:pl-3"><span class="col-span-2 text-[13px] text-stone">2026</span><span class="col-span-6 font-serif text-2xl md:text-3xl">Nordic Timber Prize — Shortlist</span><span class="col-span-4 text-right text-[13px] text-stone">Fjordhall</span></li>
+            <li class="group grid grid-cols-12 items-baseline gap-4 border-b border-ink/15 py-5 transition hover:pl-3"><span class="col-span-2 text-[13px] text-stone">2025</span><span class="col-span-6 font-serif text-2xl md:text-3xl">Iberian Housing Award — Winner</span><span class="col-span-4 text-right text-[13px] text-stone">Rua Nova Housing</span></li>
+            <li class="group grid grid-cols-12 items-baseline gap-4 border-b border-ink/15 py-5 transition hover:pl-3"><span class="col-span-2 text-[13px] text-stone">2024</span><span class="col-span-6 font-serif text-2xl md:text-3xl">Atlas of Small Buildings — Featured</span><span class="col-span-4 text-right text-[13px] text-stone">Kiln Pavilion</span></li>
+            <li class="group grid grid-cols-12 items-baseline gap-4 border-b border-ink/15 py-5 transition hover:pl-3"><span class="col-span-2 text-[13px] text-stone">2022</span><span class="col-span-6 font-serif text-2xl md:text-3xl">European Concrete Medal — Honourable mention</span><span class="col-span-4 text-right text-[13px] text-stone">Casa do Vale</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section id="contact" class="border-t border-ink/15">
+      <div class="mx-auto grid max-w-[1360px] gap-12 px-6 py-28 md:grid-cols-12 md:px-10">
+        <div class="md:col-span-7">
+          <h2 class="reveal font-serif text-6xl leading-[0.95] tracking-[-0.03em] md:text-8xl">Have a site<br>in <em class="text-stone">mind?</em></h2>
+          <a href="mailto:studio@ateliernoir.example" class="reveal mt-10 inline-flex items-center gap-3 border-b border-ink pb-2 text-xl transition hover:gap-5 md:text-2xl">studio@ateliernoir.example <iconify-icon icon="lucide:arrow-up-right"></iconify-icon></a>
+        </div>
+        <form class="reveal space-y-6 md:col-span-5" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Thank you — we will write soon';">
+          <label class="block"><span class="text-[12px] uppercase tracking-[0.16em] text-stone">Name</span><input required class="mt-2 w-full border-b border-ink/30 bg-transparent py-2 outline-none transition focus:border-ink" placeholder="Your name"></label>
+          <label class="block"><span class="text-[12px] uppercase tracking-[0.16em] text-stone">Project type</span>
+            <select class="mt-2 w-full border-b border-ink/30 bg-transparent py-2 outline-none focus:border-ink"><option>Private residence</option><option>Cultural / public</option><option>Housing</option><option>Interior</option></select></label>
+          <label class="block"><span class="text-[12px] uppercase tracking-[0.16em] text-stone">Tell us about the site</span><textarea rows="3" class="mt-2 w-full resize-none border-b border-ink/30 bg-transparent py-2 outline-none transition focus:border-ink" placeholder="Location, size, ambitions…"></textarea></label>
+          <button class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[13px] text-paper transition hover:bg-ink/80">Send enquiry <iconify-icon icon="lucide:arrow-right"></iconify-icon></button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-ink text-paper/70">
+    <div class="mx-auto grid max-w-[1360px] gap-10 px-6 py-16 text-[14px] md:grid-cols-12 md:px-10">
+      <div class="md:col-span-4">
+        <p class="font-serif text-4xl text-paper">Atelier Noir</p>
+        <p class="mt-3 max-w-xs">Architecture &amp; interiors since 2009. Member of the Ordem dos Arquitectos and Arkitektforbundet.</p>
+      </div>
+      <div class="md:col-span-3">
+        <h3 class="text-[12px] uppercase tracking-[0.16em] text-paper/40">Lisbon</h3>
+        <p class="mt-3 leading-relaxed">Rua do Vale de Santo António 41<br>1170-379 Lisboa<br>+351 21 000 4120</p>
+      </div>
+      <div class="md:col-span-3">
+        <h3 class="text-[12px] uppercase tracking-[0.16em] text-paper/40">Oslo</h3>
+        <p class="mt-3 leading-relaxed">Bispegata 9<br>0191 Oslo<br>+47 22 00 41 20</p>
+      </div>
+      <div class="md:col-span-2">
+        <h3 class="text-[12px] uppercase tracking-[0.16em] text-paper/40">Follow</h3>
+        <ul class="mt-3 space-y-1.5">
+          <li><a href="#" class="hover:text-paper">Instagram</a></li>
+          <li><a href="#" class="hover:text-paper">LinkedIn</a></li>
+          <li><a href="#" class="hover:text-paper">Journal</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mx-auto flex max-w-[1360px] flex-col justify-between gap-3 border-t border-paper/10 px-6 py-6 text-[12px] text-paper/40 sm:flex-row md:px-10">
+      <p>© 2026 Atelier Noir Arquitectura Lda.</p>
+      <p>Drawn in Lisbon. Built everywhere.</p>
+    </div>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = (i % 4) * 80 + 'ms'; io.observe(el); });
+  </script>
+</body>
+</html>

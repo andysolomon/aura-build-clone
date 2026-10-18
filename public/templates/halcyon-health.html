@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Halcyon — Mindful primary care with time for you</title>
+  <meta name="description" content="Halcyon is a membership primary-care clinic with 45-minute first visits, same-week appointments and care teams who know you.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['Newsreader', 'ui-serif', 'Georgia', 'serif'] },
+          colors: { shell: '#f7f6f1', mint: '#dcebdf', sage: '#8fae94', fern: '#5d8a68', forest: '#1d3a2f', peach: '#f3d9c6' },
+          boxShadow: { soft: '0 30px 60px -25px rgba(29,58,47,.28), 0 8px 20px -10px rgba(29,58,47,.12)' }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    @keyframes breathe { 0%,100% { transform: translate(-50%,-50%) scale(.92); opacity: .55; } 50% { transform: translate(-50%,-50%) scale(1.06); opacity: .9; } }
+    .breathe { animation: breathe 8s ease-in-out infinite; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .bob { animation: bob 5s ease-in-out infinite; }
+    @keyframes softIn { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: none; } }
+    .soft-in { animation: softIn 1s cubic-bezier(.2,.8,.2,1) both; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+    summary::-webkit-details-marker { display: none; }
+    details[open] .chev { transform: rotate(180deg); }
+    .slot[aria-pressed="true"] { background: #1d3a2f; color: #f7f6f1; border-color: #1d3a2f; }
+  </style>
+</head>
+<body class="bg-shell font-sans text-forest antialiased selection:bg-mint">
+
+  <header class="sticky top-0 z-50 bg-shell/80 backdrop-blur-lg">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8" aria-label="Primary">
+      <a href="#" class="flex items-center gap-2.5">
+        <svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#dcebdf"/><path d="M20 30c-6-3-9-8-9-13 4 0 7 2 9 5 2-3 5-5 9-5 0 5-3 10-9 13z" fill="#5d8a68"/><circle cx="20" cy="12" r="3" fill="#1d3a2f"/></svg>
+        <span class="text-xl font-bold tracking-tight">halcyon</span>
+      </a>
+      <ul class="hidden items-center gap-1 rounded-full bg-white/70 p-1 text-sm font-medium shadow-sm ring-1 ring-forest/5 md:flex">
+        <li><a href="#services" class="rounded-full px-4 py-2 transition hover:bg-mint">Services</a></li>
+        <li><a href="#how" class="rounded-full px-4 py-2 transition hover:bg-mint">Membership</a></li>
+        <li><a href="#team" class="rounded-full px-4 py-2 transition hover:bg-mint">Our clinicians</a></li>
+        <li><a href="#pricing" class="rounded-full px-4 py-2 transition hover:bg-mint">Pricing</a></li>
+        <li><a href="#faq" class="rounded-full px-4 py-2 transition hover:bg-mint">FAQ</a></li>
+      </ul>
+      <div class="flex items-center gap-2">
+        <a href="#" class="hidden px-3 py-2 text-sm font-semibold sm:block">Member login</a>
+        <a href="#book" class="rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-shell transition hover:bg-fern">Book a visit</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="px-3 md:px-5">
+      <div class="relative mx-auto max-w-[1400px] overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-mint via-[#e9f1e8] to-[#f4eee4] px-6 py-14 md:px-14 lg:py-16">
+        <div aria-hidden="true" class="breathe absolute left-[72%] top-1/2 h-[640px] w-[640px] rounded-full bg-white/50"></div>
+        <div aria-hidden="true" class="breathe absolute left-[72%] top-1/2 h-[440px] w-[440px] rounded-full bg-white/60" style="animation-delay:-2s"></div>
+        <div aria-hidden="true" class="absolute -left-20 bottom-[-120px] h-80 w-80 rounded-full bg-peach/60 blur-3xl"></div>
+        <div class="relative grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
+          <div>
+            <p class="soft-in inline-flex items-center gap-2 rounded-full bg-white/80 px-3.5 py-1.5 text-[13px] font-semibold shadow-sm"><span class="h-2 w-2 rounded-full bg-fern"></span>Now welcoming new patients · Pearl District &amp; Sellwood</p>
+            <h1 class="soft-in mt-6 text-5xl font-bold leading-[1.02] tracking-[-0.035em] md:text-6xl xl:text-7xl" style="animation-delay:.08s">Primary care that <span class="font-serif font-normal italic tracking-[-0.02em] text-fern">has time</span> for you.</h1>
+            <p class="soft-in mt-6 max-w-xl text-lg leading-relaxed text-forest/70" style="animation-delay:.16s">Forty-five-minute first visits. Same-week appointments. A care team that remembers your name, your history and how you like to be treated.</p>
+            <div class="soft-in mt-8 flex flex-wrap gap-3" style="animation-delay:.24s">
+              <a href="#book" class="group inline-flex items-center gap-2 rounded-full bg-forest px-6 py-3.5 font-semibold text-shell shadow-soft transition hover:bg-fern">Book your first visit <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-1"></iconify-icon></a>
+              <a href="#how" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 font-semibold ring-1 ring-forest/10 transition hover:ring-forest/30"><iconify-icon icon="lucide:sparkles" class="text-fern"></iconify-icon>How membership works</a>
+            </div>
+            <div class="soft-in mt-10 flex items-center gap-4" style="animation-delay:.32s">
+              <div class="flex -space-x-2">
+                <span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-peach to-[#e3b394] text-xs font-bold ring-4 ring-[#e7f0e6]">JL</span>
+                <span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#bcd6c2] to-sage text-xs font-bold ring-4 ring-[#e7f0e6]">RM</span>
+                <span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#d6d0ea] to-[#a99fcf] text-xs font-bold ring-4 ring-[#e7f0e6]">AK</span>
+                <span class="grid h-10 w-10 place-items-center rounded-full bg-forest text-xs font-bold text-shell ring-4 ring-[#e7f0e6]">+6k</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">4.9 / 5</span> from 6,800 patients<br><span class="text-forest/60">Most major insurance accepted</span></p>
+            </div>
+          </div>
+
+          <!-- Booking widget -->
+          <div id="book" class="soft-in relative mx-auto w-full max-w-md" style="animation-delay:.2s">
+            <div class="bob absolute -left-[180px] top-[46%] z-10 hidden items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold shadow-soft xl:flex"><span class="grid h-8 w-8 place-items-center rounded-xl bg-mint text-fern"><iconify-icon icon="lucide:calendar-check"></iconify-icon></span>Same-week visits</div>
+            <div class="bob absolute -top-8 right-6 z-10 hidden items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold shadow-soft xl:flex" style="animation-delay:-2.5s"><span class="grid h-8 w-8 place-items-center rounded-xl bg-peach text-forest"><iconify-icon icon="lucide:clock-3"></iconify-icon></span>Avg. wait: 4 min</div>
+            <div class="relative rounded-[2rem] bg-white p-6 shadow-soft md:p-7">
+              <div class="flex items-center gap-3">
+                <span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#bcd6c2] to-fern text-sm font-bold text-white">AO</span>
+                <div class="flex-1"><p class="font-bold">Dr. Amara Osei</p><p class="text-sm text-forest/60">Family medicine · Pearl District</p></div>
+                <span class="flex items-center gap-1 rounded-full bg-mint px-2.5 py-1 text-xs font-bold"><iconify-icon icon="lucide:star" class="text-fern"></iconify-icon>4.98</span>
+              </div>
+              <div class="mt-6 grid grid-cols-2 gap-1 rounded-2xl bg-shell p-1 text-sm font-semibold">
+                <button class="rounded-xl bg-white py-2 shadow-sm">In person</button><button class="rounded-xl py-2 text-forest/60">Video visit</button>
+              </div>
+              <p class="mt-6 text-xs font-bold uppercase tracking-wider text-forest/50">October</p>
+              <div class="mt-2 grid grid-cols-5 gap-2 text-center text-sm">
+                <button class="rounded-2xl border border-forest/10 py-2"><span class="block text-xs text-forest/50">Mon</span><b>19</b></button>
+                <button class="rounded-2xl border border-forest bg-forest py-2 text-shell"><span class="block text-xs opacity-70">Tue</span><b>20</b></button>
+                <button class="rounded-2xl border border-forest/10 py-2"><span class="block text-xs text-forest/50">Wed</span><b>21</b></button>
+                <button class="rounded-2xl border border-forest/10 py-2"><span class="block text-xs text-forest/50">Thu</span><b>22</b></button>
+                <button class="rounded-2xl border border-forest/10 py-2 opacity-40" disabled><span class="block text-xs">Fri</span><b>23</b></button>
+              </div>
+              <div class="mt-4 grid grid-cols-3 gap-2 text-sm font-semibold" id="slots">
+                <button class="slot rounded-xl border border-forest/10 py-2.5 transition hover:border-forest/40" aria-pressed="false">8:30 am</button>
+                <button class="slot rounded-xl border border-forest/10 py-2.5 transition hover:border-forest/40" aria-pressed="true">9:15 am</button>
+                <button class="slot rounded-xl border border-forest/10 py-2.5 transition hover:border-forest/40" aria-pressed="false">11:00 am</button>
+                <button class="slot rounded-xl border border-forest/10 py-2.5 transition hover:border-forest/40" aria-pressed="false">1:30 pm</button>
+                <button class="rounded-xl border border-dashed border-forest/10 py-2.5 text-forest/30 line-through" disabled>2:15 pm</button>
+                <button class="slot rounded-xl border border-forest/10 py-2.5 transition hover:border-forest/40" aria-pressed="false">4:00 pm</button>
+              </div>
+              <button class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-fern py-3.5 font-semibold text-white transition hover:bg-forest">Confirm 45-min visit <iconify-icon icon="lucide:arrow-right"></iconify-icon></button>
+              <p class="mt-3 text-center text-xs text-forest/50">HSA / FSA eligible · Cancel free up to 2 hrs before</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="mx-auto max-w-7xl px-5 py-16 md:px-8">
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div class="reveal rounded-3xl bg-white p-6 ring-1 ring-forest/5">
+          <p class="text-4xl font-bold tracking-tight">45<span class="text-xl"> min</span></p>
+          <p class="mt-1 text-sm text-forest/60">first appointment, every time</p>
+        </div>
+        <div class="reveal rounded-3xl bg-white p-6 ring-1 ring-forest/5">
+          <p class="text-4xl font-bold tracking-tight">92%</p>
+          <p class="mt-1 text-sm text-forest/60">of visits booked same week</p>
+        </div>
+        <div class="reveal rounded-3xl bg-white p-6 ring-1 ring-forest/5">
+          <p class="text-4xl font-bold tracking-tight">&lt;2 hr</p>
+          <p class="mt-1 text-sm text-forest/60">reply time on care messages</p>
+        </div>
+        <div class="reveal rounded-3xl bg-white p-6 ring-1 ring-forest/5">
+          <p class="text-4xl font-bold tracking-tight">1 : 450</p>
+          <p class="mt-1 text-sm text-forest/60">clinician-to-patient ratio</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="mx-auto max-w-7xl px-5 py-16 md:px-8">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <p class="text-sm font-bold uppercase tracking-[0.18em] text-fern">Services</p>
+        <h2 class="mt-3 text-4xl font-bold tracking-[-0.03em] md:text-5xl">Care for the <span class="font-serif font-normal italic text-fern">whole</span> you</h2>
+        <p class="mt-4 text-lg text-forest/70">One team for checkups, chronic conditions, mental health and the 2am questions in between.</p>
+      </div>
+      <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <article class="reveal group rounded-[2rem] bg-white p-7 ring-1 ring-forest/5 transition duration-300 hover:-translate-y-1 hover:shadow-soft"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-mint text-2xl text-fern transition group-hover:rotate-6"><iconify-icon icon="lucide:heart-pulse"></iconify-icon></span>
+          <h3 class="mt-6 text-xl font-bold">Annual physicals</h3>
+          <p class="mt-2 leading-relaxed text-forest/70">Unhurried checkups with labs drawn on-site and results explained in plain language.</p>
+        </article>
+        <article class="reveal group rounded-[2rem] bg-white p-7 ring-1 ring-forest/5 transition duration-300 hover:-translate-y-1 hover:shadow-soft"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-peach text-2xl text-forest transition group-hover:rotate-6"><iconify-icon icon="lucide:brain"></iconify-icon></span>
+          <h3 class="mt-6 text-xl font-bold">Mental health</h3>
+          <p class="mt-2 leading-relaxed text-forest/70">Therapists and psychiatric NPs embedded in your care team — no separate referral maze.</p>
+        </article>
+        <article class="reveal group rounded-[2rem] bg-white p-7 ring-1 ring-forest/5 transition duration-300 hover:-translate-y-1 hover:shadow-soft"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-[#e6e2f3] text-2xl text-forest transition group-hover:rotate-6"><iconify-icon icon="lucide:activity"></iconify-icon></span>
+          <h3 class="mt-6 text-xl font-bold">Chronic care</h3>
+          <p class="mt-2 leading-relaxed text-forest/70">Ongoing plans for diabetes, hypertension, asthma and thyroid, with check-ins between visits.</p>
+        </article>
+        <article class="reveal group rounded-[2rem] bg-white p-7 ring-1 ring-forest/5 transition duration-300 hover:-translate-y-1 hover:shadow-soft"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-[#e6e2f3] text-2xl text-forest transition group-hover:rotate-6"><iconify-icon icon="lucide:flower-2"></iconify-icon></span>
+          <h3 class="mt-6 text-xl font-bold">Women’s health</h3>
+          <p class="mt-2 leading-relaxed text-forest/70">Contraception, perimenopause and preventive screening from clinicians who listen.</p>
+        </article>
+        <article class="reveal group rounded-[2rem] bg-white p-7 ring-1 ring-forest/5 transition duration-300 hover:-translate-y-1 hover:shadow-soft"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-mint text-2xl text-fern transition group-hover:rotate-6"><iconify-icon icon="lucide:baby"></iconify-icon></span>
+          <h3 class="mt-6 text-xl font-bold">Kids &amp; teens</h3>
+          <p class="mt-2 leading-relaxed text-forest/70">Well-child visits, sports physicals and vaccines in a calm, crayon-friendly room.</p>
+        </article>
+        <article class="reveal group rounded-[2rem] bg-white p-7 ring-1 ring-forest/5 transition duration-300 hover:-translate-y-1 hover:shadow-soft"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-peach text-2xl text-forest transition group-hover:rotate-6"><iconify-icon icon="lucide:message-circle-heart"></iconify-icon></span>
+          <h3 class="mt-6 text-xl font-bold">24/7 care messaging</h3>
+          <p class="mt-2 leading-relaxed text-forest/70">Text your care team any time. A real clinician replies, usually within two hours.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="px-3 py-16 md:px-5">
+      <div class="mx-auto max-w-[1400px] rounded-[2.5rem] bg-forest px-6 py-20 text-shell md:px-14">
+        <div class="reveal max-w-2xl">
+          <p class="text-sm font-bold uppercase tracking-[0.18em] text-sage">Membership</p>
+          <h2 class="mt-3 text-4xl font-bold tracking-[-0.03em] md:text-5xl">Three steps to a doctor who knows you.</h2>
+        </div>
+        <ol class="relative mt-14 grid gap-6 md:grid-cols-3">
+          <li class="reveal rounded-[2rem] bg-white/5 p-7 ring-1 ring-white/10"><span class="grid h-12 w-12 place-items-center rounded-full bg-sage font-bold text-forest">1</span>
+            <h3 class="mt-6 text-xl font-bold">Join in five minutes</h3>
+            <p class="mt-2 text-shell/70">Pick a plan, add your insurance and choose a clinician who fits your needs.</p>
+          </li>
+          <li class="reveal rounded-[2rem] bg-white/5 p-7 ring-1 ring-white/10"><span class="grid h-12 w-12 place-items-center rounded-full bg-sage font-bold text-forest">2</span>
+            <h3 class="mt-6 text-xl font-bold">Your 45-minute welcome visit</h3>
+            <p class="mt-2 text-shell/70">We review your history, goals and worries — then build a care plan together.</p>
+          </li>
+          <li class="reveal rounded-[2rem] bg-white/5 p-7 ring-1 ring-white/10"><span class="grid h-12 w-12 place-items-center rounded-full bg-sage font-bold text-forest">3</span>
+            <h3 class="mt-6 text-xl font-bold">Care that keeps going</h3>
+            <p class="mt-2 text-shell/70">Message anytime, book same-week, and get proactive nudges when it’s time for a check-in.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Team -->
+    <section id="team" class="mx-auto max-w-7xl px-5 py-16 md:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-4">
+        <h2 class="text-4xl font-bold tracking-[-0.03em] md:text-5xl">Meet a few of our clinicians</h2><a href="#" class="inline-flex items-center gap-1 font-semibold text-fern hover:underline">See all 28 <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+      </div>
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="reveal rounded-[2rem] bg-white p-3 ring-1 ring-forest/5">
+          <div class="grid aspect-[4/3] place-items-center rounded-[1.6rem] bg-gradient-to-br from-mint to-sage text-4xl font-bold text-forest/70">AO</div>
+          <div class="p-4">
+            <h3 class="font-bold">Dr. Amara Osei, MD</h3>
+            <p class="text-sm text-forest/60">Family medicine</p>
+            <p class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-mint px-2.5 py-1 text-xs font-semibold"><span class="h-1.5 w-1.5 rounded-full bg-fern"></span>Accepting patients</p>
+          </div>
+        </article>
+        <article class="reveal rounded-[2rem] bg-white p-3 ring-1 ring-forest/5">
+          <div class="grid aspect-[4/3] place-items-center rounded-[1.6rem] bg-gradient-to-br from-peach to-[#e3b394] text-4xl font-bold text-forest/70">TN</div>
+          <div class="p-4">
+            <h3 class="font-bold">Dr. Theo Nakamura, DO</h3>
+            <p class="text-sm text-forest/60">Internal medicine</p>
+            <p class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-mint px-2.5 py-1 text-xs font-semibold"><span class="h-1.5 w-1.5 rounded-full bg-fern"></span>Accepting patients</p>
+          </div>
+        </article>
+        <article class="reveal rounded-[2rem] bg-white p-3 ring-1 ring-forest/5">
+          <div class="grid aspect-[4/3] place-items-center rounded-[1.6rem] bg-gradient-to-br from-[#e6e2f3] to-[#b8afd8] text-4xl font-bold text-forest/70">SR</div>
+          <div class="p-4">
+            <h3 class="font-bold">Sofia Reyes, PMHNP</h3>
+            <p class="text-sm text-forest/60">Psychiatric care</p>
+            <p class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-peach/70 px-2.5 py-1 text-xs font-semibold"><span class="h-1.5 w-1.5 rounded-full bg-[#c98a5f]"></span>Waitlist · 2 weeks</p>
+          </div>
+        </article>
+        <article class="reveal rounded-[2rem] bg-white p-3 ring-1 ring-forest/5">
+          <div class="grid aspect-[4/3] place-items-center rounded-[1.6rem] bg-gradient-to-br from-[#d7e7ea] to-[#9ec1c8] text-4xl font-bold text-forest/70">MB</div>
+          <div class="p-4">
+            <h3 class="font-bold">Dr. Malik Bennett, MD</h3>
+            <p class="text-sm text-forest/60">Pediatrics</p>
+            <p class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-mint px-2.5 py-1 text-xs font-semibold"><span class="h-1.5 w-1.5 rounded-full bg-fern"></span>Accepting patients</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="mx-auto max-w-7xl px-5 py-16 md:px-8">
+      <div class="grid gap-5 lg:grid-cols-5">
+        <figure class="reveal flex flex-col justify-between rounded-[2rem] bg-mint p-8 md:p-10 lg:col-span-3">
+          <blockquote class="font-serif text-3xl italic leading-snug md:text-4xl">“For the first time, a doctor asked how I was sleeping before asking what was wrong. I’ve been a different person this year.”</blockquote>
+          <figcaption class="mt-8 flex items-center gap-3"><span class="grid h-12 w-12 place-items-center rounded-full bg-white font-bold">LH</span><span><b class="block">Lena Hartmann</b><span class="text-sm text-forest/60">Member since 2023 · Sellwood</span></span></figcaption>
+        </figure>
+        <div class="grid gap-5 lg:col-span-2">
+          <figure class="reveal rounded-[2rem] bg-white p-7 ring-1 ring-forest/5">
+            <blockquote class="leading-relaxed">“I messaged at 9pm about my son’s fever and had a calm, clear answer by 9:40. That’s the membership right there.”</blockquote>
+            <figcaption class="mt-4 text-sm"><b>Marcus D.</b> <span class="text-forest/60">· Family plan</span></figcaption>
+          </figure>
+          <figure class="reveal rounded-[2rem] bg-white p-7 ring-1 ring-forest/5">
+            <blockquote class="leading-relaxed">“My A1C is down two points and I never once felt lectured. Dr. Nakamura is a genuine partner.”</blockquote>
+            <figcaption class="mt-4 text-sm"><b>Priya S.</b> <span class="text-forest/60">· Chronic care</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="mx-auto max-w-7xl px-5 py-16 md:px-8">
+      <div class="reveal text-center">
+        <h2 class="text-4xl font-bold tracking-[-0.03em] md:text-5xl">Simple membership. <span class="font-serif font-normal italic text-fern">Real</span> access.</h2>
+        <p class="mx-auto mt-4 max-w-xl text-forest/70">Membership covers access and time. Visits and labs are billed to your insurance as usual.</p>
+      </div>
+      <div class="mt-12 grid gap-5 md:grid-cols-3">
+        <div class="reveal rounded-[2rem] bg-white p-8 ring-1 ring-forest/5">
+          <h3 class="text-lg font-bold">Individual</h3>
+          <p class="mt-4 text-5xl font-bold tracking-tight">$19<span class="text-base font-medium text-forest/60">/mo</span></p>
+          <ul class="mt-6 space-y-3 text-[15px]">
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-fern"></iconify-icon>45-min first visit</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-fern"></iconify-icon>Same-week appointments</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-fern"></iconify-icon>24/7 care messaging</li>
+          </ul><a href="#book" class="mt-8 block rounded-full bg-mint py-3 text-center font-semibold transition hover:bg-sage hover:text-white">Choose Individual</a>
+        </div>
+        <div class="reveal relative rounded-[2rem] bg-forest p-8 text-shell shadow-soft"><span class="absolute right-6 top-6 rounded-full bg-sage px-3 py-1 text-xs font-bold text-forest">Best value</span>
+          <h3 class="text-lg font-bold">Family</h3>
+          <p class="mt-4 text-5xl font-bold tracking-tight">$45<span class="text-base font-medium text-shell/60">/mo</span></p>
+          <ul class="mt-6 space-y-3 text-[15px]">
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-sage"></iconify-icon>Up to 5 family members</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-sage"></iconify-icon>Pediatrics &amp; teen care</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-sage"></iconify-icon>Mental health check-ins</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-sage"></iconify-icon>Everything in Individual</li>
+          </ul><a href="#book" class="mt-8 block rounded-full bg-shell py-3 text-center font-semibold text-forest transition hover:bg-mint">Choose Family</a>
+        </div>
+        <div class="reveal rounded-[2rem] bg-white p-8 ring-1 ring-forest/5">
+          <h3 class="text-lg font-bold">Employers</h3>
+          <p class="mt-4 text-5xl font-bold tracking-tight">Custom</p>
+          <ul class="mt-6 space-y-3 text-[15px]">
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-fern"></iconify-icon>On-site flu &amp; wellness days</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-fern"></iconify-icon>Aggregated, private reporting</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check-circle-2" class="mt-0.5 text-fern"></iconify-icon>Dedicated care navigator</li>
+          </ul><a href="#" class="mt-8 block rounded-full bg-mint py-3 text-center font-semibold transition hover:bg-sage hover:text-white">Talk to our team</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:px-8 lg:grid-cols-3">
+      <div class="reveal">
+        <h2 class="text-4xl font-bold tracking-[-0.03em]">Good questions</h2>
+        <p class="mt-4 text-forest/70">Still curious? Our care navigators answer the phone in under a minute: <a href="tel:+15035550142" class="font-semibold underline decoration-sage underline-offset-4">(503) 555-0142</a>.</p>
+      </div>
+      <div class="reveal space-y-3 lg:col-span-2">
+        <details class="group rounded-3xl bg-white p-6 ring-1 ring-forest/5" open><summary class="flex cursor-pointer items-center justify-between font-bold">Do you take my insurance?<iconify-icon icon="lucide:chevron-down" class="chev text-xl transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed text-forest/70">We’re in-network with most major plans in Oregon and Washington, including Medicare. Your membership fee is separate and HSA/FSA eligible.</p>
+        </details>
+        <details class="group rounded-3xl bg-white p-6 ring-1 ring-forest/5"><summary class="flex cursor-pointer items-center justify-between font-bold">What if I need a specialist?<iconify-icon icon="lucide:chevron-down" class="chev text-xl transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed text-forest/70">Your clinician refers you to a vetted specialist, shares your records and follows up afterward so nothing falls through the cracks.</p>
+        </details>
+        <details class="group rounded-3xl bg-white p-6 ring-1 ring-forest/5"><summary class="flex cursor-pointer items-center justify-between font-bold">Can I switch clinicians?<iconify-icon icon="lucide:chevron-down" class="chev text-xl transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed text-forest/70">Anytime, no explanation needed. Fit matters, and we’ll help you find the right person.</p>
+        </details>
+        <details class="group rounded-3xl bg-white p-6 ring-1 ring-forest/5"><summary class="flex cursor-pointer items-center justify-between font-bold">Is there a contract?<iconify-icon icon="lucide:chevron-down" class="chev text-xl transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed text-forest/70">No. Membership is month-to-month and you can pause or cancel from the app in two taps.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="px-3 pb-16 md:px-5">
+      <div class="reveal relative mx-auto max-w-[1400px] overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-sage to-fern px-6 py-20 text-center text-white md:px-14">
+        <div aria-hidden="true" class="breathe absolute left-1/2 top-1/2 h-[520px] w-[520px] rounded-full border border-white/20"></div>
+        <div aria-hidden="true" class="breathe absolute left-1/2 top-1/2 h-[360px] w-[360px] rounded-full border border-white/25" style="animation-delay:-3s"></div>
+        <h2 class="relative mx-auto max-w-3xl text-4xl font-bold tracking-[-0.03em] md:text-6xl">Your first visit is 45 minutes. <span class="font-serif font-normal italic">On purpose.</span></h2>
+        <p class="relative mx-auto mt-5 max-w-lg text-white/85">Take a breath. Book a time that suits you — most new patients are seen within five days.</p>
+        <div class="relative mt-8 flex flex-wrap justify-center gap-3"><a href="#book" class="rounded-full bg-white px-6 py-3.5 font-semibold text-forest transition hover:bg-shell">Book your first visit</a><a href="tel:+15035550142" class="rounded-full px-6 py-3.5 font-semibold ring-1 ring-white/50 transition hover:bg-white/10">Call (503) 555-0142</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-forest/10">
+    <div class="mx-auto grid max-w-7xl gap-10 px-5 py-14 text-sm md:grid-cols-5 md:px-8">
+      <div class="md:col-span-2">
+        <p class="text-xl font-bold">halcyon</p>
+        <p class="mt-3 max-w-xs text-forest/60">Mindful primary care for Portland families. Two clinics, one care team, always a human on the other end.</p>
+      </div>
+      <div>
+        <h3 class="font-bold">Care</h3>
+        <ul class="mt-4 space-y-2 text-forest/70">
+          <li><a href="#" class="hover:text-forest">Primary care</a></li>
+          <li><a href="#" class="hover:text-forest">Mental health</a></li>
+          <li><a href="#" class="hover:text-forest">Pediatrics</a></li>
+          <li><a href="#" class="hover:text-forest">Virtual visits</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold">Clinics</h3>
+        <ul class="mt-4 space-y-2 text-forest/70">
+          <li>Pearl District · 1120 NW Glisan St</li>
+          <li>Sellwood · 7811 SE 13th Ave</li>
+          <li>Mon–Sat, 7am–7pm</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold">Company</h3>
+        <ul class="mt-4 space-y-2 text-forest/70">
+          <li><a href="#" class="hover:text-forest">About</a></li>
+          <li><a href="#" class="hover:text-forest">Careers</a></li>
+          <li><a href="#" class="hover:text-forest">Privacy &amp; HIPAA</a></li>
+          <li><a href="#" class="hover:text-forest">Patient rights</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mx-auto max-w-7xl border-t border-forest/10 px-5 py-6 text-xs text-forest/50 md:px-8">© 2026 Halcyon Health PC. If this is an emergency, call 911.</div>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    document.querySelectorAll('#slots .slot').forEach((b, _, all) => b.addEventListener('click', () => { all.forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); }));
+  </script>
+</body>
+</html>

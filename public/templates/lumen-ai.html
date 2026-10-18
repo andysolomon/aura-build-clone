@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lumen — AI product analytics that explains why</title>
+  <meta name="description" content="Lumen turns raw product events into plain-English answers about activation, retention and churn.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] },
+          colors: { ink: '#07070a', panel: '#0d0d13' }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .grid-bg { background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 30%, transparent 100%); mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 30%, transparent 100%); }
+    .glow-a { background: radial-gradient(closest-side, rgba(124,58,237,.45), rgba(79,70,229,.18) 55%, transparent); }
+    .glow-b { background: radial-gradient(closest-side, rgba(56,189,248,.18), transparent); }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.015)); border: 1px solid rgba(255,255,255,.08); }
+    .ring-grad { background: linear-gradient(180deg, rgba(167,139,250,.55), rgba(255,255,255,.08) 35%, rgba(255,255,255,0) 70%); }
+    @keyframes heroIn { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+    .hero-in { animation: heroIn 1s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes dash { to { stroke-dashoffset: 0; } }
+    .draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: dash 2.4s .6s ease-out forwards; }
+    @keyframes pulseDot { 0%,100% { box-shadow: 0 0 0 0 rgba(167,139,250,.6); } 50% { box-shadow: 0 0 0 6px rgba(167,139,250,0); } }
+    .pulse-dot { animation: pulseDot 2s infinite; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+    summary::-webkit-details-marker { display: none; }
+    details[open] .chev { transform: rotate(45deg); }
+  </style>
+</head>
+<body class="bg-ink font-sans text-zinc-400 antialiased selection:bg-violet-500/30 selection:text-white">
+
+  <!-- Nav -->
+  <header class="fixed inset-x-0 top-0 z-50 px-4">
+    <nav class="mx-auto mt-4 flex max-w-6xl items-center justify-between rounded-2xl border border-white/10 bg-ink/60 px-4 py-2.5 backdrop-blur-xl" aria-label="Primary">
+      <a href="#" class="flex items-center gap-2.5 text-white">
+        <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#4f46e5"/></linearGradient></defs><circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="3"/><circle cx="16" cy="16" r="6" fill="url(#lg)"/></svg>
+        <span class="text-[17px] font-semibold tracking-tight">Lumen</span>
+      </a>
+      <ul class="hidden items-center gap-8 text-sm md:flex">
+        <li><a href="#features" class="transition hover:text-white">Product</a></li>
+        <li><a href="#copilot" class="transition hover:text-white">Copilot</a></li>
+        <li><a href="#customers" class="transition hover:text-white">Customers</a></li>
+        <li><a href="#pricing" class="transition hover:text-white">Pricing</a></li>
+        <li><a href="#faq" class="transition hover:text-white">Docs</a></li>
+      </ul>
+      <div class="flex items-center gap-2">
+        <a href="#" class="hidden rounded-lg px-3 py-2 text-sm text-zinc-300 transition hover:text-white sm:block">Sign in</a>
+        <a href="#pricing" class="rounded-lg bg-white px-3.5 py-2 text-sm font-medium text-ink transition hover:bg-violet-100">Start free</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative isolate overflow-hidden pt-36 md:pt-40">
+      <div aria-hidden="true" class="absolute inset-0 -z-10">
+        <div class="grid-bg absolute inset-0"></div>
+        <div class="glow-a absolute left-1/2 top-[-260px] h-[760px] w-[1200px] -translate-x-1/2 rounded-full blur-2xl"></div>
+        <div class="glow-b absolute right-[-120px] top-[380px] h-[460px] w-[620px] rounded-full blur-3xl"></div>
+      </div>
+      <div class="mx-auto max-w-6xl px-6 text-center">
+        <a href="#copilot" class="hero-in inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 py-1 pl-1.5 pr-3 text-xs text-violet-200 transition hover:border-violet-300/50">
+          <span class="rounded-full bg-violet-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">New</span>
+          Lumen Copilot now answers “why” in plain English
+          <iconify-icon icon="lucide:arrow-right" class="text-sm"></iconify-icon>
+        </a>
+        <h1 class="hero-in mx-auto mt-6 max-w-4xl bg-gradient-to-b from-white via-white to-white/55 bg-clip-text text-5xl font-semibold leading-[1.02] tracking-[-0.04em] text-transparent md:text-7xl" style="animation-delay:.08s">
+          See why users stay.<br class="hidden md:block"> Not just that they do.
+        </h1>
+        <p class="hero-in mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 md:text-lg" style="animation-delay:.16s">
+          Lumen reads every click, session and cohort, then tells your team exactly what moved activation, retention and revenue — with the evidence attached.
+        </p>
+        <div class="hero-in mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row" style="animation-delay:.24s">
+          <a href="#pricing" class="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-violet-500 to-indigo-600 px-5 py-3 text-sm font-medium text-white shadow-[0_8px_30px_-6px_rgba(124,58,237,.7),inset_0_1px_0_rgba(255,255,255,.25)] transition hover:brightness-110">
+            Start free — no card
+            <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-0.5"></iconify-icon>
+          </a>
+          <a href="#copilot" class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10">
+            <iconify-icon icon="lucide:play-circle"></iconify-icon> Watch 2-min tour
+          </a>
+        </div>
+      </div>
+
+      <!-- Dashboard mockup -->
+      <div class="hero-in relative mx-auto mt-16 max-w-6xl px-4 md:px-6" style="animation-delay:.36s">
+        <div class="ring-grad absolute inset-x-4 -top-px bottom-0 rounded-[22px] md:inset-x-6"></div>
+        <div class="relative overflow-hidden rounded-[21px] border border-white/10 bg-panel/95 text-left shadow-[0_50px_140px_-30px_rgba(109,40,217,.65)]">
+          <div class="flex items-center gap-2 border-b border-white/5 px-4 py-3">
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span><span class="h-2.5 w-2.5 rounded-full bg-white/15"></span><span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <div class="mx-auto flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-500"><iconify-icon icon="lucide:lock" class="text-[10px]"></iconify-icon> app.lumen.ai/insights/activation</div>
+          </div>
+          <div class="grid grid-cols-12">
+            <aside class="col-span-2 hidden border-r border-white/5 p-4 text-[13px] lg:block">
+              <p class="mb-3 font-mono text-[10px] uppercase tracking-widest text-zinc-600">Workspace</p>
+              <ul class="space-y-1">
+                <li class="flex items-center gap-2 rounded-md bg-white/5 px-2 py-1.5 text-white"><iconify-icon icon="lucide:sparkles" class="text-violet-300"></iconify-icon>Insights</li>
+                <li class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:filter"></iconify-icon>Funnels</li>
+                <li class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:grid-3x3"></iconify-icon>Cohorts</li>
+                <li class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:route"></iconify-icon>Journeys</li>
+                <li class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:flask-conical"></iconify-icon>Experiments</li>
+                <li class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:users"></iconify-icon>Segments</li>
+              </ul>
+              <p class="mb-3 mt-6 font-mono text-[10px] uppercase tracking-widest text-zinc-600">Pinned</p>
+              <ul class="space-y-1 text-zinc-500">
+                <li class="px-2 py-1"># onboarding-v4</li>
+                <li class="px-2 py-1"># pricing-page</li>
+                <li class="px-2 py-1"># mobile-churn</li>
+              </ul>
+            </aside>
+            <div class="col-span-12 p-5 lg:col-span-10">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="text-[13px] text-zinc-500">Insights / Activation</p>
+                  <h2 class="text-lg font-medium text-white">Weekly activation rate</h2>
+                </div>
+                <div class="flex gap-2 text-xs">
+                  <span class="rounded-md border border-white/10 px-2.5 py-1.5">Last 30 days</span>
+                  <span class="rounded-md border border-white/10 px-2.5 py-1.5">All platforms</span>
+                  <span class="rounded-md bg-violet-500/15 px-2.5 py-1.5 text-violet-200">Compare: previous</span>
+                </div>
+              </div>
+              <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div class="glass rounded-xl p-4">
+                  <p class="text-xs">Activation</p>
+                  <p class="mt-1 text-2xl font-semibold tracking-tight text-white">47.8%</p>
+                  <p class="mt-1 text-xs text-emerald-400">▲ 9.4 pts</p>
+                </div>
+                <div class="glass rounded-xl p-4">
+                  <p class="text-xs">Time to value</p>
+                  <p class="mt-1 text-2xl font-semibold tracking-tight text-white">6m 12s</p>
+                  <p class="mt-1 text-xs text-emerald-400">▼ 41%</p>
+                </div>
+                <div class="glass rounded-xl p-4">
+                  <p class="text-xs">Week-4 retention</p>
+                  <p class="mt-1 text-2xl font-semibold tracking-tight text-white">38.1%</p>
+                  <p class="mt-1 text-xs text-emerald-400">▲ 3.2 pts</p>
+                </div>
+                <div class="glass rounded-xl p-4">
+                  <p class="text-xs">Net revenue impact</p>
+                  <p class="mt-1 text-2xl font-semibold tracking-tight text-white">$212k</p>
+                  <p class="mt-1 text-xs text-zinc-500">projected / qtr</p>
+                </div>
+              </div>
+              <div class="mt-3 grid gap-3 md:grid-cols-12">
+                <div class="glass rounded-xl p-4 md:col-span-8">
+                  <div class="flex items-center justify-between text-xs"><span class="text-zinc-300">Activated accounts</span><span class="flex items-center gap-3"><span class="flex items-center gap-1.5"><i class="h-1.5 w-3 rounded bg-violet-400"></i>This period</span><span class="flex items-center gap-1.5"><i class="h-1.5 w-3 rounded bg-zinc-600"></i>Previous</span></span></div>
+                  <svg viewBox="0 0 600 190" class="mt-3 h-44 w-full" preserveAspectRatio="none" aria-label="Activation chart trending upward">
+                    <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6" stop-opacity=".45"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient></defs>
+                    <g stroke="rgba(255,255,255,.05)"><line x1="0" y1="40" x2="600" y2="40"/><line x1="0" y1="90" x2="600" y2="90"/><line x1="0" y1="140" x2="600" y2="140"/></g>
+                    <path d="M0,150 C40,148 70,140 110,142 S180,128 220,130 S270,112 300,96 S360,70 400,74 S470,52 510,46 S570,30 600,24 L600,190 L0,190 Z" fill="url(#area)"/>
+                    <path class="draw" d="M0,150 C40,148 70,140 110,142 S180,128 220,130 S270,112 300,96 S360,70 400,74 S470,52 510,46 S570,30 600,24" fill="none" stroke="#a78bfa" stroke-width="2.5"/>
+                    <path d="M0,160 C60,156 120,150 180,152 S300,140 360,138 S480,128 600,120" fill="none" stroke="#52525b" stroke-width="1.5" stroke-dasharray="4 5"/>
+                    <line x1="300" y1="0" x2="300" y2="190" stroke="rgba(167,139,250,.45)" stroke-dasharray="3 4"/>
+                    <circle cx="300" cy="96" r="5" fill="#0d0d13" stroke="#c4b5fd" stroke-width="2.5"/>
+                  </svg>
+                  <div class="mt-2 flex justify-between font-mono text-[10px] text-zinc-600"><span>Sep 18</span><span>Sep 25</span><span class="text-violet-300">Oct 02 · onboarding-v4</span><span>Oct 09</span><span>Oct 16</span></div>
+                </div>
+                <div id="copilot-card" class="rounded-xl border border-violet-400/20 bg-gradient-to-b from-violet-500/[0.12] to-transparent p-4 md:col-span-4">
+                  <div class="flex items-center gap-2 text-xs text-violet-200"><span class="pulse-dot h-2 w-2 rounded-full bg-violet-400"></span>Lumen Copilot</div>
+                  <p class="mt-3 rounded-lg bg-white/5 px-3 py-2 text-[13px] text-zinc-200">Why did activation jump after Oct 2?</p>
+                  <p class="mt-3 text-[13px] leading-relaxed text-zinc-300">Accounts that connected a data source in their first 10 minutes activated <span class="font-medium text-white">3.2× more often</span>. The new checklist drove <span class="font-medium text-white">68%</span> of the lift.</p>
+                  <div class="mt-3 space-y-1.5 text-[11px]">
+                    <div class="flex items-center gap-2"><span class="w-20 shrink-0">Checklist</span><span class="h-1.5 flex-1 rounded bg-white/5"><span class="block h-full w-[68%] rounded bg-violet-400"></span></span></div>
+                    <div class="flex items-center gap-2"><span class="w-20 shrink-0">Templates</span><span class="h-1.5 flex-1 rounded bg-white/5"><span class="block h-full w-[21%] rounded bg-indigo-400"></span></span></div>
+                    <div class="flex items-center gap-2"><span class="w-20 shrink-0">Other</span><span class="h-1.5 flex-1 rounded bg-white/5"><span class="block h-full w-[11%] rounded bg-zinc-500"></span></span></div>
+                  </div>
+                  <button class="mt-4 w-full rounded-lg bg-white/10 py-2 text-xs text-white transition hover:bg-white/15">Save as segment</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Logos -->
+    <section class="mx-auto max-w-6xl px-6 py-20" aria-label="Customers">
+      <p class="reveal text-center text-sm text-zinc-500">Trusted by product teams at 2,400+ fast-moving companies</p>
+      <div class="reveal mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-6 text-center text-lg font-semibold tracking-tight text-zinc-500 sm:grid-cols-3 md:grid-cols-6">
+        <span class="flex items-center justify-center gap-2"><iconify-icon icon="lucide:hexagon"></iconify-icon>Fieldnote</span>
+        <span class="flex items-center justify-center gap-2"><iconify-icon icon="lucide:triangle"></iconify-icon>Parallax</span>
+        <span class="font-mono">quillbase</span>
+        <span class="flex items-center justify-center gap-2"><iconify-icon icon="lucide:circle-dot"></iconify-icon>Orbitly</span>
+        <span class="italic">Marlow&amp;Co</span>
+        <span class="flex items-center justify-center gap-2"><iconify-icon icon="lucide:zap"></iconify-icon>Voltline</span>
+      </div>
+    </section>
+
+    <!-- Features bento -->
+    <section id="features" class="mx-auto max-w-6xl px-6 py-16">
+      <div class="reveal max-w-2xl">
+        <p class="font-mono text-xs uppercase tracking-widest text-violet-300">Product</p>
+        <h2 class="mt-3 text-4xl font-semibold tracking-[-0.03em] text-white md:text-5xl">Analytics that does the analysis.</h2>
+        <p class="mt-4 text-lg">Stop exporting CSVs to explain a dip. Lumen watches every metric, finds the drivers, and writes the summary before stand-up.</p>
+      </div>
+      <div class="mt-12 grid gap-4 md:grid-cols-6">
+        <article id="copilot" class="reveal glass group relative overflow-hidden rounded-2xl p-6 md:col-span-4">
+          <iconify-icon icon="lucide:message-square-text" class="text-2xl text-violet-300"></iconify-icon>
+          <h3 class="mt-4 text-xl font-medium text-white">Ask anything, get a cited answer</h3>
+          <p class="mt-2 max-w-md">Type a question the way you'd ask a teammate. Copilot writes the query, runs it, and links every claim to the chart that proves it.</p>
+          <div class="mt-6 space-y-2 font-mono text-[12px]">
+            <div class="w-fit rounded-lg bg-white/5 px-3 py-2 text-zinc-300">&gt; which features do retained teams adopt in week one?</div>
+            <div class="ml-auto w-fit max-w-md rounded-lg border border-violet-400/20 bg-violet-500/10 px-3 py-2 text-violet-100">Shared dashboards (74%), Slack alerts (61%), saved segments (58%) — <span class="underline decoration-violet-400/50">3 sources</span></div>
+          </div>
+        </article>
+        <article class="reveal glass rounded-2xl p-6 md:col-span-2">
+          <iconify-icon icon="lucide:radar" class="text-2xl text-sky-300"></iconify-icon>
+          <h3 class="mt-4 text-xl font-medium text-white">Anomaly radar</h3>
+          <p class="mt-2">Learns each metric's rhythm and pings you only when something truly breaks pattern.</p>
+          <div class="mt-5 flex items-center gap-3 rounded-lg bg-rose-500/10 px-3 py-2 text-xs text-rose-200"><iconify-icon icon="lucide:triangle-alert"></iconify-icon>Android checkout −18% vs. forecast</div>
+        </article>
+        <article class="reveal glass rounded-2xl p-6 md:col-span-2">
+          <iconify-icon icon="lucide:grid-3x3" class="text-2xl text-indigo-300"></iconify-icon>
+          <h3 class="mt-4 text-xl font-medium text-white">Living cohorts</h3>
+          <p class="mt-2">Retention grids that update hourly and explain each color change.</p>
+          <div class="mt-5 grid grid-cols-8 gap-1" aria-hidden="true">
+            <i class="h-4 rounded-sm bg-violet-400"></i><i class="h-4 rounded-sm bg-violet-400/80"></i><i class="h-4 rounded-sm bg-violet-400/60"></i><i class="h-4 rounded-sm bg-violet-400/50"></i><i class="h-4 rounded-sm bg-violet-400/40"></i><i class="h-4 rounded-sm bg-violet-400/35"></i><i class="h-4 rounded-sm bg-violet-400/30"></i><i class="h-4 rounded-sm bg-violet-400/25"></i>
+            <i class="h-4 rounded-sm bg-violet-400"></i><i class="h-4 rounded-sm bg-violet-400/75"></i><i class="h-4 rounded-sm bg-violet-400/55"></i><i class="h-4 rounded-sm bg-violet-400/45"></i><i class="h-4 rounded-sm bg-violet-400/40"></i><i class="h-4 rounded-sm bg-violet-400/30"></i><i class="h-4 rounded-sm bg-violet-400/25"></i><i class="h-4 rounded-sm bg-white/5"></i>
+            <i class="h-4 rounded-sm bg-violet-400"></i><i class="h-4 rounded-sm bg-violet-400/85"></i><i class="h-4 rounded-sm bg-violet-400/70"></i><i class="h-4 rounded-sm bg-violet-400/60"></i><i class="h-4 rounded-sm bg-violet-400/50"></i><i class="h-4 rounded-sm bg-violet-400/45"></i><i class="h-4 rounded-sm bg-white/5"></i><i class="h-4 rounded-sm bg-white/5"></i>
+            <i class="h-4 rounded-sm bg-violet-400"></i><i class="h-4 rounded-sm bg-violet-400/90"></i><i class="h-4 rounded-sm bg-violet-400/75"></i><i class="h-4 rounded-sm bg-violet-400/65"></i><i class="h-4 rounded-sm bg-white/5"></i><i class="h-4 rounded-sm bg-white/5"></i><i class="h-4 rounded-sm bg-white/5"></i><i class="h-4 rounded-sm bg-white/5"></i>
+          </div>
+        </article>
+        <article class="reveal glass rounded-2xl p-6 md:col-span-2">
+          <iconify-icon icon="lucide:shield-check" class="text-2xl text-emerald-300"></iconify-icon>
+          <h3 class="mt-4 text-xl font-medium text-white">Private by design</h3>
+          <p class="mt-2">PII is hashed at the edge. SOC 2 Type II, GDPR and HIPAA-ready from day one.</p>
+          <div class="mt-5 flex gap-2 font-mono text-[11px]"><span class="rounded border border-white/10 px-2 py-1">SOC 2</span><span class="rounded border border-white/10 px-2 py-1">GDPR</span><span class="rounded border border-white/10 px-2 py-1">HIPAA</span></div>
+        </article>
+        <article class="reveal glass rounded-2xl p-6 md:col-span-2">
+          <iconify-icon icon="lucide:plug-zap" class="text-2xl text-amber-300"></iconify-icon>
+          <h3 class="mt-4 text-xl font-medium text-white">Ten-minute setup</h3>
+          <p class="mt-2">One snippet or a warehouse sync. Backfills 24 months of history automatically.</p>
+          <div class="mt-5 flex gap-2 text-xl text-zinc-400"><iconify-icon icon="lucide:database"></iconify-icon><iconify-icon icon="lucide:snowflake"></iconify-icon><iconify-icon icon="lucide:cloud"></iconify-icon><iconify-icon icon="lucide:code-2"></iconify-icon><iconify-icon icon="lucide:slack"></iconify-icon></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="mx-auto max-w-6xl px-6 py-16">
+      <div class="reveal grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-4">
+        <div class="bg-ink p-8"><p class="text-4xl font-semibold tracking-tight text-white">4.1B</p><p class="mt-2 text-sm">events explained every day</p></div>
+        <div class="bg-ink p-8"><p class="text-4xl font-semibold tracking-tight text-white">11 hrs</p><p class="mt-2 text-sm">saved per PM, per week</p></div>
+        <div class="bg-ink p-8"><p class="text-4xl font-semibold tracking-tight text-white">+23%</p><p class="mt-2 text-sm">median activation lift in 90 days</p></div>
+        <div class="bg-ink p-8"><p class="text-4xl font-semibold tracking-tight text-white">&lt;200ms</p><p class="mt-2 text-sm">p95 query time on 1B rows</p></div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="customers" class="mx-auto max-w-6xl px-6 py-16">
+      <h2 class="reveal text-center text-4xl font-semibold tracking-[-0.03em] text-white">Teams that stopped guessing</h2>
+      <div class="mt-12 grid gap-4 md:grid-cols-3">
+        <figure class="reveal glass rounded-2xl p-6">
+          <blockquote class="text-zinc-300">“We used to spend Mondays building the weekly metrics deck. Now Copilot drafts it overnight and we spend Mondays acting on it.”</blockquote>
+          <figcaption class="mt-6 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-indigo-600 text-sm font-semibold text-white">PR</span><span><span class="block text-sm font-medium text-white">Priya Raman</span><span class="text-xs">Head of Product, Fieldnote</span></span></figcaption>
+        </figure>
+        <figure class="reveal glass rounded-2xl p-6 md:translate-y-6">
+          <blockquote class="text-zinc-300">“Lumen caught a broken Android checkout forty minutes after a release. That single alert paid for three years of the contract.”</blockquote>
+          <figcaption class="mt-6 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-sm font-semibold text-white">DK</span><span><span class="block text-sm font-medium text-white">Daniel Okafor</span><span class="text-xs">VP Engineering, Voltline</span></span></figcaption>
+        </figure>
+        <figure class="reveal glass rounded-2xl p-6">
+          <blockquote class="text-zinc-300">“Our designers now ask data questions directly. The quality of debate in product reviews went up overnight.”</blockquote>
+          <figcaption class="mt-6 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-fuchsia-400 to-violet-600 text-sm font-semibold text-white">ML</span><span><span class="block text-sm font-medium text-white">Mara Lindqvist</span><span class="text-xs">Design Director, Parallax</span></span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="mx-auto max-w-6xl px-6 py-24">
+      <div class="reveal text-center">
+        <p class="font-mono text-xs uppercase tracking-widest text-violet-300">Pricing</p>
+        <h2 class="mt-3 text-4xl font-semibold tracking-[-0.03em] text-white md:text-5xl">Priced on tracked users, not seats.</h2>
+        <p class="mx-auto mt-4 max-w-xl">Invite your whole company. You only pay as your product grows.</p>
+      </div>
+      <div class="mt-12 grid gap-4 md:grid-cols-3">
+        <div class="reveal glass flex flex-col rounded-2xl p-7">
+          <h3 class="font-medium text-white">Starter</h3>
+          <p class="mt-4 text-4xl font-semibold tracking-tight text-white">$0</p><p class="text-sm">up to 10k monthly users</p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>Funnels, cohorts &amp; journeys</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>50 Copilot questions / month</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>12 months of history</li>
+          </ul>
+          <a href="#" class="mt-auto pt-8"><span class="block rounded-xl border border-white/10 py-2.5 text-center text-sm text-white transition hover:bg-white/5">Start free</span></a>
+        </div>
+        <div class="reveal relative flex flex-col rounded-2xl border border-violet-400/40 bg-gradient-to-b from-violet-500/20 via-violet-500/5 to-transparent p-7 shadow-[0_30px_80px_-30px_rgba(124,58,237,.8)]">
+          <span class="absolute right-5 top-5 rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-medium text-white">Most popular</span>
+          <h3 class="font-medium text-white">Growth</h3>
+          <p class="mt-4 text-4xl font-semibold tracking-tight text-white">$249<span class="text-base font-normal text-zinc-400">/mo</span></p>
+          <p class="text-sm">up to 100k monthly users</p>
+          <ul class="mt-6 space-y-3 text-sm text-zinc-300">
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>Unlimited Copilot &amp; weekly digests</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>Anomaly radar with Slack alerts</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>Warehouse sync &amp; experiments</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>24 months of history</li>
+          </ul>
+          <a href="#" class="mt-auto pt-8"><span class="block rounded-xl bg-white py-2.5 text-center text-sm font-medium text-ink transition hover:bg-violet-100">Start 14-day trial</span></a>
+        </div>
+        <div class="reveal glass flex flex-col rounded-2xl p-7">
+          <h3 class="font-medium text-white">Scale</h3>
+          <p class="mt-4 text-4xl font-semibold tracking-tight text-white">Custom</p><p class="text-sm">for 100k+ monthly users</p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>SSO, SCIM &amp; audit logs</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>Dedicated region &amp; data residency</li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:check" class="mt-0.5 text-violet-300"></iconify-icon>Named analytics engineer</li>
+          </ul>
+          <a href="#" class="mt-auto pt-8"><span class="block rounded-xl border border-white/10 py-2.5 text-center text-sm text-white transition hover:bg-white/5">Talk to sales</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="mx-auto max-w-3xl px-6 py-16">
+      <h2 class="reveal text-center text-4xl font-semibold tracking-[-0.03em] text-white">Questions, answered</h2>
+      <div class="reveal mt-10 divide-y divide-white/10 border-y border-white/10">
+        <details class="group py-5" open>
+          <summary class="flex cursor-pointer items-center justify-between text-left font-medium text-white">How does Copilot avoid making things up?<iconify-icon icon="lucide:plus" class="chev text-lg transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed">Every answer is generated from a query Lumen actually runs against your data. You can open the query, the chart and the raw rows behind any sentence.</p>
+        </details>
+        <details class="group py-5">
+          <summary class="flex cursor-pointer items-center justify-between text-left font-medium text-white">Can I migrate from my current analytics tool?<iconify-icon icon="lucide:plus" class="chev text-lg transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed">Yes. Our importers map events and user properties from the most common tools and backfill up to 24 months of history in under a day.</p>
+        </details>
+        <details class="group py-5">
+          <summary class="flex cursor-pointer items-center justify-between text-left font-medium text-white">Is my data used to train models?<iconify-icon icon="lucide:plus" class="chev text-lg transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed">Never. Your events stay in your workspace and region. Models are used for inference only, with zero data retention by providers.</p>
+        </details>
+        <details class="group py-5">
+          <summary class="flex cursor-pointer items-center justify-between text-left font-medium text-white">What counts as a monthly tracked user?<iconify-icon icon="lucide:plus" class="chev text-lg transition"></iconify-icon></summary>
+          <p class="mt-3 leading-relaxed">Any unique user or device that sends at least one event in a calendar month. Internal team traffic is excluded automatically.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- CTA band -->
+    <section class="px-6 py-16">
+      <div class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-white/10 px-8 py-16 text-center md:py-20">
+        <div aria-hidden="true" class="glow-a absolute left-1/2 top-1/2 -z-10 h-[520px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"></div>
+        <h2 class="mx-auto max-w-2xl text-4xl font-semibold tracking-[-0.03em] text-white md:text-5xl">Your next insight is already in your data.</h2>
+        <p class="mx-auto mt-4 max-w-lg text-zinc-300">Connect a source in ten minutes and get your first Copilot briefing tomorrow morning.</p>
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <a href="#" class="rounded-xl bg-white px-5 py-3 text-sm font-medium text-ink transition hover:bg-violet-100">Start free</a>
+          <a href="#" class="rounded-xl border border-white/15 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/5">Book a demo</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10">
+    <div class="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-6">
+      <div class="md:col-span-2">
+        <a href="#" class="flex items-center gap-2.5 text-white"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="#a78bfa" stroke-width="3"/><circle cx="16" cy="16" r="6" fill="#6366f1"/></svg><span class="font-semibold">Lumen</span></a>
+        <p class="mt-4 max-w-xs text-sm">Product analytics that explains itself. Made in Brooklyn and Lisbon.</p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-white">Product</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white">Insights</a></li>
+          <li><a href="#" class="hover:text-white">Copilot</a></li>
+          <li><a href="#" class="hover:text-white">Experiments</a></li>
+          <li><a href="#" class="hover:text-white">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-white">Company</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white">About</a></li>
+          <li><a href="#" class="hover:text-white">Careers</a></li>
+          <li><a href="#" class="hover:text-white">Customers</a></li>
+          <li><a href="#" class="hover:text-white">Press</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-white">Resources</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white">Docs</a></li>
+          <li><a href="#" class="hover:text-white">API</a></li>
+          <li><a href="#" class="hover:text-white">Guides</a></li>
+          <li><a href="#" class="hover:text-white">Status</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-white">Legal</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white">Privacy</a></li>
+          <li><a href="#" class="hover:text-white">Terms</a></li>
+          <li><a href="#" class="hover:text-white">Security</a></li>
+          <li><a href="#" class="hover:text-white">DPA</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mx-auto flex max-w-6xl flex-col justify-between gap-4 border-t border-white/5 px-6 py-6 text-xs text-zinc-500 sm:flex-row">
+      <p>© 2026 Lumen Analytics, Inc. All rights reserved.</p>
+      <div class="flex gap-4 text-base"><a href="#" aria-label="X"><iconify-icon icon="lucide:twitter"></iconify-icon></a><a href="#" aria-label="GitHub"><iconify-icon icon="lucide:github"></iconify-icon></a><a href="#" aria-label="LinkedIn"><iconify-icon icon="lucide:linkedin"></iconify-icon></a></div>
+    </div>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>

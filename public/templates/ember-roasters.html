@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ember Roasters — Small-batch specialty coffee, roasted to order</title>
+  <meta name="description" content="Specialty coffee roasted every Tuesday and shipped within 48 hours. Shop single origins, blends and subscriptions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { serif: ['Fraunces', 'ui-serif', 'Georgia', 'serif'], sans: ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: { cream: '#f6eddf', oat: '#ecdfca', espresso: '#2a1810', roast: '#5a3420', ember: '#c8501c', amber: '#e9a23b' }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .crimp { background-image: repeating-linear-gradient(90deg, rgba(42,24,16,.18) 0 2px, transparent 2px 7px); }
+    .bag-shade { background: linear-gradient(90deg, rgba(42,24,16,.22), transparent 14%, transparent 84%, rgba(42,24,16,.28)); }
+    .bean { position: absolute; width: 34px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8a5534, #3b2217 70%); box-shadow: 0 6px 10px -4px rgba(42,24,16,.5); }
+    .bean::after { content: ''; position: absolute; left: 16%; right: 16%; top: 46%; height: 2px; border-radius: 2px; background: #1f100a; transform: rotate(-10deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 18s linear infinite; }
+    @keyframes floaty { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-10px) rotate(var(--r,0deg)); } }
+    .floaty { animation: floaty 6s ease-in-out infinite; }
+    @keyframes steam { 0% { opacity: 0; transform: translateY(10px) scaleY(.8); } 40% { opacity: .7; } 100% { opacity: 0; transform: translateY(-24px) scaleY(1.1); } }
+    .steam path { animation: steam 3.2s ease-in-out infinite; }
+    .steam path:nth-child(2) { animation-delay: .8s; } .steam path:nth-child(3) { animation-delay: 1.6s; }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+    .marquee { animation: marquee 32s linear infinite; }
+    @keyframes up { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+    .up { animation: up .9s cubic-bezier(.2,.8,.2,1) both; }
+    .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+    .leader { flex: 1; border-bottom: 1.5px dotted rgba(246,237,223,.3); margin: 0 .75rem; transform: translateY(-5px); }
+  </style>
+</head>
+<body class="bg-cream font-sans text-espresso antialiased selection:bg-ember selection:text-cream">
+
+  <div class="bg-espresso py-2 text-center text-[13px] text-cream/90">Roasted every Tuesday &amp; Thursday · Free shipping over $40 · <a href="#subscribe" class="underline decoration-amber underline-offset-4">Subscribe &amp; save 15%</a></div>
+
+  <header class="sticky top-0 z-50 border-b border-espresso/10 bg-cream/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8" aria-label="Primary">
+      <a href="#" class="flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-full bg-ember text-cream"><iconify-icon icon="lucide:flame" class="text-lg"></iconify-icon></span>
+        <span class="font-serif text-2xl font-semibold tracking-tight">Ember<span class="font-normal italic text-roast"> Roasters</span></span>
+      </a>
+      <ul class="hidden items-center gap-8 text-[15px] font-medium md:flex">
+        <li><a href="#shop" class="hover:text-ember">Shop coffee</a></li>
+        <li><a href="#subscribe" class="hover:text-ember">Subscriptions</a></li>
+        <li><a href="#cafe" class="hover:text-ember">Our café</a></li>
+        <li><a href="#process" class="hover:text-ember">Sourcing</a></li>
+        <li><a href="#visit" class="hover:text-ember">Wholesale</a></li>
+      </ul>
+      <div class="flex items-center gap-3">
+        <button class="relative grid h-10 w-10 place-items-center rounded-full border border-espresso/15 transition hover:border-espresso" aria-label="Cart, 2 items"><iconify-icon icon="lucide:shopping-bag" class="text-lg"></iconify-icon><span id="cartCount" class="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-ember text-[11px] font-bold text-cream">2</span></button>
+        <a href="#shop" class="hidden rounded-full bg-espresso px-5 py-2.5 text-sm font-medium text-cream transition hover:bg-roast sm:block">Shop now</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+      <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-12 md:px-8 lg:grid-cols-[1.2fr_1fr] lg:pb-24 lg:pt-14">
+        <div>
+          <p class="up inline-flex items-center gap-2 rounded-full border border-espresso/15 bg-oat/60 px-3 py-1 text-[13px] font-medium"><iconify-icon icon="lucide:map-pin" class="text-ember"></iconify-icon>Small-batch roastery · Asheville, NC</p>
+          <h1 class="up mt-6 font-serif text-6xl font-semibold leading-[0.95] tracking-[-0.035em] md:text-7xl xl:text-[4.75rem]" style="animation-delay:.08s">Roasted Tuesday.<br><span class="font-normal italic text-ember">In your cup</span><br>by Friday.</h1>
+          <p class="up mt-6 max-w-lg text-lg leading-relaxed text-espresso/75" style="animation-delay:.16s">We buy directly from eleven farms, roast in twelve-kilo batches and ship within 48 hours — so every bag arrives at its peak, not months past it.</p>
+          <div class="up mt-8 flex flex-wrap gap-3" style="animation-delay:.24s">
+            <a href="#shop" class="group inline-flex items-center gap-2 rounded-full bg-ember px-6 py-3.5 font-medium text-cream shadow-[0_10px_30px_-10px_rgba(200,80,28,.9)] transition hover:-translate-y-0.5 hover:bg-[#b4461a]">Shop this week’s roasts <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-1"></iconify-icon></a>
+            <a href="#subscribe" class="inline-flex items-center gap-2 rounded-full border-2 border-espresso px-6 py-3 font-medium transition hover:bg-espresso hover:text-cream">Start a subscription</a>
+          </div>
+          <div class="up mt-10 flex flex-wrap items-center gap-6 text-sm" style="animation-delay:.32s">
+            <span class="flex items-center gap-1 text-amber"><span class="text-base tracking-[0.12em]" aria-hidden="true">★★★★★</span><span class="ml-1 font-medium text-espresso">4.9 · 3,200 reviews</span></span>
+            <span class="flex items-center gap-2"><iconify-icon icon="lucide:truck" class="text-ember"></iconify-icon>Ships in 48 hrs</span>
+            <span class="flex items-center gap-2"><iconify-icon icon="lucide:sprout" class="text-ember"></iconify-icon>Direct trade</span>
+          </div>
+        </div>
+
+        <!-- Bag illustration -->
+        <div class="up relative mx-auto h-[520px] w-full max-w-[560px]" style="animation-delay:.2s" aria-hidden="true">
+          <div class="absolute inset-x-6 bottom-0 top-8 rounded-t-full bg-gradient-to-b from-ember to-[#9e3c14]"></div>
+          <div class="absolute inset-x-16 bottom-0 top-24 rounded-t-full border-2 border-dashed border-cream/25"></div>
+          <div class="floaty absolute left-[12%] top-[26%] h-[300px] w-[200px] rounded-[16px_16px_22px_22px] bg-espresso shadow-2xl" style="--r:-9deg">
+            <div class="crimp absolute inset-x-0 top-0 h-8 rounded-t-[16px] opacity-60"></div>
+            <div class="bag-shade absolute inset-0 rounded-[inherit]"></div>
+            <div class="absolute inset-x-5 bottom-8 top-[30%] rounded-lg border border-amber/50 p-4 text-cream">
+              <p class="text-[10px] uppercase tracking-[0.25em] text-amber">Ember</p>
+              <p class="mt-1 font-serif text-2xl italic">Night Shift</p>
+              <p class="text-[11px] text-cream/60">Espresso blend</p>
+            </div>
+          </div>
+          <div class="floaty absolute left-[34%] top-[12%] h-[380px] w-[260px] rounded-[18px_18px_26px_26px] bg-gradient-to-br from-[#dcbc92] to-[#b78a5a] shadow-[0_40px_60px_-20px_rgba(42,24,16,.6)]" style="--r:4deg;animation-delay:-2s">
+            <div class="crimp absolute inset-x-0 top-0 h-10 rounded-t-[18px]"></div>
+            <div class="absolute left-1/2 top-14 h-2.5 w-14 -translate-x-1/2 rounded-full bg-espresso/40"></div>
+            <div class="bag-shade absolute inset-0 rounded-[inherit]"></div>
+            <div class="absolute inset-x-5 bottom-6 top-[26%] rounded-xl bg-cream p-5 shadow-inner">
+              <div class="flex items-center justify-between"><span class="text-[10px] font-bold uppercase tracking-[0.25em] text-ember">Ember · No. 47</span><iconify-icon icon="lucide:flame" class="text-ember"></iconify-icon></div>
+              <p class="mt-3 font-serif text-4xl font-semibold leading-none">Huila</p>
+              <p class="mt-1 text-xs text-espresso/60">Colombia · Washed · 1,850 masl</p>
+              <div class="my-4 h-px bg-espresso/15"></div>
+              <p class="font-serif text-[13px] italic">Red apple · panela · cocoa nib</p>
+              <div class="mt-4 flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-espresso/60">Roast <span class="ml-1 h-2 w-2 rounded-full bg-ember"></span><span class="h-2 w-2 rounded-full bg-ember"></span><span class="h-2 w-2 rounded-full bg-espresso/15"></span><span class="h-2 w-2 rounded-full bg-espresso/15"></span><span class="h-2 w-2 rounded-full bg-espresso/15"></span></div>
+              <p class="mt-4 text-right text-[11px] font-medium">340 g · 12 oz</p>
+            </div>
+          </div>
+          <svg viewBox="0 0 160 160" class="spin absolute right-0 top-0 h-36 w-36"><defs><path id="ring" d="M80,80 m-60,0 a60,60 0 1,1 120,0 a60,60 0 1,1 -120,0"/></defs><circle cx="80" cy="80" r="78" fill="#2a1810"/><text font-family="DM Sans" font-weight="700" font-size="12.5" fill="#f6eddf" letter-spacing="2"><textPath href="#ring" textLength="372" lengthAdjust="spacing">FRESHLY ROASTED · SMALL BATCH · DIRECT TRADE ·</textPath></text><g transform="translate(80 80)" fill="#e9a23b"><path d="M0-22c8 9 14 16 14 24a14 14 0 0 1-28 0c0-6 4-11 8-15 0 6 2 9 6 10-2-7-2-13 0-19z"/></g></svg>
+          <span class="bean" style="left:6%;bottom:12%;transform:rotate(25deg)"></span>
+          <span class="bean" style="left:18%;bottom:5%;transform:rotate(-30deg)"></span>
+          <span class="bean" style="right:8%;bottom:18%;transform:rotate(60deg)"></span>
+          <span class="bean" style="right:20%;bottom:6%;transform:rotate(-12deg)"></span>
+          <span class="bean" style="right:3%;bottom:4%;transform:rotate(100deg)"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <section class="overflow-hidden bg-espresso py-5 text-cream" aria-label="Tasting notes">
+      <div class="marquee flex w-max gap-10 whitespace-nowrap font-serif text-3xl italic">
+        <span>Stone fruit</span><span class="text-amber">✺</span><span>Dark chocolate</span><span class="text-amber">✺</span><span>Jasmine</span><span class="text-amber">✺</span><span>Brown sugar</span><span class="text-amber">✺</span><span>Blood orange</span><span class="text-amber">✺</span><span>Toasted hazelnut</span><span class="text-amber">✺</span>
+        <span>Stone fruit</span><span class="text-amber">✺</span><span>Dark chocolate</span><span class="text-amber">✺</span><span>Jasmine</span><span class="text-amber">✺</span><span>Brown sugar</span><span class="text-amber">✺</span><span>Blood orange</span><span class="text-amber">✺</span><span>Toasted hazelnut</span><span class="text-amber">✺</span>
+      </div>
+    </section>
+
+    <!-- Shop -->
+    <section id="shop" class="mx-auto max-w-7xl px-5 py-24 md:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-[0.2em] text-ember">This week’s roasts</p>
+          <h2 class="mt-3 font-serif text-5xl font-semibold tracking-tight md:text-6xl">Fresh off the drum</h2>
+        </div>
+        <div class="flex gap-2 text-sm font-medium" role="tablist"><button class="rounded-full bg-espresso px-4 py-2 text-cream">All</button><button class="rounded-full border border-espresso/20 px-4 py-2 hover:border-espresso">Light</button><button class="rounded-full border border-espresso/20 px-4 py-2 hover:border-espresso">Medium</button><button class="rounded-full border border-espresso/20 px-4 py-2 hover:border-espresso">Espresso</button></div>
+      </div>
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="reveal group rounded-3xl bg-oat p-5 transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative grid h-56 place-items-center overflow-hidden rounded-2xl bg-[#e6c9a3]">
+            <div class="relative h-44 w-32 rounded-[10px_10px_14px_14px] bg-[#f0d7b0] shadow-lg transition duration-500 group-hover:-rotate-3 group-hover:scale-105">
+              <div class="crimp absolute inset-x-0 top-0 h-5 rounded-t-[10px]"></div>
+              <div class="absolute inset-x-3 bottom-4 top-12 rounded bg-cream p-2 text-center">
+                <p class="text-[7px] font-bold tracking-[0.2em] text-ember">EMBER</p>
+                <p class="font-serif text-lg font-semibold">Guji</p>
+              </div>
+            </div><span class="absolute left-3 top-3 rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Light</span>
+          </div>
+          <h3 class="mt-5 font-serif text-2xl font-semibold">Guji Hambela</h3><p class="text-sm text-espresso/60">Ethiopia · Natural</p>
+          <p class="mt-3 font-serif text-[15px] italic text-roast">Blueberry, bergamot, honey</p>
+          <div class="mt-5 flex items-center justify-between"><span class="text-xl font-bold">$21</span><button class="add inline-flex items-center gap-1.5 rounded-full bg-espresso px-4 py-2 text-sm font-medium text-cream transition hover:bg-ember"><iconify-icon icon="lucide:plus"></iconify-icon>Add</button></div>
+        </article>
+        <article class="reveal group rounded-3xl bg-oat p-5 transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative grid h-56 place-items-center overflow-hidden rounded-2xl bg-[#d79a6b]">
+            <div class="relative h-44 w-32 rounded-[10px_10px_14px_14px] bg-[#c8501c] shadow-lg transition duration-500 group-hover:-rotate-3 group-hover:scale-105">
+              <div class="crimp absolute inset-x-0 top-0 h-5 rounded-t-[10px]"></div>
+              <div class="absolute inset-x-3 bottom-4 top-12 rounded bg-cream p-2 text-center">
+                <p class="text-[7px] font-bold tracking-[0.2em] text-ember">EMBER</p>
+                <p class="font-serif text-lg font-semibold">Huila</p>
+              </div>
+            </div><span class="absolute left-3 top-3 rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Medium</span>
+          </div>
+          <h3 class="mt-5 font-serif text-2xl font-semibold">Huila La Esperanza</h3><p class="text-sm text-espresso/60">Colombia · Washed</p>
+          <p class="mt-3 font-serif text-[15px] italic text-roast">Red apple, panela, cocoa nib</p>
+          <div class="mt-5 flex items-center justify-between"><span class="text-xl font-bold">$19</span><button class="add inline-flex items-center gap-1.5 rounded-full bg-espresso px-4 py-2 text-sm font-medium text-cream transition hover:bg-ember"><iconify-icon icon="lucide:plus"></iconify-icon>Add</button></div>
+        </article>
+        <article class="reveal group rounded-3xl bg-oat p-5 transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative grid h-56 place-items-center overflow-hidden rounded-2xl bg-[#a8b39a]">
+            <div class="relative h-44 w-32 rounded-[10px_10px_14px_14px] bg-[#4f5d43] shadow-lg transition duration-500 group-hover:-rotate-3 group-hover:scale-105">
+              <div class="crimp absolute inset-x-0 top-0 h-5 rounded-t-[10px]"></div>
+              <div class="absolute inset-x-3 bottom-4 top-12 rounded bg-cream p-2 text-center">
+                <p class="text-[7px] font-bold tracking-[0.2em] text-ember">EMBER</p>
+                <p class="font-serif text-lg font-semibold">Kirinyaga</p>
+              </div>
+            </div><span class="absolute left-3 top-3 rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Light</span>
+          </div>
+          <h3 class="mt-5 font-serif text-2xl font-semibold">Kirinyaga AA</h3><p class="text-sm text-espresso/60">Kenya · Washed</p>
+          <p class="mt-3 font-serif text-[15px] italic text-roast">Blackcurrant, grapefruit, cane</p>
+          <div class="mt-5 flex items-center justify-between"><span class="text-xl font-bold">$24</span><button class="add inline-flex items-center gap-1.5 rounded-full bg-espresso px-4 py-2 text-sm font-medium text-cream transition hover:bg-ember"><iconify-icon icon="lucide:plus"></iconify-icon>Add</button></div>
+        </article>
+        <article class="reveal group rounded-3xl bg-oat p-5 transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative grid h-56 place-items-center overflow-hidden rounded-2xl bg-[#5a3420]">
+            <div class="relative h-44 w-32 rounded-[10px_10px_14px_14px] bg-espresso shadow-lg ring-1 ring-amber/40 transition duration-500 group-hover:-rotate-3 group-hover:scale-105">
+              <div class="crimp absolute inset-x-0 top-0 h-5 rounded-t-[10px] opacity-60"></div>
+              <div class="absolute inset-x-3 bottom-4 top-12 rounded border border-amber/60 p-2 text-center text-cream">
+                <p class="text-[7px] font-bold tracking-[0.2em] text-amber">EMBER</p>
+                <p class="font-serif text-lg italic">Night Shift</p>
+              </div>
+            </div><span class="absolute left-3 top-3 rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Espresso</span>
+          </div>
+          <h3 class="mt-5 font-serif text-2xl font-semibold">Night Shift Blend</h3><p class="text-sm text-espresso/60">Brazil · Guatemala</p>
+          <p class="mt-3 font-serif text-[15px] italic text-roast">Fudge, toasted almond, cherry</p>
+          <div class="mt-5 flex items-center justify-between"><span class="text-xl font-bold">$17</span><button class="add inline-flex items-center gap-1.5 rounded-full bg-espresso px-4 py-2 text-sm font-medium text-cream transition hover:bg-ember"><iconify-icon icon="lucide:plus"></iconify-icon>Add</button></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section id="process" class="bg-oat/70">
+      <div class="mx-auto max-w-7xl px-5 py-24 md:px-8">
+        <h2 class="reveal max-w-3xl font-serif text-5xl font-semibold leading-[1.02] tracking-tight md:text-6xl">From a hillside in Huila to your kitchen counter in <em class="font-normal text-ember">nine days.</em></h2>
+        <div class="mt-16 grid gap-10 md:grid-cols-3">
+          <div class="reveal border-t-2 border-espresso pt-6">
+            <div class="flex items-center justify-between"><span class="font-serif text-6xl font-semibold text-ember">01</span><iconify-icon icon="lucide:handshake" class="text-3xl"></iconify-icon></div>
+            <h3 class="mt-6 font-serif text-2xl font-semibold">Sourced by name</h3>
+            <p class="mt-3 leading-relaxed text-espresso/70">We pay producers an average of 2.4× the commodity price and visit every farm at least once a year.</p>
+          </div>
+          <div class="reveal border-t-2 border-espresso pt-6">
+            <div class="flex items-center justify-between"><span class="font-serif text-6xl font-semibold text-ember">02</span><iconify-icon icon="lucide:flame-kindling" class="text-3xl"></iconify-icon></div>
+            <h3 class="mt-6 font-serif text-2xl font-semibold">Roasted to order</h3>
+            <p class="mt-3 leading-relaxed text-espresso/70">Twelve-kilo batches on a restored 1962 drum roaster, profiled by hand for every single lot.</p>
+          </div>
+          <div class="reveal border-t-2 border-espresso pt-6">
+            <div class="flex items-center justify-between"><span class="font-serif text-6xl font-semibold text-ember">03</span><iconify-icon icon="lucide:package-check" class="text-3xl"></iconify-icon></div>
+            <h3 class="mt-6 font-serif text-2xl font-semibold">Shipped in 48 hours</h3>
+            <p class="mt-3 leading-relaxed text-espresso/70">Compostable bags with one-way valves, dated with the roast day — never a “best before.”</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cafe menu -->
+    <section id="cafe" class="bg-espresso text-cream">
+      <div class="mx-auto grid max-w-7xl gap-16 px-5 py-24 md:px-8 lg:grid-cols-5">
+        <div class="reveal lg:col-span-2">
+          <p class="text-sm font-bold uppercase tracking-[0.2em] text-amber">The bar at Ember</p>
+          <h2 class="mt-3 font-serif text-5xl font-semibold leading-tight">Pull up a stool at the roastery.</h2>
+          <p class="mt-5 leading-relaxed text-cream/70">Our café sits beside the roaster, so the espresso you order was likely beans on Tuesday. Pastries come from Hearth &amp; Rye across the street.</p>
+          <svg class="steam mt-10 h-16 w-24 text-amber" viewBox="0 0 96 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M24 60c-8-10 8-16 0-28s6-18 0-28"/><path d="M48 60c-8-10 8-16 0-28s6-18 0-28"/><path d="M72 60c-8-10 8-16 0-28s6-18 0-28"/></svg>
+        </div>
+        <div class="reveal grid gap-12 sm:grid-cols-2 lg:col-span-3">
+          <div>
+            <h3 class="font-serif text-2xl italic text-amber">Espresso</h3>
+            <ul class="mt-5 space-y-4 text-[15px]">
+              <li class="flex items-end"><span>Espresso</span><span class="leader"></span><span>3.50</span></li>
+              <li class="flex items-end"><span>Cortado</span><span class="leader"></span><span>4.25</span></li>
+              <li class="flex items-end"><span>Flat white</span><span class="leader"></span><span>4.75</span></li>
+              <li class="flex items-end"><span>Cardamom oat latte</span><span class="leader"></span><span>6.00</span></li>
+              <li class="flex items-end"><span>Maple cinnamon mocha</span><span class="leader"></span><span>6.25</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-serif text-2xl italic text-amber">Slow bar</h3>
+            <ul class="mt-5 space-y-4 text-[15px]">
+              <li class="flex items-end"><span>Pour-over, rotating</span><span class="leader"></span><span>5.50</span></li>
+              <li class="flex items-end"><span>Kenyan flight (3)</span><span class="leader"></span><span>9.00</span></li>
+              <li class="flex items-end"><span>Cold brew tonic</span><span class="leader"></span><span>5.75</span></li>
+              <li class="flex items-end"><span>Cascara spritz</span><span class="leader"></span><span>5.25</span></li>
+              <li class="flex items-end"><span>Brown butter cookie</span><span class="leader"></span><span>3.75</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Subscription -->
+    <section id="subscribe" class="mx-auto max-w-7xl px-5 py-24 md:px-8">
+      <div class="reveal relative overflow-hidden rounded-[2.5rem] bg-ember p-8 text-cream md:p-14">
+        <div aria-hidden="true" class="absolute -right-24 -top-24 h-80 w-80 rounded-full border-[40px] border-cream/10"></div>
+        <div class="relative grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-amber">The Ember Club</p>
+            <h2 class="mt-3 font-serif text-5xl font-semibold leading-[1.02] md:text-6xl">Never run out. <em class="font-normal">Never drink stale.</em></h2>
+            <p class="mt-5 max-w-md text-lg text-cream/85">A fresh bag on your schedule, picked by our head roaster. Save 15% on every delivery, skip or cancel in one click.</p>
+          </div>
+          <div class="rounded-3xl bg-cream p-6 text-espresso shadow-2xl md:p-8">
+            <p class="text-sm font-bold">How often?</p>
+            <div class="mt-3 grid grid-cols-3 gap-2" id="freq">
+              <button data-mult="4" class="rounded-xl border-2 border-espresso/15 py-3 text-sm font-medium transition">Weekly</button>
+              <button data-mult="2" class="rounded-xl border-2 border-espresso bg-espresso py-3 text-sm font-medium text-cream transition">Every 2 wks</button>
+              <button data-mult="1" class="rounded-xl border-2 border-espresso/15 py-3 text-sm font-medium transition">Monthly</button>
+            </div>
+            <p class="mt-6 text-sm font-bold">Roast style</p>
+            <div class="mt-3 flex flex-wrap gap-2 text-sm"><span class="rounded-full bg-oat px-3 py-1.5">Roaster’s choice</span><span class="rounded-full border border-espresso/15 px-3 py-1.5">Light &amp; fruity</span><span class="rounded-full border border-espresso/15 px-3 py-1.5">Espresso</span></div>
+            <div class="mt-8 flex items-end justify-between border-t border-espresso/10 pt-6">
+              <div>
+                <p class="text-sm text-espresso/60">Per month</p>
+                <p class="font-serif text-5xl font-semibold"><span id="price">$32.30</span></p>
+                <p class="text-xs text-espresso/60"><s id="was">$38.00</s> · free shipping</p>
+              </div>
+              <a href="#" class="rounded-full bg-ember px-6 py-3.5 font-medium text-cream transition hover:bg-[#b4461a]">Join the club</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="mx-auto max-w-7xl px-5 pb-24 md:px-8">
+      <h2 class="reveal text-center font-serif text-5xl font-semibold tracking-tight">Letters from the counter</h2>
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        <figure class="reveal rounded-3xl border border-espresso/10 bg-white/40 p-7">
+          <div class="text-lg tracking-[0.2em] text-amber" aria-label="5 stars">★★★★★</div>
+          <blockquote class="mt-4 font-serif text-xl leading-snug">“The Guji tastes like blueberry pie. I didn’t believe tasting notes were real until this bag.”</blockquote>
+          <figcaption class="mt-6 text-sm"><b>Renata M.</b> · Club member since 2021</figcaption>
+        </figure>
+        <figure class="reveal rounded-3xl border border-espresso/10 bg-white/40 p-7">
+          <div class="text-lg tracking-[0.2em] text-amber" aria-label="5 stars">★★★★★</div>
+          <blockquote class="mt-4 font-serif text-xl leading-snug">“Roast date on the bag says Tuesday, it’s at my door Thursday. Night Shift is our office’s official fuel.”</blockquote>
+          <figcaption class="mt-6 text-sm"><b>Theo A.</b> · Office manager, Brightline</figcaption>
+        </figure>
+        <figure class="reveal rounded-3xl border border-espresso/10 bg-white/40 p-7">
+          <div class="text-lg tracking-[0.2em] text-amber" aria-label="5 stars">★★★★★</div>
+          <blockquote class="mt-4 font-serif text-xl leading-snug">“Their café is the reason I moved my morning walk. The cardamom latte is dangerous.”</blockquote>
+          <figcaption class="mt-6 text-sm"><b>June K.</b> · West Asheville neighbor</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Visit -->
+    <section id="visit" class="border-t border-espresso/10 bg-oat/50">
+      <div class="mx-auto grid max-w-7xl gap-6 px-5 py-20 md:grid-cols-3 md:px-8">
+        <div class="reveal">
+          <h2 class="font-serif text-4xl font-semibold">Come say hi.</h2>
+          <p class="mt-4 text-espresso/70">Free public cuppings every Saturday at 10am. Wholesale partners can book a private session any weekday.</p>
+        </div>
+        <div class="reveal rounded-3xl bg-cream p-7"><iconify-icon icon="lucide:coffee" class="text-2xl text-ember"></iconify-icon>
+          <h3 class="mt-4 font-serif text-2xl font-semibold">Roastery &amp; Café</h3>
+          <p class="mt-2 text-sm text-espresso/70">218 Haywood Rd, Asheville NC</p>
+          <p class="mt-4 text-sm">Mon–Fri 7a–4p · Sat–Sun 8a–3p</p>
+        </div>
+        <div class="reveal rounded-3xl bg-cream p-7"><iconify-icon icon="lucide:store" class="text-2xl text-ember"></iconify-icon>
+          <h3 class="mt-4 font-serif text-2xl font-semibold">Downtown Kiosk</h3>
+          <p class="mt-2 text-sm text-espresso/70">41 Lexington Ave, Asheville NC</p>
+          <p class="mt-4 text-sm">Daily 7a–2p · Espresso &amp; beans to go</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-espresso text-cream/70">
+    <div class="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:grid-cols-12 md:px-8">
+      <div class="md:col-span-5">
+        <p class="font-serif text-3xl font-semibold text-cream">Ember Roasters</p>
+        <p class="mt-3 max-w-sm text-sm">Get the roast calendar and first dibs on micro-lots. One email a fortnight.</p>
+        <form class="mt-5 flex max-w-sm overflow-hidden rounded-full border border-cream/20 bg-cream/5" onsubmit="event.preventDefault(); this.innerHTML='<p class=&quot;px-5 py-3 text-sm text-amber&quot;>You’re on the list ✺</p>';"><input type="email" required placeholder="you@email.com" class="flex-1 bg-transparent px-5 py-3 text-sm text-cream placeholder:text-cream/40 focus:outline-none" aria-label="Email"><button class="bg-ember px-5 text-sm font-medium text-cream hover:bg-[#b4461a]">Sign up</button></form>
+      </div>
+      <div class="text-sm md:col-span-2">
+        <h3 class="font-bold text-cream">Shop</h3>
+        <ul class="mt-4 space-y-2">
+          <li><a href="#" class="hover:text-amber">Single origins</a></li>
+          <li><a href="#" class="hover:text-amber">Blends</a></li>
+          <li><a href="#" class="hover:text-amber">Brew gear</a></li>
+          <li><a href="#" class="hover:text-amber">Gift cards</a></li>
+        </ul>
+      </div>
+      <div class="text-sm md:col-span-2">
+        <h3 class="font-bold text-cream">Learn</h3>
+        <ul class="mt-4 space-y-2">
+          <li><a href="#" class="hover:text-amber">Brew guides</a></li>
+          <li><a href="#" class="hover:text-amber">Our farms</a></li>
+          <li><a href="#" class="hover:text-amber">Transparency report</a></li>
+        </ul>
+      </div>
+      <div class="text-sm md:col-span-3">
+        <h3 class="font-bold text-cream">Help</h3>
+        <ul class="mt-4 space-y-2">
+          <li><a href="#" class="hover:text-amber">Shipping &amp; returns</a></li>
+          <li><a href="#" class="hover:text-amber">Manage subscription</a></li>
+          <li><a href="#" class="hover:text-amber">Wholesale</a></li>
+          <li><a href="#" class="hover:text-amber">hello@emberroasters.example</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-cream/10">
+      <div class="mx-auto flex max-w-7xl flex-col justify-between gap-2 px-5 py-6 text-xs text-cream/40 sm:flex-row md:px-8">
+        <p>© 2026 Ember Roasters Co.</p>
+        <p>Roasted with care in the Blue Ridge Mountains.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    const count = document.getElementById('cartCount');
+    document.querySelectorAll('.add').forEach((b) => b.addEventListener('click', () => { count.textContent = +count.textContent + 1; b.innerHTML = '✓ Added'; setTimeout(() => (b.innerHTML = '<iconify-icon icon="lucide:plus"></iconify-icon>Add'), 1400); }));
+    const btns = document.querySelectorAll('#freq button');
+    btns.forEach((b) => b.addEventListener('click', () => {
+      btns.forEach((x) => x.className = 'rounded-xl border-2 border-espresso/15 py-3 text-sm font-medium transition');
+      b.className = 'rounded-xl border-2 border-espresso bg-espresso py-3 text-sm font-medium text-cream transition';
+      const full = 19 * +b.dataset.mult;
+      document.getElementById('price').textContent = '$' + (full * 0.85).toFixed(2);
+      document.getElementById('was').textContent = '$' + full.toFixed(2);
+    }));
+  </script>
+</body>
+</html>
