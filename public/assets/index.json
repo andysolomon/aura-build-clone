@@ -1,0 +1,602 @@
+[
+  {
+    "slug": "mesh-pastel-9x16",
+    "title": "Pastel mesh gradient",
+    "category": "gradient",
+    "palette": "Pastel",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "mesh-lavender-16x9",
+    "title": "Lavender mesh gradient",
+    "category": "gradient",
+    "palette": "Lavender",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "mesh-sunset-4x3",
+    "title": "Sunset mesh gradient",
+    "category": "gradient",
+    "palette": "Sunset",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "mesh-neon-1x1",
+    "title": "Neon mesh gradient",
+    "category": "gradient",
+    "palette": "Neon",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "mesh-ember-3x4",
+    "title": "Ember mesh gradient",
+    "category": "gradient",
+    "palette": "Ember",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "mesh-midnight-9x16",
+    "title": "Midnight mesh gradient",
+    "category": "gradient",
+    "palette": "Midnight",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "aurora-ember-4x3",
+    "title": "Ember aurora",
+    "category": "gradient",
+    "palette": "Ember",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "aurora-midnight-1x1",
+    "title": "Midnight aurora",
+    "category": "gradient",
+    "palette": "Midnight",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "aurora-forest-3x4",
+    "title": "Forest aurora",
+    "category": "gradient",
+    "palette": "Forest",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "aurora-mono-9x16",
+    "title": "Mono aurora",
+    "category": "gradient",
+    "palette": "Mono",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "aurora-mint-16x9",
+    "title": "Mint aurora",
+    "category": "gradient",
+    "palette": "Mint",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": true
+  },
+  {
+    "slug": "aurora-ocean-4x3",
+    "title": "Ocean aurora",
+    "category": "gradient",
+    "palette": "Ocean",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "grain-mono-16x9",
+    "title": "Mono grain gradient",
+    "category": "texture",
+    "palette": "Mono",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": true
+  },
+  {
+    "slug": "grain-mint-4x3",
+    "title": "Mint grain gradient",
+    "category": "texture",
+    "palette": "Mint",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "grain-ocean-1x1",
+    "title": "Ocean grain gradient",
+    "category": "texture",
+    "palette": "Ocean",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "grain-pastel-3x4",
+    "title": "Pastel grain gradient",
+    "category": "texture",
+    "palette": "Pastel",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "grain-lavender-9x16",
+    "title": "Lavender grain gradient",
+    "category": "texture",
+    "palette": "Lavender",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "grain-sunset-16x9",
+    "title": "Sunset grain gradient",
+    "category": "texture",
+    "palette": "Sunset",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "grid-pastel-9x16",
+    "title": "Pastel spotlight grid",
+    "category": "pattern",
+    "palette": "Pastel",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "grid-lavender-16x9",
+    "title": "Lavender spotlight grid",
+    "category": "pattern",
+    "palette": "Lavender",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "grid-sunset-4x3",
+    "title": "Sunset spotlight grid",
+    "category": "pattern",
+    "palette": "Sunset",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "grid-neon-1x1",
+    "title": "Neon spotlight grid",
+    "category": "pattern",
+    "palette": "Neon",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "grid-ember-3x4",
+    "title": "Ember spotlight grid",
+    "category": "pattern",
+    "palette": "Ember",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "grid-midnight-9x16",
+    "title": "Midnight spotlight grid",
+    "category": "pattern",
+    "palette": "Midnight",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "dots-pastel-9x16",
+    "title": "Pastel dot field",
+    "category": "pattern",
+    "palette": "Pastel",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "dots-lavender-16x9",
+    "title": "Lavender dot field",
+    "category": "pattern",
+    "palette": "Lavender",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "dots-sunset-4x3",
+    "title": "Sunset dot field",
+    "category": "pattern",
+    "palette": "Sunset",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "dots-neon-1x1",
+    "title": "Neon dot field",
+    "category": "pattern",
+    "palette": "Neon",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "dots-ember-3x4",
+    "title": "Ember dot field",
+    "category": "pattern",
+    "palette": "Ember",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "dots-midnight-9x16",
+    "title": "Midnight dot field",
+    "category": "pattern",
+    "palette": "Midnight",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "waves-mono-16x9",
+    "title": "Mono layered waves",
+    "category": "abstract",
+    "palette": "Mono",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": true
+  },
+  {
+    "slug": "waves-mint-4x3",
+    "title": "Mint layered waves",
+    "category": "abstract",
+    "palette": "Mint",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "waves-ocean-1x1",
+    "title": "Ocean layered waves",
+    "category": "abstract",
+    "palette": "Ocean",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "waves-pastel-3x4",
+    "title": "Pastel layered waves",
+    "category": "abstract",
+    "palette": "Pastel",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "waves-lavender-9x16",
+    "title": "Lavender layered waves",
+    "category": "abstract",
+    "palette": "Lavender",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "waves-sunset-16x9",
+    "title": "Sunset layered waves",
+    "category": "abstract",
+    "palette": "Sunset",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "blob-pastel-9x16",
+    "title": "Pastel organic blob",
+    "category": "abstract",
+    "palette": "Pastel",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "blob-lavender-16x9",
+    "title": "Lavender organic blob",
+    "category": "abstract",
+    "palette": "Lavender",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "blob-sunset-4x3",
+    "title": "Sunset organic blob",
+    "category": "abstract",
+    "palette": "Sunset",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "blob-neon-1x1",
+    "title": "Neon organic blob",
+    "category": "abstract",
+    "palette": "Neon",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "blob-ember-3x4",
+    "title": "Ember organic blob",
+    "category": "abstract",
+    "palette": "Ember",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "blob-midnight-9x16",
+    "title": "Midnight organic blob",
+    "category": "abstract",
+    "palette": "Midnight",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "contour-lavender-1x1",
+    "title": "Lavender topographic lines",
+    "category": "pattern",
+    "palette": "Lavender",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "contour-sunset-3x4",
+    "title": "Sunset topographic lines",
+    "category": "pattern",
+    "palette": "Sunset",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "contour-neon-9x16",
+    "title": "Neon topographic lines",
+    "category": "pattern",
+    "palette": "Neon",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "contour-ember-16x9",
+    "title": "Ember topographic lines",
+    "category": "pattern",
+    "palette": "Ember",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": true
+  },
+  {
+    "slug": "contour-midnight-4x3",
+    "title": "Midnight topographic lines",
+    "category": "pattern",
+    "palette": "Midnight",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "contour-forest-1x1",
+    "title": "Forest topographic lines",
+    "category": "pattern",
+    "palette": "Forest",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "rays-pastel-9x16",
+    "title": "Pastel light rays",
+    "category": "abstract",
+    "palette": "Pastel",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "rays-lavender-16x9",
+    "title": "Lavender light rays",
+    "category": "abstract",
+    "palette": "Lavender",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": true
+  },
+  {
+    "slug": "rays-sunset-4x3",
+    "title": "Sunset light rays",
+    "category": "abstract",
+    "palette": "Sunset",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "rays-neon-1x1",
+    "title": "Neon light rays",
+    "category": "abstract",
+    "palette": "Neon",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "rays-ember-3x4",
+    "title": "Ember light rays",
+    "category": "abstract",
+    "palette": "Ember",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "rays-midnight-9x16",
+    "title": "Midnight light rays",
+    "category": "abstract",
+    "palette": "Midnight",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "orbs-pastel-9x16",
+    "title": "Pastel glass orbs",
+    "category": "3d",
+    "palette": "Pastel",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": false
+  },
+  {
+    "slug": "orbs-lavender-16x9",
+    "title": "Lavender glass orbs",
+    "category": "3d",
+    "palette": "Lavender",
+    "ratio": "16:9",
+    "width": 1600,
+    "height": 900,
+    "dark": false
+  },
+  {
+    "slug": "orbs-sunset-4x3",
+    "title": "Sunset glass orbs",
+    "category": "3d",
+    "palette": "Sunset",
+    "ratio": "4:3",
+    "width": 1600,
+    "height": 1200,
+    "dark": false
+  },
+  {
+    "slug": "orbs-neon-1x1",
+    "title": "Neon glass orbs",
+    "category": "3d",
+    "palette": "Neon",
+    "ratio": "1:1",
+    "width": 1200,
+    "height": 1200,
+    "dark": true
+  },
+  {
+    "slug": "orbs-ember-3x4",
+    "title": "Ember glass orbs",
+    "category": "3d",
+    "palette": "Ember",
+    "ratio": "3:4",
+    "width": 1200,
+    "height": 1600,
+    "dark": true
+  },
+  {
+    "slug": "orbs-midnight-9x16",
+    "title": "Midnight glass orbs",
+    "category": "3d",
+    "palette": "Midnight",
+    "ratio": "9:16",
+    "width": 900,
+    "height": 1600,
+    "dark": true
+  }
+]

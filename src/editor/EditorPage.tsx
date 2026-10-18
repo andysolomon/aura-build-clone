@@ -6,9 +6,9 @@ import { splitGeneration, type GenerateRequest } from "../../shared/protocol";
 import type { Device } from "../components/DeviceToggle";
 import { PromptComposer, type ComposerState } from "../components/PromptComposer";
 import { Button, Spinner } from "../components/ui";
-import { fetchTemplateHtml, findTemplate } from "../data/templates";
 import { api, streamGenerate } from "../lib/api";
 import { reloadAppConfig, usableModel, useAppConfig } from "../lib/projects";
+import { resolveReference, resolveSkills } from "../lib/references";
 import { now, pageTitle, thumbnail, uid } from "../lib/util";
 import { applyPatch, selectorFor, sourceOuterHTML, withSourceAttributes, type Patch, type SelectionInfo } from "./bridge";
 import { ChatPanel, type LiveGeneration } from "./ChatPanel";
@@ -31,11 +31,13 @@ export function EditorPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const config = useAppConfig();
-  const [composer, setComposer] = useState<ComposerState>({ prompt: "", model: "", designSystemId: null, referenceSlugs: [], images: [] });
+  const [composer, setComposer] = useState<ComposerState>({ prompt: "", model: "", designSystemId: null, referenceSlugs: [], skillSlugs: [], images: [] });
   const [view, setView] = useState<EditorView>("preview");
   const [device, setDevice] = useState<Device>("desktop");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
+  // Bumped by "Reload preview" to rebuild the preview iframes from scratch.
+  const [previewKey, setPreviewKey] = useState(0);
 
   const [live, setLive] = useState<LiveGeneration | null>(null);
   const [liveRaw, setLiveRaw] = useState("");
@@ -122,7 +124,7 @@ export function EditorPage() {
 
     try {
       const references = await Promise.all(
-        input.referenceSlugs.map(async (slug) => ({ title: findTemplate(slug)?.title ?? slug, html: (await fetchTemplateHtml(slug)).slice(0, 60_000) })),
+        input.referenceSlugs.map(resolveReference),
       );
       await streamGenerate(
         {
@@ -133,6 +135,7 @@ export function EditorPage() {
           selection: scoped,
           history,
           references,
+          skills: resolveSkills(input.skillSlugs ?? []),
           images: input.images,
         },
         (event) => {
@@ -219,7 +222,7 @@ export function EditorPage() {
         ? { selector: selectorFor(html, scoped.id) ?? scoped.tag, outerHTML: (sourceOuterHTML(html, scoped.id) ?? scoped.outerHTML).slice(0, 8000) }
         : null;
     void generate({ ...composer, prompt }, scope);
-    setComposer((c) => ({ ...c, prompt: "", images: [], referenceSlugs: [] }));
+    setComposer((c) => ({ ...c, prompt: "", images: [], referenceSlugs: [], skillSlugs: [] }));
   }
 
   // ---------- manual edits ----------
@@ -294,7 +297,7 @@ export function EditorPage() {
     const prompt = p.messages.slice(0, index).findLast((m) => m.role === "user");
     if (index === -1 || !prompt) return;
     commit((proj) => ({ ...proj, messages: proj.messages.filter((m) => m.id !== errorId && m.id !== prompt.id) }));
-    void generate({ ...composer, prompt: prompt.content, referenceSlugs: [], images: [] }, null);
+    void generate({ ...composer, prompt: prompt.content, referenceSlugs: [], skillSlugs: [], images: [] }, null);
   }
 
   function restore(versionId: string) {
@@ -347,6 +350,10 @@ export function EditorPage() {
         onUndo={undo}
         onRedo={redo}
         onPublished={(slug) => commit((p) => ({ ...p, publishedSlug: slug }))}
+        onReloadPreview={() => {
+          setSelection(null);
+          setPreviewKey((k) => k + 1);
+        }}
       />
       <div className="flex min-h-0 flex-1">
         {sidebarOpen && (
@@ -383,6 +390,7 @@ export function EditorPage() {
             <CodeView html={codeHtml} streaming={Boolean(live)} onSave={(next) => replaceHtml(next)} />
           ) : previewHtml ? (
             <PreviewFrame
+              key={previewKey}
               html={previewHtml}
               device={device}
               designMode={view === "design" && !live}

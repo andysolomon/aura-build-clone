@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurora Mesh Background | Drifting gradient light field with film grain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Unbounded:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { display: ['Unbounded', 'system-ui', 'sans-serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #05060a; }
+  .field { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+  .drift { position: absolute; inset: -8%; transform: translate3d(var(--px, 0px), var(--py, 0px), 0); }
+  .blob { position: absolute; aspect-ratio: 1 / 1; border-radius: 50%; filter: blur(70px); mix-blend-mode: screen; will-change: transform; }
+  .b1 { width: max(46vw, 420px); left: -4%; top: -8%; background: radial-gradient(closest-side, rgba(20,184,166,.9), rgba(13,148,136,.4) 55%, transparent); animation: d1 26s ease-in-out infinite alternate; }
+  .b2 { width: max(42vw, 380px); right: -2%; top: -4%; background: radial-gradient(closest-side, rgba(124,58,237,.95), rgba(91,33,182,.4) 55%, transparent); animation: d2 30s ease-in-out infinite alternate; }
+  .b3 { width: max(48vw, 440px); left: 30%; bottom: -18%; background: radial-gradient(closest-side, rgba(219,39,119,.8), rgba(190,24,93,.32) 55%, transparent); animation: d3 24s ease-in-out infinite alternate; }
+  .b4 { width: max(20vw, 210px); left: 16%; bottom: 10%; background: radial-gradient(closest-side, rgba(163,230,53,.55), rgba(132,204,22,.15) 60%, transparent); animation: d4 19s ease-in-out infinite alternate; }
+  .b5 { width: max(32vw, 300px); right: 6%; bottom: -4%; background: radial-gradient(closest-side, rgba(14,116,144,.85), transparent); animation: d5 34s ease-in-out infinite alternate; }
+  .b6 { width: max(78vw, 640px); aspect-ratio: 3 / 1; left: 10%; top: 32%; border-radius: 50%; filter: blur(70px); opacity: .72;
+    background: linear-gradient(100deg, rgba(45,212,191,.9), rgba(139,92,246,.9) 45%, rgba(236,72,153,.75) 80%, rgba(163,230,53,.5));
+    transform: rotate(-10deg); animation: d6 22s ease-in-out infinite alternate; }
+  @keyframes d6 { to { transform: rotate(-4deg) translate3d(-4vw, 6vh, 0) scale(1.08); } }
+  @keyframes d1 { to { transform: translate3d(14vw, 12vh, 0) scale(1.15); } }
+  @keyframes d2 { to { transform: translate3d(-12vw, 16vh, 0) scale(.88); } }
+  @keyframes d3 { to { transform: translate3d(-12vw, -14vh, 0) scale(1.12); } }
+  @keyframes d4 { to { transform: translate3d(24vw, -16vh, 0) scale(1.3); } }
+  @keyframes d5 { to { transform: translate3d(-16vw, -10vh, 0) scale(1.1); } }
+  .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 70% at 50% 45%, rgba(5,6,10,.25) 20%, rgba(5,6,10,.35) 55%, rgba(5,6,10,.8) 100%); }
+  .grain {
+    position: absolute; inset: -60%; opacity: .16; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain 1.4s steps(6) infinite;
+  }
+  @keyframes grain { 0% { transform: translate(0, 0); } 20% { transform: translate(-2%, 3%); } 40% { transform: translate(3%, -1%); } 60% { transform: translate(-3%, -2%); } 80% { transform: translate(2%, 2%); } 100% { transform: translate(0, 0); } }
+  .rise { opacity: 0; transform: translateY(16px); filter: blur(6px); animation: rise .9s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: var(--d, 0s); }
+  @keyframes rise { to { opacity: 1; transform: none; filter: blur(0); } }
+  .shine { background: linear-gradient(100deg, #f5f3ff 5%, #99f6e4 40%, #d9f99d 62%, #f9a8d4 85%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .grain { animation: none; }
+    .b6 { transform: rotate(-10deg); }
+    .rise { animation: none; opacity: 1; transform: none; filter: none; }
+  }
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden font-sans text-white antialiased">
+  <div class="field" aria-hidden="true">
+    <div class="drift" id="drift">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div class="blob b4"></div>
+      <div class="blob b5"></div>
+      <div class="blob b6"></div>
+    </div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+  </div>
+
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <header class="flex items-center justify-between px-6 py-5 sm:px-10">
+      <a href="#" class="flex items-center gap-2.5 text-[15px] font-medium tracking-tight text-white/90">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
+          <defs><linearGradient id="hal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5eead4"/><stop offset=".5" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472b6"/></linearGradient></defs>
+          <circle cx="12" cy="12" r="9.5" stroke="url(#hal)" stroke-width="2"/>
+          <path d="M6.5 15.5c2.6-5 8.4-5 11 0" stroke="url(#hal)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="8.5" r="1.7" fill="#fff"/>
+        </svg>
+        Halcyon
+      </a>
+      <div class="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10.5px] font-medium uppercase tracking-[.2em] text-white/60 backdrop-blur">
+        <span class="h-1.5 w-1.5 rounded-full bg-lime-300 shadow-[0_0_10px_#bef264]"></span>Live field
+      </div>
+    </header>
+
+    <main class="flex flex-1 items-center justify-center px-6 pb-16 pt-4 text-center">
+      <div class="max-w-4xl">
+        <a href="#" class="rise inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] py-1 pl-1 pr-3 text-xs text-white/75 backdrop-blur-md transition hover:bg-white/10" style="--d:.05s">
+          <span class="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white">New</span>
+          Aurora shaders, now in every workspace
+          <iconify-icon icon="lucide:arrow-right" class="text-sm"></iconify-icon>
+        </a>
+        <h1 class="rise mt-7 font-display text-[clamp(2.3rem,6.4vw,5.4rem)] font-medium leading-[1.03] tracking-[-0.045em]" style="--d:.15s">
+          Design in the dark,<br class="hidden sm:block"> <span class="shine">ship in the light.</span>
+        </h1>
+        <p class="rise mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/60 sm:text-lg" style="--d:.3s">
+          Halcyon turns late-night explorations into production-ready interfaces. Five drifting light sources, real film grain, zero image weight.
+        </p>
+        <div class="rise mt-9 flex items-center justify-center" style="--d:.42s">
+          <a href="#" class="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-5 py-2.5 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_12px_40px_-12px_rgba(124,58,237,.7)] backdrop-blur-md transition hover:bg-white/[0.14]">
+            Join the waitlist
+            <iconify-icon icon="lucide:arrow-up-right" class="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></iconify-icon>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="flex flex-wrap items-center justify-center gap-3 px-6 pb-7 text-[11px] text-white/50 sm:justify-between sm:px-10">
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 backdrop-blur"><span class="h-2 w-2 rounded-full bg-[#14b8a6]"></span>Teal 14B8A6</span>
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 backdrop-blur"><span class="h-2 w-2 rounded-full bg-[#7c3aed]"></span>Violet 7C3AED</span>
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 backdrop-blur"><span class="h-2 w-2 rounded-full bg-[#db2777]"></span>Magenta DB2777</span>
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 backdrop-blur"><span class="h-2 w-2 rounded-full bg-[#a3e635]"></span>Lime A3E635</span>
+      </div>
+      <span class="hidden items-center gap-1.5 sm:inline-flex"><iconify-icon icon="lucide:move" class="text-xs"></iconify-icon>Move your pointer to steer the field</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      document.querySelectorAll('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+      const el = document.getElementById('drift');
+      if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+      const step = () => {
+        x += (tx - x) * 0.05; y += (ty - y) * 0.05;
+        el.style.setProperty('--px', x.toFixed(2) + 'px');
+        el.style.setProperty('--py', y.toFixed(2) + 'px');
+        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.1 ? requestAnimationFrame(step) : 0;
+      };
+      addEventListener('pointermove', (e) => {
+        tx = (e.clientX / innerWidth - 0.5) * -48;
+        ty = (e.clientY / innerHeight - 0.5) * -32;
+        if (!raf) raf = requestAnimationFrame(step);
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

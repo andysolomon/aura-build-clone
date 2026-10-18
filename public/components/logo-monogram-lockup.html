@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monogram and Lockup Brand Sheet | Orrery identity guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Sora', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  .orbit { transform-origin: 50px 50px; animation: orbit 16s linear infinite; }
+  @keyframes orbit { to { transform: rotate(360deg); } }
+  .label { position: absolute; left: 14px; top: 12px; font-size: 10px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
+  .swatch { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch:focus-visible { outline: 2px solid #3346ff; outline-offset: 3px; border-radius: 14px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; z-index: 50; opacity: 0; transform: translate(-50%, 12px); pointer-events: none;
+    transition: opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1); }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) { .orbit { animation: none; } }
+</style>
+</head>
+<body class="grid min-h-screen grid-cols-1 place-items-center p-8 font-sans antialiased">
+  <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+    <symbol id="mark" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="2" opacity=".22"/>
+      <path d="M6 50A44 44 0 0 1 81.11 18.89" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>
+      <circle cx="50" cy="50" r="27" fill="none" stroke="currentColor" stroke-width="14"/>
+      <circle cx="81.11" cy="18.89" r="7" style="fill: var(--dot, #d4a857)"/>
+    </symbol>
+  </svg>
+
+  <main class="w-full min-w-0 max-w-[1080px] rounded-[28px] border border-black/[0.07] bg-white p-4 text-[#0d1321] shadow-[0_40px_100px_-50px_rgba(13,19,33,.5)] sm:p-6">
+    <header class="flex flex-wrap items-center justify-between gap-3 px-1 pb-4">
+      <div class="flex items-center gap-3">
+        <svg class="h-8 w-8" aria-hidden="true"><use href="#mark"/></svg>
+        <div class="leading-tight"><p class="text-[13px] font-semibold tracking-[-0.01em]">Orrery Brand Sheet</p><p class="text-[11px] text-zinc-500">Mark, lockups and color, v1.2</p></div>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-zinc-500">
+        <span class="rounded-full border border-zinc-200 px-2.5 py-1">Section 02 / Identity</span>
+        <span class="hidden items-center gap-1.5 rounded-full bg-[#0d1321] px-2.5 py-1 text-white sm:inline-flex"><iconify-icon icon="lucide:badge-check" class="text-[#d4a857]"></iconify-icon>Approved</span>
+      </div>
+    </header>
+
+    <div class="grid gap-3 lg:grid-cols-12">
+      <section class="relative overflow-hidden rounded-2xl bg-[#0d1321] p-4 text-[#f4f0e8] lg:col-span-5" aria-label="Clear space construction">
+        <div class="flex justify-between text-[10px] font-medium uppercase tracking-[.16em] text-[#f4f0e8]/50"><span>Construction</span><span>Clear space = 2x</span></div>
+        <svg viewBox="0 0 320 320" class="mx-auto mt-2 block w-full max-w-[318px]" role="img" aria-label="Mark with dashed clear-space guides">
+          <defs><pattern id="bp" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#f4f0e8" stroke-opacity=".06"/></pattern></defs>
+          <rect width="320" height="320" fill="url(#bp)"/>
+          <g fill="none" stroke="#8fa0ff" stroke-opacity=".5" stroke-dasharray="3 4">
+            <line x1="160" y1="6" x2="160" y2="314"/><line x1="6" y1="160" x2="314" y2="160"/>
+            <line x1="160" y1="160" x2="292" y2="28"/>
+            <circle cx="160" cy="160" r="32"/><circle cx="160" cy="160" r="54.4"/>
+            <rect x="80" y="80" width="160" height="160"/>
+          </g>
+          <rect x="35.2" y="35.2" width="249.6" height="249.6" fill="none" stroke="#d4a857" stroke-opacity=".8" stroke-dasharray="6 5"/>
+          <g stroke="#d4a857" stroke-width="1.5" stroke-opacity=".8"><path d="M29 35.2h12M35.2 29v12M279 35.2h12M284.8 29v12M29 284.8h12M35.2 279v12M279 284.8h12M284.8 279v12"/></g>
+          <use href="#mark" x="80" y="80" width="160" height="160" style="color:#f4f0e8; --dot:#d4a857"/>
+          <g fill="#d4a857" fill-opacity=".12" stroke="#d4a857" stroke-opacity=".7" stroke-dasharray="2 2">
+            <rect x="148.8" y="35.2" width="22.4" height="22.4"/><rect x="148.8" y="57.6" width="22.4" height="22.4"/>
+            <rect x="148.8" y="240" width="22.4" height="22.4"/><rect x="148.8" y="262.4" width="22.4" height="22.4"/>
+            <rect x="35.2" y="148.8" width="22.4" height="22.4"/><rect x="57.6" y="148.8" width="22.4" height="22.4"/>
+            <rect x="240" y="148.8" width="22.4" height="22.4"/><rect x="262.4" y="148.8" width="22.4" height="22.4"/>
+          </g>
+          <g fill="#f2d49a" font-size="10" font-style="italic" font-family="Sora, sans-serif" text-anchor="middle">
+            <text x="160" y="50">x</text><text x="160" y="72.4">x</text><text x="160" y="255">x</text><text x="160" y="277.4">x</text>
+            <text x="46.4" y="163.6">x</text><text x="68.8" y="163.6">x</text><text x="251.2" y="163.6">x</text><text x="273.6" y="163.6">x</text>
+          </g>
+          <circle cx="209.8" cy="110.2" r="16" fill="none" stroke="#f2d49a" stroke-dasharray="2 3"/>
+          <path d="M224 98 248 84h18" fill="none" stroke="#f2d49a" stroke-opacity=".8"/>
+          <text x="270" y="87.5" fill="#f2d49a" font-size="10" font-style="italic" font-family="Sora, sans-serif">x</text>
+        </svg>
+        <div class="mt-1 flex justify-between text-[10px] text-[#f4f0e8]/50"><span>x = orbit-dot diameter</span><span>Min. size 20 px / 6 mm</span></div>
+      </section>
+
+      <div class="grid gap-3 lg:col-span-7 lg:grid-rows-[1.2fr_1fr]">
+        <div class="grid gap-3 sm:grid-cols-5">
+          <section class="relative grid min-h-[176px] place-items-center rounded-2xl bg-[#f4f0e8] sm:col-span-3" aria-label="Horizontal lockup">
+            <span class="label text-[#0d1321]/45">Horizontal / primary</span>
+            <div class="flex items-center gap-3.5 pt-3"><svg class="h-14 w-14" aria-hidden="true"><use href="#mark"/></svg><span class="text-[46px] font-semibold leading-none tracking-[-0.06em]">orrery</span></div>
+          </section>
+          <section class="relative grid min-h-[176px] place-items-center rounded-2xl border border-zinc-200 bg-white sm:col-span-2" aria-label="Stacked lockup">
+            <span class="label text-zinc-400">Stacked</span>
+            <div class="flex flex-col items-center pt-4"><svg class="h-12 w-12" aria-hidden="true"><use href="#mark"/></svg><span class="mt-2.5 text-[28px] font-semibold leading-none tracking-[-0.055em]">orrery</span><span class="mt-2 text-[8.5px] font-medium uppercase tracking-[.3em] text-zinc-500">Long-range planning</span></div>
+          </section>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <section class="relative grid min-h-[132px] place-items-center rounded-2xl bg-[#f4f0e8]"><span class="label text-[#0d1321]/45">Light</span><svg class="mt-3 h-14 w-14" aria-label="Mark on parchment"><use href="#mark"/></svg></section>
+          <section class="relative grid min-h-[132px] place-items-center rounded-2xl bg-[#0d1321]"><span class="label text-white/40">Dark</span><svg class="mt-3 h-14 w-14 text-[#f4f0e8]" aria-label="Mark on ink"><use href="#mark"/></svg></section>
+          <section class="relative grid min-h-[132px] place-items-center overflow-hidden rounded-2xl bg-[radial-gradient(120%_100%_at_100%_0%,#5868ff,#3346ff_55%,#2a37d6)]"><span class="label text-white/60">Brand</span>
+            <svg viewBox="0 0 100 100" class="mt-3 h-14 w-14 text-white" aria-label="Mark on orbit blue"><circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="2" opacity=".25"/><circle cx="50" cy="50" r="27" fill="none" stroke="currentColor" stroke-width="14"/><g class="orbit"><path d="M6 50A44 44 0 0 1 81.11 18.89" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".6"/><circle cx="81.11" cy="18.89" r="7" fill="#f2c879"/></g></svg>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <section class="mt-3 rounded-2xl border border-zinc-200 p-3 sm:p-4" aria-label="Color palette">
+      <div class="mb-3 flex items-center justify-between px-0.5 text-[10px] font-medium uppercase tracking-[.16em] text-zinc-400"><span>Palette</span><span class="normal-case tracking-normal">Click a swatch to copy</span></div>
+      <div class="grid grid-cols-3 gap-3 sm:grid-cols-5">
+        <button type="button" class="swatch group text-left" data-hex="#0D1321"><span class="block h-14 rounded-xl bg-[#0d1321]"></span><span class="mt-2 flex items-center justify-between px-0.5"><span><span class="block text-[12px] font-semibold">Ink</span><span class="hex block text-[11px] text-zinc-500">#0D1321</span></span><iconify-icon icon="lucide:copy" class="ic text-[14px] text-zinc-400 group-hover:text-zinc-900"></iconify-icon></span></button>
+        <button type="button" class="swatch group text-left" data-hex="#3346FF"><span class="block h-14 rounded-xl bg-[#3346ff]"></span><span class="mt-2 flex items-center justify-between px-0.5"><span><span class="block text-[12px] font-semibold">Orbit Blue</span><span class="hex block text-[11px] text-zinc-500">#3346FF</span></span><iconify-icon icon="lucide:copy" class="ic text-[14px] text-zinc-400 group-hover:text-zinc-900"></iconify-icon></span></button>
+        <button type="button" class="swatch group text-left" data-hex="#D4A857"><span class="block h-14 rounded-xl bg-[#d4a857]"></span><span class="mt-2 flex items-center justify-between px-0.5"><span><span class="block text-[12px] font-semibold">Brass</span><span class="hex block text-[11px] text-zinc-500">#D4A857</span></span><iconify-icon icon="lucide:copy" class="ic text-[14px] text-zinc-400 group-hover:text-zinc-900"></iconify-icon></span></button>
+        <button type="button" class="swatch group text-left" data-hex="#F4F0E8"><span class="block h-14 rounded-xl bg-[#f4f0e8] ring-1 ring-inset ring-black/5"></span><span class="mt-2 flex items-center justify-between px-0.5"><span><span class="block text-[12px] font-semibold">Parchment</span><span class="hex block text-[11px] text-zinc-500">#F4F0E8</span></span><iconify-icon icon="lucide:copy" class="ic text-[14px] text-zinc-400 group-hover:text-zinc-900"></iconify-icon></span></button>
+        <button type="button" class="swatch group text-left" data-hex="#8B93A7"><span class="block h-14 rounded-xl bg-[#8b93a7]"></span><span class="mt-2 flex items-center justify-between px-0.5"><span><span class="block text-[12px] font-semibold">Nebula</span><span class="hex block text-[11px] text-zinc-500">#8B93A7</span></span><iconify-icon icon="lucide:copy" class="ic text-[14px] text-zinc-400 group-hover:text-zinc-900"></iconify-icon></span></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast flex items-center gap-2 rounded-full bg-[#0d1321] px-4 py-2 text-[13px] font-medium text-white shadow-[0_12px_30px_-8px_rgba(13,19,33,.5)]" role="status" aria-live="polite">
+    <iconify-icon icon="lucide:check" class="text-[#d4a857]"></iconify-icon><span id="toast-text">Copied</span>
+  </div>
+
+  <script>
+    (() => {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      let toastTimer = 0;
+      const showToast = (msg) => {
+        toastText.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
+      };
+      const copy = async (text) => {
+        try {
+          if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+        } catch (e) { /* fall through to legacy copy */ }
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text; ta.setAttribute('readonly', '');
+          ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+          document.body.appendChild(ta); ta.select();
+          const ok = document.execCommand('copy');
+          ta.remove();
+          return ok;
+        } catch (e) { return false; }
+      };
+      document.querySelectorAll('.swatch').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const hex = btn.dataset.hex;
+          const ok = await copy(hex);
+          showToast(ok ? 'Copied ' + hex : 'Copy blocked: ' + hex);
+          const ic = btn.querySelector('.ic');
+          if (ok && ic) { ic.setAttribute('icon', 'lucide:check'); setTimeout(() => ic.setAttribute('icon', 'lucide:copy'), 1400); }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

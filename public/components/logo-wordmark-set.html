@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wordmark Set | Six original logo concepts on a presentation canvas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:ital,wght@0,600;1,500&family=Instrument+Serif&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Nunito:wght@800&family=Outfit:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  .tile-wrap { transition: opacity .35s ease, filter .35s ease, transform .35s ease; }
+  .tile-wrap.dim { opacity: .3; filter: grayscale(.7); transform: scale(.985); }
+  .tile { position: relative; display: grid; place-items: center; height: 176px; border-radius: 18px; overflow: hidden; outline: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06), inset 0 0 0 1px rgba(0,0,0,.06);
+    transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s cubic-bezier(.2,.8,.2,1); }
+  .tile::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.14), transparent 60%); }
+  .tile-wrap:hover .tile, .tile:focus-visible { transform: translateY(-5px); box-shadow: 0 22px 40px -20px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.06); }
+  .tile:focus-visible { box-shadow: 0 0 0 2px #fbfbfa, 0 0 0 4px #18181b; }
+  .tile-wrap:hover .tile::after { opacity: 1; }
+  .seg button { padding: 5px 12px; border-radius: 9999px; transition: background-color .2s, color .2s; }
+  .seg button.is-on { background: #18181b; color: #fff; }
+  .beam { display: inline-block; position: relative; width: 2px; height: 36px; margin: 0 10px 0 -2px; border-radius: 2px; transform: rotate(26deg);
+    background: linear-gradient(to top, transparent, #7dd3fc 45%, #fff); box-shadow: 0 0 14px 1px rgba(56,189,248,.6); }
+  .beam::before { content: ""; position: absolute; top: -3px; left: -2px; width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px 2px rgba(186,230,253,.9); }
+</style>
+</head>
+<body class="grid min-h-screen grid-cols-1 place-items-center p-8 font-sans antialiased">
+  <section class="w-full min-w-0 max-w-[1060px] rounded-3xl border border-zinc-900/[0.08] bg-[#fbfbfa] p-4 text-zinc-900 shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_30px_80px_-40px_rgba(0,0,0,.35)] sm:p-7">
+    <div class="flex flex-wrap items-end justify-between gap-4 px-1 pb-5">
+      <div>
+        <p class="text-[11px] font-medium uppercase tracking-[.2em] text-zinc-400">Identity explorations / Round 02</p>
+        <h1 class="mt-1.5 text-xl font-semibold tracking-[-0.02em]">Six wordmarks, six temperaments</h1>
+      </div>
+      <div class="seg inline-flex rounded-full border border-zinc-200 bg-white p-1 text-xs font-medium text-zinc-500 shadow-sm" role="group" aria-label="Filter tiles">
+        <button type="button" data-filter="all" class="is-on" aria-pressed="true">All</button>
+        <button type="button" data-filter="light" aria-pressed="false">Light</button>
+        <button type="button" data-filter="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+
+    <div class="grid gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+      <figure class="tile-wrap" data-tone="dark">
+        <div class="tile bg-[radial-gradient(120%_90%_at_50%_120%,#3a1a0c,#15110e_60%)]" tabindex="0" aria-label="Kiln logo concept">
+          <span class="absolute left-3 top-3 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-orange-200">Shortlist</span>
+          <div class="flex items-center gap-3">
+            <svg viewBox="0 0 40 40" class="h-12 w-12" aria-hidden="true"><defs><linearGradient id="kg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc56b"/><stop offset="1" stop-color="#ff5b1f"/></linearGradient></defs><path d="M20 3 30.4 20A12 12 0 1 1 9.6 20Z" fill="url(#kg)"/><path d="M20 17 25.2 25A6 6 0 1 1 14.8 25Z" fill="#1a120d"/></svg>
+            <span class="font-['Archivo_Black'] text-[46px] leading-none tracking-[-0.045em] text-[#f7efe6]">kiln</span>
+          </div>
+        </div>
+        <figcaption class="flex items-baseline justify-between gap-3 px-1 pt-2.5"><span class="text-[13px] font-semibold">Kiln</span><span class="truncate text-[11.5px] text-zinc-500">Geometric flame, heavy grotesk</span></figcaption>
+      </figure>
+
+      <figure class="tile-wrap" data-tone="light">
+        <div class="tile bg-[#f3eee5]" tabindex="0" aria-label="Meridian logo concept">
+          <span class="absolute bottom-3 left-3 font-['JetBrains_Mono'] text-[9.5px] uppercase tracking-[.2em] text-[#1d1a16]/40">Greenwich 0.0000</span>
+          <span class="font-['Instrument_Serif'] text-[56px] leading-none tracking-[-0.01em] text-[#1d1a16]"><span class="relative inline-block">M<span class="absolute -bottom-3.5 -top-4 left-1/2 w-px -translate-x-1/2 bg-[#c2410c]"></span><span class="absolute -top-[22px] left-1/2 h-[7px] w-[7px] -translate-x-1/2 rounded-full border border-[#c2410c] bg-[#f3eee5]"></span></span>eridian</span>
+        </div>
+        <figcaption class="flex items-baseline justify-between gap-3 px-1 pt-2.5"><span class="text-[13px] font-semibold">Meridian</span><span class="truncate text-[11.5px] text-zinc-500">Display serif, prime-meridian M</span></figcaption>
+      </figure>
+
+      <figure class="tile-wrap" data-tone="light">
+        <div class="tile bg-[linear-gradient(180deg,#eef8f6,#dff0ee)]" tabindex="0" aria-label="Tidepool logo concept">
+          <div class="flex items-center gap-2.5">
+            <svg viewBox="0 0 40 40" class="h-11 w-11" aria-hidden="true"><defs><clipPath id="tp"><circle cx="20" cy="20" r="17"/></clipPath></defs><circle cx="20" cy="20" r="17" fill="#0f766e"/><g clip-path="url(#tp)"><path d="M0 19q5-5 10 0t10 0 10 0 10 0V40H0Z" fill="#5eead4"/><path d="M0 26q5-4 10 0t10 0 10 0 10 0V40H0Z" fill="#ccfbf1"/></g><circle cx="27" cy="11" r="2.5" fill="#ccfbf1"/></svg>
+            <span class="font-['Nunito'] text-[40px] font-extrabold leading-none tracking-[-0.04em] text-[#0b3b3a]">tidepool</span>
+          </div>
+        </div>
+        <figcaption class="flex items-baseline justify-between gap-3 px-1 pt-2.5"><span class="text-[13px] font-semibold">Tidepool</span><span class="truncate text-[11.5px] text-zinc-500">Rounded wave mark, soft sans</span></figcaption>
+      </figure>
+
+      <figure class="tile-wrap" data-tone="dark">
+        <div class="tile bg-[#0a0c11] bg-[radial-gradient(80%_70%_at_70%_0%,rgba(56,189,248,.18),transparent_60%)]" tabindex="0" aria-label="Northbeam logo concept">
+          <div class="flex items-center font-['JetBrains_Mono'] text-[19px] font-medium uppercase tracking-[.3em] text-zinc-100"><span>North</span><span class="beam" aria-hidden="true"></span><span>beam</span></div>
+        </div>
+        <figcaption class="flex items-baseline justify-between gap-3 px-1 pt-2.5"><span class="text-[13px] font-semibold">Northbeam</span><span class="truncate text-[11.5px] text-zinc-500">Spaced mono, beam slash</span></figcaption>
+      </figure>
+
+      <figure class="tile-wrap" data-tone="light">
+        <div class="tile bg-[#ece5d8]" tabindex="0" aria-label="Sable and Co. logo concept">
+          <span class="pointer-events-none absolute inset-3 rounded-xl border border-[#2b211a]/15"></span>
+          <span class="pointer-events-none absolute inset-[17px] rounded-[9px] border border-[#2b211a]/10"></span>
+          <div class="text-center text-[#2b211a]">
+            <p class="font-['Cormorant_Garamond'] text-[10px] font-semibold uppercase tracking-[.45em] text-[#7a6552]">Est. 1987</p>
+            <p class="mt-1 pl-[.2em] font-['Cormorant_Garamond'] text-[42px] font-semibold uppercase leading-none tracking-[.2em]">Sable</p>
+            <div class="mt-2 flex items-center justify-center gap-3"><span class="h-px w-10 bg-[#2b211a]/40"></span><span class="font-['Cormorant_Garamond'] text-[20px] font-medium italic">&amp; Co.</span><span class="h-px w-10 bg-[#2b211a]/40"></span></div>
+          </div>
+        </div>
+        <figcaption class="flex items-baseline justify-between gap-3 px-1 pt-2.5"><span class="text-[13px] font-semibold">Sable &amp; Co.</span><span class="truncate text-[11.5px] text-zinc-500">Heritage serif lockup</span></figcaption>
+      </figure>
+
+      <figure class="tile-wrap" data-tone="dark">
+        <div class="tile bg-[#0e0b22] bg-[radial-gradient(90%_80%_at_30%_100%,rgba(167,139,250,.24),transparent_60%)]" tabindex="0" aria-label="Prism logo concept">
+          <span class="absolute left-3 top-3 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-violet-200">Shortlist</span>
+          <div class="flex items-center gap-3">
+            <svg viewBox="0 0 48 40" class="h-11 w-[53px]" aria-hidden="true"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset=".5" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472b6"/></linearGradient></defs><path d="M0 23.5 15.4 20.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M24 4 40 34H8Z" fill="url(#pg)"/><path d="M24 4V34H40Z" fill="#fff" opacity=".18"/><path d="M33.6 22 48 17" stroke="#67e8f9" stroke-width="1.6" stroke-linecap="round"/><path d="M33.6 22 48 22.5" stroke="#a78bfa" stroke-width="1.6" stroke-linecap="round"/><path d="M33.6 22 48 28" stroke="#f472b6" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span class="font-['Outfit'] text-[42px] font-semibold leading-none tracking-[-0.04em] text-white">prism</span>
+          </div>
+        </div>
+        <figcaption class="flex items-baseline justify-between gap-3 px-1 pt-2.5"><span class="text-[13px] font-semibold">Prism</span><span class="truncate text-[11.5px] text-zinc-500">Refracted gradient triangle</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      document.querySelectorAll('.tile').forEach((t) => {
+        t.addEventListener('pointermove', (e) => {
+          const r = t.getBoundingClientRect();
+          t.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          t.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+      });
+      const buttons = [...document.querySelectorAll('[data-filter]')];
+      const tiles = [...document.querySelectorAll('[data-tone]')];
+      buttons.forEach((b) => b.addEventListener('click', () => {
+        const f = b.dataset.filter;
+        buttons.forEach((x) => { x.classList.toggle('is-on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+        tiles.forEach((w) => w.classList.toggle('dim', f !== 'all' && w.dataset.tone !== f));
+      }));
+    })();
+  </script>
+</body>
+</html>

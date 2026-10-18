@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noise Radial Glow Background | Warm apricot light with paper grain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { serif: ['Fraunces', 'Georgia', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #faf7f2; }
+  .glow-top {
+    position: absolute; left: 50%; top: -40vh; width: max(1200px, 130vw); height: 95vh; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255,160,110,.85), rgba(255,128,102,.45) 38%, rgba(255,190,150,.16) 68%, rgba(250,247,242,0) 100%);
+    filter: blur(24px); transform: translateX(-50%); animation: breathe 10s ease-in-out infinite;
+  }
+  .glow-core {
+    position: absolute; left: 50%; top: -18vh; width: min(720px, 90vw); height: 42vh; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255,122,84,.5), rgba(255,150,100,0)); filter: blur(30px);
+    transform: translateX(-50%); animation: breathe 10s ease-in-out infinite reverse;
+  }
+  .glow-cool {
+    position: absolute; right: -18vw; bottom: -30vh; width: max(60vw, 520px); aspect-ratio: 1 / 1; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(146,180,255,.38), rgba(170,200,255,.12) 55%, transparent); filter: blur(20px);
+    animation: breathe-cool 14s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%, 100% { transform: translateX(-50%) scale(1); opacity: .88; } 50% { transform: translateX(-50%) scale(1.07); opacity: 1; } }
+  @keyframes breathe-cool { 0%, 100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.1) translate(-2%, -3%); opacity: 1; } }
+  .horizon {
+    position: absolute; left: 50%; top: 77vh; width: max(1500px, 190vw); aspect-ratio: 1 / 1; border-radius: 50%;
+    transform: translateX(-50%); border-top: 1px solid rgba(180,83,42,.38);
+    background: radial-gradient(ellipse 34% 5% at 50% 0%, rgba(255,170,130,.32), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 14%); mask-image: linear-gradient(to bottom, #000, transparent 14%);
+  }
+  .noise {
+    position: absolute; inset: 0; opacity: .32; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='.6' intercept='.42'/%3E%3CfeFuncG type='linear' slope='.6' intercept='.42'/%3E%3CfeFuncB type='linear' slope='.6' intercept='.42'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+  .display-serif { font-variation-settings: "opsz" 56; }
+  .parallax { transform: translate3d(var(--gx, 0px), var(--gy, 0px), 0); }
+  .lift { animation: lift 1s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
+  @keyframes lift { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .glow-top, .glow-core, .glow-cool, .lift { animation: none; } }
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden font-sans text-stone-900 antialiased">
+  <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+    <div id="glow" class="parallax absolute inset-0">
+      <div class="glow-top"></div>
+      <div class="glow-core"></div>
+    </div>
+    <div class="glow-cool"></div>
+    <div class="horizon"></div>
+    <div class="noise"></div>
+  </div>
+
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <header class="flex items-center justify-between px-6 py-6 sm:px-10">
+      <a href="#" class="flex items-center gap-2">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true">
+          <circle cx="12" cy="14" r="6" fill="#c2410c"/>
+          <path d="M2 14h20" stroke="#faf7f2" stroke-width="2"/>
+          <path d="M3 18.5h18" stroke="#1c1917" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <span class="font-serif text-[21px] font-medium italic tracking-[-0.02em]">Ember</span>
+      </a>
+      <nav class="hidden items-center gap-8 text-[13.5px] text-stone-600 sm:flex">
+        <a href="#" class="transition hover:text-stone-900">Journal</a>
+        <a href="#" class="transition hover:text-stone-900">Method</a>
+        <a href="#" class="transition hover:text-stone-900">Pricing</a>
+      </nav>
+      <a href="#" class="rounded-full border border-stone-900/10 bg-white/50 px-4 py-1.5 text-[13px] font-medium text-stone-800 backdrop-blur transition hover:bg-white/80">Sign in</a>
+    </header>
+
+    <main class="flex flex-1 flex-col items-center justify-center px-6 pb-28 text-center">
+      <p class="lift inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.3em] text-stone-500" style="--d:.05s">
+        <span class="h-px w-6 bg-stone-400/70"></span>Field notes, Autumn 2026<span class="h-px w-6 bg-stone-400/70"></span>
+      </p>
+      <h1 class="lift mt-7 max-w-4xl display-serif font-serif text-[clamp(2.7rem,7.2vw,6rem)] font-normal leading-[0.98] tracking-[-0.035em] text-stone-900" style="--d:.15s">
+        Software that feels<br>like <em class="font-normal italic text-[#b4532a]">morning light.</em>
+      </h1>
+      <p class="lift mx-auto mt-7 max-w-md text-[15px] leading-relaxed text-stone-600" style="--d:.28s">
+        Ember is a calm workspace for writing, planning and thinking out loud. It stays quiet until you need it, then gets out of the way again.
+      </p>
+      <div class="lift mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" style="--d:.4s">
+        <a href="#" class="group inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-[#faf7f2] shadow-[0_10px_30px_-10px_rgba(194,65,12,.55)] transition hover:bg-stone-800">
+          Request early access<iconify-icon icon="lucide:arrow-right" class="transition-transform group-hover:translate-x-0.5"></iconify-icon>
+        </a>
+        <a href="#" class="text-sm text-stone-700 underline decoration-stone-300 underline-offset-[6px] transition hover:decoration-stone-600">Read the manifesto</a>
+      </div>
+    </main>
+
+    <footer class="flex items-center justify-center gap-2 pb-8 text-[11.5px] text-stone-500">
+      <iconify-icon icon="lucide:sunrise" class="text-[14px] text-[#c2410c]"></iconify-icon>
+      Opening to 400 new writers every Monday
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      document.querySelectorAll('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+      const glow = document.getElementById('glow');
+      if (!glow || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+      const step = () => {
+        x += (tx - x) * 0.04; y += (ty - y) * 0.04;
+        glow.style.setProperty('--gx', x.toFixed(2) + 'px');
+        glow.style.setProperty('--gy', y.toFixed(2) + 'px');
+        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.1 ? requestAnimationFrame(step) : 0;
+      };
+      addEventListener('pointermove', (e) => {
+        tx = (e.clientX / innerWidth - 0.5) * 60;
+        ty = (e.clientY / innerHeight - 0.5) * 24;
+        if (!raf) raf = requestAnimationFrame(step);
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

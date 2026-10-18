@@ -30,6 +30,15 @@ and is not affiliated with Aura.
   - **Export:** download HTML, copy the code, or open it in a new tab
   - **Publish:** serves the page at `/s/:slug`; re-publishing updates the same link
 - **Templates:** eight original templates with browse, search and filters, a detail preview, and Remix.
+- **Components** (`/components`): original HTML/Tailwind components (heroes, buttons, cards, pricing,
+  forms and more), each with a preview (white or black backdrop, device sizes), code view, copy,
+  download, Remix, and "Use in prompt" as an `@` reference.
+- **Assets** (`/assets`): 60 original procedural SVG backgrounds across 5 aspect ratios, with
+  SVG/PNG download and "Attach to prompt". Regenerate them with `npm run assets`.
+- **Skills** (`/skills`): agent skills (Markdown in `content/skills/`). Reference them with `@` and
+  the server adds their instructions to the request.
+- **Learn** (`/learn`): docs from `content/learn/`, with an "On this page" table of contents.
+- **Prompt enhancer** (`/resources/tools/prompt-enhancer`) and **Changelog** (`/changelog`).
 - **Projects**, **Pricing**, **DESIGN.md** systems, and light, dark and system themes.
 
 ## AI providers: use your own subscriptions
@@ -81,6 +90,9 @@ shared/         Types shared by client and server: models, design systems, SSE p
 src/pages/      Marketing pages: home, templates, pricing, design systems, projects
 src/editor/     Editor: chat, preview frame and Design-mode bridge, inspector, code view, header
 public/templates/  Original template HTML and thumbnails
+public/components/ Component library: HTML, thumbnails and index.json
+public/assets/     Generated SVG assets (scripts/generate-assets.ts) and index.json
+content/           Markdown for Learn docs and agent skills
 data/           Runtime storage for projects and published pages (gitignored)
 ```
 

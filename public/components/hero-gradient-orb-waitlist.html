@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Driftwave - A calmer inbox. Join the waitlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #fafaf9; -webkit-font-smoothing: antialiased; }
+  .halo { background: radial-gradient(closest-side, rgba(253,186,165,.35), rgba(196,181,253,.18) 55%, transparent); filter: blur(30px); }
+  .orb-wrap { animation: float 9s ease-in-out infinite; }
+  .orb { border-radius: 50%; position: relative; overflow: hidden;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.85), rgba(255,255,255,0) 24%),
+      radial-gradient(circle at 72% 72%, rgba(140,160,250,1), rgba(165,180,252,0) 58%),
+      radial-gradient(circle at 22% 72%, rgba(244,140,186,1), rgba(247,161,196,0) 55%),
+      radial-gradient(circle at 75% 22%, rgba(255,186,140,1), rgba(255,201,168,0) 60%),
+      #f6c9d3;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), inset -28px -34px 70px rgba(129,140,248,.42), inset 18px 22px 50px rgba(255,255,255,.6), 0 50px 90px -30px rgba(244,114,182,.35), 0 30px 70px -20px rgba(129,140,248,.3); }
+  .orb::before { content: ""; position: absolute; inset: -20%; background: conic-gradient(from 0deg, rgba(255,201,168,.0), rgba(255,201,168,.55), rgba(247,161,196,.5), rgba(165,180,252,.6), rgba(255,201,168,.0)); filter: blur(28px); mix-blend-mode: soft-light; animation: spin 18s linear infinite; }
+  .orb::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 50% 120%, rgba(255,255,255,.55), transparent 45%); }
+  .shadow-ell { background: radial-gradient(closest-side, rgba(120,113,108,.22), transparent); filter: blur(6px); animation: shadow 9s ease-in-out infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes float { 50% { transform: translateY(-14px); } }
+  @keyframes shadow { 50% { transform: scaleX(.86); opacity: .7; } }
+  .glass { background: rgba(255,255,255,.62); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 12px 30px -12px rgba(68,64,60,.18); }
+  .field:focus-within { box-shadow: 0 0 0 4px rgba(165,180,252,.35), 0 10px 30px -12px rgba(68,64,60,.2); }
+  .field.err { box-shadow: 0 0 0 1px #f43f5e, 0 0 0 4px rgba(244,63,94,.15); }
+  .pop { animation: pop .45s cubic-bezier(.2,.9,.3,1.25) both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.97); } }
+  @media (prefers-reduced-motion: reduce) { .orb-wrap, .orb::before, .shadow-ell { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-stone-900 min-h-screen">
+  <header class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2 font-extrabold tracking-tight text-[17px]">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fdba8c"/><stop offset=".5" stop-color="#f49ac1"/><stop offset="1" stop-color="#a5b4fc"/></linearGradient></defs><circle cx="12" cy="12" r="11" fill="url(#lg)"/><path d="M5 13c2-2.2 3.6-2.2 5.2 0s3.4 2.2 5.2 0 3-2 3.6-1.2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+      driftwave
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-[14px] text-stone-500 font-medium">
+      <a href="#" class="hover:text-stone-900 transition">How it works</a><a href="#" class="hover:text-stone-900 transition">Manifesto</a><a href="#" class="hover:text-stone-900 transition">FAQ</a>
+    </nav>
+    <a href="#" class="text-[14px] font-semibold px-4 py-2 rounded-full bg-white ring-1 ring-stone-200 hover:ring-stone-300 transition">Sign in</a>
+  </header>
+
+  <main class="relative max-w-6xl mx-auto px-5 sm:px-8 pt-4 pb-16 text-center">
+    <div class="relative mx-auto w-[260px] h-[260px] sm:w-[330px] sm:h-[330px]">
+      <div class="halo absolute -inset-10 sm:-inset-24"></div>
+      <div class="orb-wrap absolute inset-0"><div class="orb w-full h-full"></div></div>
+      <div class="shadow-ell absolute left-[18%] right-[18%] -bottom-8 h-6"></div>
+
+      <div class="glass hidden lg:flex absolute -left-[260px] top-[70px] items-center gap-3 rounded-2xl px-4 py-3 text-left">
+        <span class="w-9 h-9 rounded-xl bg-orange-100 text-orange-500 grid place-items-center"><iconify-icon icon="lucide:sunrise" width="18"></iconify-icon></span>
+        <div><div class="text-[13px] font-bold">Next delivery 4:00 pm</div><div class="text-[12px] text-stone-500">Mail arrives twice a day</div></div>
+      </div>
+      <div class="glass hidden lg:flex absolute -right-[270px] top-[170px] items-center gap-3 rounded-2xl px-4 py-3 text-left">
+        <span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-500 grid place-items-center"><iconify-icon icon="lucide:moon" width="18"></iconify-icon></span>
+        <div><div class="text-[13px] font-bold">38 emails held</div><div class="text-[12px] text-stone-500">Focus mode until 11:30</div></div>
+      </div>
+      <div class="glass hidden lg:flex absolute -right-[210px] top-[40px] items-center gap-2 rounded-full pl-2 pr-3.5 py-1.5 text-[12px] font-semibold text-stone-600">
+        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center"><iconify-icon icon="lucide:check" width="12"></iconify-icon></span>Inbox zero, by 9:14 am
+      </div>
+    </div>
+
+    <div class="relative -mt-12 sm:-mt-16">
+      <div class="inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-[12px] font-semibold text-stone-600">
+        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Private beta &middot; Spring 2027
+      </div>
+      <h1 class="mt-5 text-[42px] sm:text-[58px] lg:text-[66px] font-extrabold leading-[1.0] tracking-[-0.045em]">Email that waits<br class="hidden sm:block"> until you're ready.</h1>
+      <p class="mt-5 max-w-xl mx-auto text-[16.5px] leading-relaxed text-stone-500">Driftwave batches your mail into two calm deliveries a day, quietly files the noise, and only interrupts you for the people who matter.</p>
+
+      <div id="form-area" class="mt-8 max-w-md mx-auto">
+        <form id="wl" novalidate class="field flex items-center gap-1.5 rounded-full bg-white p-1.5 ring-1 ring-stone-200 shadow-[0_10px_30px_-12px_rgba(68,64,60,.2)] transition-shadow">
+          <iconify-icon icon="lucide:mail" width="17" class="ml-3 text-stone-400 shrink-0"></iconify-icon>
+          <label for="email" class="sr-only">Email address</label>
+          <input id="email" type="email" autocomplete="email" placeholder="you@studio.com" class="min-w-0 flex-1 bg-transparent outline-none text-[15px] placeholder:text-stone-400 px-1.5 py-2">
+          <button type="submit" class="shrink-0 h-11 px-5 rounded-full bg-stone-900 text-white text-[14px] font-semibold hover:bg-stone-800 active:scale-[.98] transition">Join waitlist</button>
+        </form>
+        <p id="help" class="mt-2.5 min-h-[20px] text-[13px] text-rose-500 font-medium" aria-live="polite"></p>
+      </div>
+
+      <div class="mt-3 flex items-center justify-center gap-3">
+        <div class="flex -space-x-1.5">
+          <span class="w-9 h-9 rounded-full ring-2 ring-[#fafaf9] grid place-items-center text-[11px] font-bold text-white bg-gradient-to-br from-orange-300 to-rose-400">AK</span>
+          <span class="w-9 h-9 rounded-full ring-2 ring-[#fafaf9] grid place-items-center text-[11px] font-bold text-white bg-gradient-to-br from-indigo-300 to-violet-500">MR</span>
+          <span class="w-9 h-9 rounded-full ring-2 ring-[#fafaf9] grid place-items-center text-[11px] font-bold text-white bg-gradient-to-br from-emerald-300 to-teal-500">JL</span>
+          <span class="w-9 h-9 rounded-full ring-2 ring-[#fafaf9] grid place-items-center text-[11px] font-bold text-white bg-gradient-to-br from-pink-300 to-fuchsia-500">SP</span>
+          <span class="w-9 h-9 rounded-full ring-2 ring-[#fafaf9] grid place-items-center text-[11px] font-bold text-white bg-gradient-to-br from-sky-300 to-blue-500">TN</span>
+        </div>
+        <p class="text-[13.5px] text-stone-500">Joined by <span class="font-bold text-stone-800">12,400</span> people</p>
+      </div>
+    </div>
+  </main>
+
+<div hidden aria-hidden="true"><iconify-icon icon="lucide:circle-check"></iconify-icon></div>
+<script>
+(function () {
+  var form = document.getElementById('wl'), input = document.getElementById('email'), help = document.getElementById('help'), area = document.getElementById('form-area');
+  var re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  input.addEventListener('input', function () {
+    if (form.classList.contains('err') && re.test(input.value.trim())) { form.classList.remove('err'); help.textContent = ''; }
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = input.value.trim();
+    if (!re.test(v)) {
+      form.classList.add('err');
+      help.textContent = v ? 'That email doesn’t look quite right. Try name@domain.com.' : 'Please enter your email address.';
+      input.focus();
+      return;
+    }
+    area.innerHTML =
+      '<div class="pop flex items-center gap-3 rounded-2xl bg-white ring-1 ring-emerald-200 px-4 py-3 text-left shadow-[0_10px_30px_-12px_rgba(16,185,129,.35)]">' +
+        '<span class="w-10 h-10 shrink-0 rounded-full bg-emerald-50 text-emerald-600 grid place-items-center"><iconify-icon icon="lucide:circle-check" width="20"></iconify-icon></span>' +
+        '<div class="min-w-0"><div class="text-[15px] font-bold">You’re on the list – #12,481</div>' +
+        '<div class="text-[13px] text-stone-500 truncate">We’ll send your invite to <span class="font-semibold text-stone-700"></span></div></div></div>' +
+      '<p class="mt-2.5 min-h-[20px] text-[13px] text-stone-400">Skip the line by sharing your invite link.</p>';
+    area.querySelector('.text-stone-700').textContent = v;
+  });
+})();
+</script>
+</body>
+</html>

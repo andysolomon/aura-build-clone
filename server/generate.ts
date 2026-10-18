@@ -1,7 +1,7 @@
 import { parseModelRef } from "../shared/models";
 import { splitGeneration, type GenerateRequest, type StreamEvent } from "../shared/protocol";
 import { enhanceDemo, generateDemo } from "./demo";
-import { ENHANCE_SYSTEM_PROMPT, SYSTEM_PROMPT, renderRequest } from "./prompts";
+import { ENHANCE_SYSTEM_PROMPT, ENHANCE_TOOL_SYSTEM_PROMPT, SYSTEM_PROMPT, enhanceToolRequest, renderRequest } from "./prompts";
 import { discoverProviders, getProvider } from "./providers";
 import { isAuthError, recordAuthFailure } from "./providers/health";
 import type { Provider } from "./providers/types";
@@ -71,17 +71,61 @@ export async function* generate(req: GenerateRequest, signal: AbortSignal): Asyn
   yield { type: "done", html, summary: summary || "Here is your page.", model: req.model, demo: false };
 }
 
-export async function enhance(prompt: string, ref: string): Promise<string> {
-  const target = await resolve(ref);
-  if (target === null || "error" in target) return enhanceDemo(prompt);
+const ENHANCE_TIMEOUT_MS = 120_000;
+
+/** Runs a short, non-streamed completion with a time limit (CLIs can queue behind other sessions). */
+async function complete(target: Target, system: string, prompt: string): Promise<string> {
   let text = "";
-  const controller = new AbortController();
-  for await (const event of target.provider.stream(
-    { model: target.model, system: ENHANCE_SYSTEM_PROMPT, prompt, images: [], effort: "low" },
-    controller.signal,
-  )) {
+  const signal = AbortSignal.timeout(ENHANCE_TIMEOUT_MS);
+  for await (const event of target.provider.stream({ model: target.model, system, prompt, images: [], effort: "low" }, signal)) {
+    if (signal.aborted) break;
     if (event.type === "error") throw new Error(explain(target, event.message));
     if (event.type === "delta") text += event.text;
   }
-  return text.trim() || prompt;
+  if (signal.aborted) throw new Error("The model took too long to respond. Try again, or pick another model.");
+  return text;
+}
+
+export async function enhance(prompt: string, ref: string): Promise<string> {
+  const target = await resolve(ref);
+  if (target === null || "error" in target) return enhanceDemo(prompt);
+  return (await complete(target, ENHANCE_SYSTEM_PROMPT, prompt)).trim() || prompt;
+}
+
+export interface EnhanceResult {
+  prompt: string;
+  short: string;
+  notes: string[];
+}
+
+function parseEnhanceJson(text: string): EnhanceResult | null {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end <= start) return null;
+  try {
+    const data = JSON.parse(text.slice(start, end + 1)) as Partial<EnhanceResult>;
+    if (typeof data.prompt !== "string" || !data.prompt.trim()) return null;
+    return {
+      prompt: data.prompt.trim(),
+      short: typeof data.short === "string" ? data.short.trim() : "",
+      notes: Array.isArray(data.notes) ? data.notes.filter((n): n is string => typeof n === "string").slice(0, 6) : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Prompt enhancer tool: a full prompt, a short version and design notes. */
+export async function enhanceTool(prompt: string, ref: string, projectType: string, outputStyle: string): Promise<EnhanceResult> {
+  const target = await resolve(ref);
+  if (target === null || "error" in target) {
+    const full = enhanceDemo(prompt);
+    return {
+      prompt: full,
+      short: `${prompt.trim().replace(/\.$/, "")}, with a bold hero, clear sections and polished motion.`,
+      notes: ["Demo mode: pick a signed-in model for AI-written prompts.", `Shaped for a ${projectType.toLowerCase()}.`],
+    };
+  }
+  const text = await complete(target, ENHANCE_TOOL_SYSTEM_PROMPT, enhanceToolRequest(prompt, projectType, outputStyle));
+  return parseEnhanceJson(text) ?? { prompt: text.trim() || prompt, short: "", notes: [] };
 }

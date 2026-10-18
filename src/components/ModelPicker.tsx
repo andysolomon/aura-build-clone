@@ -49,7 +49,7 @@ export function ModelPicker({ providers, value, onChange, open, onToggle, side, 
     <div className="relative">
       <button type="button" className={buttonClassName} onClick={onToggle} title={selected ? `${selected.label} via ${selectedProvider?.label}` : "Choose a model"}>
         <Sparkles className="h-3.5 w-3.5" />
-        <span className={cx("truncate", compact ? "max-w-[96px]" : "max-w-[160px]")}>{selected ? shortLabel(selected.label) : providers ? "Choose model" : "Loading…"}</span>
+        <span className={cx("truncate", compact ? "max-w-[76px]" : "max-w-[160px]")}>{selected ? shortLabel(selected.label) : providers ? "Choose model" : "Loading…"}</span>
         {!compact && selectedProvider && selectedProvider.id !== "demo" && <span className="text-[11px] text-faint">· {selectedProvider.label}</span>}
         <ChevronDown className="h-3 w-3 shrink-0 text-muted" />
       </button>

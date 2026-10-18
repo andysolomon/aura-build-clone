@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relay - AI agents that resolve support tickets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #07070b; -webkit-font-smoothing: antialiased; }
+  .aurora { position: absolute; border-radius: 9999px; filter: blur(70px); pointer-events: none; }
+  .a1 { width: 720px; height: 420px; left: 50%; top: -160px; margin-left: -640px; background: radial-gradient(closest-side, rgba(124,58,237,.55), transparent); animation: drift1 16s ease-in-out infinite alternate; }
+  .a2 { width: 640px; height: 380px; left: 50%; top: -120px; margin-left: -40px; background: radial-gradient(closest-side, rgba(20,184,166,.42), transparent); animation: drift2 19s ease-in-out infinite alternate; }
+  .a3 { width: 900px; height: 360px; left: 50%; top: 420px; margin-left: -450px; background: radial-gradient(closest-side, rgba(99,102,241,.28), transparent); animation: drift1 22s ease-in-out infinite alternate-reverse; }
+  @keyframes drift1 { to { transform: translate3d(90px, 40px, 0) scale(1.12); } }
+  @keyframes drift2 { to { transform: translate3d(-110px, 60px, 0) scale(.92); } }
+  .grid-fade { background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 56px 56px; -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 30%, transparent 75%); mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 30%, transparent 75%); }
+  .headline { background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,.62)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .window { box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 40px 120px -20px rgba(124,58,237,.35), 0 20px 60px -30px rgba(0,0,0,.9); }
+  .window::before { content: ""; position: absolute; top: -1px; left: 12%; right: 12%; height: 1px; background: linear-gradient(90deg, transparent, rgba(167,139,250,.9), rgba(45,212,191,.9), transparent); }
+  .caret { display: inline-block; width: 7px; height: 15px; margin-left: 2px; background: #a78bfa; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .step { opacity: 0; transform: translateY(4px); transition: opacity .35s ease, transform .35s ease; }
+  .step.on { opacity: 1; transform: none; }
+  .badge-pop { opacity: 0; transform: scale(.9); transition: opacity .3s ease, transform .3s cubic-bezier(.2,.9,.3,1.3); }
+  .badge-pop.on { opacity: 1; transform: none; }
+  .fade-bottom { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent); mask-image: linear-gradient(180deg, #000 70%, transparent); }
+  @media (prefers-reduced-motion: reduce) { .aurora, .caret { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-white min-h-screen relative">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div>
+    <div class="absolute inset-x-0 top-0 h-[720px] grid-fade"></div>
+  </div>
+
+  <header class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5 font-semibold tracking-tight">
+      <span class="grid place-items-center w-7 h-7 rounded-lg bg-gradient-to-br from-violet-400 to-teal-300 text-[#07070b]"><iconify-icon icon="lucide:waypoints" width="16"></iconify-icon></span>
+      Relay
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-[13.5px] text-white/60">
+      <a href="#" class="hover:text-white transition">Product</a><a href="#" class="hover:text-white transition">Agents</a>
+      <a href="#" class="hover:text-white transition">Customers</a><a href="#" class="hover:text-white transition">Pricing</a><a href="#" class="hover:text-white transition">Changelog</a>
+    </nav>
+    <div class="flex items-center gap-2 text-[13.5px]">
+      <a href="#" class="hidden sm:block px-3 py-1.5 text-white/70 hover:text-white transition">Sign in</a>
+      <a href="#" class="px-3.5 py-1.5 rounded-full bg-white/[.06] ring-1 ring-white/10 hover:bg-white/10 transition">Get started</a>
+    </div>
+  </header>
+
+  <main class="relative z-10 px-5 sm:px-8">
+    <section class="max-w-4xl mx-auto text-center pt-10 sm:pt-12">
+      <a href="#" class="inline-flex items-center gap-2 rounded-full pl-1 pr-3 py-1 text-[12.5px] text-white/75 bg-white/[.04] ring-1 ring-white/10 hover:ring-white/20 transition">
+        <span class="rounded-full bg-violet-500/20 text-violet-200 px-2 py-0.5 text-[11px] font-medium ring-1 ring-violet-400/30">New</span>
+        Relay Agents 2.0 is live
+        <iconify-icon icon="lucide:arrow-right" width="13" class="text-white/50"></iconify-icon>
+      </a>
+      <h1 class="headline mt-6 text-[42px] leading-[1.02] sm:text-[60px] lg:text-[70px] font-semibold tracking-[-0.045em]">Your support queue,<br class="hidden sm:block"> resolved by agents.</h1>
+      <p class="mt-5 max-w-2xl mx-auto text-[16px] sm:text-[17px] leading-relaxed text-white/55">Relay agents read your docs, order history and past tickets, then reply, refund and close conversations end to end. Teams resolve 68% of tickets without a human touch.</p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="#" class="group inline-flex items-center gap-2 h-11 px-5 rounded-full bg-white text-[#07070b] text-[14px] font-medium shadow-[0_0_0_4px_rgba(255,255,255,.06)] hover:bg-white/90 transition">Start free trial <iconify-icon icon="lucide:arrow-right" width="15" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+        <a href="#" class="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-white/[.04] ring-1 ring-white/10 text-[14px] text-white/85 hover:bg-white/[.08] transition"><iconify-icon icon="lucide:calendar" width="15" class="text-white/50"></iconify-icon>Book a demo</a>
+      </div>
+    </section>
+
+    <section class="relative max-w-6xl mx-auto mt-12 pb-20 fade-bottom">
+      <div class="window relative rounded-2xl bg-[#0c0c12]/90 backdrop-blur overflow-hidden">
+        <div class="h-11 flex items-center gap-3 px-4 border-b border-white/[.06]">
+          <div class="flex gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-white/15"></span><span class="w-2.5 h-2.5 rounded-full bg-white/15"></span><span class="w-2.5 h-2.5 rounded-full bg-white/15"></span></div>
+          <div class="mx-auto flex items-center gap-2 h-6 px-3 rounded-md bg-white/[.04] ring-1 ring-white/[.06] text-[11.5px] text-white/45 font-mono"><iconify-icon icon="lucide:lock" width="11"></iconify-icon>app.relay.so/inbox</div>
+          <span class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-300 to-rose-400 text-[10px] font-semibold text-black/70 grid place-items-center">DK</span>
+        </div>
+        <div class="flex h-[470px] text-[13px]">
+          <aside class="hidden lg:flex w-[208px] shrink-0 flex-col gap-0.5 p-3 border-r border-white/[.06] text-white/60">
+            <div class="flex items-center gap-2 px-2 py-1.5 mb-2 text-white/90 font-medium"><span class="w-5 h-5 rounded bg-teal-400/20 text-teal-200 grid place-items-center text-[10px]">H</span>Halcyon Supply<iconify-icon icon="lucide:chevrons-up-down" width="13" class="ml-auto text-white/35"></iconify-icon></div>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md bg-white/[.06] text-white"><iconify-icon icon="lucide:inbox" width="15"></iconify-icon>Inbox<span class="ml-auto font-mono text-[11px] text-white/45">128</span></a>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md"><iconify-icon icon="lucide:user-round" width="15"></iconify-icon>Assigned to me<span class="ml-auto font-mono text-[11px] text-white/35">6</span></a>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md"><iconify-icon icon="lucide:circle-check-big" width="15"></iconify-icon>Resolved<span class="ml-auto font-mono text-[11px] text-white/35">2.4k</span></a>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md"><iconify-icon icon="lucide:chart-no-axes-column" width="15"></iconify-icon>Insights</a>
+            <div class="px-2 mt-5 mb-1 text-[11px] uppercase tracking-[.12em] text-white/30">Agents</div>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>Atlas <span class="text-white/30">Billing</span></a>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>Echo <span class="text-white/30">Shipping</span></a>
+            <a class="flex items-center gap-2.5 px-2 py-1.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-amber-300"></span>Nova <span class="text-white/30">Returns</span></a>
+            <div class="mt-auto rounded-lg p-3 bg-gradient-to-br from-violet-500/10 to-teal-400/5 ring-1 ring-white/[.06]">
+              <div class="text-[11px] text-white/45">Auto-resolved today</div>
+              <div class="mt-1 text-[20px] font-semibold tracking-tight text-white">412 <span class="text-[11px] font-mono text-teal-300">+18%</span></div>
+            </div>
+          </aside>
+          <div class="hidden md:flex w-[300px] shrink-0 flex-col border-r border-white/[.06]">
+            <div class="h-11 px-4 flex items-center justify-between border-b border-white/[.06] text-white/80 font-medium">Open <span class="flex items-center gap-1 text-[11.5px] text-white/40 font-normal"><iconify-icon icon="lucide:list-filter" width="13"></iconify-icon>Newest</span></div>
+            <div id="tickets" class="flex-1 overflow-hidden"></div>
+          </div>
+          <div class="flex-1 min-w-0 flex flex-col">
+            <div class="h-11 px-4 sm:px-5 flex items-center gap-3 border-b border-white/[.06]">
+              <span id="t-subject" class="font-medium text-white/90 truncate"></span>
+              <span id="t-tag" class="hidden sm:inline-flex shrink-0 text-[11px] px-2 py-0.5 rounded-full bg-white/[.05] ring-1 ring-white/10 text-white/55"></span>
+              <span id="resolved" class="badge-pop ml-auto shrink-0 inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/25"><iconify-icon icon="lucide:circle-check" width="13"></iconify-icon>Resolved</span>
+            </div>
+            <div class="flex-1 p-4 sm:p-5 space-y-4 overflow-hidden">
+              <div class="flex gap-3">
+                <span id="c-avatar" class="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-sky-300 to-indigo-400 grid place-items-center text-[10.5px] font-semibold text-black/70"></span>
+                <div class="min-w-0"><div class="text-[12px] text-white/45"><span id="c-name" class="text-white/80 font-medium"></span> <span id="c-time"></span></div>
+                <p id="c-msg" class="mt-1 text-white/75 leading-relaxed"></p></div>
+              </div>
+              <div class="flex gap-3">
+                <span class="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-violet-400 to-teal-300 grid place-items-center text-[#07070b]"><iconify-icon icon="lucide:sparkles" width="14"></iconify-icon></span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-[12px] text-white/45"><span id="a-name" class="text-white/80 font-medium"></span> <span class="font-mono text-[10.5px] px-1.5 py-0.5 rounded bg-violet-400/10 text-violet-200 ring-1 ring-violet-400/20">AGENT</span></div>
+                  <div id="steps" class="mt-2 flex flex-wrap gap-1.5"></div>
+                  <div class="mt-3 rounded-xl bg-white/[.03] ring-1 ring-white/[.07] p-3.5 text-white/85 leading-relaxed min-h-[88px]"><span id="reply"></span><span class="caret" id="caret"></span></div>
+                  <div id="meta" class="badge-pop mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-white/40"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<div hidden aria-hidden="true"><iconify-icon icon="lucide:check"></iconify-icon></div>
+<script>
+(function () {
+  var scenarios = [
+    { name: 'Maya Okafor', init: 'MO', time: '2m ago', subject: 'Order #48213 arrived damaged', tag: 'Returns', agent: 'Nova',
+      msg: 'Hi! My ceramic pour-over set arrived with a cracked carafe. Can I get a replacement before Friday?',
+      steps: ['Fetched order #48213', 'Damage policy v3.2', 'Reserved SKU CR-220'],
+      reply: 'So sorry about the carafe, Maya. I have shipped a replacement by express courier, it arrives Thursday. No need to return the damaged one, and a $12 credit is on your account for the trouble.',
+      meta: ['Resolved in 38s', 'Predicted CSAT 4.9', '0 human touches'] },
+    { name: 'Jonah Petrov', init: 'JP', time: '5m ago', subject: 'Charged twice for annual plan', tag: 'Billing', agent: 'Atlas',
+      msg: 'I see two charges of $240 on my card from this morning. I only upgraded once.',
+      steps: ['Matched 2 charges', 'Duplicate verified', 'Refunded $240.00'],
+      reply: 'You are right, Jonah, the second charge was a duplicate from a retry. I have refunded $240.00 to your card ending 4417. It should appear within 3 to 5 business days.',
+      meta: ['Resolved in 21s', 'Refund approved by policy', 'Audit log saved'] },
+    { name: 'Priya Raman', init: 'PR', time: '9m ago', subject: 'Where is my package?', tag: 'Shipping', agent: 'Echo',
+      msg: 'Tracking has said "label created" for four days now. Order #47990.',
+      steps: ['Queried carrier', 'Stalled at depot', 'Claim #C-1182 opened'],
+      reply: 'Thanks for your patience, Priya. Your parcel stalled at the Riverside depot. I have opened a claim with the carrier and it is now scheduled for delivery tomorrow before noon.',
+      meta: ['Resolved in 44s', 'Carrier claim attached', 'Follow-up set for 24h'] }
+  ];
+  var extra = [{ n: 'Lena Fischer', s: 'Change shipping address', p: 'Can you send it to my office instead?', t: '12m' }, { n: 'Omar Haddad', s: 'Discount code not applying', p: 'SPRING20 says it has expired', t: '18m' }, { n: 'Tess Whitlock', s: 'Invoice for Q3 needed', p: 'Our finance team needs a VAT invoice', t: '26m' }];
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var idx = 0, timers = [];
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+  function renderTickets(active) {
+    var html = '';
+    scenarios.forEach(function (s, i) {
+      var on = i === active;
+      html += '<div class="px-4 py-3 border-b border-white/[.05] ' + (on ? 'bg-white/[.04] shadow-[inset_2px_0_0_#a78bfa]' : '') + '">' +
+        '<div class="flex items-center justify-between text-[12px]"><span class="' + (on ? 'text-white' : 'text-white/70') + ' font-medium">' + s.name + '</span><span class="font-mono text-[10.5px] text-white/30">' + s.time.replace(' ago', '') + '</span></div>' +
+        '<div class="mt-0.5 text-white/60 truncate">' + s.subject + '</div>' +
+        '<div class="mt-1.5 flex items-center gap-1.5 text-[10.5px]"><span class="px-1.5 py-0.5 rounded bg-white/[.05] text-white/45">' + s.tag + '</span>' +
+        (on ? '<span class="px-1.5 py-0.5 rounded bg-violet-400/10 text-violet-200">' + s.agent + ' working</span>' : (i < active ? '<span class="px-1.5 py-0.5 rounded bg-emerald-400/10 text-emerald-300">Resolved</span>' : '')) + '</div></div>';
+    });
+    extra.forEach(function (e) {
+      html += '<div class="px-4 py-3 border-b border-white/[.05]"><div class="flex justify-between text-[12px]"><span class="text-white/70 font-medium">' + e.n + '</span><span class="font-mono text-[10.5px] text-white/30">' + e.t + '</span></div><div class="mt-0.5 text-white/60 truncate">' + e.s + '</div><div class="mt-0.5 text-white/35 truncate text-[12px]">' + e.p + '</div></div>';
+    });
+    $('tickets').innerHTML = html;
+  }
+
+  function play() {
+    timers.forEach(clearTimeout); timers = [];
+    var s = scenarios[idx];
+    renderTickets(idx);
+    $('t-subject').textContent = s.subject; $('t-tag').textContent = s.tag;
+    $('c-avatar').textContent = s.init; $('c-name').textContent = s.name; $('c-time').textContent = s.time;
+    $('c-msg').textContent = s.msg; $('a-name').textContent = s.agent;
+    $('resolved').classList.remove('on'); $('meta').classList.remove('on');
+    $('reply').textContent = ''; $('caret').style.display = 'inline-block';
+    $('steps').innerHTML = s.steps.map(function (t) {
+      return '<span class="step inline-flex items-center gap-1.5 font-mono text-[10.5px] px-2 py-1 rounded-md bg-white/[.03] ring-1 ring-white/[.07] text-white/55"><iconify-icon icon="lucide:check" width="11" class="text-teal-300"></iconify-icon>' + t + '</span>';
+    }).join('');
+    $('meta').innerHTML = s.meta.map(function (m, i) { return '<span class="' + (i === 0 ? 'text-emerald-300/80' : '') + '">' + m + '</span>'; }).join('');
+    var chips = $('steps').children;
+    for (var k = 0; k < chips.length; k++) (function (el, k) { later(function () { el.classList.add('on'); }, reduce ? 0 : 150 + k * 220); })(chips[k], k);
+    var start = reduce ? 0 : 150 + chips.length * 220 + 100;
+    if (reduce) { $('reply').textContent = s.reply; return finish(); }
+    var n = 0;
+    later(function tick() {
+      n += 2; $('reply').textContent = s.reply.slice(0, n);
+      if (n < s.reply.length) later(tick, 22); else finish();
+    }, start);
+  }
+  function finish() {
+    later(function () { $('caret').style.display = 'none'; $('resolved').classList.add('on'); $('meta').classList.add('on'); }, 250);
+    later(function () { idx = (idx + 1) % scenarios.length; play(); }, 4200);
+  }
+  play();
+})();
+</script>
+</body>
+</html>

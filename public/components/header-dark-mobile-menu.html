@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dark Navbar with Full-Screen Mobile Menu | Nocturne header</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #07070a; }
+  html.lock, html.lock body { overflow: hidden; }
+  .announce { transition: height .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
+  .announce.closing { opacity: 0; }
+  .navlink { position: relative; padding: 8px 12px; font-size: 14px; font-weight: 600; color: #a1a1aa; transition: color .2s; }
+  .navlink:hover, .navlink.is-active { color: #fff; }
+  .indicator { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; border-radius: 2px; opacity: 0; pointer-events: none;
+    background: linear-gradient(90deg, #818cf8, #c084fc, #f0abfc); box-shadow: 0 0 14px rgba(192,132,252,.75);
+    transition: transform .4s cubic-bezier(.2,.8,.2,1), width .4s cubic-bezier(.2,.8,.2,1), opacity .2s; }
+  .gborder { border: 1px solid transparent; background: linear-gradient(#111018, #111018) padding-box, linear-gradient(120deg, #818cf8, #e879f9 50%, #fb923c) border-box; box-shadow: 0 0 24px -6px rgba(192,132,252,.55); transition: box-shadow .25s; }
+  .gborder:hover { box-shadow: 0 0 32px -4px rgba(192,132,252,.8); }
+  .kbd { display: inline-flex; align-items: center; gap: 2px; height: 22px; padding: 0 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); font-size: 11px; font-weight: 600; color: #d4d4d8; }
+  .burger { position: relative; width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); color: #fff; z-index: 60; }
+  .burger span { position: absolute; left: 11px; right: 11px; height: 2px; border-radius: 2px; background: currentColor; transition: transform .4s cubic-bezier(.2,.8,.2,1), top .3s cubic-bezier(.2,.8,.2,1); }
+  .burger span:nth-child(1) { top: 14px; } .burger span:nth-child(2) { top: 23px; }
+  .burger[aria-expanded="true"] span:nth-child(1) { top: 18.5px; transform: rotate(45deg); }
+  .burger[aria-expanded="true"] span:nth-child(2) { top: 18.5px; transform: rotate(-45deg); }
+  .mmenu { opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility 0s linear .35s; }
+  .mmenu.open { opacity: 1; visibility: visible; transition: opacity .35s ease; }
+  .stg { opacity: 0; transform: translateY(20px); transition: opacity .4s ease, transform .55s cubic-bezier(.2,.8,.2,1); }
+  .mmenu.open .stg { opacity: 1; transform: none; transition-delay: calc(var(--i) * 55ms + 80ms); }
+  .palette { opacity: 0; visibility: hidden; transition: opacity .2s, visibility 0s linear .2s; }
+  .palette.open { opacity: 1; visibility: visible; transition: opacity .2s; }
+  .palette > div { transform: translateY(-8px) scale(.98); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+  .palette.open > div { transform: none; }
+  .sk { border-radius: 8px; background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.08) 45%, rgba(255,255,255,.04) 80%); background-size: 200% 100%; animation: shimmer 2.8s linear infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .stg, .mmenu, .burger span, .indicator { transition: none !important; } .sk { animation: none; } }
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden font-sans text-zinc-100 antialiased">
+  <div class="pointer-events-none fixed inset-0" aria-hidden="true">
+    <div class="absolute left-1/2 top-[-280px] h-[640px] w-[min(1100px,150vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,.34),rgba(168,85,247,.12)_55%,transparent)] blur-2xl"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,.035)_1px,transparent_1px)] bg-[size:120px_100%] [mask-image:linear-gradient(to_bottom,#000,transparent_70%)]"></div>
+  </div>
+
+  <header id="header" class="sticky top-0 z-50">
+    <div id="announce" class="announce relative overflow-hidden border-b border-white/[0.06] bg-[linear-gradient(90deg,#15112b,#0c1426,#15112b)]">
+      <div class="mx-auto flex h-10 max-w-7xl items-center justify-center gap-2.5 pl-4 pr-12 text-[12.5px] text-zinc-300">
+        <span class="hidden rounded-full border border-indigo-400/30 bg-indigo-400/10 px-2 py-0.5 text-[11px] font-bold text-indigo-200 sm:inline">v3.0</span>
+        <span class="truncate">Realtime branching is here<span class="hidden sm:inline">: fork any database in 400ms</span></span>
+        <a href="#" class="inline-flex shrink-0 items-center gap-1 font-bold text-white transition hover:text-indigo-200">Read more<iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+      </div>
+      <button id="dismiss" type="button" class="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-zinc-400 transition hover:bg-white/10 hover:text-white" aria-label="Dismiss announcement"><iconify-icon icon="lucide:x" class="text-[15px]"></iconify-icon></button>
+    </div>
+    <nav class="border-b border-white/[0.07] bg-[#07070a]/75 backdrop-blur-xl" aria-label="Primary">
+      <div class="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6">
+        <a href="#" class="flex items-center gap-2.5" aria-label="Nocturne home">
+          <svg viewBox="0 0 28 28" class="h-7 w-7" aria-hidden="true">
+            <defs><linearGradient id="nm" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a5b4fc"/><stop offset="1" stop-color="#e879f9"/></linearGradient></defs>
+            <rect width="28" height="28" rx="8" fill="#13121b" stroke="rgba(255,255,255,.1)"/>
+            <path d="M17.8 6.5a8 8 0 1 0 3.7 11.9 6.2 6.2 0 1 1-3.7-11.9z" fill="url(#nm)"/>
+            <circle cx="19.5" cy="9" r="1.2" fill="#fff"/>
+          </svg>
+          <span class="text-[17px] font-extrabold tracking-[-0.03em]">Nocturne</span>
+        </a>
+        <div id="links" class="relative ml-10 hidden h-16 items-center md:flex">
+          <a href="#" class="navlink is-active" aria-current="page">Product</a>
+          <a href="#" class="navlink">Solutions</a>
+          <a href="#" class="navlink">Developers</a>
+          <a href="#" class="navlink">Pricing</a>
+          <a href="#" class="navlink">Docs</a>
+          <span id="indicator" class="indicator"></span>
+        </div>
+        <div class="ml-auto flex items-center gap-2">
+          <button id="search-btn" type="button" class="hidden h-9 items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] pl-3 pr-1.5 text-[13px] font-medium text-zinc-400 transition hover:border-white/15 hover:text-zinc-200 md:flex lg:w-48" aria-label="Search (Command K)">
+            <iconify-icon icon="lucide:search" class="text-[15px]"></iconify-icon><span class="mr-auto pr-3">Search</span>
+            <kbd class="kbd"><iconify-icon icon="lucide:command" class="text-[11px]"></iconify-icon>K</kbd>
+          </button>
+          <a href="#" class="hidden px-3 text-[14px] font-semibold text-zinc-300 transition hover:text-white md:inline-flex">Log in</a>
+          <a href="#" class="gborder hidden h-9 items-center gap-1.5 rounded-lg px-4 text-[14px] font-bold text-white sm:inline-flex">Get started<iconify-icon icon="lucide:arrow-right" class="text-sm"></iconify-icon></a>
+          <button id="burger" type="button" class="burger md:hidden" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><span></span><span></span></button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div id="mobile-menu" class="mmenu fixed inset-0 z-40 flex flex-col overflow-y-auto bg-[#07070a]/95 px-5 pb-8 backdrop-blur-2xl md:hidden" style="padding-top: calc(var(--hh, 106px) + 12px)" aria-hidden="true">
+    <div class="pointer-events-none absolute -right-24 top-24 h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl" aria-hidden="true"></div>
+    <nav class="relative flex flex-col" aria-label="Mobile">
+      <a href="#" class="stg flex items-center gap-4 border-b border-white/[0.07] py-4 text-[28px] font-bold tracking-[-0.03em]" style="--i:0"><span class="w-6 text-xs font-semibold text-zinc-600">01</span><span class="flex-1">Product</span><iconify-icon icon="lucide:arrow-up-right" class="text-xl text-zinc-500"></iconify-icon></a>
+      <a href="#" class="stg flex items-center gap-4 border-b border-white/[0.07] py-4 text-[28px] font-bold tracking-[-0.03em]" style="--i:1"><span class="w-6 text-xs font-semibold text-zinc-600">02</span><span class="flex-1">Solutions</span><iconify-icon icon="lucide:arrow-up-right" class="text-xl text-zinc-500"></iconify-icon></a>
+      <a href="#" class="stg flex items-center gap-4 border-b border-white/[0.07] py-4 text-[28px] font-bold tracking-[-0.03em]" style="--i:2"><span class="w-6 text-xs font-semibold text-zinc-600">03</span><span class="flex-1">Developers</span><iconify-icon icon="lucide:arrow-up-right" class="text-xl text-zinc-500"></iconify-icon></a>
+      <a href="#" class="stg flex items-center gap-4 border-b border-white/[0.07] py-4 text-[28px] font-bold tracking-[-0.03em]" style="--i:3"><span class="w-6 text-xs font-semibold text-zinc-600">04</span><span class="flex-1">Pricing</span><iconify-icon icon="lucide:arrow-up-right" class="text-xl text-zinc-500"></iconify-icon></a>
+      <a href="#" class="stg flex items-center gap-4 border-b border-white/[0.07] py-4 text-[28px] font-bold tracking-[-0.03em]" style="--i:4"><span class="w-6 text-xs font-semibold text-zinc-600">05</span><span class="flex-1">Docs</span><iconify-icon icon="lucide:arrow-up-right" class="text-xl text-zinc-500"></iconify-icon></a>
+    </nav>
+    <div class="stg relative mt-auto grid gap-3 pt-10" style="--i:5">
+      <a href="#" class="grid h-12 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-[15px] font-semibold">Log in</a>
+      <a href="#" class="gborder grid h-12 place-items-center rounded-xl text-[15px] font-bold">Get started for free</a>
+      <p class="mt-2 flex items-center justify-center gap-2 text-xs text-zinc-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>All systems operational</p>
+    </div>
+  </div>
+
+  <main class="relative mx-auto max-w-6xl px-5 pb-24 pt-20 text-center sm:pt-24" aria-hidden="true">
+    <div class="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-xs font-medium text-zinc-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Serverless Postgres for night owls</div>
+    <h1 class="mx-auto mt-6 max-w-3xl bg-gradient-to-b from-white/75 to-white/25 bg-clip-text text-[clamp(2.2rem,5.6vw,4.3rem)] font-extrabold leading-[1.04] tracking-[-0.045em] text-transparent">Databases that sleep when you do.</h1>
+    <div class="mx-auto mt-6 flex max-w-md flex-col items-center gap-2.5"><div class="sk h-3 w-full"></div><div class="sk h-3 w-3/4"></div></div>
+    <div class="relative mx-auto mt-12 max-w-4xl rounded-2xl border border-white/[0.07] bg-white/[0.02] p-2 shadow-[0_40px_120px_-40px_rgba(99,102,241,.35)]">
+      <div class="rounded-xl border border-white/[0.06] bg-[#0b0b10] p-4 text-left">
+        <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-white/10"></span><span class="h-2.5 w-2.5 rounded-full bg-white/10"></span><span class="h-2.5 w-2.5 rounded-full bg-white/10"></span><span class="sk ml-4 h-5 w-36"></span></div>
+        <div class="mt-5 grid grid-cols-3 gap-3"><div class="sk h-16"></div><div class="sk h-16"></div><div class="sk h-16"></div></div>
+        <div class="mt-4 flex h-28 items-end gap-2"><div class="sk h-[35%] flex-1"></div><div class="sk h-[60%] flex-1"></div><div class="sk h-[45%] flex-1"></div><div class="sk h-[85%] flex-1"></div><div class="sk h-[55%] flex-1"></div><div class="sk h-[95%] flex-1"></div><div class="sk h-[70%] flex-1"></div><div class="sk h-[50%] flex-1"></div></div>
+      </div>
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 rounded-b-2xl bg-gradient-to-t from-[#07070a] to-transparent"></div>
+    </div>
+  </main>
+
+  <div id="palette" class="palette fixed inset-0 z-[70] flex items-start justify-center bg-black/60 px-4 pt-[14vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Search">
+    <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#0e0d14] shadow-[0_30px_80px_-20px_rgba(0,0,0,.8)]">
+      <div class="flex h-12 items-center gap-3 border-b border-white/[0.07] px-4">
+        <iconify-icon icon="lucide:search" class="text-zinc-500"></iconify-icon>
+        <input id="palette-input" type="text" placeholder="Search docs, branches, commands..." class="flex-1 bg-transparent text-[14px] text-white placeholder:text-zinc-600 focus:outline-none">
+        <kbd class="kbd">Esc</kbd>
+      </div>
+      <ul id="palette-list" class="p-2 text-[13.5px]">
+        <li><a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-zinc-300 hover:bg-white/[0.05] hover:text-white"><iconify-icon icon="lucide:git-branch" class="text-indigo-300"></iconify-icon>Create a branch from production</a></li>
+        <li><a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-zinc-300 hover:bg-white/[0.05] hover:text-white"><iconify-icon icon="lucide:book-open" class="text-indigo-300"></iconify-icon>Docs: Connection pooling</a></li>
+        <li><a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-zinc-300 hover:bg-white/[0.05] hover:text-white"><iconify-icon icon="lucide:moon" class="text-indigo-300"></iconify-icon>Configure scale-to-zero</a></li>
+        <li><a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-zinc-300 hover:bg-white/[0.05] hover:text-white"><iconify-icon icon="lucide:key-round" class="text-indigo-300"></iconify-icon>Rotate API keys</a></li>
+      </ul>
+      <p id="palette-empty" class="hidden px-5 pb-5 pt-1 text-[13px] text-zinc-500">No results. Try "branch" or "pooling".</p>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      document.querySelectorAll('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+      const root = document.documentElement;
+      const header = document.getElementById('header');
+      const setHH = () => root.style.setProperty('--hh', header.offsetHeight + 'px');
+      setHH();
+      addEventListener('resize', setHH);
+
+      const announce = document.getElementById('announce');
+      document.getElementById('dismiss').addEventListener('click', () => {
+        announce.style.height = announce.offsetHeight + 'px';
+        announce.offsetHeight;
+        announce.classList.add('closing');
+        announce.style.height = '0px';
+        setTimeout(() => { if (announce.isConnected) announce.remove(); setHH(); }, 400);
+      });
+
+      const wrap = document.getElementById('links');
+      const links = [...wrap.querySelectorAll('.navlink')];
+      const ind = document.getElementById('indicator');
+      let active = links.find((l) => l.classList.contains('is-active')) || links[0];
+      const moveTo = (el) => {
+        if (!el.offsetWidth) return;
+        ind.style.width = (el.offsetWidth - 24) + 'px';
+        ind.style.transform = 'translateX(' + (el.offsetLeft + 12) + 'px)';
+        ind.style.opacity = '1';
+      };
+      links.forEach((l) => {
+        l.addEventListener('mouseenter', () => moveTo(l));
+        l.addEventListener('focus', () => moveTo(l));
+        l.addEventListener('click', () => {
+          active.classList.remove('is-active'); active.removeAttribute('aria-current');
+          active = l; l.classList.add('is-active'); l.setAttribute('aria-current', 'page'); moveTo(l);
+        });
+      });
+      wrap.addEventListener('mouseleave', () => moveTo(active));
+      wrap.addEventListener('focusout', () => moveTo(active));
+      const place = () => moveTo(active);
+      place();
+      addEventListener('resize', place);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+
+      const burger = document.getElementById('burger');
+      const menu = document.getElementById('mobile-menu');
+      const isOpen = () => menu.classList.contains('open');
+      const setMenu = (open) => {
+        setHH();
+        menu.classList.toggle('open', open);
+        menu.setAttribute('aria-hidden', String(!open));
+        burger.setAttribute('aria-expanded', String(open));
+        burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        root.classList.toggle('lock', open);
+      };
+      burger.addEventListener('click', () => setMenu(!isOpen()));
+      menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+      const mq = matchMedia('(min-width: 768px)');
+      const onMq = () => { if (mq.matches) setMenu(false); };
+      mq.addEventListener ? mq.addEventListener('change', onMq) : mq.addListener(onMq);
+
+      const palette = document.getElementById('palette');
+      const input = document.getElementById('palette-input');
+      const items = [...document.querySelectorAll('#palette-list li')];
+      const empty = document.getElementById('palette-empty');
+      const openPalette = () => { palette.classList.add('open'); setTimeout(() => input.focus(), 40); };
+      const closePalette = () => { palette.classList.remove('open'); input.value = ''; filter(); };
+      const filter = () => {
+        const q = input.value.trim().toLowerCase();
+        items.forEach((li) => { li.hidden = !!q && !li.textContent.toLowerCase().includes(q); });
+        empty.classList.toggle('hidden', items.some((li) => !li.hidden));
+      };
+      input.addEventListener('input', filter);
+      document.getElementById('search-btn').addEventListener('click', openPalette);
+      palette.addEventListener('click', (e) => { if (e.target === palette || e.target.closest('a')) closePalette(); });
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          palette.classList.contains('open') ? closePalette() : openPalette();
+        } else if (e.key === 'Escape') {
+          if (palette.classList.contains('open')) closePalette();
+          else if (isOpen()) { setMenu(false); burger.focus(); }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

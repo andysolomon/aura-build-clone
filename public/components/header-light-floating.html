@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Floating Pill Navbar | Light header with product mega menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Tight"', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f7f7f5; }
+  .dotgrid { background-image: radial-gradient(rgba(24,24,27,.07) 1px, transparent 1.2px); background-size: 22px 22px; -webkit-mask-image: linear-gradient(to bottom, #000, transparent 75%); mask-image: linear-gradient(to bottom, #000, transparent 75%); }
+  #site-header { transition: top .5s cubic-bezier(.2,.8,.2,1); }
+  .nav { transition: max-width .5s cubic-bezier(.2,.8,.2,1), height .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s, background-color .5s; }
+  .cta { transition: height .5s cubic-bezier(.2,.8,.2,1), background-color .2s; }
+  #site-header.scrolled { top: 10px; }
+  #site-header.scrolled .nav { max-width: 780px; height: 48px; background-color: rgba(255,255,255,.9); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 14px 40px -14px rgba(24,24,27,.28), 0 2px 6px -2px rgba(24,24,27,.08); }
+  #site-header.scrolled .cta { height: 34px; }
+  .mega, .mpanel { opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.985); transform-origin: top left; transition: opacity .2s ease, transform .25s cubic-bezier(.2,.8,.2,1), visibility 0s linear .25s; }
+  .mega.open, .mpanel.open { opacity: 1; visibility: visible; transform: none; transition: opacity .2s ease, transform .25s cubic-bezier(.2,.8,.2,1); }
+  .mpanel { transform-origin: top center; }
+  #nav a:focus-visible, #nav button:focus-visible, .mpanel a:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255,107,44,.55); }
+  #product-trigger[aria-expanded="true"] { color: #18181b; background: rgba(24,24,27,.05); }
+  #product-trigger[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .new-dot { position: absolute; top: 5px; right: 3px; width: 6px; height: 6px; border-radius: 9999px; background: #ff6b2c; box-shadow: 0 0 0 2px #fff; }
+  .new-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: #ff6b2c; animation: ping 2s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+  .sk { border-radius: 8px; background: linear-gradient(90deg, #efefec 0%, #f7f7f5 45%, #efefec 80%); background-size: 200% 100%; animation: shimmer 2.6s linear infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .sk, .new-dot::after { animation: none; } }
+</style>
+</head>
+<body class="min-h-[220vh] overflow-x-hidden font-sans text-zinc-900 antialiased">
+  <div class="pointer-events-none fixed inset-0" aria-hidden="true">
+    <div class="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(55%_55%_at_50%_0%,rgba(255,190,150,.38),transparent_70%),radial-gradient(35%_45%_at_88%_8%,rgba(170,182,255,.35),transparent_70%),radial-gradient(35%_45%_at_10%_18%,rgba(186,240,214,.4),transparent_70%)]"></div>
+    <div class="dotgrid absolute inset-0"></div>
+  </div>
+
+  <header id="site-header" class="fixed inset-x-0 top-4 z-50 px-3">
+    <nav id="nav" class="nav relative mx-auto flex h-14 w-full max-w-[920px] items-center rounded-full border border-zinc-900/[0.08] bg-white/80 pl-4 pr-2 shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_8px_30px_-12px_rgba(24,24,27,.2),0_2px_6px_-2px_rgba(24,24,27,.06)] backdrop-blur-xl" aria-label="Main">
+      <a href="#" class="flex items-center gap-2 pr-2" aria-label="Parcel home">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true">
+          <path d="M12 2 21 7v10l-9 5-9-5V7z" fill="#18181b"/>
+          <path d="M12 2 21 7l-9 5-9-5z" fill="#ff6b2c"/>
+          <path d="M12 12v10l9-5V7z" fill="#3f3f46"/>
+          <path d="M7.5 4.5 16.5 9.5" stroke="#fff" stroke-opacity=".55" stroke-width="1.3"/>
+        </svg>
+        <span class="text-[17px] font-semibold tracking-[-0.035em]">Parcel</span>
+      </a>
+      <ul class="ml-3 hidden items-center gap-0.5 text-[14px] font-medium text-zinc-600 md:flex">
+        <li><button id="product-trigger" type="button" aria-expanded="false" aria-controls="mega" class="inline-flex items-center gap-1 rounded-full px-3 py-1.5 transition hover:bg-zinc-900/[0.04] hover:text-zinc-900">Product<iconify-icon icon="lucide:chevron-down" class="chev text-[14px] transition-transform duration-300"></iconify-icon></button></li>
+        <li><a href="#" class="rounded-full px-3 py-1.5 transition hover:bg-zinc-900/[0.04] hover:text-zinc-900">Customers</a></li>
+        <li><a href="#" class="rounded-full px-3 py-1.5 transition hover:bg-zinc-900/[0.04] hover:text-zinc-900">Pricing</a></li>
+        <li><a href="#" class="relative rounded-full py-1.5 pl-3 pr-4 transition hover:bg-zinc-900/[0.04] hover:text-zinc-900">Changelog<span class="new-dot"></span><span class="sr-only"> (new)</span></a></li>
+      </ul>
+      <div class="ml-auto flex items-center gap-1">
+        <a href="#" class="hidden rounded-full px-3 py-1.5 text-[14px] font-medium text-zinc-600 transition hover:text-zinc-900 md:inline-flex">Sign in</a>
+        <a href="#" class="cta inline-flex h-10 items-center gap-1.5 rounded-full bg-zinc-900 px-4 text-[14px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_4px_14px_-4px_rgba(24,24,27,.5)] hover:bg-zinc-800">Start building<iconify-icon icon="lucide:arrow-right" class="text-[15px]"></iconify-icon></a>
+        <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full text-zinc-700 transition hover:bg-zinc-900/[0.05] md:hidden" aria-expanded="false" aria-controls="mobile-panel" aria-label="Open menu"><iconify-icon id="menu-icon" icon="lucide:menu" class="text-[20px]"></iconify-icon></button>
+      </div>
+
+      <div id="mega" class="mega absolute left-[96px] top-[calc(100%+10px)] hidden w-[620px] md:block">
+        <div class="grid grid-cols-[1fr_190px] gap-2 rounded-[22px] border border-zinc-900/[0.08] bg-white p-2 shadow-[0_28px_70px_-24px_rgba(24,24,27,.35),0_2px_8px_-2px_rgba(24,24,27,.06)] backdrop-blur-xl">
+          <div class="grid grid-cols-2 gap-1">
+            <a href="#" class="group flex gap-3 rounded-2xl p-3 transition hover:bg-zinc-900/[0.035]"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition group-hover:text-[#ff6b2c]"><iconify-icon icon="lucide:package-check" class="text-[18px]"></iconify-icon></span><span><span class="block text-[14px] font-semibold text-zinc-900">Shipments</span><span class="mt-0.5 block text-[12.5px] leading-snug text-zinc-500">Rate-shop and print labels across 40+ carriers.</span></span></a>
+            <a href="#" class="group flex gap-3 rounded-2xl p-3 transition hover:bg-zinc-900/[0.035]"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition group-hover:text-[#ff6b2c]"><iconify-icon icon="lucide:route" class="text-[18px]"></iconify-icon></span><span><span class="block text-[14px] font-semibold text-zinc-900">Routing</span><span class="mt-0.5 block text-[12.5px] leading-snug text-zinc-500">Multi-stop plans with smart pickup windows.</span></span></a>
+            <a href="#" class="group flex gap-3 rounded-2xl p-3 transition hover:bg-zinc-900/[0.035]"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition group-hover:text-[#ff6b2c]"><iconify-icon icon="lucide:radar" class="text-[18px]"></iconify-icon></span><span><span class="block text-[14px] font-semibold text-zinc-900">Tracking</span><span class="mt-0.5 block text-[12.5px] leading-snug text-zinc-500">Branded pages with live carrier events.</span></span></a>
+            <a href="#" class="group flex gap-3 rounded-2xl p-3 transition hover:bg-zinc-900/[0.035]"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition group-hover:text-[#ff6b2c]"><iconify-icon icon="lucide:webhook" class="text-[18px]"></iconify-icon></span><span><span class="block text-[14px] font-semibold text-zinc-900">Webhooks</span><span class="mt-0.5 block text-[12.5px] leading-snug text-zinc-500">Typed events for every scan and doorstep.</span></span></a>
+          </div>
+          <a href="#" class="group relative overflow-hidden rounded-2xl bg-zinc-900 p-4 text-white">
+            <svg viewBox="0 0 160 70" class="absolute inset-x-0 top-0 w-full opacity-90" aria-hidden="true"><path d="M14 52 C 50 52, 48 18, 84 18 S 120 44, 146 26" fill="none" stroke="#ff6b2c" stroke-width="1.5" stroke-dasharray="3 4"/><circle cx="14" cy="52" r="4" fill="#fff"/><circle cx="84" cy="18" r="3" fill="#a1a1aa"/><circle cx="146" cy="26" r="4" fill="#ff6b2c"/></svg>
+            <span class="relative mt-16 block text-[13.5px] font-semibold">Routes 2.0</span>
+            <span class="relative mt-1 block text-[12px] leading-snug text-zinc-400">Plan 500 stops in under a second.</span>
+            <span class="relative mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-[#ffb08a]">Launch notes<iconify-icon icon="lucide:arrow-right" class="transition-transform group-hover:translate-x-0.5"></iconify-icon></span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="mobile-panel" class="mpanel mx-auto mt-2 w-full max-w-[920px] rounded-3xl border border-zinc-900/[0.08] bg-white p-2 shadow-[0_24px_60px_-24px_rgba(24,24,27,.35)] backdrop-blur-xl md:hidden">
+      <a href="#" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium hover:bg-zinc-900/[0.04]"><iconify-icon icon="lucide:boxes" class="text-[18px] text-zinc-500"></iconify-icon>Product</a>
+      <a href="#" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium hover:bg-zinc-900/[0.04]"><iconify-icon icon="lucide:users" class="text-[18px] text-zinc-500"></iconify-icon>Customers</a>
+      <a href="#" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium hover:bg-zinc-900/[0.04]"><iconify-icon icon="lucide:tag" class="text-[18px] text-zinc-500"></iconify-icon>Pricing</a>
+      <a href="#" class="flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium hover:bg-zinc-900/[0.04]"><iconify-icon icon="lucide:sparkles" class="text-[18px] text-zinc-500"></iconify-icon>Changelog<span class="ml-auto rounded-full bg-[#ff6b2c]/10 px-2 py-0.5 text-[11px] font-semibold text-[#e2531a]">New</span></a>
+      <div class="mt-1 grid grid-cols-2 gap-2 border-t border-zinc-900/[0.06] p-2 pt-3">
+        <a href="#" class="grid h-11 place-items-center rounded-full border border-zinc-200 text-[14px] font-medium">Sign in</a>
+        <a href="#" class="grid h-11 place-items-center rounded-full bg-zinc-900 text-[14px] font-medium text-white">Start building</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative mx-auto max-w-5xl px-5 pt-32 text-center sm:pt-40">
+    <div class="inline-flex items-center gap-2 rounded-full border border-zinc-900/[0.06] bg-white/60 px-3 py-1 text-xs text-zinc-500"><span class="h-1.5 w-1.5 rounded-full bg-[#ff6b2c]"></span>Now shipping to 92 countries</div>
+    <h1 class="mx-auto mt-6 max-w-3xl bg-gradient-to-b from-zinc-900/85 to-zinc-900/45 bg-clip-text text-[clamp(2.2rem,5.6vw,4.4rem)] font-semibold leading-[1.02] tracking-[-0.045em] text-transparent">Shipping infrastructure for teams that move fast.</h1>
+    <p class="mx-auto mt-5 max-w-lg text-[15px] leading-relaxed text-zinc-500">One API for labels, routing and tracking. Parcel handles the carriers so your team can handle the customers.</p>
+    <div class="relative mx-auto mt-12 max-w-4xl rounded-[28px] border border-zinc-900/[0.06] bg-white/60 p-2.5 shadow-[0_40px_90px_-50px_rgba(24,24,27,.45)]" aria-hidden="true">
+      <div class="rounded-[20px] border border-zinc-900/[0.05] bg-white p-4 text-left sm:p-5">
+        <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-zinc-200"></span><span class="h-2.5 w-2.5 rounded-full bg-zinc-200"></span><span class="h-2.5 w-2.5 rounded-full bg-zinc-200"></span><span class="sk ml-4 h-5 w-40"></span><span class="sk ml-auto h-5 w-16"></span></div>
+        <div class="mt-5 grid gap-4 sm:grid-cols-[160px_1fr]">
+          <div class="hidden space-y-3 sm:block"><div class="sk h-3 w-24"></div><div class="sk h-3 w-32"></div><div class="sk h-3 w-20"></div><div class="sk h-3 w-28"></div><div class="sk h-3 w-16"></div></div>
+          <div>
+            <div class="grid grid-cols-3 gap-3"><div class="sk h-16"></div><div class="sk h-16"></div><div class="sk h-16"></div></div>
+            <div class="mt-4 flex h-32 items-end gap-2 rounded-xl border border-zinc-900/[0.05] p-3">
+              <div class="sk h-[40%] flex-1"></div><div class="sk h-[65%] flex-1"></div><div class="sk h-[50%] flex-1"></div><div class="sk h-[80%] flex-1"></div><div class="sk h-[60%] flex-1"></div><div class="sk h-[90%] flex-1"></div><div class="sk h-[70%] flex-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 rounded-b-[28px] bg-gradient-to-t from-[#f7f7f5] to-transparent"></div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      document.querySelectorAll('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+      const header = document.getElementById('site-header');
+      const trigger = document.getElementById('product-trigger');
+      const mega = document.getElementById('mega');
+      const menuBtn = document.getElementById('menu-btn');
+      const panel = document.getElementById('mobile-panel');
+      const menuIcon = document.getElementById('menu-icon');
+      let closeTimer = 0, byHover = false;
+
+      const onScroll = () => header.classList.toggle('scrolled', scrollY > 24);
+      addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      const megaOpen = () => mega.classList.contains('open');
+      const setMega = (open) => { mega.classList.toggle('open', open); trigger.setAttribute('aria-expanded', String(open)); if (!open) byHover = false; };
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (megaOpen() && byHover) { byHover = false; return; }
+        setMega(!megaOpen());
+      });
+      [trigger, mega].forEach((el) => {
+        el.addEventListener('pointerenter', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          clearTimeout(closeTimer);
+          if (!megaOpen()) { setMega(true); byHover = true; }
+        });
+        el.addEventListener('pointerleave', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          closeTimer = setTimeout(() => setMega(false), 180);
+        });
+      });
+
+      const setMenu = (open) => {
+        panel.classList.toggle('open', open);
+        menuBtn.setAttribute('aria-expanded', String(open));
+        menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        menuIcon.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu');
+      };
+      menuBtn.addEventListener('click', (e) => { e.stopPropagation(); setMenu(!panel.classList.contains('open')); });
+      panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+      document.addEventListener('click', (e) => {
+        if (!mega.contains(e.target) && !trigger.contains(e.target)) setMega(false);
+        if (!panel.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (megaOpen()) { setMega(false); trigger.focus(); }
+        if (panel.classList.contains('open')) { setMenu(false); menuBtn.focus(); }
+      });
+      const mq = matchMedia('(min-width: 768px)');
+      const onMq = () => { if (mq.matches) setMenu(false); else setMega(false); };
+      mq.addEventListener ? mq.addEventListener('change', onMq) : mq.addListener(onMq);
+    })();
+  </script>
+</body>
+</html>

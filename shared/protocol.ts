@@ -21,6 +21,8 @@ export interface GenerateRequest {
   selection?: { selector: string; outerHTML: string } | null;
   history?: ChatTurn[];
   references?: ReferenceInput[];
+  /** Agent skills referenced with @: instructions the model must follow. */
+  skills?: { name: string; instructions: string }[];
   /** Data URLs of attached screenshots / inspiration images. */
   images?: string[];
 }

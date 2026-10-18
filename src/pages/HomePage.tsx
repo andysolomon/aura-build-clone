@@ -10,6 +10,7 @@ import { Button } from "../components/ui";
 import { TEMPLATES } from "../data/templates";
 import { api } from "../lib/api";
 import { createProjectFromPrompt, usableModel, useAppConfig } from "../lib/projects";
+import { takePrefill } from "../lib/prefill";
 import { timeAgo } from "../lib/util";
 
 const TYPEWRITER = [
@@ -31,12 +32,26 @@ export function HomePage() {
     model: "",
     designSystemId: findDesignSystem(params.get("ds"))?.id ?? null,
     referenceSlugs: [],
+    skillSlugs: [],
     images: [],
   }));
 
   useEffect(() => {
     if (config) setState((s) => ({ ...s, model: usableModel(config, s.model) }));
   }, [config]);
+
+  // Library pages hand off a prompt, references, skills or images through sessionStorage.
+  useEffect(() => {
+    const prefill = takePrefill();
+    if (!prefill) return;
+    setState((s) => ({
+      ...s,
+      prompt: prefill.prompt ?? s.prompt,
+      referenceSlugs: [...new Set([...s.referenceSlugs, ...(prefill.references ?? [])])].slice(-2),
+      skillSlugs: [...new Set([...s.skillSlugs, ...(prefill.skills ?? [])])],
+      images: [...s.images, ...(prefill.images ?? [])].slice(0, 4),
+    }));
+  }, []);
 
   useEffect(() => {
     api.listProjects().then((list) => setRecent(list.filter((p) => p.hasPage).slice(0, 3)), () => {});
@@ -51,6 +66,7 @@ export function HomePage() {
         model: state.model,
         designSystemId: state.designSystemId,
         referenceSlugs: state.referenceSlugs,
+        skillSlugs: state.skillSlugs,
         images: state.images,
       });
       navigate(`/build/${id}`);

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gradient Beam Buttons - animated conic border light</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: {
+      sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      mono: ['"Geist Mono"', 'ui-monospace', 'monospace']
+    } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+    @keyframes beam { to { --angle: 360deg; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .stage { --dur: 3.4s; box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 1px 0 rgba(255,255,255,.08) inset, 0 30px 80px -20px rgba(0,0,0,.55), 0 10px 24px -12px rgba(0,0,0,.4); }
+    .grid-bg {
+      background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 36px 36px; background-position: center;
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 80%);
+              mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 80%);
+    }
+    .beam { position: relative; isolation: isolate; border: 1px solid rgba(255,255,255,.1); transition: transform .2s ease, background-color .2s ease, border-color .2s ease; }
+    .beam:active { transform: translateY(1px) scale(.985); }
+    .beam::before {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1.25px; pointer-events: none;
+      background: conic-gradient(from var(--angle), transparent 0 58%, var(--c1) 76%, var(--c2) 88%, #fff 93%, transparent 97%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      animation: beam var(--dur) linear infinite; animation-delay: var(--delay, 0s); opacity: .9; transition: opacity .2s ease;
+    }
+    .beam:hover::before, .beam:focus-visible::before { opacity: 1; }
+    .beam:focus-visible { outline: 2px solid rgba(196,181,253,.6); outline-offset: 3px; }
+    .v-primary { --c1: #7c3aed; --c2: #c4b5fd; background: linear-gradient(180deg, #1f1f23, #141416); box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 10px 30px -10px rgba(124,58,237,.55); }
+    .v-primary:hover { background: linear-gradient(180deg, #26262b, #18181b); }
+    .v-outline { --c1: #0891b2; --c2: #67e8f9; --delay: -1.1s; background: transparent; border-color: rgba(255,255,255,.14); }
+    .v-outline:hover { background: rgba(255,255,255,.04); }
+    .v-pill { --c1: #db2777; --c2: #fbcfe8; --delay: -2.2s; background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); }
+    .v-pill:hover { background: rgba(255,255,255,.08); }
+    .v-icon { --c1: #a1a1aa; --c2: #f4f4f5; --delay: -.6s; background: #141416; box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
+    .v-icon:hover { background: #1c1c20; }
+    .spinner { width: 14px; height: 14px; border-radius: 9999px; border: 1.5px solid rgba(255,255,255,.25); border-top-color: #fff; animation: spin .7s linear infinite; }
+    .seg[aria-pressed="true"] { background: rgba(255,255,255,.1); color: #fafafa; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+    @media (prefers-reduced-motion: reduce) {
+      .beam::before { animation: none; --angle: 210deg; }
+      .spinner { animation-duration: 1.6s; }
+    }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-8 font-sans antialiased">
+  <section class="stage relative w-full max-w-4xl overflow-hidden rounded-[28px] bg-[#0a0a0c] text-zinc-100">
+    <div class="grid-bg pointer-events-none absolute inset-0"></div>
+    <div class="pointer-events-none absolute -top-32 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-violet-600/15 blur-3xl"></div>
+    <div class="pointer-events-none absolute left-1/2 top-1/2 h-40 w-[40rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl"></div>
+
+    <header class="relative flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.06] px-6 py-4 sm:px-8">
+      <div class="flex items-center gap-3">
+        <span class="grid h-7 w-7 place-items-center rounded-lg border border-white/10 bg-white/[0.04]">
+          <iconify-icon icon="lucide:zap" class="text-[14px] text-violet-300"></iconify-icon>
+        </span>
+        <div>
+          <p class="text-[13px] font-medium tracking-tight text-zinc-100">Gradient beam</p>
+          <p class="font-mono text-[11px] text-zinc-500">conic-gradient / @property --angle</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.02] p-0.5 font-mono text-[11px] text-zinc-400" role="group" aria-label="Beam speed">
+        <button class="seg rounded-md px-2.5 py-1 transition hover:text-zinc-200" data-dur="5.6s" aria-pressed="false">Slow</button>
+        <button class="seg rounded-md px-2.5 py-1 transition hover:text-zinc-200" data-dur="3.4s" aria-pressed="true">Base</button>
+        <button class="seg rounded-md px-2.5 py-1 transition hover:text-zinc-200" data-dur="1.6s" aria-pressed="false">Fast</button>
+      </div>
+    </header>
+
+    <div class="relative flex flex-wrap items-start justify-center gap-x-10 gap-y-8 px-6 py-20 sm:px-10 sm:py-24">
+      <div class="flex flex-col items-center gap-4">
+        <button id="generate" class="beam v-primary inline-flex h-12 min-w-[164px] items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-medium text-white">
+          <iconify-icon icon="lucide:wand-sparkles" class="text-[16px]" data-icon></iconify-icon>
+          <span data-label>Generate site</span>
+        </button>
+        <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">Primary</span>
+      </div>
+      <div class="flex flex-col items-center gap-4">
+        <button class="beam v-outline inline-flex h-12 items-center gap-2 rounded-xl px-5 text-[15px] font-medium text-zinc-200">
+          View templates
+          <iconify-icon icon="lucide:arrow-up-right" class="text-[15px] text-zinc-400"></iconify-icon>
+        </button>
+        <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">Outline</span>
+      </div>
+      <div class="flex flex-col items-center gap-4">
+        <button class="beam v-pill inline-flex h-12 items-center gap-2 rounded-full pl-4 pr-5 text-[15px] font-medium text-zinc-100">
+          <iconify-icon icon="lucide:sparkles" class="text-[15px] text-pink-300"></iconify-icon>
+          Ask Aura
+          <kbd class="ml-1 rounded-md border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-zinc-400">K</kbd>
+        </button>
+        <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">Pill</span>
+      </div>
+      <div class="flex flex-col items-center gap-4">
+        <button class="beam v-icon grid h-12 w-12 place-items-center rounded-xl text-zinc-200" aria-label="Send prompt">
+          <iconify-icon icon="lucide:arrow-up" class="text-[18px]"></iconify-icon>
+        </button>
+        <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">Icon</span>
+      </div>
+    </div>
+
+    <footer class="relative flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] px-6 py-3.5 font-mono text-[11px] text-zinc-500 sm:px-8">
+      <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,.8)]"></span>1.25px masked ring, GPU-friendly</span>
+      <span id="status" aria-live="polite">Click Generate site to try it</span>
+    </footer>
+  </section>
+
+  <script>
+    (function () {
+      var stage = document.querySelector('.stage');
+      var segs = document.querySelectorAll('.seg');
+      segs.forEach(function (b) {
+        b.addEventListener('click', function () {
+          segs.forEach(function (s) { s.setAttribute('aria-pressed', String(s === b)); });
+          stage.style.setProperty('--dur', b.dataset.dur);
+        });
+      });
+
+      var gen = document.getElementById('generate');
+      var label = gen.querySelector('[data-label]');
+      var icon = gen.querySelector('[data-icon]');
+      var status = document.getElementById('status');
+      var busy = false;
+      gen.addEventListener('click', function () {
+        if (busy) return;
+        busy = true;
+        var spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        icon.replaceWith(spinner);
+        label.textContent = 'Generating';
+        status.textContent = 'Drafting hero, pricing and FAQ sections';
+        setTimeout(function () {
+          spinner.replaceWith(icon);
+          icon.setAttribute('icon', 'lucide:check');
+          label.textContent = 'Site ready';
+          status.textContent = 'meridian-studio.aura.site is live';
+          setTimeout(function () {
+            icon.setAttribute('icon', 'lucide:wand-sparkles');
+            label.textContent = 'Generate site';
+            status.textContent = 'Click Generate site to try it';
+            busy = false;
+          }, 1800);
+        }, 1600);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fieldbook - Plan comparison table</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'] }, colors: { moss: { 50: '#eff7f4', 100: '#dcefe7', 600: '#1f7a5c', 700: '#17624a', 900: '#0d3326' } } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+    .tbl { border-collapse: separate; border-spacing: 0; }
+    .tbl thead th { position: sticky; top: 0; z-index: 20; background: rgb(255 255 255 / .96); backdrop-filter: blur(8px); border-bottom: 1px solid #e4e4e7; vertical-align: bottom; }
+    .tbl thead th.biz { background: #eff7f4; }
+    .tbl tbody th, .tbl tbody td { border-bottom: 1px solid #f0f0f2; padding: 11px 16px; }
+    .tbl tbody td { text-align: left; color: #27272a; }
+    .tbl tbody th[scope="row"] { text-align: left; font-weight: 400; color: #3f3f46; padding-left: 0; }
+    .tbl .stick { position: sticky; left: 0; z-index: 10; background: #fff; }
+    .tbl thead th.stick { z-index: 30; }
+    .tbl .biz { background: #f4faf7; }
+    .tbl .ghead th { padding-left: 0; }
+    .tbl .ghead th, .tbl .ghead td { padding-top: 22px; padding-bottom: 10px; border-bottom: 1px solid #e4e4e7; cursor: pointer; user-select: none; }
+    .tbl .ghead:hover button { color: #17624a; }
+    .tbl .ghead iconify-icon.chev { transition: transform .25s ease; }
+    .tbl .ghead[aria-expanded="false"] iconify-icon.chev { transform: rotate(-90deg); }
+    .tbl tr.row:hover th, .tbl tr.row:hover td:not(.biz) { background: #fafafa; }
+    .tbl tr.row.show { animation: rowIn .3s ease both; }
+    @keyframes rowIn { from { opacity: 0; } to { opacity: 1; } }
+    .v { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
+    .ck { color: #18181b; font-size: 17px; vertical-align: middle; }
+    .biz .ck { color: #1f7a5c; }
+    .no { color: #d4d4d8; font-size: 17px; vertical-align: middle; }
+  </style>
+</head>
+<body class="bg-white font-sans text-zinc-900">
+  <section class="mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-8">
+    <div class="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+      <div>
+        <p class="font-mono text-xs font-medium uppercase tracking-[0.16em] text-moss-600">Compare plans</p>
+        <h2 class="mt-3 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-[2.6rem]">Every feature, side by side.</h2>
+        <p class="mt-3 max-w-xl text-[15px] leading-relaxed text-zinc-500">Fieldbook turns paper checklists into live inspections. Start free with your crew and upgrade when the jobs pile up.</p>
+      </div>
+      <div class="flex items-center gap-3 text-[13px] text-zinc-500">
+        <span class="font-mono text-xs">Per seat / month, billed yearly</span>
+        <button id="toggleAll" type="button" class="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 px-3 font-medium text-zinc-700 transition hover:bg-zinc-50"><iconify-icon icon="lucide:chevrons-down-up"></iconify-icon><span>Collapse all</span></button>
+      </div>
+    </div>
+
+    <p class="mt-6 flex items-center gap-1.5 text-xs text-zinc-400 lg:hidden"><iconify-icon icon="lucide:move-horizontal"></iconify-icon>Swipe to compare all plans</p>
+    <div class="mt-3 overflow-x-auto lg:mt-8 lg:overflow-visible">
+      <table class="tbl w-full min-w-[760px] text-sm">
+        <thead>
+          <tr>
+            <th class="stick w-[132px] pb-5 pr-4 text-left font-normal md:w-[28%]"><span class="text-[13px] text-zinc-400">4 plans, 21 features</span></th>
+            <th class="w-[18%] px-4 pb-5 text-left font-normal"><p class="font-semibold">Free</p><p class="mt-0.5 text-xs text-zinc-500">For solo inspectors</p><p class="mt-4 font-mono text-[1.75rem] font-medium tracking-tight">$0<span class="ml-1 font-sans text-xs font-normal tracking-normal text-zinc-400">/seat</span></p><a href="#" class="mt-3 flex h-9 items-center justify-center rounded-md border border-zinc-200 text-[13px] font-medium transition hover:bg-zinc-50">Start free</a></th>
+            <th class="w-[18%] px-4 pb-5 text-left font-normal"><p class="font-semibold">Plus</p><p class="mt-0.5 text-xs text-zinc-500">For small crews</p><p class="mt-4 font-mono text-[1.75rem] font-medium tracking-tight">$12<span class="ml-1 font-sans text-xs font-normal tracking-normal text-zinc-400">/seat</span></p><a href="#" class="mt-3 flex h-9 items-center justify-center rounded-md border border-zinc-200 text-[13px] font-medium transition hover:bg-zinc-50">Start trial</a></th>
+            <th class="biz w-[18%] rounded-t-xl px-4 pb-5 pt-4 text-left font-normal"><p class="flex items-center justify-between font-semibold">Business<span class="rounded bg-moss-600 px-1.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-white">Recommended</span></p><p class="mt-0.5 text-xs text-zinc-500">For multi-site teams</p><p class="mt-4 font-mono text-[1.75rem] font-medium tracking-tight">$28<span class="ml-1 font-sans text-xs font-normal tracking-normal text-zinc-400">/seat</span></p><a href="#" class="mt-3 flex h-9 items-center justify-center rounded-md bg-moss-700 text-[13px] font-medium text-white shadow-sm transition hover:bg-moss-900">Start trial</a></th>
+            <th class="w-[18%] px-4 pb-5 text-left font-normal"><p class="font-semibold">Enterprise</p><p class="mt-0.5 text-xs text-zinc-500">For regulated fleets</p><p class="mt-4 font-mono text-[1.75rem] font-medium tracking-tight">Custom<span class="ml-1 font-sans text-xs font-normal tracking-normal text-zinc-400">pricing</span></p><a href="#" class="mt-3 flex h-9 items-center justify-center rounded-md bg-zinc-900 text-[13px] font-medium text-white transition hover:bg-zinc-700">Contact sales</a></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ghead" aria-expanded="true"><th class="stick text-left" colspan="3"><button type="button" class="flex items-center gap-2 font-semibold transition-colors"><iconify-icon icon="lucide:chevron-down" class="chev text-zinc-400"></iconify-icon>Building<span class="font-mono text-[11px] font-normal text-zinc-400">6</span></button></th><td class="biz"></td><td></td></tr>
+          <tr class="row"><th scope="row" class="stick">Forms and checklists</th><td><span class="v">5</span></td><td><span class="v">Unlimited</span></td><td class="biz"><span class="v">Unlimited</span></td><td><span class="v">Unlimited</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">Submissions per month</th><td><span class="v">500</span></td><td><span class="v">10,000</span></td><td class="biz"><span class="v">100,000</span></td><td><span class="v">Unlimited</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">Photo and file storage</th><td><span class="v">2 GB</span></td><td><span class="v">50 GB</span></td><td class="biz"><span class="v">1 TB</span></td><td><span class="v">Custom</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">Offline capture</th><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Conditional logic</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Branded PDF reports</th><td><span class="v">1</span></td><td><span class="v">10</span></td><td class="biz"><span class="v">Unlimited</span></td><td><span class="v">Unlimited</span></td></tr>
+        </tbody>
+        <tbody>
+          <tr class="ghead" aria-expanded="true"><th class="stick text-left" colspan="3"><button type="button" class="flex items-center gap-2 font-semibold transition-colors"><iconify-icon icon="lucide:chevron-down" class="chev text-zinc-400"></iconify-icon>Collaboration<span class="font-mono text-[11px] font-normal text-zinc-400">5</span></button></th><td class="biz"></td><td></td></tr>
+          <tr class="row"><th scope="row" class="stick">Members</th><td><span class="v">3</span></td><td><span class="v">25</span></td><td class="biz"><span class="v">Unlimited</span></td><td><span class="v">Unlimited</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">Guest reviewers</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><span class="v">5</span></td><td class="biz"><span class="v">50</span></td><td><span class="v">Unlimited</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">Comments and mentions</th><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Approval workflows</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Shared dashboards</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><span class="v">3</span></td><td class="biz"><span class="v">Unlimited</span></td><td><span class="v">Unlimited</span></td></tr>
+        </tbody>
+        <tbody>
+          <tr class="ghead" aria-expanded="true"><th class="stick text-left" colspan="3"><button type="button" class="flex items-center gap-2 font-semibold transition-colors"><iconify-icon icon="lucide:chevron-down" class="chev text-zinc-400"></iconify-icon>Security<span class="font-mono text-[11px] font-normal text-zinc-400">5</span></button></th><td class="biz"></td><td></td></tr>
+          <tr class="row"><th scope="row" class="stick">Two-factor authentication</th><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">SAML single sign-on</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">SCIM provisioning</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Audit log retention</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><span class="v">30 days</span></td><td class="biz"><span class="v">1 year</span></td><td><span class="v">Custom</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">EU or US data residency</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+        </tbody>
+        <tbody>
+          <tr class="ghead" aria-expanded="true"><th class="stick text-left" colspan="3"><button type="button" class="flex items-center gap-2 font-semibold transition-colors"><iconify-icon icon="lucide:chevron-down" class="chev text-zinc-400"></iconify-icon>Support<span class="font-mono text-[11px] font-normal text-zinc-400">5</span></button></th><td class="biz"></td><td></td></tr>
+          <tr class="row"><th scope="row" class="stick">Help center and community</th><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Email support response</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><span class="v">48h</span></td><td class="biz"><span class="v">24h</span></td><td><span class="v">4h</span></td></tr>
+          <tr class="row"><th scope="row" class="stick">Guided onboarding</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Dedicated success manager</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz"><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:check" class="ck"></iconify-icon></td></tr>
+          <tr class="row"><th scope="row" class="stick">Uptime SLA</th><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td><iconify-icon icon="lucide:minus" class="no"></iconify-icon></td><td class="biz rounded-b-xl"><span class="v">99.9%</span></td><td><span class="v">99.99%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var heads = Array.prototype.slice.call(document.querySelectorAll('.ghead'));
+      var allBtn = document.getElementById('toggleAll');
+      function setGroup(head, open) {
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+        var btn = head.querySelector('button');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        head.parentNode.querySelectorAll('tr.row').forEach(function (r) {
+          r.hidden = !open;
+          r.classList.toggle('show', open);
+        });
+      }
+      function syncAll() {
+        var anyOpen = heads.some(function (h) { return h.getAttribute('aria-expanded') === 'true'; });
+        allBtn.querySelector('span').textContent = anyOpen ? 'Collapse all' : 'Expand all';
+        allBtn.querySelector('iconify-icon').setAttribute('icon', anyOpen ? 'lucide:chevrons-down-up' : 'lucide:chevrons-up-down');
+      }
+      heads.forEach(function (h) {
+        h.addEventListener('click', function () { setGroup(h, h.getAttribute('aria-expanded') !== 'true'); syncAll(); });
+      });
+      allBtn.addEventListener('click', function () {
+        var anyOpen = heads.some(function (h) { return h.getAttribute('aria-expanded') === 'true'; });
+        heads.forEach(function (h) { setGroup(h, !anyOpen); });
+        syncAll();
+      });
+    })();
+  </script>
+</body>
+</html>
