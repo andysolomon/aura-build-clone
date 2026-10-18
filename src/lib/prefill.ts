@@ -38,3 +38,16 @@ export async function imageToPngDataUrl(url: string, maxEdge = 1568): Promise<st
   canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL("image/png");
 }
+
+/** Loads an image URL as a downscaled JPEG data URL (for sending captured screenshots to vision models). */
+export async function imageToJpegDataUrl(url: string, maxEdge = 1568, quality = 0.85): Promise<string> {
+  const img = new Image();
+  img.src = url;
+  await img.decode();
+  const scale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.naturalWidth * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+  canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", quality);
+}

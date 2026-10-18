@@ -8,6 +8,8 @@ export interface ProviderInput {
   /** Image data URLs. Providers that can't accept images ignore them. */
   images: string[];
   effort: "low" | "medium" | "high";
+  /** Read-only web search/fetch, when the provider supports it. */
+  webAccess?: boolean;
 }
 
 export type ProviderEvent =
@@ -20,6 +22,8 @@ export interface Provider {
   label: string;
   billing: ProviderInfo["billing"];
   images: boolean;
+  /** Whether the provider supports read-only web access. */
+  web: boolean;
   /** Checks that the provider is installed and signed in. */
   detect(): Promise<{ available: boolean; note?: string }>;
   listModels(): Promise<ModelOption[]>;

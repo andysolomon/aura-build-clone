@@ -34,6 +34,8 @@ export function HomePage() {
     referenceSlugs: [],
     skillSlugs: [],
     images: [],
+    captures: [],
+    webAccess: false,
   }));
 
   useEffect(() => {
@@ -67,6 +69,8 @@ export function HomePage() {
         designSystemId: state.designSystemId,
         referenceSlugs: state.referenceSlugs,
         skillSlugs: state.skillSlugs,
+        captures: state.captures,
+        webAccess: state.webAccess,
         images: state.images,
       });
       navigate(`/build/${id}`);

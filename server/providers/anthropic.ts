@@ -3,6 +3,8 @@ import { CLAUDE_MODELS, modelRef } from "../../shared/models";
 import type { Provider, ProviderEvent } from "./types";
 
 type BetaContentBlockParam = Anthropic.Beta.Messages.BetaContentBlockParam;
+type BetaMessageParam = Anthropic.Beta.Messages.BetaMessageParam;
+type BetaToolUnion = Anthropic.Beta.Messages.BetaToolUnion;
 type BetaMessageStreamParams = Anthropic.Beta.Messages.MessageCreateParamsStreaming;
 
 const DATA_URL = /^data:(image\/(?:png|jpeg|gif|webp));base64,(.+)$/;
@@ -37,6 +39,7 @@ export const anthropicApi: Provider = {
   label: "Anthropic API",
   billing: "api-key",
   images: true,
+  web: true,
 
   async detect() {
     return process.env.ANTHROPIC_API_KEY
@@ -58,25 +61,47 @@ export const anthropicApi: Provider = {
     }
     content.push({ type: "text", text: input.prompt });
 
+    // Server-side web tools (dynamic filtering variants) when the user allows web access.
+    const tools: BetaToolUnion[] | undefined =
+      input.webAccess && input.model !== "claude-haiku-4-5"
+        ? [
+            { type: "web_search_20260209", name: "web_search", max_uses: 5 },
+            { type: "web_fetch_20260209", name: "web_fetch", max_uses: 5 },
+          ]
+        : undefined;
+    const messages: BetaMessageParam[] = [{ role: "user", content }];
+
     try {
-      const stream = getClient().beta.messages.stream(
-        {
-          model: input.model,
-          max_tokens: 64000,
-          system: [{ type: "text", text: input.system, cache_control: { type: "ephemeral" } }],
-          messages: [{ role: "user", content }],
-          ...modelOptions(input.model, input.effort),
-        },
-        { signal },
-      );
-      for await (const event of stream) {
-        if (event.type !== "content_block_delta") continue;
-        if (event.delta.type === "thinking_delta" && event.delta.thinking) yield { type: "reasoning", text: event.delta.thinking };
-        else if (event.delta.type === "text_delta") yield { type: "delta", text: event.delta.text };
+      // A long server-tool turn can pause; resend the conversation so it continues (bounded).
+      for (let round = 0; round < 4; round++) {
+        const stream = getClient().beta.messages.stream(
+          {
+            model: input.model,
+            max_tokens: 64000,
+            system: [{ type: "text", text: input.system, cache_control: { type: "ephemeral" } }],
+            messages,
+            ...(tools ? { tools } : {}),
+            ...modelOptions(input.model, input.effort),
+          },
+          { signal },
+        );
+        for await (const event of stream) {
+          if (event.type === "content_block_start" && event.content_block.type === "server_tool_use") {
+            yield { type: "reasoning", text: `${event.content_block.name === "web_search" ? "Searching the web" : "Fetching a page"}…\n` };
+          }
+          if (event.type !== "content_block_delta") continue;
+          if (event.delta.type === "thinking_delta" && event.delta.thinking) yield { type: "reasoning", text: event.delta.thinking };
+          else if (event.delta.type === "text_delta") yield { type: "delta", text: event.delta.text };
+        }
+        const final = await stream.finalMessage();
+        if (final.stop_reason === "pause_turn") {
+          messages.push({ role: "assistant", content: final.content as BetaContentBlockParam[] });
+          continue;
+        }
+        if (final.stop_reason === "refusal") yield { type: "error", message: "The model declined this request. Try rephrasing the brief." };
+        else if (final.stop_reason === "max_tokens") yield { type: "error", message: "The output hit the length limit before the page was finished." };
+        break;
       }
-      const final = await stream.finalMessage();
-      if (final.stop_reason === "refusal") yield { type: "error", message: "The model declined this request. Try rephrasing the brief." };
-      else if (final.stop_reason === "max_tokens") yield { type: "error", message: "The output hit the length limit before the page was finished." };
     } catch (err) {
       yield { type: "error", message: describeError(err) };
     }

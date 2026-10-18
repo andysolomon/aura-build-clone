@@ -14,6 +14,7 @@ export default defineConfig({
     proxy: {
       "/api": `http://127.0.0.1:${API_PORT}`,
       "/s/": `http://127.0.0.1:${API_PORT}`,
+      "/captures/": `http://127.0.0.1:${API_PORT}`,
     },
   },
   preview: { host: "127.0.0.1", allowedHosts: [".ts.net"] },

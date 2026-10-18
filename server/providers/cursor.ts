@@ -28,6 +28,8 @@ export const cursor: Provider = {
   label: "Cursor",
   billing: "subscription",
   images: false,
+  // cursor-agent has no switch for web tools in read-only ask mode.
+  web: false,
 
   async detect() {
     const res = await run("cursor-agent", ["status"]);

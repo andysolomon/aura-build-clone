@@ -1,5 +1,5 @@
 import type { Project, ProjectSummary } from "../../shared/project";
-import type { AppConfig, GenerateRequest, PublishResponse, StreamEvent } from "../../shared/protocol";
+import type { AppConfig, Capture, GenerateRequest, PublishResponse, StreamEvent } from "../../shared/protocol";
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -34,6 +34,13 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
     }).then((r) => json<{ prompt: string; short: string; notes: string[] }>(r)),
+  capture: (url: string) =>
+    fetch("/api/capture", {
+      method: "POST",
+      signal: AbortSignal.timeout(90_000),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url }),
+    }).then((r) => json<Capture>(r)),
   publish: (html: string, title: string, slug?: string) =>
     fetch("/api/publish", {
       method: "POST",

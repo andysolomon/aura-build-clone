@@ -14,7 +14,7 @@ Write nothing before the summary and nothing after </html>. Do not wrap output i
 Technical constraints for the document:
 - Tailwind CSS through <script src="https://cdn.tailwindcss.com"></script>. A tailwind.config script block and a small <style> block for custom keyframes or effects are fine.
 - Fonts from Google Fonts <link> tags. Icons through <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script> using <iconify-icon icon="lucide:NAME"></iconify-icon>, or inline SVG.
-- Images only from https://picsum.photos/seed/WORD/WIDTH/HEIGHT. Prefer gradients, SVG art and HTML/CSS-built product mockups for the hero so it looks striking without photos.
+- Images: the screenshot URLs given in <website_screenshots> (use them wherever the real product UI should appear), image URLs from sites the user referenced, or https://picsum.photos/seed/WORD/WIDTH/HEIGHT. Without real screenshots, prefer gradients, SVG art and HTML/CSS-built product mockups for the hero.
 - Vanilla JavaScript only, inline at the end of <body>, kept small (scroll reveals, tabs, toggles, counters). Exception: when an attached skill explicitly calls for a library (for example GSAP or three.js) or a different Tailwind build, load it from cdn.jsdelivr.net as the skill describes.
 - Responsive from 375px to 1440px+, semantic, accessible contrast, real-sounding copy (never lorem ipsum).
 
@@ -28,6 +28,11 @@ export const ENHANCE_SYSTEM_PROMPT = `You rewrite rough website ideas into stron
 
 /** Coding-agent CLIs get this extra rule so they answer in text instead of using tools. */
 export const AGENT_PREAMBLE = `You are running headless inside a website builder. Do not use any tools, do not read or write files, and do not run commands. Reply with the requested output directly in your message.`;
+
+/** Preamble when the user turned on web access: browsing only, still no files or commands. */
+export const AGENT_PREAMBLE_WEB = `You are running headless inside a website builder. You may use web search and web fetch (read-only) to research sites and products the user mentions. Do not use any other tools, do not read or write files, and do not run commands. When you are done researching, reply with the requested output directly in your message.`;
+
+export const agentPreamble = (webAccess?: boolean) => (webAccess ? AGENT_PREAMBLE_WEB : AGENT_PREAMBLE);
 
 /** Renders a generation request as one self-contained user message. */
 export function renderRequest(req: GenerateRequest): string {
@@ -46,6 +51,16 @@ export function renderRequest(req: GenerateRequest): string {
   }
   for (const ref of req.references ?? []) {
     parts.push(`<reference_page title="${ref.title}">\n${ref.html}\n</reference_page>`);
+  }
+  const shots = req.screenshots ?? [];
+  for (const source of [...new Set(shots.map((s) => s.source))]) {
+    const lines = shots.filter((s) => s.source === source).map((s) => `- ${s.label} (${s.width}×${s.height}): ${s.url}`);
+    parts.push(
+      `<website_screenshots source="${source}">\nScreenshots of the user's real product, captured from the live site (also attached as images). Show them in the page wherever the product UI appears (hero, feature sections, device frames) with <img> tags using these exact URLs, instead of illustrating the UI:\n${lines.join("\n")}\n</website_screenshots>`,
+    );
+  }
+  if (req.webAccess) {
+    parts.push("Web access is on: fetch the sites the user mentions to get accurate product names, features and copy before writing the page.");
   }
   if (req.images?.length) {
     parts.push("The attached images are visual references from the user (screenshots or inspiration).");

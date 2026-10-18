@@ -10,6 +10,7 @@ export const claudeCode: Provider = {
   label: "Claude Code",
   billing: "subscription",
   images: true,
+  web: true,
 
   async detect() {
     const res = await run("claude", ["auth", "status"]);
@@ -38,8 +39,10 @@ export const claudeCode: Provider = {
         "--include-partial-messages",
         "--input-format", "stream-json",
         "--model", input.model,
-        // No tools, MCP servers, user settings, hooks or slash commands: plain generation.
-        "--tools", "",
+        // No MCP servers, user settings, hooks or slash commands. Tools are off unless the user
+        // turned on web access, which allows only the read-only web tools (pre-approved).
+        "--tools", input.webAccess ? "WebFetch,WebSearch" : "",
+        ...(input.webAccess ? ["--allowedTools", "WebFetch WebSearch"] : []),
         "--system-prompt", input.system,
         "--setting-sources", "project",
         "--strict-mcp-config",
@@ -64,7 +67,13 @@ export const claudeCode: Provider = {
       for (; !next.done; next = await lines.next()) {
         const line = next.value;
         if (line.type === "stream_event") {
-          const event = line.event as { type?: string; delta?: { type?: string; text?: string; thinking?: string } } | undefined;
+          const event = line.event as
+            | { type?: string; delta?: { type?: string; text?: string; thinking?: string }; content_block?: { type?: string; name?: string } }
+            | undefined;
+          if (event?.type === "content_block_start" && event.content_block?.type === "tool_use") {
+            yield { type: "reasoning", text: `${event.content_block.name === "WebSearch" ? "Searching the web" : "Fetching a page"}…\n` };
+            continue;
+          }
           if (event?.type !== "content_block_delta") continue;
           if (event.delta?.type === "text_delta" && event.delta.text) {
             streamed = true;

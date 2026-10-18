@@ -23,6 +23,7 @@ const DEMO: ProviderInfo = {
   billing: "offline",
   available: true,
   images: false,
+  web: false,
   models: [{ ref: DEMO_MODEL_REF, provider: "demo", id: "offline", label: "Demo generator" }],
 };
 
@@ -31,7 +32,7 @@ let cache: { at: number; infos: ProviderInfo[] } | null = null;
 let inflight: Promise<ProviderInfo[]> | null = null;
 
 async function inspect(provider: Provider): Promise<ProviderInfo> {
-  const base = { id: provider.id, label: provider.label, billing: provider.billing, images: provider.images };
+  const base = { id: provider.id, label: provider.label, billing: provider.billing, images: provider.images, web: provider.web };
   try {
     const detected = await provider.detect();
     if (!detected.available) return { ...base, available: false, note: detected.note, models: [] };

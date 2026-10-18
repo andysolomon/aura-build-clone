@@ -22,6 +22,8 @@ export interface ProviderInfo {
   note?: string;
   /** Whether image attachments reach the model. */
   images: boolean;
+  /** Whether the provider can browse the web when web access is on. */
+  web: boolean;
   models: ModelOption[];
 }
 

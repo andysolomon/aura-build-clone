@@ -1,5 +1,5 @@
 import { modelRef } from "../../shared/models";
-import { AGENT_PREAMBLE } from "../prompts";
+import { agentPreamble } from "../prompts";
 import { jsonLines, run, stderrSummary, withScratchDir, writeImages } from "./cli";
 import type { Provider, ProviderEvent } from "./types";
 
@@ -8,6 +8,7 @@ interface CodexItem {
   type?: string;
   text?: string;
   message?: string;
+  query?: string;
 }
 
 /** Codex CLI (`codex exec`), billed to the signed-in ChatGPT plan. */
@@ -16,6 +17,7 @@ export const codex: Provider = {
   label: "Codex",
   billing: "subscription",
   images: true,
+  web: true,
 
   async detect() {
     const res = await run("codex", ["login", "status"]);
@@ -40,6 +42,8 @@ export const codex: Provider = {
     yield* await withScratchDir(async function* (dir): AsyncGenerator<ProviderEvent> {
       const images = await writeImages(dir, input.images);
       const args = [
+        // --search is a top-level flag: the model's native, read-only web_search tool.
+        ...(input.webAccess ? ["--search"] : []),
         "exec",
         "--json",
         "--skip-git-repo-check",
@@ -53,7 +57,7 @@ export const codex: Provider = {
         // The prompt is read from stdin when no positional prompt is given.
         ...images.map((file) => `--image=${file}`),
       ];
-      const stdin = `${AGENT_PREAMBLE}\n\n<instructions>\n${input.system}\n</instructions>\n\n${input.prompt}`;
+      const stdin = `${agentPreamble(input.webAccess)}\n\n<instructions>\n${input.system}\n</instructions>\n\n${input.prompt}`;
 
       const lines = jsonLines("codex", args, { stdin, cwd: dir, signal });
       const emitted = new Map<string, number>();
@@ -76,6 +80,8 @@ export const codex: Provider = {
             }
           } else if (item.type === "reasoning" && item.text && type === "item.completed") {
             yield { type: "reasoning", text: `${item.text}\n` };
+          } else if (item.type === "web_search" && type === "item.completed" && item.query) {
+            yield { type: "reasoning", text: `Searched the web: ${item.query}\n` };
           } else if (item.type === "error" && item.message) {
             failure = item.message;
           }
