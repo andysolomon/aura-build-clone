@@ -8,6 +8,7 @@ import { PromptComposer, type ComposerState } from "../components/PromptComposer
 import { Button, Spinner } from "../components/ui";
 import { api, streamGenerate } from "../lib/api";
 import { reloadAppConfig, usableModel, useAppConfig } from "../lib/projects";
+import { imageToJpegDataUrl } from "../lib/prefill";
 import { resolveReference, resolveSkills } from "../lib/references";
 import { now, pageTitle, thumbnail, uid } from "../lib/util";
 import { applyPatch, selectorFor, sourceOuterHTML, withSourceAttributes, type Patch, type SelectionInfo } from "./bridge";
@@ -31,7 +32,7 @@ export function EditorPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const config = useAppConfig();
-  const [composer, setComposer] = useState<ComposerState>({ prompt: "", model: "", designSystemId: null, referenceSlugs: [], skillSlugs: [], images: [] });
+  const [composer, setComposer] = useState<ComposerState>({ prompt: "", model: "", designSystemId: null, referenceSlugs: [], skillSlugs: [], images: [], captures: [], webAccess: false });
   const [view, setView] = useState<EditorView>("preview");
   const [device, setDevice] = useState<Device>("desktop");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -101,12 +102,20 @@ export function EditorPage() {
     if (!start || abortRef.current) return;
     const baseHtml = currentVersion(start)?.html ?? null;
 
+    // Imported sites: absolute URLs the page can embed, plus the shots as images for vision.
+    const captures = input.captures ?? [];
+    const screenshots = captures.flatMap((c) =>
+      c.shots.map((s) => ({ url: new URL(s.path, window.location.origin).href, label: s.label, source: c.source, width: s.width, height: s.height })),
+    );
+    const captureImages = await Promise.all(captures.flatMap((c) => c.shots.map((s) => imageToJpegDataUrl(s.path).catch(() => null))));
+    const images = [...input.images, ...captureImages.filter((x): x is string => x !== null)].slice(0, 4);
+
     const userMessage: ChatMessage = {
       id: uid(),
       role: "user",
       content: input.prompt,
       createdAt: now(),
-      images: input.images.length ? await Promise.all(input.images.map((src) => thumbnail(src))) : undefined,
+      images: images.length ? await Promise.all(images.map((src) => thumbnail(src))) : undefined,
     };
     const history = start.messages.filter((m) => !m.error).map((m) => ({ role: m.role, content: m.content }));
     commit((p) => ({ ...p, model: input.model, designSystemId: input.designSystemId, messages: [...p.messages, userMessage] }));
@@ -136,7 +145,9 @@ export function EditorPage() {
           history,
           references,
           skills: resolveSkills(input.skillSlugs ?? []),
-          images: input.images,
+          images,
+          screenshots,
+          webAccess: input.webAccess,
         },
         (event) => {
           switch (event.type) {
@@ -222,7 +233,7 @@ export function EditorPage() {
         ? { selector: selectorFor(html, scoped.id) ?? scoped.tag, outerHTML: (sourceOuterHTML(html, scoped.id) ?? scoped.outerHTML).slice(0, 8000) }
         : null;
     void generate({ ...composer, prompt }, scope);
-    setComposer((c) => ({ ...c, prompt: "", images: [], referenceSlugs: [], skillSlugs: [] }));
+    setComposer((c) => ({ ...c, prompt: "", images: [], referenceSlugs: [], skillSlugs: [], captures: [] }));
   }
 
   // ---------- manual edits ----------
@@ -297,7 +308,7 @@ export function EditorPage() {
     const prompt = p.messages.slice(0, index).findLast((m) => m.role === "user");
     if (index === -1 || !prompt) return;
     commit((proj) => ({ ...proj, messages: proj.messages.filter((m) => m.id !== errorId && m.id !== prompt.id) }));
-    void generate({ ...composer, prompt: prompt.content, referenceSlugs: [], skillSlugs: [], images: [] }, null);
+    void generate({ ...composer, prompt: prompt.content, referenceSlugs: [], skillSlugs: [], images: [], captures: [] }, null);
   }
 
   function restore(versionId: string) {

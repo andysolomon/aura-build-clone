@@ -1,3 +1,5 @@
+import type { Capture } from "./protocol";
+
 export interface Version {
   id: string;
   html: string;
@@ -27,6 +29,8 @@ export interface PendingGeneration {
   referenceSlugs: string[];
   skillSlugs?: string[];
   images: string[];
+  captures?: Capture[];
+  webAccess?: boolean;
 }
 
 export interface Project {

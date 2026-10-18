@@ -11,6 +11,17 @@ export interface Release {
 /** Release history of this clone, newest first. */
 export const RELEASES: Release[] = [
   {
+    version: "0.5.0",
+    date: "2026-10-18",
+    title: "Real screenshots and web access",
+    summary: "Show your actual product in generated pages, and let the model read the live web when you want it to.",
+    changes: [
+      { kind: "new", text: "Import website URL: screenshot a live site (desktop and mobile) and have the page embed the real screenshots." },
+      { kind: "new", text: "Web access toggle: read-only web search and fetch for Claude Code, Codex, OpenCode and the Anthropic API." },
+      { kind: "improved", text: "Web searches and page fetches show up in the Thinking panel while the model works." },
+    ],
+  },
+  {
     version: "0.4.0",
     date: "2026-10-18",
     title: "Components, assets, skills and Learn",

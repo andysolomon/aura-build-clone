@@ -61,6 +61,17 @@ Each run happens in a throwaway temp directory with tools disabled or read-only:
 - OpenCode: edit, bash and webfetch denied
 
 API keys are stripped from the child environment, so Claude Code can't fall back to API billing.
+
+Two opt-in features, both in the composer's globe menu, give the model the real world:
+- **Import website URL** screenshots a site with local Chromium (desktop and mobile) into
+  `data/captures/`, served at `/captures/<file>`. The shots are attached for vision, and their
+  absolute URLs are given to the model so the page can embed the real screenshots.
+- **Web access** turns on read-only web search and fetch for that request:
+  - Claude Code: `WebFetch` and `WebSearch`, pre-approved
+  - Codex: `--search`
+  - OpenCode: `webfetch` allowed
+  - Anthropic API: the `web_search` / `web_fetch` server tools
+  - Cursor can't browse.
 Models are discovered from each CLI and cached for five minutes; the refresh button in the model
 picker re-detects them after you sign in. If nothing is available, the app falls back to an
 **offline demo generator**, which composes pages from the prompt and supports structured edits

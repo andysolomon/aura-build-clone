@@ -5,6 +5,7 @@ import { streamSSE } from "hono/streaming";
 import { readFile } from "node:fs/promises";
 import { parseModelRef } from "../shared/models";
 import type { AppConfig, GenerateRequest, PublishResponse } from "../shared/protocol";
+import { captureSite, parseCaptureUrl, readCapture } from "./capture";
 import { enhance, enhanceTool, generate } from "./generate";
 import { OUTPUT_STYLES, PROJECT_TYPES } from "./prompts";
 import { defaultModel, discoverProviders } from "./providers";
@@ -44,6 +45,8 @@ app.post("/api/generate", async (c) => {
     history: Array.isArray(body.history) ? body.history : [],
     references: Array.isArray(body.references) ? body.references.slice(0, 3) : [],
     skills: Array.isArray(body.skills) ? body.skills.slice(0, 6) : [],
+    screenshots: Array.isArray(body.screenshots) ? body.screenshots.slice(0, 6) : [],
+    webAccess: body.webAccess === true,
     images: Array.isArray(body.images) ? body.images.slice(0, 4) : [],
   };
 
@@ -82,6 +85,24 @@ app.post("/api/enhance/tool", async (c) => {
   } catch (err) {
     return c.json({ error: err instanceof Error ? err.message : "Enhance failed." }, 502);
   }
+});
+
+app.post("/api/capture", async (c) => {
+  const body = await c.req.json<{ url?: string }>().catch(() => null);
+  const url = parseCaptureUrl(body?.url ?? "");
+  if (!url) return c.json({ error: "Enter a valid http(s) URL." }, 400);
+  try {
+    return c.json(await captureSite(url));
+  } catch (err) {
+    const message = err instanceof Error ? err.message.split("\n")[0] : String(err);
+    return c.json({ error: `Couldn't capture ${url.hostname}: ${message}` }, 502);
+  }
+});
+
+app.get("/captures/:file", async (c) => {
+  const data = await readCapture(c.req.param("file"));
+  if (!data) return c.text("Not found", 404);
+  return c.body(new Uint8Array(data), 200, { "content-type": "image/jpeg", "cache-control": "public, max-age=31536000, immutable" });
 });
 
 app.post("/api/publish", async (c) => {

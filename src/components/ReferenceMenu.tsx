@@ -40,7 +40,7 @@ export function ReferenceMenu({ open, onToggle, side, buttonClassName, reference
 
   return (
     <div className="relative">
-      <button type="button" title="Reference templates, components and skills" className={cx(buttonClassName, "w-8 justify-center px-0", count > 0 && "text-accent")} onClick={onToggle}>
+      <button type="button" title="Reference templates, components and skills" className={cx(buttonClassName, count > 0 && "text-accent")} onClick={onToggle}>
         <AtSign className="h-3.5 w-3.5" />
       </button>
       <Popover open={open} side={side} className="w-[22rem] p-0">

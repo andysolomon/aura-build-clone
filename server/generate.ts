@@ -36,11 +36,15 @@ export async function* generate(req: GenerateRequest, signal: AbortSignal): Asyn
     return;
   }
 
-  yield { type: "status", phase: "thinking", message: req.html ? "Planning the edit" : "Planning the design" };
+  const webAccess = Boolean(req.webAccess && target.provider.web);
+  yield { type: "status", phase: "thinking", message: webAccess ? "Researching" : req.html ? "Planning the edit" : "Planning the design" };
+  if (req.webAccess && !target.provider.web) {
+    yield { type: "reasoning", text: `${target.provider.label} can't browse the web, so this runs without web access.\n` };
+  }
   let raw = "";
   let writing = false;
   const events = target.provider.stream(
-    { model: target.model, system: SYSTEM_PROMPT, prompt: renderRequest(req), images: req.images ?? [], effort: "medium" },
+    { model: target.model, system: SYSTEM_PROMPT, prompt: renderRequest({ ...req, webAccess }), images: req.images ?? [], effort: "medium", webAccess },
     signal,
   );
   for await (const event of events) {

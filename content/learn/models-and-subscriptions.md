@@ -50,7 +50,18 @@ You can attach up to 4 images to a prompt. Cursor can't receive attached images,
 
 ## Your files are safe
 
-The app runs these CLIs headlessly in a temporary folder, with their tools disabled or read-only. They're asked for one thing, the page, and they hand it back as text. They can't read or edit your files.
+The app runs these CLIs headlessly in a temporary folder, with their tools disabled or read-only. They're asked for one thing, the page, and they hand it back as text. They can't read or edit your files. The only tools that can ever be turned on are read-only web search and web fetch, and only when you switch on **Web access**.
+
+## Web access and real screenshots
+
+By default the model can't browse, so it only knows what's in your prompt. Two options in the composer's globe menu change that:
+
+- **Import website URL** screenshots a live site on this machine, at desktop (1440×900) and mobile (390×844) sizes. The shots are attached so the model can see your real product, and the model gets hosted links so it can put the actual screenshots in the page instead of drawing a mockup. You can import up to 2 sites per prompt.
+- **Web access** lets the model search the web and read pages (read-only) while it works. Use it when you want accurate product details or copy pulled from a live site. Claude Code, Codex, OpenCode and the Anthropic API support it. Cursor can't browse, so the request runs without web access.
+
+Even with web access on, the model still can't read or edit your files or run commands.
+
+> Tip: combine both. Import your app's URL for the screenshots, turn on web access, and ask for a page that "uses the real screenshots and checks the live site for features."
 
 ## The Demo generator
 

@@ -1,11 +1,11 @@
 import { modelRef } from "../../shared/models";
-import { AGENT_PREAMBLE } from "../prompts";
+import { agentPreamble } from "../prompts";
 import { hasCommand, jsonLines, run, stderrSummary, subscriptionEnv, withScratchDir, writeImages } from "./cli";
 import type { Provider, ProviderEvent } from "./types";
 
 // OpenCode's free tier only serves its built-in agents, so the stock "build" agent is used
 // with every editing and shell permission denied; design instructions go in the message.
-const CONFIG = JSON.stringify({ permission: { edit: "deny", bash: "deny", webfetch: "deny" } });
+const config = (webAccess?: boolean) => JSON.stringify({ permission: { edit: "deny", bash: "deny", webfetch: webAccess ? "allow" : "deny" } });
 
 function prettyLabel(id: string): string {
   const [provider, model = id] = id.split("/");
@@ -19,6 +19,7 @@ export const opencode: Provider = {
   label: "OpenCode",
   billing: "subscription",
   images: true,
+  web: true,
 
   async detect() {
     if (!(await hasCommand("opencode"))) return { available: false, note: "Install OpenCode to use its providers." };
@@ -42,9 +43,9 @@ export const opencode: Provider = {
       const files = await writeImages(dir, input.images);
       const args = ["run", "--format", "json", "--thinking", "--pure", "--agent", "build", "--dir", dir, "-m", input.model];
       for (const file of files) args.push("-f", file);
-      const stdin = `${AGENT_PREAMBLE}\n\n<instructions>\n${input.system}\n</instructions>\n\n${input.prompt}`;
+      const stdin = `${agentPreamble(input.webAccess)}\n\n<instructions>\n${input.system}\n</instructions>\n\n${input.prompt}`;
 
-      const lines = jsonLines("opencode", args, { stdin, cwd: dir, signal, env: subscriptionEnv({ OPENCODE_CONFIG_CONTENT: CONFIG }) });
+      const lines = jsonLines("opencode", args, { stdin, cwd: dir, signal, env: subscriptionEnv({ OPENCODE_CONFIG_CONTENT: config(input.webAccess) }) });
       let streamed = false;
       let failure: string | undefined;
       let next = await lines.next();

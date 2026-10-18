@@ -7,6 +7,8 @@ import { refreshAppConfig, useAppConfig } from "../lib/projects";
 import { cx, readFileAsDataUrl, useDismiss, useTypewriter } from "../lib/util";
 import { ModelPicker } from "./ModelPicker";
 import { ReferenceChips, ReferenceMenu } from "./ReferenceMenu";
+import { WebChips, WebMenu } from "./WebMenu";
+import type { Capture } from "../../shared/protocol";
 import { MenuItem, Popover, Spinner } from "./ui";
 
 export interface ComposerState {
@@ -18,6 +20,9 @@ export interface ComposerState {
   referenceSlugs: string[];
   skillSlugs: string[];
   images: string[];
+  /** Sites imported with "Import website URL". */
+  captures: Capture[];
+  webAccess: boolean;
 }
 
 interface Props {
@@ -55,7 +60,7 @@ async function prepareImage(file: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
-type Menu = "model" | "design" | "refs" | null;
+type Menu = "model" | "design" | "refs" | "web" | null;
 
 export function PromptComposer({
   variant,
@@ -128,8 +133,10 @@ export function PromptComposer({
     void addFiles(e.dataTransfer.files);
   }
 
-  const hasChips = state.referenceSlugs.length > 0 || state.skillSlugs.length > 0 || state.images.length > 0 || Boolean(selectionLabel);
+  const hasChips =
+    state.referenceSlugs.length > 0 || state.skillSlugs.length > 0 || state.images.length > 0 || state.captures.length > 0 || state.webAccess || Boolean(selectionLabel);
   const setRefs = ({ references, skills }: { references: string[]; skills: string[] }) => set({ referenceSlugs: references, skillSlugs: skills });
+  const iconButton = hero ? "w-8 justify-center px-0" : "w-7 justify-center px-0";
   const toolButton = "inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-line bg-panel px-2 text-[12.5px] text-fg transition hover:bg-subtle";
 
   return (
@@ -158,6 +165,7 @@ export function PromptComposer({
             </span>
           )}
           <ReferenceChips references={state.referenceSlugs} skills={state.skillSlugs} onChange={setRefs} />
+          <WebChips captures={state.captures} webAccess={state.webAccess} onChange={(patch) => set(patch)} />
           {imagesDropped && (
             <span className="inline-flex items-center gap-1.5 self-center rounded-lg bg-amber-500/10 px-2 py-1 text-xs text-amber-700 dark:text-amber-300">
               <ImageOff className="h-3 w-3" /> {provider?.label} can't see images
@@ -194,10 +202,10 @@ export function PromptComposer({
       />
 
       <div ref={toolbarRef} className={cx("flex items-center px-2 pb-2 pt-1", hero ? "gap-1.5" : "gap-1")}>
-        <button type="button" onClick={() => setBuilderOpen(true)} title="Open Prompt Builder" aria-label="Open Prompt Builder" className={cx(toolButton, "w-8 justify-center px-0")}>
+        <button type="button" onClick={() => setBuilderOpen(true)} title="Open Prompt Builder" aria-label="Open Prompt Builder" className={cx(toolButton, iconButton)}>
           <SquarePen className="h-3.5 w-3.5" />
         </button>
-        <button type="button" onClick={enhance} title="Enhance prompt" className={cx(toolButton, "w-8 justify-center px-0")} disabled={enhancing}>
+        <button type="button" onClick={enhance} title="Enhance prompt" className={cx(toolButton, iconButton)} disabled={enhancing}>
           {enhancing ? <Spinner className="h-3 w-3" /> : <WandSparkles className="h-3.5 w-3.5" />}
         </button>
 
@@ -260,13 +268,25 @@ export function PromptComposer({
           open={menu === "refs"}
           onToggle={() => setMenu(menu === "refs" ? null : "refs")}
           side={hero ? "bottom" : "top"}
-          buttonClassName={toolButton}
+          buttonClassName={cx(toolButton, iconButton)}
           references={state.referenceSlugs}
           skills={state.skillSlugs}
           onChange={setRefs}
         />
 
-        <button type="button" title="Attach images (or paste / drop)" className={cx(toolButton, "w-8 justify-center px-0")} onClick={() => fileInput.current?.click()}>
+        <WebMenu
+          open={menu === "web"}
+          onToggle={() => setMenu(menu === "web" ? null : "web")}
+          side={hero ? "bottom" : "top"}
+          buttonClassName={cx(toolButton, iconButton)}
+          captures={state.captures}
+          webAccess={state.webAccess}
+          providerWeb={provider ? provider.web : null}
+          providerLabel={provider?.label}
+          onChange={(patch) => set(patch)}
+        />
+
+        <button type="button" title="Attach images (or paste / drop)" className={cx(toolButton, iconButton)} onClick={() => fileInput.current?.click()}>
           <Paperclip className="h-3.5 w-3.5" />
         </button>
         <input
