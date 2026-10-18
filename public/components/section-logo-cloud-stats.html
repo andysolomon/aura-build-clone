@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo cloud and stats - Trusted by teams shipping every day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Tight"', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #fff; -webkit-font-smoothing: antialiased; }
+  .marquee { -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+  .track { display: flex; width: max-content; animation: scroll 42s linear infinite; }
+  .marquee:hover .track { animation-play-state: paused; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+  .logo { display: flex; align-items: center; gap: 10px; color: #a1a1aa; padding: 0 36px; height: 72px; transition: color .25s ease; white-space: nowrap; }
+  .logo:hover { color: #18181b; }
+  .logo svg { flex-shrink: 0; }
+  .stat-num { font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { .track { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-zinc-900">
+  <section class="max-w-6xl mx-auto px-5 sm:px-8 py-20 sm:py-[108px]">
+    <div class="text-center">
+      <p class="inline-flex items-center gap-2 text-[12.5px] font-medium uppercase tracking-[.16em] text-zinc-500"><span class="w-1.5 h-1.5 rounded-full bg-zinc-900"></span>Trusted by teams shipping every day</p>
+      <h2 class="mt-5 text-[32px] sm:text-[44px] font-semibold leading-[1.06] tracking-[-0.04em] max-w-[1000px] mx-auto">2,400 product teams release with us, <br class="hidden md:block"><span class="text-zinc-400">from two-person startups to public companies.</span></h2>
+    </div>
+
+    <div class="marquee overflow-hidden mt-16 -mx-5 sm:mx-0 border-y border-zinc-100" aria-label="Customer logos">
+      <div class="track" id="track">
+        <div class="flex shrink-0" id="set">
+          <span class="logo"><svg width="26" height="26" viewBox="0 0 26 26" fill="currentColor"><path d="M2 18 13 4l11 14-6-3-5 7-5-7z"/></svg><span class="text-[21px] font-semibold tracking-tight">Kestrel</span></span>
+          <span class="logo"><svg width="24" height="26" viewBox="0 0 24 26" fill="currentColor"><path d="M12 1 4 13h4l-5 8h7v4h4v-4h7l-5-8h4z"/></svg><span class="text-[20px] font-medium tracking-tight" style="font-family: Georgia, serif">Polar &amp; Pine</span></span>
+          <span class="logo"><svg width="20" height="26" viewBox="0 0 20 26" fill="currentColor"><rect x="3" y="1" width="14" height="24" rx="2"/></svg><span class="text-[17px] font-bold tracking-[.32em]">MONOLITH</span></span>
+          <span class="logo"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="3"><circle cx="13" cy="13" r="9"/><path d="M13 4v18" /></svg><span class="text-[23px] font-bold tracking-[-0.04em]">ardent</span></span>
+          <span class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="17" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="17" y="9" width="6" height="6" rx="1"/><rect x="1" y="17" width="6" height="6" rx="1"/><rect x="9" y="17" width="6" height="6" rx="1"/><rect x="17" y="17" width="6" height="6" rx="1"/></svg><span class="text-[21px] font-semibold tracking-tight">Lattice</span></span>
+          <span class="logo"><svg width="30" height="22" viewBox="0 0 30 22" fill="currentColor"><circle cx="10" cy="13" r="7"/><circle cx="19" cy="9" r="8"/><rect x="3" y="13" width="24" height="7" rx="3.5"/></svg><span class="text-[20px] font-medium tracking-tight">Nimbus <span class="font-normal opacity-70">Labs</span></span></span>
+          <span class="logo"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="14" cy="14" r="5" fill="currentColor"/><ellipse cx="14" cy="14" rx="12" ry="5" transform="rotate(-25 14 14)"/></svg><span class="text-[21px] font-semibold tracking-[-0.02em]">Orbital</span></span>
+          <span class="logo"><span class="text-[22px] italic font-medium tracking-tight" style="font-family: Georgia, serif">fieldnote</span><svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg></span>
+          <span class="logo"><svg width="24" height="26" viewBox="0 0 24 26" fill="currentColor"><path d="M12 1 23 7v12l-11 6L1 19V7z"/><path d="M12 7 18 10.5v6L12 20l-6-3.5v-6z" fill="#fff"/></svg><span class="text-[21px] font-semibold tracking-tight">Quarry</span></span>
+          <span class="logo"><span class="text-[18px] font-bold tracking-[.22em]">HALDEN</span><span class="text-[11px] font-semibold tracking-wider border border-current rounded px-1">&amp;CO</span></span>
+        </div>
+      </div>
+    </div>
+
+    <dl class="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-px bg-zinc-200/80 border-y border-zinc-200/80 [&>div]:bg-white">
+      <div class="px-5 sm:px-8 py-8 lg:py-10">
+        <dt class="text-[13.5px] text-zinc-500">Monthly deploys</dt>
+        <dd class="mt-3 text-[40px] sm:text-[52px] font-semibold tracking-[-0.045em] leading-none"><span class="stat-num" data-to="12.6" data-dec="1">12.6</span>M</dd>
+        <p class="mt-3 text-[13px] text-emerald-600 font-medium flex items-center gap-1"><iconify-icon icon="lucide:trending-up" width="14"></iconify-icon>38% year over year</p>
+      </div>
+      <div class="px-5 sm:px-8 py-8 lg:py-10">
+        <dt class="text-[13.5px] text-zinc-500">Uptime, 12 months</dt>
+        <dd class="mt-3 text-[40px] sm:text-[52px] font-semibold tracking-[-0.045em] leading-none"><span class="stat-num" data-to="99.99" data-dec="2">99.99</span>%</dd>
+        <p class="mt-3 text-[13px] text-zinc-400">Across 31 regions</p>
+      </div>
+      <div class="px-5 sm:px-8 py-8 lg:py-10">
+        <dt class="text-[13.5px] text-zinc-500">Faster code review</dt>
+        <dd class="mt-3 text-[40px] sm:text-[52px] font-semibold tracking-[-0.045em] leading-none"><span class="stat-num" data-to="4.2" data-dec="1">4.2</span>x</dd>
+        <p class="mt-3 text-[13px] text-zinc-400">Median, first 90 days</p>
+      </div>
+      <div class="px-5 sm:px-8 py-8 lg:py-10">
+        <dt class="text-[13.5px] text-zinc-500">Active engineers</dt>
+        <dd class="mt-3 text-[40px] sm:text-[52px] font-semibold tracking-[-0.045em] leading-none"><span class="stat-num" data-to="186" data-dec="0">186</span>k</dd>
+        <p class="mt-3 text-[13px] text-zinc-400">In 140 countries</p>
+      </div>
+    </dl>
+  </section>
+
+<script>
+(function () {
+  // Duplicate the logo set for a seamless loop
+  var set = document.getElementById('set');
+  var clone = set.cloneNode(true); clone.removeAttribute('id'); clone.setAttribute('aria-hidden', 'true');
+  document.getElementById('track').appendChild(clone);
+
+  var nums = document.querySelectorAll('.stat-num');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function fmt(v, dec) { return v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+  function count(el) {
+    if (el.dataset.done) return; el.dataset.done = '1';
+    var to = parseFloat(el.dataset.to), dec = +el.dataset.dec, dur = 1100, t0 = performance.now();
+    if (reduce) { el.textContent = fmt(to, dec); return; }
+    (function frame(now) {
+      var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 4);
+      el.textContent = fmt(to * e, dec);
+      if (p < 1) requestAnimationFrame(frame); else el.textContent = fmt(to, dec);
+    })(t0);
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { count(en.target); io.unobserve(en.target); } });
+    }, { threshold: 0.3 });
+    nums.forEach(function (n) {
+      var r = n.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) count(n); else { n.textContent = fmt(0, +n.dataset.dec); io.observe(n); }
+    });
+  } else nums.forEach(count);
+})();
+</script>
+</body>
+</html>

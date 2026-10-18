@@ -8,8 +8,11 @@ import { Logo } from "./ui";
 const NAV = [
   { to: "/", label: "Create" },
   { to: "/templates", label: "Templates" },
+  { to: "/components", label: "Components" },
+  { to: "/assets", label: "Assets" },
+  { to: "/skills", label: "Skills" },
   { to: "/design-systems", label: "Design.md" },
-  { to: "/projects", label: "Projects" },
+  { to: "/learn", label: "Learn" },
   { to: "/pricing", label: "Pricing" },
 ];
 
@@ -21,7 +24,7 @@ export function SiteHeader() {
         <Link to="/" className="text-fg" aria-label="Home">
           <Logo className="h-[26px] w-[26px]" />
         </Link>
-        <nav className="hidden items-center gap-10 md:flex">
+        <nav className="hidden items-center gap-7 lg:flex xl:gap-10">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
@@ -40,13 +43,13 @@ export function SiteHeader() {
           <Link to="/projects" className="hidden text-[12.5px] uppercase tracking-[0.02em] text-muted hover:text-fg sm:inline">
             My work
           </Link>
-          <button className="md:hidden text-muted" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+          <button className="lg:hidden text-muted" onClick={() => setOpen((v) => !v)} aria-label="Menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
       {open && (
-        <nav className="border-t border-line px-6 py-4 md:hidden">
+        <nav className="border-t border-line px-6 py-4 lg:hidden">
           {NAV.map((item) => (
             <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="block py-2 text-sm uppercase text-muted">
               {item.label}
@@ -60,9 +63,9 @@ export function SiteHeader() {
 }
 
 const FOOTER_COLUMNS = [
-  { title: "Product", links: [["Create", "/"], ["Templates", "/templates"], ["Design systems", "/design-systems"], ["Pricing", "/pricing"]] },
-  { title: "Workspace", links: [["Projects", "/projects"], ["New project", "/build"]] },
-  { title: "Templates", links: [["SaaS", "/templates?category=SaaS"], ["Portfolio", "/templates?category=Portfolio"], ["E-commerce", "/templates?category=E-commerce"], ["Services", "/templates?category=Services"]] },
+  { title: "Product", links: [["Create", "/"], ["Prompt Builder", "/create"], ["Templates", "/templates"], ["Components", "/components"], ["Assets", "/assets"], ["Pricing", "/pricing"]] },
+  { title: "Resources", links: [["Learn", "/learn"], ["Skills", "/skills"], ["Design systems", "/design-systems"], ["Prompt enhancer", "/resources/tools/prompt-enhancer"], ["Changelog", "/changelog"]] },
+  { title: "Workspace", links: [["Projects", "/projects"], ["New project", "/"]] },
 ];
 
 export function SiteFooter() {

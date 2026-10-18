@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tandem - Alternating feature rows for the studio operating system</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Onest', 'ui-sans-serif', 'system-ui', 'sans-serif'] }, colors: { ink: '#0c0a09' } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background: #0c0a09; }
+    .warm { background: linear-gradient(100deg, #f97316, #facc15); }
+    .warm-text { background: linear-gradient(100deg, #fb923c, #facc15); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .mock { background: linear-gradient(180deg, #171412, #110f0e); box-shadow: 0 0 0 1px rgb(255 255 255 / .07), 0 30px 80px -30px rgb(0 0 0 / .8), inset 0 1px 0 rgb(255 255 255 / .05); }
+    .card { background: #1c1917; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); }
+    .glow { background: radial-gradient(closest-side, rgb(249 115 22 / .16), transparent); }
+    .hours { background-image: repeating-linear-gradient(to bottom, rgb(255 255 255 / .05) 0 1px, transparent 1px 44px); }
+    .hours > div { overflow: hidden; text-overflow: ellipsis; overflow-wrap: anywhere; }
+    .striped { background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / .05) 0 6px, transparent 6px 12px); }
+    .js-reveal .reveal > * { opacity: 0; transform: translateY(28px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+    .js-reveal .reveal > *:nth-child(2) { transition-delay: .12s; }
+    .js-reveal .reveal.in > * { opacity: 1; transform: none; }
+    .drag { transform: rotate(-2.5deg) translate(4px, -4px); box-shadow: 0 0 0 1px rgb(249 115 22 / .55), 0 18px 40px -12px rgb(249 115 22 / .35); }
+  </style>
+</head>
+<body class="font-sans text-stone-200">
+  <section class="relative overflow-hidden">
+    <div class="glow pointer-events-none absolute -top-40 right-0 h-[520px] w-[720px]"></div>
+    <div class="relative mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-8">
+      <header class="grid items-end gap-5 md:grid-cols-[1.75fr_1fr] md:gap-14">
+        <div>
+          <p class="flex items-center gap-2 text-[13px] font-medium text-stone-400"><span class="warm h-1.5 w-1.5 rounded-full"></span>How Tandem works</p>
+          <h2 class="mt-3 text-[2.1rem] font-semibold leading-[1.05] tracking-[-0.035em] text-stone-50 sm:text-[2.75rem]">From first brief to booked revenue, <span class="text-stone-500">in one calm workspace.</span></h2>
+        </div>
+        <p class="text-[15px] leading-relaxed text-stone-400 md:pb-1">Tandem replaces the spreadsheet, the shared calendar and the pipeline deck that every creative studio quietly runs on.</p>
+      </header>
+
+      <div class="mt-10 space-y-20 sm:mt-12">
+        <!-- Row 1 -->
+        <div class="grid items-center gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-14">
+          <div>
+            <p class="font-mono text-xs tracking-wider"><span class="warm-text font-semibold">01</span><span class="text-stone-600"> / Plan</span></p>
+            <h3 class="mt-3 text-2xl font-semibold tracking-[-0.025em] text-stone-50 sm:text-[1.75rem]">Every project on one board, without the busywork.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-stone-400">Briefs turn into scoped tasks automatically. Drag work across stages and Tandem keeps budgets, owners and due dates in sync.</p>
+            <ul class="mt-5 space-y-2.5 text-sm text-stone-300">
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Briefs parsed into tasks in seconds</li>
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Budget burn shown on every card</li>
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Client-safe views you can share by link</li>
+            </ul>
+          </div>
+          <div class="mock overflow-hidden rounded-2xl">
+            <div class="flex items-center justify-between border-b border-white/5 px-4 py-3">
+              <div class="flex items-center gap-2 text-[13px]"><span class="h-2.5 w-2.5 rounded-full bg-stone-700"></span><span class="font-medium text-stone-200">Halden &amp; Co</span><span class="text-stone-600">/</span><span class="text-stone-400">Spring drop</span></div>
+              <div class="flex -space-x-1">
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-amber-300 to-orange-600 text-[10px] font-semibold text-stone-900 ring-2 ring-[#151211]">MR</span>
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-stone-300 to-stone-500 text-[10px] font-semibold text-stone-900 ring-2 ring-[#151211]">JL</span>
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-rose-300 to-rose-600 text-[10px] font-semibold text-stone-900 ring-2 ring-[#151211]">AK</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
+              <div class="space-y-2.5">
+                <p class="flex items-center justify-between px-1 text-xs text-stone-500"><span>Backlog</span><span>4</span></p>
+                <div class="card rounded-xl p-3"><span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-stone-400">Design</span><p class="mt-2 text-[13px] leading-snug text-stone-200">Moodboard for the spring lookbook</p><p class="mt-3 text-[11px] text-stone-500">Due Apr 18</p></div>
+                <div class="card rounded-xl p-3"><span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-stone-400">Copy</span><p class="mt-2 text-[13px] leading-snug text-stone-200">Product naming shortlist</p><p class="mt-3 text-[11px] text-stone-500">Due Apr 21</p></div>
+                <div class="card rounded-xl p-3 opacity-60"><span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-stone-400">Strategy</span><p class="mt-2 text-[13px] leading-snug text-stone-200">Window display concepts</p></div>
+              </div>
+              <div class="space-y-2.5">
+                <p class="flex items-center justify-between px-1 text-xs text-stone-500"><span>In progress</span><span>3</span></p>
+                <div class="card drag rounded-xl p-3">
+                  <span class="rounded-md bg-orange-500/15 px-1.5 py-0.5 text-[10px] text-orange-300">Motion</span>
+                  <p class="mt-2 text-[13px] leading-snug text-stone-100">Homepage hero animation</p>
+                  <div class="mt-3 h-1 rounded-full bg-white/5"><div class="warm h-1 w-[64%] rounded-full"></div></div>
+                  <p class="mt-2 flex justify-between text-[11px] text-stone-500"><span>$4.2k of $6.5k</span><span>64%</span></p>
+                </div>
+                <div class="card rounded-xl p-3"><span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-stone-400">Dev</span><p class="mt-2 text-[13px] leading-snug text-stone-200">Storefront theme handoff</p><p class="mt-3 text-[11px] text-stone-500">Due Apr 16</p></div>
+              </div>
+              <div class="hidden space-y-2.5 sm:block">
+                <p class="flex items-center justify-between px-1 text-xs text-stone-500"><span>Review</span><span>2</span></p>
+                <div class="card rounded-xl p-3"><span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-stone-400">Photo</span><p class="mt-2 text-[13px] leading-snug text-stone-200">Retail lookbook v3</p><p class="mt-3 flex items-center gap-1 text-[11px] text-stone-500"><iconify-icon icon="lucide:message-square"></iconify-icon>6 comments</p></div>
+                <div class="card rounded-xl p-3"><span class="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300">Approved</span><p class="mt-2 text-[13px] leading-snug text-stone-200">Packaging dielines</p><p class="mt-3 text-[11px] text-stone-500">Signed off by Mara</p></div>
+                <div class="rounded-xl border border-dashed border-white/10 p-3 text-center text-[11px] text-stone-600">Drop to request review</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="reveal grid items-center gap-10 md:grid-cols-[1.15fr_0.85fr] md:gap-14">
+          <div class="mock order-2 overflow-hidden rounded-2xl md:order-1">
+            <div class="flex items-center justify-between border-b border-white/5 px-4 py-3 text-[13px]">
+              <span class="font-medium text-stone-200">Week of Apr 14</span>
+              <span class="flex items-center gap-2 text-xs text-stone-400">Auto-schedule <span class="warm relative h-4 w-7 rounded-full"><span class="absolute right-0.5 top-0.5 h-3 w-3 rounded-full bg-white"></span></span></span>
+            </div>
+            <div class="grid grid-cols-[36px_repeat(5,minmax(0,1fr))] px-3 pb-4 pt-2 text-[11px]">
+              <div></div><div class="py-1.5 text-center text-stone-500">Mon</div><div class="py-1.5 text-center text-stone-200">Tue</div><div class="py-1.5 text-center text-stone-500">Wed</div><div class="py-1.5 text-center text-stone-500">Thu</div><div class="py-1.5 text-center text-stone-500">Fri</div>
+              <div class="relative h-[264px] text-stone-600"><span class="absolute top-0">9</span><span class="absolute top-[44px]">10</span><span class="absolute top-[88px]">11</span><span class="absolute top-[132px]">12</span><span class="absolute top-[176px]">1</span><span class="absolute top-[220px]">2</span></div>
+              <div class="hours relative border-l border-white/5"><div class="card absolute inset-x-1 top-[2px] h-[40px] rounded-md px-1.5 py-1 text-stone-300">Standup</div><div class="card absolute inset-x-1 top-[90px] h-[62px] rounded-md px-1.5 py-1 text-stone-300">Shoot prep</div></div>
+              <div class="hours relative border-l border-white/5"><div class="absolute inset-x-1 top-[24px] h-[64px] rounded-md bg-orange-500/15 px-1.5 py-1 text-orange-200 ring-1 ring-orange-400/50"><span class="block font-medium">Client review</span><span class="text-orange-300/70">Halden</span></div><div class="striped absolute inset-x-1 top-[134px] h-[84px] rounded-md px-1.5 py-1 text-stone-500 ring-1 ring-white/5">Focus</div></div>
+              <div class="hours relative border-l border-white/5"><div class="card absolute inset-x-1 top-[46px] h-[40px] rounded-md px-1.5 py-1 text-stone-300">Design crit</div><div class="card absolute inset-x-1 top-[178px] h-[62px] rounded-md px-1.5 py-1 text-stone-300">Edit bay</div></div>
+              <div class="hours relative border-l border-white/5"><div class="card absolute inset-x-1 top-[2px] h-[62px] rounded-md px-1.5 py-1 text-stone-300">Pitch: Marlow</div><div class="absolute inset-x-1 top-[112px] h-[52px] rounded-md border border-dashed border-amber-300/50 px-1.5 py-1 text-amber-200/80">Suggested</div></div>
+              <div class="hours relative border-l border-white/5"><div class="card absolute inset-x-1 top-[90px] h-[40px] rounded-md px-1.5 py-1 text-stone-300">Retro</div></div>
+            </div>
+          </div>
+          <div class="order-1 md:order-2">
+            <p class="font-mono text-xs tracking-wider"><span class="warm-text font-semibold">02</span><span class="text-stone-600"> / Schedule</span></p>
+            <h3 class="mt-3 text-2xl font-semibold tracking-[-0.025em] text-stone-50 sm:text-[1.75rem]">A calendar that protects the work, not just the meetings.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-stone-400">Tandem books reviews around your team's real capacity and holds focus blocks for the people actually doing the craft.</p>
+            <ul class="mt-5 space-y-2.5 text-sm text-stone-300">
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Capacity-aware client booking links</li>
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Focus time defended automatically</li>
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Syncs both ways with every major calendar</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="reveal grid items-center gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-14">
+          <div>
+            <p class="font-mono text-xs tracking-wider"><span class="warm-text font-semibold">03</span><span class="text-stone-600"> / Measure</span></p>
+            <h3 class="mt-3 text-2xl font-semibold tracking-[-0.025em] text-stone-50 sm:text-[1.75rem]">Know which pitches turn into paid work.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-stone-400">Every lead, proposal and invoice flows into one funnel, so you can see where deals stall and which services actually pay.</p>
+            <ul class="mt-5 space-y-2.5 text-sm text-stone-300">
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Pipeline built from your inbox</li>
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Margin by client, service and person</li>
+              <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/25"><iconify-icon icon="lucide:check" class="text-xs"></iconify-icon></span>Weekly digest your partners will read</li>
+            </ul>
+          </div>
+          <div class="mock overflow-hidden rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <div><p class="text-[13px] font-medium text-stone-200">Pipeline conversion</p><p class="text-xs text-stone-500">Q2, all services</p></div>
+              <div class="flex rounded-lg bg-white/5 p-0.5 text-[11px] text-stone-400"><span class="rounded-md px-2 py-1">30d</span><span class="rounded-md bg-white/10 px-2 py-1 text-stone-100">90d</span><span class="rounded-md px-2 py-1">YTD</span></div>
+            </div>
+            <div class="mt-5 space-y-3 text-[12px]">
+              <div class="grid grid-cols-[72px_1fr_56px] items-center gap-3"><span class="text-stone-400">Leads</span><div class="h-7 rounded-md bg-white/[.04]"><div class="warm h-7 w-full rounded-md"></div></div><span class="text-right font-medium text-stone-200">412</span></div>
+              <div class="grid grid-cols-[72px_1fr_56px] items-center gap-3"><span class="text-stone-400">Proposals</span><div class="h-7 rounded-md bg-white/[.04]"><div class="h-7 w-[58%] rounded-md bg-orange-400/60"></div></div><span class="text-right font-medium text-stone-200">239</span></div>
+              <div class="grid grid-cols-[72px_1fr_56px] items-center gap-3"><span class="text-stone-400">Signed</span><div class="h-7 rounded-md bg-white/[.04]"><div class="h-7 w-[31%] rounded-md bg-orange-400/35"></div></div><span class="text-right font-medium text-stone-200">128</span></div>
+              <div class="grid grid-cols-[72px_1fr_56px] items-center gap-3"><span class="text-stone-400">Paid</span><div class="h-7 rounded-md bg-white/[.04]"><div class="h-7 w-[24%] rounded-md bg-orange-400/20"></div></div><span class="text-right font-medium text-stone-200">97</span></div>
+            </div>
+            <div class="mt-5 grid grid-cols-3 gap-3 border-t border-white/5 pt-4">
+              <div><p class="text-[11px] text-stone-500">Win rate</p><p class="mt-1 text-lg font-semibold tracking-tight text-stone-50">31.4%</p><p class="text-[11px] text-emerald-400">+4.2 pts</p></div>
+              <div><p class="text-[11px] text-stone-500">Avg. deal</p><p class="mt-1 text-lg font-semibold tracking-tight text-stone-50">$18.6k</p><p class="text-[11px] text-emerald-400">+$2.1k</p></div>
+              <div><p class="text-[11px] text-stone-500">Sales cycle</p><svg viewBox="0 0 100 32" class="mt-1.5 h-8 w-full" fill="none"><path d="M0 26 L14 22 L28 24 L42 16 L56 18 L70 10 L84 12 L100 4" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var rows = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) return;
+      document.documentElement.classList.add('js-reveal');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.06 });
+      rows.forEach(function (r) { io.observe(r); });
+    })();
+  </script>
+</body>
+</html>

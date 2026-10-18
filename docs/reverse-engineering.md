@@ -73,8 +73,12 @@ Publish buttons. The home composer offers a prompt builder, Design System picker
 | Chat, versions and projects | Server-stored projects with full version history |
 | Design mode | Click-to-select, inline text editing and a Tailwind class inspector over a postMessage bridge |
 | DESIGN.md systems | Six design-system presets injected into the prompt |
+| `Components` / `ComponentView` chunks | Components library and detail (preview, white/black backdrop, code, copy, download, remix) |
+| `Assets` / `AssetView` chunks | Assets library of original SVG backgrounds (ratio filters, download, attach to prompt) |
+| `Skills` / `SkillDetail` chunks | Agent skills referenced with `@` and injected into the request |
+| `Learn`, `Changelog`, `PromptEnhancer` chunks | Learn docs, changelog, and prompt enhancer tool |
 | `PromptBuilderModal` chunk | Prompt Builder with the same option sets and line wording (layout configs, framing, Tailwind shadows, type scale, animation) |
 | Templates and Remix | Eight original templates with remix-into-editor |
 
-Not cloned: auth and billing, CMS, React/Canvas/Code-agent modes, components and assets marketplaces,
-custom domains, team collaboration, Figma export and video generation.
+Not cloned: auth and billing, CMS, React/Canvas/Code-agent modes, user-submitted marketplace content,
+image generation and upscaling, custom domains, team collaboration, Figma export and video generation.

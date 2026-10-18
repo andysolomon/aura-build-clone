@@ -87,3 +87,8 @@ body {
 @keyframes pb-perspective { from { transform: perspective(300px) rotateY(65deg); } to { transform: perspective(300px) rotateY(0deg); } }
 @keyframes pb-clip { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes pb-move { from { transform: translateX(-16px); } to { transform: translateX(16px); } }
+
+@plugin "@tailwindcss/typography";
+
+/* Code blocks inside prose: inline-code pill styles must not apply within <pre>. */
+.prose pre code { background: transparent !important; padding: 0 !important; color: inherit !important; border-radius: 0 !important; }

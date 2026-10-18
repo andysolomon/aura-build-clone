@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerly - Tabbed feature showcase for research notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Tight"', 'ui-sans-serif', 'system-ui', 'sans-serif'] }, colors: { accent: '#2f5bea' } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background: #f7f7f8; }
+    .indicator { transition: transform .45s cubic-bezier(.3,.9,.3,1), width .45s cubic-bezier(.3,.9,.3,1); }
+    [role="tab"] { transition: color .25s ease; }
+    [role="tab"]:focus-visible { outline: 2px solid #2f5bea; outline-offset: 2px; border-radius: 12px; }
+    [role="tabpanel"][hidden] { display: none !important; }
+    .panel-in { animation: panelIn .5s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .stage { background-color: #fbfbfc; background-image: linear-gradient(rgb(15 23 42 / .045) 1px, transparent 1px), linear-gradient(90deg, rgb(15 23 42 / .045) 1px, transparent 1px); background-size: 24px 24px; }
+    .float { box-shadow: 0 1px 2px rgb(15 23 42 / .06), 0 12px 32px -12px rgb(15 23 42 / .22); }
+    mark { background: linear-gradient(transparent 12%, #fde68a 12%, #fde68a 88%, transparent 88%); color: inherit; padding: 0 2px; }
+  </style>
+</head>
+<body class="font-sans text-zinc-900">
+  <section class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <p class="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent"><iconify-icon icon="lucide:notebook-pen"></iconify-icon>Ledgerly for research teams</p>
+      <h2 class="mt-3 text-[2.1rem] font-semibold leading-[1.04] tracking-[-0.04em] [text-wrap:balance] sm:text-[2.9rem]">Every insight, from first note to final call.</h2>
+      <p class="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-zinc-500">The notebook built for analysts: capture from anywhere, structure by coverage, and let the busywork run itself.</p>
+    </div>
+
+    <div id="showcase" class="mt-8">
+      <div class="mx-auto max-w-2xl overflow-x-auto">
+        <div role="tablist" aria-label="Ledgerly features" class="relative grid min-w-[340px] grid-cols-4 rounded-2xl bg-zinc-200/70 p-1">
+          <span class="indicator absolute bottom-1 left-0 top-1 rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,.08),0_4px_12px_-4px_rgba(0,0,0,.12)]" aria-hidden="true"></span>
+          <button role="tab" id="tab-0" aria-controls="panel-0" class="relative z-10 flex items-center justify-center gap-2 overflow-hidden rounded-xl py-2.5 text-sm font-medium text-zinc-500"><iconify-icon icon="lucide:scan-text" class="hidden sm:inline-block"></iconify-icon>Capture<span class="bar absolute inset-x-4 bottom-1 h-[2px] overflow-hidden rounded-full"><span class="fill block h-full w-0 rounded-full bg-accent"></span></span></button>
+          <button role="tab" id="tab-1" aria-controls="panel-1" class="relative z-10 flex items-center justify-center gap-2 overflow-hidden rounded-xl py-2.5 text-sm font-medium text-zinc-500"><iconify-icon icon="lucide:folder-tree" class="hidden sm:inline-block"></iconify-icon>Organize<span class="bar absolute inset-x-4 bottom-1 h-[2px] overflow-hidden rounded-full"><span class="fill block h-full w-0 rounded-full bg-accent"></span></span></button>
+          <button role="tab" id="tab-2" aria-controls="panel-2" class="relative z-10 flex items-center justify-center gap-2 overflow-hidden rounded-xl py-2.5 text-sm font-medium text-zinc-500"><iconify-icon icon="lucide:workflow" class="hidden sm:inline-block"></iconify-icon>Automate<span class="bar absolute inset-x-4 bottom-1 h-[2px] overflow-hidden rounded-full"><span class="fill block h-full w-0 rounded-full bg-accent"></span></span></button>
+          <button role="tab" id="tab-3" aria-controls="panel-3" class="relative z-10 flex items-center justify-center gap-2 overflow-hidden rounded-xl py-2.5 text-sm font-medium text-zinc-500"><iconify-icon icon="lucide:share-2" class="hidden sm:inline-block"></iconify-icon>Share<span class="bar absolute inset-x-4 bottom-1 h-[2px] overflow-hidden rounded-full"><span class="fill block h-full w-0 rounded-full bg-accent"></span></span></button>
+        </div>
+      </div>
+
+      <div class="mt-6 overflow-hidden rounded-3xl bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_60px_-32px_rgba(15,23,42,.25)] ring-1 ring-zinc-900/[.06]">
+        <!-- Capture -->
+        <div role="tabpanel" id="panel-0" aria-labelledby="tab-0" tabindex="0" class="grid md:min-h-[430px] md:grid-cols-[0.82fr_1.18fr]">
+          <div class="flex flex-col justify-center p-7 sm:p-10">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400">Capture</p>
+            <h3 class="mt-2 text-2xl font-semibold leading-tight tracking-[-0.03em]">Clip the line that matters, keep the context.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-zinc-500">Highlight any transcript, filing or PDF and Ledgerly saves the quote with its source, timestamp and ticker attached.</p>
+            <ul class="mt-6 space-y-3 text-sm text-zinc-700">
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Browser clipper for filings and call transcripts</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Every clip links back to the exact paragraph</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Voice memos transcribed on the way in</li>
+            </ul>
+          </div>
+          <div class="stage relative flex items-center justify-center border-t border-zinc-100 p-6 sm:p-10 md:border-l md:border-t-0">
+            <div class="float w-full max-w-md rounded-2xl bg-white p-5 ring-1 ring-zinc-900/5">
+              <div class="flex items-center justify-between text-xs text-zinc-400"><span class="font-medium text-zinc-700">Corvane Systems, Q3 call</span><span>00:41:12</span></div>
+              <div class="mt-4 space-y-3 text-[13px] leading-relaxed text-zinc-600">
+                <p><span class="font-medium text-zinc-900">Dana Whitlock, CFO:</span> Gross margin came in at 61.8 percent, ahead of our range.</p>
+                <div class="relative !mt-4 ml-8 flex w-fit items-center gap-1 rounded-lg bg-zinc-900 p-1 text-[11px] text-white shadow-lg"><span class="flex items-center gap-1 rounded-md bg-white/10 px-2 py-1"><iconify-icon icon="lucide:scissors"></iconify-icon>Clip to note</span><span class="px-2 py-1 text-zinc-300">Highlight</span><span class="px-2 py-1 text-zinc-300">Ask</span><span class="absolute -bottom-1 left-6 h-2 w-2 rotate-45 bg-zinc-900"></span></div>
+                <p class="!mt-2"><mark>We now expect data-center revenue to grow in the high thirties next year</mark>, driven by the two new hyperscale wins.</p>
+                <p class="text-zinc-400">Operating expenses should remain roughly flat as a share of revenue.</p>
+              </div>
+              <div class="mt-5 flex items-center gap-2 rounded-xl bg-blue-50 px-3 py-2 text-xs text-blue-900 ring-1 ring-blue-100"><iconify-icon icon="lucide:bookmark-check" class="text-accent"></iconify-icon>Saved to <span class="font-medium">CRVN / FY26 thesis</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organize -->
+        <div role="tabpanel" id="panel-1" aria-labelledby="tab-1" tabindex="0" hidden class="grid md:min-h-[430px] md:grid-cols-[0.82fr_1.18fr]">
+          <div class="flex flex-col justify-center p-7 sm:p-10">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400">Organize</p>
+            <h3 class="mt-2 text-2xl font-semibold leading-tight tracking-[-0.03em]">Structure that mirrors your coverage list.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-zinc-500">Notes file themselves by ticker, sector and theme, so your whole history on a name is one click away.</p>
+            <ul class="mt-6 space-y-3 text-sm text-zinc-700">
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Auto-tagging by ticker, sector and theme</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Saved views for earnings season</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Full-text search across eight years of notes</li>
+            </ul>
+          </div>
+          <div class="stage flex items-center justify-center border-t border-zinc-100 p-6 sm:p-10 md:border-l md:border-t-0">
+            <div class="float grid w-full max-w-lg grid-cols-[130px_1fr] overflow-hidden rounded-2xl bg-white text-[12px] ring-1 ring-zinc-900/5">
+              <div class="space-y-0.5 border-r border-zinc-100 bg-zinc-50/70 p-3 text-zinc-500">
+                <p class="px-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-zinc-400">Coverage</p>
+                <p class="flex items-center gap-2 rounded-md bg-white px-2 py-1.5 font-medium text-zinc-900 shadow-sm ring-1 ring-zinc-900/5"><iconify-icon icon="lucide:cpu"></iconify-icon>Semis</p>
+                <p class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:cloud"></iconify-icon>Software</p>
+                <p class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:zap"></iconify-icon>Energy</p>
+                <p class="flex items-center gap-2 px-2 py-1.5"><iconify-icon icon="lucide:landmark"></iconify-icon>Financials</p>
+              </div>
+              <div class="p-3">
+                <div class="flex items-center gap-2 rounded-lg bg-zinc-100 px-2.5 py-1.5 text-zinc-400"><iconify-icon icon="lucide:search"></iconify-icon>guidance raise</div>
+                <div class="mt-2 divide-y divide-zinc-100">
+                  <div class="flex items-center justify-between py-2.5"><div><p class="font-medium text-zinc-900">Q3 call takeaways</p><p class="text-zinc-400">Updated 2h ago</p></div><span class="rounded-md bg-blue-50 px-1.5 py-0.5 font-medium text-accent">CRVN</span></div>
+                  <div class="flex items-center justify-between py-2.5"><div><p class="font-medium text-zinc-900">Supply chain check, Taipei</p><p class="text-zinc-400">Yesterday</p></div><span class="rounded-md bg-violet-50 px-1.5 py-0.5 font-medium text-violet-700">HLXA</span></div>
+                  <div class="flex items-center justify-between py-2.5"><div><p class="font-medium text-zinc-900">Pricing model v4</p><p class="text-zinc-400">Oct 9</p></div><span class="rounded-md bg-emerald-50 px-1.5 py-0.5 font-medium text-emerald-700">BRMT</span></div>
+                  <div class="flex items-center justify-between py-2.5"><div><p class="font-medium text-zinc-900">Expert call: fab capex</p><p class="text-zinc-400">Oct 2</p></div><span class="rounded-md bg-zinc-100 px-1.5 py-0.5 font-medium text-zinc-600">Theme</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Automate -->
+        <div role="tabpanel" id="panel-2" aria-labelledby="tab-2" tabindex="0" hidden class="grid md:min-h-[430px] md:grid-cols-[0.82fr_1.18fr]">
+          <div class="flex flex-col justify-center p-7 sm:p-10">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400">Automate</p>
+            <h3 class="mt-2 text-2xl font-semibold leading-tight tracking-[-0.03em]">Filings in, model updated, team notified.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-zinc-500">Build flows that watch your names and do the first pass for you, before you have finished your coffee.</p>
+            <ul class="mt-6 space-y-3 text-sm text-zinc-700">
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Triggers on filings, transcripts and price moves</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Guidance diffs written into your model</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Every run logged for compliance review</li>
+            </ul>
+          </div>
+          <div class="stage flex items-center justify-center border-t border-zinc-100 p-6 sm:p-10 md:border-l md:border-t-0">
+            <div class="w-full max-w-sm text-[13px]">
+              <div class="float flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-zinc-900/5"><span class="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600"><iconify-icon icon="lucide:file-text"></iconify-icon></span><div><p class="text-[10px] uppercase tracking-wider text-zinc-400">Trigger</p><p class="font-medium">New 10-Q filed for any covered ticker</p></div></div>
+              <div class="ml-7 h-5 border-l border-dashed border-zinc-300"></div>
+              <div class="float flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-accent/30"><span class="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 text-accent"><iconify-icon icon="lucide:sparkles"></iconify-icon></span><div><p class="text-[10px] uppercase tracking-wider text-zinc-400">AI step</p><p class="font-medium">Extract guidance changes</p></div></div>
+              <div class="ml-7 h-5 border-l border-dashed border-zinc-300"></div>
+              <div class="float flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-zinc-900/5"><span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600"><iconify-icon icon="lucide:sheet"></iconify-icon></span><div><p class="text-[10px] uppercase tracking-wider text-zinc-400">Action</p><p class="font-medium">Update CRVN_FY26 model</p></div></div>
+              <div class="ml-7 h-5 border-l border-dashed border-zinc-300"></div>
+              <div class="float flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-zinc-900/5"><span class="grid h-8 w-8 place-items-center rounded-lg bg-violet-50 text-violet-600"><iconify-icon icon="lucide:message-circle"></iconify-icon></span><div><p class="text-[10px] uppercase tracking-wider text-zinc-400">Notify</p><p class="font-medium">Post summary to #coverage-semis</p></div></div>
+              <p class="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Last run 2 min ago, 14 changes found</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Share -->
+        <div role="tabpanel" id="panel-3" aria-labelledby="tab-3" tabindex="0" hidden class="grid md:min-h-[430px] md:grid-cols-[0.82fr_1.18fr]">
+          <div class="flex flex-col justify-center p-7 sm:p-10">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400">Share</p>
+            <h3 class="mt-2 text-2xl font-semibold leading-tight tracking-[-0.03em]">Publish a memo your PM will actually read.</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-zinc-500">Turn notes into a polished memo with live charts, then share it with the desk, the committee or a single portfolio manager.</p>
+            <ul class="mt-6 space-y-3 text-sm text-zinc-700">
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Granular permissions down to the paragraph</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Inline comments with resolve and history</li>
+              <li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-0.5 text-accent"></iconify-icon>Read receipts for every recipient</li>
+            </ul>
+          </div>
+          <div class="stage relative flex items-center justify-center border-t border-zinc-100 p-6 sm:p-10 md:border-l md:border-t-0">
+            <div class="float mb-24 w-full max-w-md rounded-2xl bg-white p-6 ring-1 ring-zinc-900/5 sm:mb-0 sm:-translate-x-10 sm:-translate-y-8">
+              <p class="text-[11px] font-medium uppercase tracking-wider text-accent">Initiation memo</p>
+              <p class="mt-1 text-lg font-semibold tracking-tight">Corvane: raising target to $148</p>
+              <div class="mt-4 space-y-2"><div class="h-2 w-full rounded bg-zinc-100"></div><div class="h-2 w-11/12 rounded bg-zinc-100"></div><div class="h-2 w-4/5 rounded bg-zinc-100"></div></div>
+              <div class="mt-4 flex h-16 items-end gap-1.5"><span class="h-[35%] flex-1 rounded-t bg-zinc-200"></span><span class="h-[48%] flex-1 rounded-t bg-zinc-200"></span><span class="h-[44%] flex-1 rounded-t bg-zinc-200"></span><span class="h-[62%] flex-1 rounded-t bg-zinc-200"></span><span class="h-[78%] flex-1 rounded-t bg-blue-300"></span><span class="h-full flex-1 rounded-t bg-accent"></span></div>
+            </div>
+            <div class="float absolute bottom-6 right-4 w-56 rounded-xl bg-white p-3 text-xs ring-1 ring-zinc-900/5 sm:right-8">
+              <p class="font-medium text-zinc-900">Share memo</p>
+              <div class="mt-2 flex items-center justify-between"><span class="flex items-center gap-2"><span class="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-[9px] font-semibold text-white">PO</span>Priya Okafor</span><span class="text-zinc-400">Owner</span></div>
+              <div class="mt-2 flex items-center justify-between"><span class="flex items-center gap-2"><span class="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-amber-300 to-rose-500 text-[9px] font-semibold text-white">ML</span>Marcus Lindqvist</span><span class="text-zinc-400">Comment</span></div>
+              <div class="mt-3 flex items-center justify-between border-t border-zinc-100 pt-2.5 text-zinc-500"><span class="flex items-center gap-1.5"><iconify-icon icon="lucide:globe-lock"></iconify-icon>Firm only</span><span class="flex items-center gap-1 font-medium text-accent"><iconify-icon icon="lucide:link"></iconify-icon>Copy link</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var DURATION = 6000;
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+      var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+      var indicator = document.querySelector('.indicator');
+      var showcase = document.getElementById('showcase');
+      var current = 0, elapsed = 0, last = null, paused = false;
+
+      function moveIndicator() {
+        var t = tabs[current];
+        indicator.style.width = t.offsetWidth + 'px';
+        indicator.style.transform = 'translateX(' + t.offsetLeft + 'px)';
+      }
+      function select(i, focus) {
+        current = (i + tabs.length) % tabs.length;
+        elapsed = 0;
+        tabs.forEach(function (t, k) {
+          var on = k === current;
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          t.tabIndex = on ? 0 : -1;
+          t.classList.toggle('text-zinc-900', on);
+          t.classList.toggle('text-zinc-500', !on);
+          t.querySelector('.fill').style.width = '0%';
+          panels[k].hidden = !on;
+          panels[k].classList.toggle('panel-in', on);
+        });
+        if (focus) tabs[current].focus();
+        moveIndicator();
+      }
+      tabs.forEach(function (t, i) {
+        t.addEventListener('click', function () { select(i); });
+        t.addEventListener('keydown', function (e) {
+          var map = { ArrowRight: current + 1, ArrowLeft: current - 1, Home: 0, End: tabs.length - 1 };
+          if (e.key in map) { e.preventDefault(); select(map[e.key], true); }
+        });
+      });
+      showcase.addEventListener('mouseenter', function () { paused = true; });
+      showcase.addEventListener('mouseleave', function () { paused = false; });
+      window.addEventListener('resize', moveIndicator);
+      function tick(now) {
+        if (last !== null && !paused && !document.hidden) elapsed += now - last;
+        last = now;
+        var p = Math.min(elapsed / DURATION, 1);
+        tabs[current].querySelector('.fill').style.width = (p * 100) + '%';
+        if (p >= 1) select(current + 1);
+        requestAnimationFrame(tick);
+      }
+      select(0);
+      requestAnimationFrame(tick);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
+    })();
+  </script>
+</body>
+</html>

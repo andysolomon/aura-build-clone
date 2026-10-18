@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { MarketingLayout } from "./components/SiteChrome";
@@ -12,6 +12,9 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { TemplateDetailPage } from "./pages/TemplateDetailPage";
 import { TemplatesPage } from "./pages/TemplatesPage";
 
+/** Route-level code splitting for the library pages. */
+const page = <M,>(load: () => Promise<M>, pick: (m: M) => ComponentType) => async () => ({ Component: pick(await load()) });
+
 const router = createBrowserRouter([
   {
     element: <MarketingLayout />,
@@ -21,6 +24,15 @@ const router = createBrowserRouter([
       { path: "/create", element: <HomePage /> },
       { path: "/templates", element: <TemplatesPage /> },
       { path: "/templates/:slug", element: <TemplateDetailPage /> },
+      { path: "/components", lazy: page(() => import("./pages/ComponentsPage"), (m) => m.ComponentsPage) },
+      { path: "/components/:slug", lazy: page(() => import("./pages/ComponentDetailPage"), (m) => m.ComponentDetailPage) },
+      { path: "/assets", lazy: page(() => import("./pages/AssetsPage"), (m) => m.AssetsPage) },
+      { path: "/skills", lazy: page(() => import("./pages/SkillsPage"), (m) => m.SkillsPage) },
+      { path: "/skills/:slug", lazy: page(() => import("./pages/SkillsPage"), (m) => m.SkillDetailPage) },
+      { path: "/learn", lazy: page(() => import("./pages/LearnPage"), (m) => m.LearnPage) },
+      { path: "/learn/:pageId", lazy: page(() => import("./pages/LearnPage"), (m) => m.LearnPage) },
+      { path: "/changelog", lazy: page(() => import("./pages/ChangelogPage"), (m) => m.ChangelogPage) },
+      { path: "/resources/tools/prompt-enhancer", lazy: page(() => import("./pages/PromptEnhancerPage"), (m) => m.PromptEnhancerPage) },
       { path: "/pricing", element: <PricingPage /> },
       { path: "/design-systems", element: <DesignSystemsPage /> },
       { path: "/projects", element: <ProjectsPage /> },

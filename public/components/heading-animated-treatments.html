@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animated Heading Treatments | Blur rise, gradient sweep and letter spring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  .w, .ch, .wd { display: inline-block; }
+  .wd { white-space: nowrap; }
+  .play .w { animation: wordIn .75s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 70ms + 80ms); }
+  @keyframes wordIn { from { opacity: 0; filter: blur(12px); transform: translateY(.35em); } to { opacity: 1; filter: blur(0); transform: none; } }
+  .grad { display: inline-block; background: linear-gradient(90deg, #f5d0fe 0%, #a78bfa 18%, #38bdf8 36%, #bef264 54%, #fb7185 76%, #f5d0fe 100%); background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .play .grad { animation: fadeUp .8s cubic-bezier(.2,.7,.2,1) both, sweep 7s linear infinite; animation-delay: .1s, 0s; }
+  @keyframes sweep { to { background-position: 200% 0; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(.25em); } to { opacity: 1; transform: none; } }
+  .play .ch { animation: drop .7s both; animation-delay: calc(var(--i) * 24ms + 120ms); }
+  @keyframes drop {
+    0% { opacity: 0; transform: translateY(-.85em) rotate(-8deg); animation-timing-function: cubic-bezier(.5,0,.9,.5); }
+    45% { opacity: 1; transform: translateY(.07em) scaleY(.92); animation-timing-function: cubic-bezier(.2,.7,.3,1); }
+    68% { transform: translateY(-.06em) scaleY(1.03); }
+    86% { transform: translateY(.015em); }
+    100% { opacity: 1; transform: none; }
+  }
+  .track { height: 2px; width: 100%; max-width: 150px; border-radius: 2px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .fill { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, #a78bfa, #38bdf8); }
+  .play .fill { animation: fill var(--dur) linear both; }
+  .play .fill.loop { animation: fill 7s linear infinite; }
+  @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .spin { animation: spin .6s cubic-bezier(.2,.7,.2,1); }
+  @keyframes spin { to { transform: rotate(-360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .play .w, .play .ch, .play .grad, .play .fill, .spin { animation: none !important; }
+    .fill { transform: none; }
+  }
+</style>
+</head>
+<body class="grid min-h-screen grid-cols-1 place-items-center p-8 font-sans antialiased">
+  <section class="relative w-full min-w-0 max-w-[1040px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#0a0a0d] text-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.06)]">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(139,92,246,.2),transparent)]" aria-hidden="true"></div>
+
+    <div class="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-4 sm:px-8">
+      <div class="flex items-center gap-3">
+        <span class="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.04]"><iconify-icon icon="lucide:type" class="text-[15px] text-violet-300"></iconify-icon></span>
+        <div><p class="text-[13px] font-medium">Headline treatments</p><p class="text-[11.5px] text-zinc-500">Three motion presets, pure CSS keyframes</p></div>
+      </div>
+      <button id="replay" type="button" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-[12.5px] font-medium text-zinc-200 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60">
+        <iconify-icon id="replay-icon" icon="lucide:rotate-ccw" class="text-[14px]"></iconify-icon>Replay
+        <kbd class="hidden rounded border border-white/10 px-1 text-[10px] text-zinc-500 sm:inline">R</kbd>
+      </button>
+    </div>
+
+    <div class="relative divide-y divide-white/[0.06]">
+      <article class="fx-row play grid gap-4 px-5 py-7 sm:px-8 md:grid-cols-[170px_1fr] md:items-center md:gap-8">
+        <div>
+          <p class="text-[11px] font-medium uppercase tracking-[.16em] text-zinc-500"><span class="text-violet-300">01</span> Blur rise</p>
+          <p class="mt-1.5 font-mono text-[11px] leading-relaxed text-zinc-600">word stagger 70ms<br>blur 12px to 0</p>
+          <div class="track mt-3"><span class="fill" style="--dur:1.25s"></span></div>
+        </div>
+        <h2 class="font-display text-[clamp(1.9rem,4.4vw,3.3rem)] font-semibold leading-[1.04] tracking-[-0.04em]" data-split="words">Ship the interface <span class="text-zinc-500">you sketched this morning.</span></h2>
+      </article>
+
+      <article class="fx-row play grid gap-4 px-5 py-7 sm:px-8 md:grid-cols-[170px_1fr] md:items-center md:gap-8">
+        <div>
+          <p class="text-[11px] font-medium uppercase tracking-[.16em] text-zinc-500"><span class="text-violet-300">02</span> Gradient sweep</p>
+          <p class="mt-1.5 font-mono text-[11px] leading-relaxed text-zinc-600">background-clip: text<br>7s linear loop</p>
+          <div class="track mt-3"><span class="fill loop"></span></div>
+        </div>
+        <h2 class="font-display text-[clamp(1.9rem,4.4vw,3.3rem)] font-semibold leading-[1.04] tracking-[-0.04em]"><span class="grad">Every pixel, perfectly in tune.</span></h2>
+      </article>
+
+      <article class="fx-row play grid gap-4 px-5 py-7 sm:px-8 md:grid-cols-[170px_1fr] md:items-center md:gap-8">
+        <div>
+          <p class="text-[11px] font-medium uppercase tracking-[.16em] text-zinc-500"><span class="text-violet-300">03</span> Letter spring</p>
+          <p class="mt-1.5 font-mono text-[11px] leading-relaxed text-zinc-600">letter stagger 24ms<br>overshoot settle</p>
+          <div class="track mt-3"><span class="fill" style="--dur:1.15s"></span></div>
+        </div>
+        <h2 class="font-display text-[clamp(1.9rem,4.4vw,3.3rem)] font-bold leading-[1.04] tracking-[-0.035em]" data-split="letters">Built to bounce <span class="text-lime-300">back.</span></h2>
+      </article>
+    </div>
+
+    <div class="relative flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.07] px-5 py-3.5 text-[11.5px] text-zinc-500 sm:px-8">
+      <span>All presets settle in under 1.3s and respect reduced motion.</span>
+      <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>60fps, transform and opacity only</span>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const pieces = (el) => [...el.childNodes].map((n) => ({ text: n.textContent, cls: n.nodeType === 1 ? n.className : '' }));
+      const make = (tag, cls, text, i) => {
+        const s = document.createElement(tag);
+        s.className = cls; s.textContent = text; s.setAttribute('aria-hidden', 'true');
+        if (i !== undefined) s.style.setProperty('--i', i);
+        return s;
+      };
+      document.querySelectorAll('[data-split]').forEach((el) => {
+        const mode = el.dataset.split;
+        const parts = pieces(el);
+        el.setAttribute('aria-label', el.textContent.replace(/\s+/g, ' ').trim());
+        el.textContent = '';
+        let i = 0;
+        parts.forEach(({ text, cls }) => {
+          text.split(/(\s+)/).forEach((word) => {
+            if (!word) return;
+            if (/^\s+$/.test(word)) { el.appendChild(document.createTextNode(' ')); return; }
+            if (mode === 'words') { el.appendChild(make('span', ('w ' + cls).trim(), word, i++)); return; }
+            const wd = make('span', 'wd', '');
+            [...word].forEach((c) => wd.appendChild(make('span', ('ch ' + cls).trim(), c, i++)));
+            el.appendChild(wd);
+          });
+        });
+      });
+
+      const rows = [...document.querySelectorAll('.fx-row')];
+      const icon = document.getElementById('replay-icon');
+      const replay = () => {
+        rows.forEach((r) => r.classList.remove('play'));
+        icon.classList.remove('spin');
+        void document.body.offsetWidth;
+        rows.forEach((r) => r.classList.add('play'));
+        icon.classList.add('spin');
+      };
+      document.getElementById('replay').addEventListener('click', replay);
+      document.addEventListener('keydown', (e) => {
+        if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && !e.altKey && !/input|textarea/i.test(e.target.tagName)) replay();
+      });
+    })();
+  </script>
+</body>
+</html>

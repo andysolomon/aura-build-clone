@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid Spotlight Background | Cursor-following reveal over a fine grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root { --x: 50vw; --y: 38vh; --cell: 44px; }
+  .layer { position: absolute; inset: 0; }
+  .grid-base {
+    background-image: linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size: var(--cell) var(--cell); background-position: 50% 50%;
+    -webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 42%, #000 35%, transparent 100%);
+            mask-image: radial-gradient(ellipse 80% 75% at 50% 42%, #000 35%, transparent 100%);
+  }
+  .glow { background: radial-gradient(560px circle at var(--x) var(--y), rgba(124,58,237,.2), rgba(34,211,238,.07) 42%, transparent 70%); }
+  .grid-lit {
+    background-image: linear-gradient(to right, rgba(167,139,250,.75) 1px, transparent 1px), linear-gradient(to bottom, rgba(103,232,249,.6) 1px, transparent 1px);
+    background-size: var(--cell) var(--cell); background-position: 50% 50%;
+    -webkit-mask-image: radial-gradient(320px circle at var(--x) var(--y), #000 0%, rgba(0,0,0,.45) 45%, transparent 78%);
+            mask-image: radial-gradient(320px circle at var(--x) var(--y), #000 0%, rgba(0,0,0,.45) 45%, transparent 78%);
+  }
+  .dots-lit {
+    background-image: radial-gradient(circle, #fff 0 1.3px, transparent 2px);
+    background-size: var(--cell) var(--cell);
+    background-position: calc(50% + var(--cell) / 2) calc(50% + var(--cell) / 2);
+    -webkit-mask-image: radial-gradient(200px circle at var(--x) var(--y), #000, transparent 75%);
+            mask-image: radial-gradient(200px circle at var(--x) var(--y), #000, transparent 75%);
+  }
+  .fade { background: linear-gradient(to bottom, rgba(9,9,11,.6), transparent 18%, transparent 70%, #09090b 100%); }
+  .title { background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,.55)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .enter { animation: enter .8s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
+  @keyframes enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .enter { animation: none; } }
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden bg-[#09090b] font-sans text-zinc-100 antialiased">
+  <div class="pointer-events-none fixed inset-0" aria-hidden="true">
+    <div class="layer grid-base"></div>
+    <div class="layer glow"></div>
+    <div class="layer grid-lit"></div>
+    <div class="layer dots-lit"></div>
+    <div class="layer fade"></div>
+  </div>
+
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <header class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
+      <a href="#" class="flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em]">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true">
+          <rect x="1" y="1" width="22" height="22" rx="6" fill="#18181b" stroke="rgba(255,255,255,.14)"/>
+          <path d="M8 5v14M16 5v14M5 8h14M5 16h14" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
+          <rect x="8" y="8" width="8" height="8" fill="#a78bfa"/>
+        </svg>
+        Lattice
+      </a>
+      <nav class="hidden items-center gap-7 text-[13.5px] text-zinc-400 md:flex">
+        <a href="#" class="transition hover:text-white">Platform</a>
+        <a href="#" class="transition hover:text-white">Network</a>
+        <a href="#" class="transition hover:text-white">Pricing</a>
+        <a href="#" class="transition hover:text-white">Docs</a>
+      </nav>
+      <a href="#" class="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[13px] text-zinc-300 transition hover:border-white/20 hover:text-white">Sign in</a>
+    </header>
+
+    <main class="flex flex-1 flex-col items-center justify-center px-6 pb-28 pt-6 text-center">
+      <div class="enter inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-zinc-900/70 px-3 py-1 text-xs text-zinc-400 backdrop-blur" style="--d:.05s">
+        <span class="font-mono text-[10.5px] uppercase tracking-wider text-violet-300">v2.4</span>
+        <span class="h-3 w-px bg-white/15"></span>
+        Edge routing maps are live
+      </div>
+      <h1 id="headline" class="enter title mt-7 max-w-4xl text-[clamp(2.4rem,6.6vw,5.25rem)] font-semibold leading-[1.02] tracking-[-0.05em]" style="--d:.12s">
+        Infrastructure you can<br class="hidden sm:block"> actually see through.
+      </h1>
+      <p class="enter mx-auto mt-6 max-w-xl text-[15px] leading-relaxed text-zinc-400 sm:text-[17px]" style="--d:.24s">
+        Lattice maps every request, route and region onto one living grid, so you catch the slow path long before your users do.
+      </p>
+      <div class="enter mt-9 flex flex-wrap items-center justify-center gap-3" style="--d:.34s">
+        <a href="#" class="inline-flex h-10 items-center gap-2 rounded-lg bg-white px-4 text-sm font-medium text-zinc-950 shadow-[0_0_0_1px_rgba(255,255,255,.2),0_8px_30px_-8px_rgba(167,139,250,.6)] transition hover:bg-zinc-200">
+          Start deploying<iconify-icon icon="lucide:arrow-right" class="text-[15px]"></iconify-icon>
+        </a>
+        <a href="#" class="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-zinc-900/60 px-4 text-sm text-zinc-300 backdrop-blur transition hover:border-white/20 hover:text-white">
+          <iconify-icon icon="lucide:book-open" class="text-[15px]"></iconify-icon>Read the docs
+        </a>
+      </div>
+      <dl class="enter mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono text-[11.5px] uppercase tracking-wider text-zinc-500" style="--d:.44s">
+        <div><dt class="sr-only">Regions</dt><dd><span class="text-zinc-200">312</span> edge regions</dd></div>
+        <div class="hidden h-3 w-px bg-white/10 sm:block"></div>
+        <div><dt class="sr-only">Latency</dt><dd><span class="text-zinc-200">4.1ms</span> p50</dd></div>
+        <div class="hidden h-3 w-px bg-white/10 sm:block"></div>
+        <div><dt class="sr-only">Uptime</dt><dd><span class="text-zinc-200">99.999%</span> uptime</dd></div>
+      </dl>
+    </main>
+
+    <div class="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center px-6">
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/60 px-3 py-1.5 text-[11.5px] text-zinc-400 backdrop-blur">
+        <iconify-icon icon="lucide:mouse-pointer-2" class="text-[13px] text-violet-300"></iconify-icon>Move your cursor to light the grid
+      </span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      document.querySelectorAll('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+      const root = document.documentElement;
+      const headline = document.getElementById('headline');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let rest = { x: innerWidth * 0.5, y: innerHeight * 0.38 };
+      const measure = () => {
+        const r = headline.getBoundingClientRect();
+        rest = { x: r.left + r.width * 0.64, y: r.top + r.height * 0.42 };
+      };
+      measure();
+      const cur = { x: rest.x, y: rest.y };
+      let pointer = null, idleTimer = 0;
+
+      const loop = (t) => {
+        let tx = rest.x, ty = rest.y;
+        if (pointer) { tx = pointer.x; ty = pointer.y; }
+        else if (!reduce) { tx += Math.cos(t / 2400) * 70; ty += Math.sin(t / 1800) * 26; }
+        cur.x += (tx - cur.x) * (pointer ? 0.14 : 0.04);
+        cur.y += (ty - cur.y) * (pointer ? 0.14 : 0.04);
+        root.style.setProperty('--x', cur.x.toFixed(1) + 'px');
+        root.style.setProperty('--y', cur.y.toFixed(1) + 'px');
+        requestAnimationFrame(loop);
+      };
+      requestAnimationFrame(loop);
+
+      const goIdle = () => { pointer = null; };
+      addEventListener('pointermove', (e) => {
+        pointer = { x: e.clientX, y: e.clientY };
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(goIdle, 3000);
+      }, { passive: true });
+      document.documentElement.addEventListener('mouseleave', goIdle);
+      addEventListener('blur', goIdle);
+      addEventListener('resize', measure);
+      addEventListener('scroll', measure, { passive: true });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    })();
+  </script>
+</body>
+</html>

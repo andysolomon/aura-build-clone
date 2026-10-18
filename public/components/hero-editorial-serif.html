@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fernwood - Quiet business banking for independent studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'], sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+    colors: { cream: '#f5f0e8', ink: '#1c1a17', moss: '#2f3b2c' } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f5f0e8; -webkit-font-smoothing: antialiased; }
+  .paper { background: radial-gradient(900px 500px at 78% 40%, rgba(214,196,164,.35), transparent 70%), radial-gradient(600px 400px at 10% 90%, rgba(196,208,180,.3), transparent 70%); }
+  .tile { position: absolute; transform: rotate(var(--r)); transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s ease; will-change: transform; }
+  .tile:hover { transform: rotate(calc(var(--r) * .3)) translateY(-8px) scale(1.02); z-index: 20; }
+  .shadow-soft { box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 1px 2px rgba(28,26,23,.06), 0 18px 40px -18px rgba(60,45,25,.28); }
+  .tile:hover.shadow-soft { box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 2px 4px rgba(28,26,23,.06), 0 30px 60px -20px rgba(60,45,25,.35); }
+  .card-face { background: radial-gradient(120% 140% at 0% 0%, #5b6b45 0%, #2f3b2c 45%, #1b211a 100%); box-shadow: 0 30px 60px -24px rgba(31,40,28,.55), inset 0 1px 0 rgba(255,255,255,.12); }
+  .card-face::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.10) 45%, transparent 60%); }
+  .chip { background: linear-gradient(135deg, #e9d6a1, #b9965a 55%, #e3c88a); }
+  .chip i { position: absolute; background: rgba(90,66,30,.45); }
+  .underline-soft { background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; }
+  .stage { width: 520px; height: 540px; }
+  @media (max-width: 600px) { .stage { zoom: .66; } }
+  @media (prefers-reduced-motion: reduce) { .tile { transition: none; } }
+</style>
+</head>
+<body class="font-sans text-ink min-h-screen">
+  <div class="paper min-h-screen">
+    <header class="max-w-6xl mx-auto px-5 sm:px-8 h-[72px] flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2 text-[26px] font-serif leading-none tracking-tight">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21V9" stroke="#2f3b2c" stroke-width="1.6" stroke-linecap="round"/><path d="M12 13c-4 0-6-2.5-6-6 3.5 0 6 2 6 6Zm0-2c0-4 2.5-7 6.5-7 0 4-2.5 7-6.5 7Z" fill="#2f3b2c"/></svg>
+        Fernwood
+      </a>
+      <nav class="hidden md:flex items-center gap-8 text-[14px] text-ink/65">
+        <a href="#" class="hover:text-ink transition">Accounts</a><a href="#" class="hover:text-ink transition">Invoicing</a>
+        <a href="#" class="hover:text-ink transition">Tax pots</a><a href="#" class="hover:text-ink transition">Pricing</a><a href="#" class="hover:text-ink transition">Journal</a>
+      </nav>
+      <div class="flex items-center gap-5 text-[14px]">
+        <a href="#" class="hidden sm:block text-ink/70 hover:text-ink transition">Sign in</a>
+        <a href="#" class="px-4 py-2 rounded-full ring-1 ring-ink/15 hover:ring-ink/40 hover:bg-white/40 transition">Open account</a>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-5 sm:px-8 pt-8 lg:pt-8 pb-10 grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-6 items-center">
+      <section>
+        <div class="inline-flex items-center gap-2 text-[12.5px] text-ink/60 tracking-wide">
+          <span class="w-6 h-px bg-ink/30"></span>Business banking, made calm
+        </div>
+        <h1 class="mt-6 font-serif text-[56px] sm:text-[76px] lg:text-[88px] leading-[.92] tracking-[-0.025em]">Money that keeps <em class="italic text-moss">quiet</em> hours.</h1>
+        <p class="mt-6 max-w-[31.5rem] text-[17px] leading-[1.65] text-ink/65">Fernwood is a business account for design studios, architects and makers. Invoices chase themselves, taxes set aside on every payment, and nothing pings you after six.</p>
+        <div class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+          <a href="#" class="group inline-flex items-center gap-2.5 h-12 pl-6 pr-5 rounded-full bg-ink text-cream text-[15px] font-medium shadow-[0_10px_30px_-12px_rgba(28,26,23,.6)] hover:bg-moss transition">Open an account<iconify-icon icon="lucide:arrow-up-right" width="16" class="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></iconify-icon></a>
+          <a href="#" class="underline-soft pb-0.5 text-[15px] text-ink/80 hover:text-ink transition">See how it works</a>
+        </div>
+        <div class="mt-10 flex items-center gap-4 text-[13px] text-ink/55">
+          <div class="flex -space-x-2">
+            <span class="w-7 h-7 rounded-full ring-2 ring-cream bg-gradient-to-br from-[#c9a27a] to-[#8a6a4a]"></span>
+            <span class="w-7 h-7 rounded-full ring-2 ring-cream bg-gradient-to-br from-[#9fb08a] to-[#55684a]"></span>
+            <span class="w-7 h-7 rounded-full ring-2 ring-cream bg-gradient-to-br from-[#d8b9a8] to-[#a1705e]"></span>
+          </div>
+          <p>Trusted by <span class="text-ink font-medium">9,200 studios</span> &middot; FDIC insured to $3M via partner banks</p>
+        </div>
+      </section>
+
+      <section class="flex justify-center lg:justify-end" aria-label="Product preview">
+        <div class="stage relative">
+          <!-- Balance widget -->
+          <div class="tile shadow-soft left-[8px] top-[18px] w-[318px] rounded-[22px] bg-[#fbf8f2] ring-1 ring-black/[.05] p-5" style="--r:-3deg">
+            <div class="flex items-center justify-between text-[12.5px] text-ink/55"><span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-moss"></span>Operating account</span><iconify-icon icon="lucide:ellipsis" width="16"></iconify-icon></div>
+            <div class="mt-3 font-serif text-[44px] leading-none tracking-tight">$84,210<span class="text-ink/35">.36</span></div>
+            <div class="mt-2 flex items-center gap-2 text-[12px]"><span class="px-2 py-0.5 rounded-full bg-[#e3ead9] text-moss font-medium">+12.4%</span><span class="text-ink/45">vs. last month</span></div>
+            <svg viewBox="0 0 280 74" class="mt-4 w-full h-[74px]" aria-hidden="true">
+              <defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f3b2c" stop-opacity=".18"/><stop offset="1" stop-color="#2f3b2c" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 58 C20 54 30 60 48 52 S78 40 96 44 128 30 146 34 176 46 196 30 228 14 246 18 268 8 280 6 L280 74 L0 74Z" fill="url(#fill)"/>
+              <path d="M0 58 C20 54 30 60 48 52 S78 40 96 44 128 30 146 34 176 46 196 30 228 14 246 18 268 8 280 6" fill="none" stroke="#2f3b2c" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="280" cy="6" r="3.5" fill="#2f3b2c"/><circle cx="280" cy="6" r="7" fill="#2f3b2c" opacity=".12"/>
+            </svg>
+            <div class="mt-2 flex justify-between text-[10.5px] text-ink/35 tracking-wide"><span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span></div>
+          </div>
+
+          <!-- Debit card -->
+          <div class="tile card-face right-[0px] top-[214px] w-[340px] h-[214px] rounded-[20px] p-5 text-[#efe9dc] overflow-hidden" style="--r:7deg">
+            <div class="relative flex items-start justify-between">
+              <span class="font-serif text-[24px] leading-none tracking-tight">Fernwood</span>
+              <iconify-icon icon="lucide:nfc" width="22" class="opacity-70"></iconify-icon>
+            </div>
+            <div class="chip relative mt-7 w-[46px] h-[34px] rounded-[7px] overflow-hidden">
+              <i class="left-0 right-0 top-[11px] h-px"></i><i class="left-0 right-0 bottom-[11px] h-px"></i><i class="top-0 bottom-0 left-[15px] w-px"></i><i class="top-0 bottom-0 right-[15px] w-px"></i>
+            </div>
+            <div class="relative mt-6 flex items-end justify-between">
+              <div><div class="text-[10px] tracking-[.18em] opacity-60">STUDIO ODE &middot; DEBIT</div><div class="mt-1 text-[15px] tracking-[.14em]">&bull;&bull;&bull;&bull; 4417</div></div>
+              <div class="flex"><span class="w-7 h-7 rounded-full bg-[#e9d6a1]/80"></span><span class="w-7 h-7 -ml-3 rounded-full bg-[#efe9dc]/40"></span></div>
+            </div>
+          </div>
+
+          <!-- Tax pot -->
+          <div class="tile shadow-soft left-[0px] top-[318px] w-[190px] rounded-[18px] bg-[#fbf8f2] ring-1 ring-black/[.05] p-4" style="--r:-6deg">
+            <div class="flex items-center gap-3">
+              <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="#e7dfd0" stroke-width="5"/><circle cx="22" cy="22" r="18" fill="none" stroke="#b07a4a" stroke-width="5" stroke-linecap="round" stroke-dasharray="88 113" transform="rotate(-90 22 22)"/></svg>
+              <div><div class="text-[12px] text-ink/50">Q4 tax pot</div><div class="font-serif text-[24px] leading-none mt-0.5">78%</div></div>
+            </div>
+            <div class="mt-3 text-[11.5px] text-ink/50 leading-snug">$11,640 set aside automatically from 23 payments.</div>
+          </div>
+
+          <!-- Invoice toast -->
+          <div class="tile shadow-soft left-[150px] top-[452px] w-[300px] rounded-2xl bg-white/90 backdrop-blur ring-1 ring-black/[.05] px-4 py-3 flex items-center gap-3" style="--r:-1.5deg">
+            <span class="w-9 h-9 shrink-0 rounded-full bg-[#e3ead9] text-moss grid place-items-center"><iconify-icon icon="lucide:check" width="18"></iconify-icon></span>
+            <div class="min-w-0 flex-1"><div class="text-[13.5px] font-medium">Invoice paid</div><div class="text-[12px] text-ink/50 truncate">Harbor &amp; Vine &middot; INV-0142</div></div>
+            <div class="text-right"><div class="text-[13.5px] font-medium">$6,400.00</div><div class="text-[11px] text-ink/40">just now</div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 pb-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 border-t border-ink/10">
+        <div class="pt-5 pr-4"><div class="font-serif text-[28px] leading-none">$0</div><div class="mt-1.5 text-[13px] text-ink/55">Monthly fees, ever</div></div>
+        <div class="pt-5 pr-4 lg:border-l lg:pl-6 border-ink/10"><div class="font-serif text-[28px] leading-none">4.10%</div><div class="mt-1.5 text-[13px] text-ink/55">APY on studio reserves</div></div>
+        <div class="pt-5 pr-4 lg:border-l lg:pl-6 border-ink/10"><div class="font-serif text-[28px] leading-none">Same day</div><div class="mt-1.5 text-[13px] text-ink/55">Transfers and payouts</div></div>
+        <div class="pt-5 pr-4 lg:border-l lg:pl-6 border-ink/10"><div class="font-serif text-[28px] leading-none">9 to 6</div><div class="mt-1.5 text-[13px] text-ink/55">Real people, never bots</div></div>
+      </div>
+    </div>
+  </div>
+<script>
+  // Gentle parallax on the collage; disabled for reduced motion and touch
+  (function () {
+    var stage = document.querySelector('.stage');
+    if (!stage || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.matchMedia('(hover: hover)').matches) return;
+    var tiles = stage.querySelectorAll('.tile');
+    document.addEventListener('mousemove', function (e) {
+      var x = (e.clientX / window.innerWidth - .5), y = (e.clientY / window.innerHeight - .5);
+      tiles.forEach(function (t, i) {
+        var d = (i + 1) * 3;
+        t.style.translate = (x * d).toFixed(1) + 'px ' + (y * d).toFixed(1) + 'px';
+      });
+    });
+  })();
+</script>
+</body>
+</html>

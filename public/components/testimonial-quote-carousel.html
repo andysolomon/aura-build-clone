@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Basalt - Customer quote carousel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['Newsreader', 'ui-serif', 'Georgia', 'serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background: #0a0f1f; }
+    .spot { background: radial-gradient(38% 46% at 50% 0%, rgb(148 163 255 / .20), transparent 75%), radial-gradient(60% 50% at 50% 0%, rgb(56 189 248 / .07), transparent 80%); }
+    .beam { background: linear-gradient(180deg, rgb(199 210 254 / .11), transparent 75%); clip-path: polygon(40% 0, 60% 0, 85% 100%, 15% 100%); filter: blur(28px); }
+    .stage { display: grid; }
+    .slide { grid-area: 1 / 1; opacity: 0; transform: translateY(16px); visibility: hidden; transition: opacity .6s ease, transform .8s cubic-bezier(.2,.8,.2,1), visibility 0s linear .6s; }
+    .slide.active { opacity: 1; transform: none; visibility: visible; transition: opacity .7s ease .12s, transform .8s cubic-bezier(.2,.8,.2,1) .12s, visibility 0s; }
+    .slide.leaving { transform: translateY(-12px); }
+    .q { font-variation-settings: "opsz" 60; text-wrap: pretty; }
+    .q em { font-style: italic; color: #fff; }
+    .dot { width: 8px; transition: width .4s cubic-bezier(.3,.9,.3,1), background-color .3s ease; }
+    .dot[aria-current="true"] { width: 36px; background: rgb(255 255 255 / .14); }
+    .dot .fill { width: 0; }
+    .mark { opacity: .38; transition: opacity .3s ease; }
+    .mark:hover { opacity: .7; }
+    .mark[aria-current="true"] { opacity: 1; }
+    .mark .bar { transform: scaleX(0); transform-origin: left; transition: transform .5s ease; }
+    .mark[aria-current="true"] .bar { transform: scaleX(1); }
+    .ctl { transition: background-color .2s ease, border-color .2s ease, transform .2s ease; }
+    .ctl:hover { background: rgb(255 255 255 / .08); border-color: rgb(255 255 255 / .22); }
+    .ctl:active { transform: scale(.94); }
+  </style>
+</head>
+<body class="font-sans text-slate-300">
+  <section id="carousel" class="relative overflow-hidden" aria-roledescription="carousel" aria-label="Customer stories">
+    <div class="spot pointer-events-none absolute inset-0"></div>
+    <div class="beam pointer-events-none absolute left-1/2 top-0 h-[460px] w-[900px] -translate-x-1/2"></div>
+    <div id="inner" class="relative mx-auto max-w-5xl px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-24">
+      <div class="flex items-center justify-between text-[13px]">
+        <p class="flex items-center gap-2 font-medium text-slate-400"><span class="h-px w-6 bg-slate-600"></span>Customer stories</p>
+        <p class="font-medium tabular-nums tracking-wider text-slate-500"><span id="current" class="text-white">01</span> / <span id="total">05</span></p>
+      </div>
+
+      <iconify-icon icon="lucide:quote" class="mt-8 block text-[34px] text-indigo-300/70"></iconify-icon>
+
+      <div class="stage mt-4" aria-live="polite">
+        <figure class="slide" role="group" aria-roledescription="slide" aria-label="1 of 5">
+          <blockquote class="q font-serif text-[1.9rem] font-light leading-[1.16] tracking-[-0.015em] text-slate-300 sm:text-[2.9rem]">Basalt replaced four tools and one very tired data engineer. Our dashboards now <em>load in under a second</em>, and nobody asks where the numbers came from.</blockquote>
+          <figcaption class="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <span class="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-indigo-600 text-sm font-semibold text-white ring-4 ring-white/5">EM</span>
+            <span class="leading-tight"><span class="block font-medium text-white">Elena Marquez</span><span class="text-sm text-slate-400">Head of Data</span></span>
+            <span class="hidden h-8 w-px bg-white/10 sm:block"></span>
+            <span class="text-[15px] font-bold uppercase tracking-[0.28em] text-slate-200">Wayfinder</span>
+          </figcaption>
+        </figure>
+        <figure class="slide" role="group" aria-roledescription="slide" aria-label="2 of 5">
+          <blockquote class="q font-serif text-[1.9rem] font-light leading-[1.16] tracking-[-0.015em] text-slate-300 sm:text-[2.9rem]">We migrated eight years of event data over a weekend. By Monday, the product team was <em>answering questions we had given up on</em>.</blockquote>
+          <figcaption class="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <span class="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-emerald-300 to-teal-700 text-sm font-semibold text-white ring-4 ring-white/5">SA</span>
+            <span class="leading-tight"><span class="block font-medium text-white">Samuel Adeyemi</span><span class="text-sm text-slate-400">VP Engineering</span></span>
+            <span class="hidden h-8 w-px bg-white/10 sm:block"></span>
+            <span class="font-serif text-2xl italic tracking-tight text-slate-200">corbel health</span>
+          </figcaption>
+        </figure>
+        <figure class="slide" role="group" aria-roledescription="slide" aria-label="3 of 5">
+          <blockquote class="q font-serif text-[1.9rem] font-light leading-[1.16] tracking-[-0.015em] text-slate-300 sm:text-[2.9rem]">It is the rare infrastructure tool that makes finance and engineering agree. <em>Our warehouse bill fell 41 percent</em> in the first quarter.</blockquote>
+          <figcaption class="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <span class="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-amber-200 to-rose-600 text-sm font-semibold text-white ring-4 ring-white/5">IS</span>
+            <span class="leading-tight"><span class="block font-medium text-white">Ingrid Solberg</span><span class="text-sm text-slate-400">Chief Financial Officer</span></span>
+            <span class="hidden h-8 w-px bg-white/10 sm:block"></span>
+            <span class="flex items-center gap-1.5 text-xl font-semibold tracking-tight text-slate-200"><span class="h-3 w-3 rounded-full border-[3px] border-slate-200"></span>Arcfield</span>
+          </figcaption>
+        </figure>
+        <figure class="slide" role="group" aria-roledescription="slide" aria-label="4 of 5">
+          <blockquote class="q font-serif text-[1.9rem] font-light leading-[1.16] tracking-[-0.015em] text-slate-300 sm:text-[2.9rem]">Basalt feels less like a database and more like <em>a colleague who already read every table</em>, every schema and every postmortem.</blockquote>
+          <figcaption class="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <span class="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-violet-300 to-fuchsia-700 text-sm font-semibold text-white ring-4 ring-white/5">MC</span>
+            <span class="leading-tight"><span class="block font-medium text-white">Marcus Chen</span><span class="text-sm text-slate-400">Staff Analyst</span></span>
+            <span class="hidden h-8 w-px bg-white/10 sm:block"></span>
+            <span class="font-mono text-[15px] font-medium tracking-tight text-slate-200">pinegrove/labs</span>
+          </figcaption>
+        </figure>
+        <figure class="slide" role="group" aria-roledescription="slide" aria-label="5 of 5">
+          <blockquote class="q font-serif text-[1.9rem] font-light leading-[1.16] tracking-[-0.015em] text-slate-300 sm:text-[2.9rem]">Our analysts stopped writing glue code and started shipping insight. Time to first answer <em>went from days to minutes</em>.</blockquote>
+          <figcaption class="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <span class="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-orange-200 to-amber-600 text-sm font-semibold text-white ring-4 ring-white/5">AR</span>
+            <span class="leading-tight"><span class="block font-medium text-white">Aisha Rahman</span><span class="text-sm text-slate-400">Director of Analytics</span></span>
+            <span class="hidden h-8 w-px bg-white/10 sm:block"></span>
+            <span class="font-serif text-2xl font-medium tracking-tight text-slate-200">Mercato.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="mt-10 flex items-center justify-between">
+        <div id="dots" class="flex items-center gap-2"></div>
+        <div class="flex items-center gap-2">
+          <button id="prev" type="button" aria-label="Previous story" class="ctl grid h-11 w-11 place-items-center rounded-full border border-white/10 text-slate-200"><iconify-icon icon="lucide:arrow-left" class="text-lg"></iconify-icon></button>
+          <button id="next" type="button" aria-label="Next story" class="ctl grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white text-slate-900 hover:!bg-slate-200"><iconify-icon icon="lucide:arrow-right" class="text-lg"></iconify-icon></button>
+        </div>
+      </div>
+
+      <div class="mt-10 hidden grid-cols-5 gap-6 border-t border-white/[.07] sm:grid" id="rail">
+        <button type="button" class="mark text-left"><span class="bar -mt-px mb-4 block h-px bg-indigo-300/80"></span><span class="block text-[13px] font-bold uppercase tracking-[0.28em] text-slate-200">Wayfinder</span><span class="mt-1 block text-xs text-slate-500">Sub-second dashboards</span></button>
+        <button type="button" class="mark text-left"><span class="bar -mt-px mb-4 block h-px bg-indigo-300/80"></span><span class="block font-serif text-lg italic leading-5 text-slate-200">corbel health</span><span class="mt-1 block text-xs text-slate-500">8 years migrated</span></button>
+        <button type="button" class="mark text-left"><span class="bar -mt-px mb-4 block h-px bg-indigo-300/80"></span><span class="flex items-center gap-1.5 text-base font-semibold leading-5 tracking-tight text-slate-200"><span class="h-2.5 w-2.5 rounded-full border-[2.5px] border-slate-200"></span>Arcfield</span><span class="mt-1 block text-xs text-slate-500">41% lower spend</span></button>
+        <button type="button" class="mark text-left"><span class="bar -mt-px mb-4 block h-px bg-indigo-300/80"></span><span class="block font-mono text-sm font-medium leading-5 text-slate-200">pinegrove/labs</span><span class="mt-1 block text-xs text-slate-500">2,300 tables indexed</span></button>
+        <button type="button" class="mark text-left"><span class="bar -mt-px mb-4 block h-px bg-indigo-300/80"></span><span class="block font-serif text-lg font-medium leading-5 text-slate-200">Mercato.</span><span class="mt-1 block text-xs text-slate-500">Days to minutes</span></button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var DURATION = 7000;
+      var root = document.getElementById('inner');
+      var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+      var dotsWrap = document.getElementById('dots');
+      var counter = document.getElementById('current');
+      var current = -1, elapsed = 0, last = null, paused = false;
+      var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      document.getElementById('total').textContent = pad(slides.length);
+
+      var dots = slides.map(function (_, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dot relative h-2 overflow-hidden rounded-full bg-white/20 hover:bg-white/40';
+        b.setAttribute('aria-label', 'Go to story ' + (i + 1));
+        b.innerHTML = '<span class="fill absolute inset-y-0 left-0 rounded-full bg-white"></span>';
+        b.addEventListener('click', function () { go(i); });
+        dotsWrap.appendChild(b);
+        return b;
+      });
+
+      var marks = Array.prototype.slice.call(document.querySelectorAll('#rail .mark'));
+      marks.forEach(function (m, i) {
+        m.setAttribute('aria-label', 'Show story ' + (i + 1));
+        m.addEventListener('click', function () { go(i); });
+      });
+
+      function go(i) {
+        var n = (i + slides.length) % slides.length;
+        if (n === current) { elapsed = 0; return; }
+        slides.forEach(function (s, k) {
+          s.classList.toggle('leaving', k === current);
+          s.classList.toggle('active', k === n);
+          s.setAttribute('aria-hidden', k === n ? 'false' : 'true');
+        });
+        marks.forEach(function (m, k) { m.setAttribute('aria-current', k === n ? 'true' : 'false'); });
+        dots.forEach(function (d, k) {
+          d.setAttribute('aria-current', k === n ? 'true' : 'false');
+          d.querySelector('.fill').style.width = '0%';
+        });
+        current = n;
+        elapsed = 0;
+        counter.textContent = pad(n + 1);
+      }
+
+      document.getElementById('prev').addEventListener('click', function () { go(current - 1); });
+      document.getElementById('next').addEventListener('click', function () { go(current + 1); });
+      document.addEventListener('keydown', function (e) {
+        var tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); go(current + 1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+      });
+      root.addEventListener('mouseenter', function () { paused = true; });
+      root.addEventListener('mouseleave', function () { paused = false; });
+
+      function tick(now) {
+        if (last !== null && !paused && !document.hidden) elapsed += now - last;
+        last = now;
+        var p = Math.min(elapsed / DURATION, 1);
+        dots[current].querySelector('.fill').style.width = (p * 100) + '%';
+        if (p >= 1) go(current + 1);
+        requestAnimationFrame(tick);
+      }
+      go(0);
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>

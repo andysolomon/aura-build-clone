@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glass Profile Card - frosted glassmorphism designer profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Urbanist', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .backdrop { background: linear-gradient(140deg, #1e1145 0%, #2a0f4f 35%, #10224d 100%); box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 30px 70px -25px rgba(30,10,70,.55), 0 0 0 1px rgba(255,255,255,.06); }
+    .blob { position: absolute; border-radius: 9999px; filter: blur(64px); opacity: .9; animation: drift 16s ease-in-out infinite alternate; }
+    @keyframes drift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(var(--dx), var(--dy), 0) scale(1.12); } }
+    .glass { background: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.07)); -webkit-backdrop-filter: blur(28px) saturate(150%); backdrop-filter: blur(28px) saturate(150%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px rgba(255,255,255,.14), 0 24px 60px -20px rgba(10,0,40,.6); }
+    .chip-glass { background: rgba(255,255,255,.1); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+    .avatar { background: radial-gradient(circle at 30% 25%, #fde68a, transparent 55%), linear-gradient(135deg, #fb923c, #e11d48 60%, #7c3aed); }
+    .follow { transition: background-color .25s, color .25s, box-shadow .25s, transform .15s; }
+    .follow:active, .msg:active { transform: scale(.97); }
+    .follow[aria-pressed=true] { background: rgba(255,255,255,.12); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
+    .bump { animation: bump .45s cubic-bezier(.3,1.6,.5,1); }
+    @keyframes bump { 40% { transform: translateY(-3px) scale(1.08); } }
+    button:focus-visible { outline: 2px solid rgba(255,255,255,.8); outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) { .blob, .bump { animation: none; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-8 font-sans antialiased">
+  <section class="backdrop relative isolate w-full max-w-4xl overflow-hidden rounded-[2rem] px-5 py-12 sm:px-10 sm:py-16">
+    <div class="blob left-[-6%] top-[-14%] h-72 w-72 bg-fuchsia-500" style="--dx:60px;--dy:40px"></div>
+    <div class="blob right-[-4%] top-[8%] h-80 w-80 bg-cyan-400/80" style="--dx:-50px;--dy:60px;animation-delay:-4s"></div>
+    <div class="blob bottom-[-18%] left-[22%] h-80 w-96 bg-orange-400/80" style="--dx:40px;--dy:-50px;animation-delay:-8s"></div>
+    <div class="blob bottom-[4%] right-[24%] h-48 w-48 bg-violet-500" style="--dx:-30px;--dy:-30px;animation-delay:-2s"></div>
+    <svg class="pointer-events-none absolute inset-0 h-full w-full opacity-[0.16] mix-blend-overlay" aria-hidden="true">
+      <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/></filter>
+      <rect width="100%" height="100%" filter="url(#grain)"/>
+    </svg>
+
+    <div class="chip-glass absolute left-7 top-7 hidden items-center gap-2 rounded-full px-3.5 py-1.5 text-[12px] font-semibold text-white lg:inline-flex">
+      <iconify-icon icon="lucide:sparkles" class="text-amber-200"></iconify-icon>Featured designer
+    </div>
+    <div class="chip-glass absolute bottom-7 right-7 hidden items-center gap-3 rounded-2xl px-3.5 py-2.5 text-white lg:flex">
+      <span class="grid h-8 w-8 place-items-center rounded-xl bg-white/15"><iconify-icon icon="lucide:pen-tool" class="text-[15px]"></iconify-icon></span>
+      <span class="leading-tight"><span class="block text-[11px] font-medium text-white/60">Latest shipped</span><span class="block text-[13px] font-semibold">Fieldnote 3.0 onboarding</span></span>
+    </div>
+
+    <article class="glass relative mx-auto w-full max-w-[24rem] rounded-[1.75rem] border border-white/20 p-6 text-white sm:p-7">
+      <div class="flex items-start justify-between">
+        <div class="relative">
+          <div class="avatar grid h-[72px] w-[72px] place-items-center rounded-full text-[24px] font-bold tracking-tight text-white shadow-[0_8px_24px_-6px_rgba(225,29,72,.6),inset_0_0_0_2px_rgba(255,255,255,.35)]">MO</div>
+          <span class="absolute bottom-0.5 right-0.5 h-4 w-4 rounded-full border-[3px] border-[#5b3a8c] bg-emerald-400" title="Online"></span>
+        </div>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11.5px] font-semibold text-emerald-200 ring-1 ring-inset ring-emerald-300/30">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>Open to mentoring
+        </span>
+      </div>
+
+      <h1 class="mt-5 flex items-center gap-1.5 text-[26px] font-bold leading-none tracking-tight">Maya Okonkwo
+        <iconify-icon icon="lucide:badge-check" class="text-[20px] text-sky-300" aria-label="Verified"></iconify-icon>
+      </h1>
+      <p class="mt-2 text-[14.5px] font-medium text-white/80">Principal Product Designer at Fieldnote</p>
+      <p class="mt-1 flex items-center gap-1.5 text-[13px] text-white/55"><iconify-icon icon="lucide:map-pin" class="text-[13px]"></iconify-icon>Lisbon, Portugal</p>
+      <p class="mt-4 text-[14.5px] leading-relaxed text-white/75">Designs calm tools for busy teams. Led the design system behind two product relaunches and now obsesses over onboarding that quietly teaches.</p>
+
+      <dl class="mt-5 grid grid-cols-3 divide-x divide-white/10 rounded-2xl bg-white/[0.07] py-3 ring-1 ring-inset ring-white/10">
+        <div class="px-2 text-center"><dt class="text-[11.5px] font-medium text-white/55">Projects</dt><dd class="mt-0.5 text-[19px] font-bold tabular-nums">128</dd></div>
+        <div class="px-2 text-center"><dt class="text-[11.5px] font-medium text-white/55">Followers</dt><dd id="followers" class="mt-0.5 inline-block text-[19px] font-bold tabular-nums">4,218</dd></div>
+        <div class="px-2 text-center"><dt class="text-[11.5px] font-medium text-white/55">Rating</dt><dd class="mt-0.5 flex items-center justify-center gap-1 text-[19px] font-bold tabular-nums">4.9<iconify-icon icon="lucide:star" class="text-[13px] text-amber-300"></iconify-icon></dd></div>
+      </dl>
+
+      <ul class="mt-5 flex flex-wrap gap-2 text-[12.5px] font-semibold text-white/90">
+        <li class="rounded-full bg-white/10 px-3 py-1 ring-1 ring-inset ring-white/15">Design systems</li>
+        <li class="rounded-full bg-white/10 px-3 py-1 ring-1 ring-inset ring-white/15">Prototyping</li>
+        <li class="rounded-full bg-white/10 px-3 py-1 ring-1 ring-inset ring-white/15">Motion</li>
+        <li class="rounded-full bg-white/10 px-3 py-1 ring-1 ring-inset ring-white/15">User research</li>
+      </ul>
+
+      <div class="mt-6 grid grid-cols-2 gap-2.5">
+        <button id="follow" aria-pressed="false" class="follow inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white text-[14.5px] font-bold text-zinc-900 shadow-[0_8px_20px_-8px_rgba(0,0,0,.45)]">
+          <iconify-icon icon="lucide:user-plus" class="text-[16px]"></iconify-icon><span>Follow</span>
+        </button>
+        <button class="msg inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white/10 text-[14.5px] font-semibold text-white ring-1 ring-inset ring-white/25 transition hover:bg-white/15">
+          <iconify-icon icon="lucide:message-circle" class="text-[16px]"></iconify-icon>Message
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('follow');
+      var count = document.getElementById('followers');
+      var base = 4218;
+      btn.addEventListener('click', function () {
+        var on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', String(on));
+        btn.querySelector('iconify-icon').setAttribute('icon', on ? 'lucide:check' : 'lucide:user-plus');
+        btn.querySelector('span').textContent = on ? 'Following' : 'Follow';
+        count.textContent = (base + (on ? 1 : 0)).toLocaleString('en-US');
+        count.classList.remove('bump'); void count.offsetWidth; count.classList.add('bump');
+      });
+    })();
+  </script>
+</body>
+</html>

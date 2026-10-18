@@ -1,12 +1,12 @@
-import { ArrowUp, AtSign, Check, ImageOff, MousePointer2, Palette, Paperclip, Sparkles, Square, SquarePen, WandSparkles, X } from "lucide-react";
+import { ArrowUp, Check, ImageOff, MousePointer2, Palette, Paperclip, Sparkles, Square, SquarePen, WandSparkles, X } from "lucide-react";
 import { lazy, Suspense, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent, type RefObject } from "react";
 import { DESIGN_SYSTEMS, findDesignSystem } from "../../shared/design-systems";
 import { findModel } from "../../shared/models";
-import { TEMPLATES, templateThumbUrl } from "../data/templates";
 import { api } from "../lib/api";
 import { refreshAppConfig, useAppConfig } from "../lib/projects";
 import { cx, readFileAsDataUrl, useDismiss, useTypewriter } from "../lib/util";
 import { ModelPicker } from "./ModelPicker";
+import { ReferenceChips, ReferenceMenu } from "./ReferenceMenu";
 import { MenuItem, Popover, Spinner } from "./ui";
 
 export interface ComposerState {
@@ -14,7 +14,9 @@ export interface ComposerState {
   /** Model ref, "<provider>:<model>". */
   model: string;
   designSystemId: string | null;
+  /** Template slugs or "component:<slug>" refs. */
   referenceSlugs: string[];
+  skillSlugs: string[];
   images: string[];
 }
 
@@ -126,8 +128,8 @@ export function PromptComposer({
     void addFiles(e.dataTransfer.files);
   }
 
-  const refs = TEMPLATES.filter((t) => state.referenceSlugs.includes(t.slug));
-  const hasChips = refs.length > 0 || state.images.length > 0 || Boolean(selectionLabel);
+  const hasChips = state.referenceSlugs.length > 0 || state.skillSlugs.length > 0 || state.images.length > 0 || Boolean(selectionLabel);
+  const setRefs = ({ references, skills }: { references: string[]; skills: string[] }) => set({ referenceSlugs: references, skillSlugs: skills });
   const toolButton = "inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-line bg-panel px-2 text-[12.5px] text-fg transition hover:bg-subtle";
 
   return (
@@ -155,15 +157,7 @@ export function PromptComposer({
               </button>
             </span>
           )}
-          {refs.map((t) => (
-            <span key={t.slug} className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-subtle py-0.5 pl-0.5 pr-1 text-xs">
-              <img src={templateThumbUrl(t.slug)} alt="" className="h-6 w-9 rounded-md object-cover" />
-              @{t.title.split(" — ")[0]}
-              <button onClick={() => set({ referenceSlugs: state.referenceSlugs.filter((s) => s !== t.slug) })} className="rounded p-0.5 text-muted hover:text-fg" aria-label="Remove reference">
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
+          <ReferenceChips references={state.referenceSlugs} skills={state.skillSlugs} onChange={setRefs} />
           {imagesDropped && (
             <span className="inline-flex items-center gap-1.5 self-center rounded-lg bg-amber-500/10 px-2 py-1 text-xs text-amber-700 dark:text-amber-300">
               <ImageOff className="h-3 w-3" /> {provider?.label} can't see images
@@ -199,7 +193,7 @@ export function PromptComposer({
         )}
       />
 
-      <div ref={toolbarRef} className="flex items-center gap-1.5 px-2 pb-2 pt-1">
+      <div ref={toolbarRef} className={cx("flex items-center px-2 pb-2 pt-1", hero ? "gap-1.5" : "gap-1")}>
         <button type="button" onClick={() => setBuilderOpen(true)} title="Open Prompt Builder" aria-label="Open Prompt Builder" className={cx(toolButton, "w-8 justify-center px-0")}>
           <SquarePen className="h-3.5 w-3.5" />
         </button>
@@ -262,38 +256,15 @@ export function PromptComposer({
           }}
         />
 
-        <div className="relative">
-          <button type="button" title="Reference a template" className={cx(toolButton, "w-8 justify-center px-0")} onClick={() => setMenu(menu === "refs" ? null : "refs")}>
-            <AtSign className="h-3.5 w-3.5" />
-          </button>
-          <Popover open={menu === "refs"} side={hero ? "bottom" : "top"} className="w-80">
-            <div className="px-2.5 pb-1.5 pt-1 text-[11px] uppercase tracking-wide text-faint">Use templates as reference (max 2)</div>
-            <div className="max-h-72 overflow-y-auto scrollbar-thin">
-              {TEMPLATES.map((t) => {
-                const selected = state.referenceSlugs.includes(t.slug);
-                return (
-                  <MenuItem
-                    key={t.slug}
-                    active={selected}
-                    disabled={!selected && state.referenceSlugs.length >= 2}
-                    onClick={() =>
-                      set({
-                        referenceSlugs: selected ? state.referenceSlugs.filter((s) => s !== t.slug) : [...state.referenceSlugs, t.slug],
-                      })
-                    }
-                  >
-                    <img src={templateThumbUrl(t.slug)} alt="" className="h-9 w-14 rounded-md border border-line object-cover" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium">{t.title}</span>
-                      <span className="block text-xs text-muted">{t.category}</span>
-                    </span>
-                    {selected && <Check className="h-3.5 w-3.5" />}
-                  </MenuItem>
-                );
-              })}
-            </div>
-          </Popover>
-        </div>
+        <ReferenceMenu
+          open={menu === "refs"}
+          onToggle={() => setMenu(menu === "refs" ? null : "refs")}
+          side={hero ? "bottom" : "top"}
+          buttonClassName={toolButton}
+          references={state.referenceSlugs}
+          skills={state.skillSlugs}
+          onChange={setRefs}
+        />
 
         <button type="button" title="Attach images (or paste / drop)" className={cx(toolButton, "w-8 justify-center px-0")} onClick={() => fileInput.current?.click()}>
           <Paperclip className="h-3.5 w-3.5" />

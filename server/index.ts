@@ -5,7 +5,8 @@ import { streamSSE } from "hono/streaming";
 import { readFile } from "node:fs/promises";
 import { parseModelRef } from "../shared/models";
 import type { AppConfig, GenerateRequest, PublishResponse } from "../shared/protocol";
-import { enhance, generate } from "./generate";
+import { enhance, enhanceTool, generate } from "./generate";
+import { OUTPUT_STYLES, PROJECT_TYPES } from "./prompts";
 import { defaultModel, discoverProviders } from "./providers";
 import { currentHtml, deleteProject, getProject, listProjects, saveProject, validProjectId } from "./projects";
 import { loadPublished, publishPage } from "./publish";
@@ -42,6 +43,7 @@ app.post("/api/generate", async (c) => {
     selection: body.selection ?? null,
     history: Array.isArray(body.history) ? body.history : [],
     references: Array.isArray(body.references) ? body.references.slice(0, 3) : [],
+    skills: Array.isArray(body.skills) ? body.skills.slice(0, 6) : [],
     images: Array.isArray(body.images) ? body.images.slice(0, 4) : [],
   };
 
@@ -63,6 +65,20 @@ app.post("/api/enhance", async (c) => {
   if (!prompt) return c.json({ error: "A prompt is required." }, 400);
   try {
     return c.json({ prompt: await enhance(prompt, body?.model ?? (await config()).defaultModel) });
+  } catch (err) {
+    return c.json({ error: err instanceof Error ? err.message : "Enhance failed." }, 502);
+  }
+});
+
+app.post("/api/enhance/tool", async (c) => {
+  const body = await c.req.json<{ prompt?: string; model?: string; projectType?: string; outputStyle?: string }>().catch(() => null);
+  const prompt = body?.prompt?.trim();
+  if (!prompt) return c.json({ error: "A prompt is required." }, 400);
+  if (prompt.length > 4000) return c.json({ error: "Keep the rough prompt under 4,000 characters." }, 400);
+  const projectType = PROJECT_TYPES.includes(body?.projectType ?? "") ? body!.projectType! : PROJECT_TYPES[0];
+  const outputStyle = OUTPUT_STYLES.includes(body?.outputStyle ?? "") ? body!.outputStyle! : OUTPUT_STYLES[0];
+  try {
+    return c.json(await enhanceTool(prompt, body?.model ?? (await config()).defaultModel, projectType, outputStyle));
   } catch (err) {
     return c.json({ error: err instanceof Error ? err.message : "Enhance failed." }, 502);
   }

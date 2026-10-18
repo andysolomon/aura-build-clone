@@ -23,9 +23,17 @@ export const api = {
   enhance: (prompt: string, model: string) =>
     fetch("/api/enhance", {
       method: "POST",
+      signal: AbortSignal.timeout(150_000),
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ prompt, model }),
     }).then((r) => json<{ prompt: string }>(r)),
+  enhanceTool: (body: { prompt: string; model: string; projectType: string; outputStyle: string }) =>
+    fetch("/api/enhance/tool", {
+      method: "POST",
+      signal: AbortSignal.timeout(150_000),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }).then((r) => json<{ prompt: string; short: string; notes: string[] }>(r)),
   publish: (html: string, title: string, slug?: string) =>
     fetch("/api/publish", {
       method: "POST",

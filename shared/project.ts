@@ -23,7 +23,9 @@ export interface PendingGeneration {
   prompt: string;
   model: string;
   designSystemId: string | null;
+  /** Template slugs or "component:<slug>" refs. */
   referenceSlugs: string[];
+  skillSlugs?: string[];
   images: string[];
 }
 

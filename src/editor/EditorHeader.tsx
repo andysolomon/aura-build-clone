@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Globe,
   PanelLeft,
+  RotateCw,
   Plus,
   Redo2,
   Undo2,
@@ -40,6 +41,7 @@ interface Props {
   onUndo: () => void;
   onRedo: () => void;
   onPublished: (slug: string) => void;
+  onReloadPreview: () => void;
 }
 
 function ChatsMenu({ projectId }: { projectId: string }) {
@@ -237,6 +239,11 @@ export function EditorHeader(props: Props) {
           ))}
         </div>
         {props.view !== "code" && <DeviceToggle value={props.device} onChange={props.onDevice} />}
+        {props.view !== "code" && props.html && (
+          <Button size="icon" variant="ghost" onClick={props.onReloadPreview} title="Reload preview" aria-label="Reload preview">
+            <RotateCw className="h-3.5 w-3.5" />
+          </Button>
+        )}
         <div className="ml-1 hidden gap-0.5 sm:flex">
           <Button size="icon" variant="ghost" onClick={props.onUndo} disabled={!props.canUndo} title="Undo (Ctrl+Z)"><Undo2 className="h-3.5 w-3.5" /></Button>
           <Button size="icon" variant="ghost" onClick={props.onRedo} disabled={!props.canRedo} title="Redo (Ctrl+Shift+Z)"><Redo2 className="h-3.5 w-3.5" /></Button>

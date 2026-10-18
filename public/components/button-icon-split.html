@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Split Buttons and Segmented Icon Group - publishing toolbar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: {
+      sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace']
+    } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .card { box-shadow: 0 1px 2px rgba(9,9,11,.05), 0 12px 32px -12px rgba(9,9,11,.16); }
+    .btn-shadow { box-shadow: 0 1px 2px rgba(9,9,11,.06), inset 0 -1px 0 rgba(9,9,11,.04); }
+    .menu { box-shadow: 0 1px 2px rgba(9,9,11,.06), 0 16px 40px -12px rgba(9,9,11,.28); transform-origin: top right; }
+    .menu.open { display: block; animation: pop .14s cubic-bezier(.2,.8,.2,1); }
+    .menu.left-anchored { transform-origin: top left; }
+    @keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+    .menu [role=menuitemradio] .tick { opacity: 0; }
+    .menu [role=menuitemradio][aria-checked=true] .tick { opacity: 1; }
+    .menu [role=menuitemradio]:focus-visible, .menu [role=menuitemradio]:hover { background: #f4f4f5; outline: none; }
+    .seg[aria-checked=true] { background: #fff; color: #09090b; box-shadow: 0 1px 2px rgba(9,9,11,.12), 0 0 0 1px rgba(9,9,11,.06); }
+    .preview-body { transition: text-align .2s; }
+    button:focus-visible { outline: 2px solid #52525b; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .menu.open { animation: none; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-8 font-sans antialiased">
+  <section class="card w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white text-zinc-900">
+    <header class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 px-5 py-4 sm:px-6">
+      <div class="min-w-0">
+        <p class="flex items-center gap-1.5 font-mono text-[11px] text-zinc-400">halcyon-roasters <iconify-icon icon="lucide:chevron-right" class="text-[11px]"></iconify-icon> sites</p>
+        <h1 class="mt-0.5 text-[17px] font-semibold tracking-tight">landing-v4</h1>
+      </div>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[12px] font-medium text-amber-700">
+        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>3 unpublished changes
+      </span>
+    </header>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 sm:px-6">
+      <div role="radiogroup" aria-label="Text alignment" class="inline-flex rounded-lg border border-zinc-200 bg-zinc-100 p-0.5" id="align">
+        <button role="radio" class="seg grid h-8 w-9 place-items-center rounded-md text-zinc-500 transition hover:text-zinc-900" aria-checked="true" data-align="left" aria-label="Align left"><iconify-icon icon="lucide:align-left" class="text-[16px]"></iconify-icon></button>
+        <button role="radio" class="seg grid h-8 w-9 place-items-center rounded-md text-zinc-500 transition hover:text-zinc-900" aria-checked="false" data-align="center" aria-label="Align center" tabindex="-1"><iconify-icon icon="lucide:align-center" class="text-[16px]"></iconify-icon></button>
+        <button role="radio" class="seg grid h-8 w-9 place-items-center rounded-md text-zinc-500 transition hover:text-zinc-900" aria-checked="false" data-align="right" aria-label="Align right" tabindex="-1"><iconify-icon icon="lucide:align-right" class="text-[16px]"></iconify-icon></button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="split relative inline-flex" data-split="export">
+          <button class="main btn-shadow inline-flex h-9 items-center gap-2 rounded-l-lg border border-zinc-200 bg-white pl-3 pr-3.5 text-[13px] font-medium text-zinc-800 transition hover:bg-zinc-50">
+            <iconify-icon data-main-icon icon="lucide:file-code-2" class="text-[15px] text-zinc-500"></iconify-icon><span data-main-label>Export HTML</span>
+          </button>
+          <button class="toggle btn-shadow -ml-px grid h-9 w-8 place-items-center rounded-r-lg border border-zinc-200 bg-white text-zinc-500 transition hover:bg-zinc-50 hover:text-zinc-900" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-export" aria-label="Choose export format">
+            <iconify-icon icon="lucide:chevron-down" class="text-[15px]"></iconify-icon>
+          </button>
+          <div id="menu-export" role="menu" aria-label="Export format" class="menu absolute right-0 top-full z-20 mt-2 hidden w-64 rounded-xl border border-zinc-200 bg-white p-1.5">
+            <p class="px-2.5 pb-1.5 pt-1 font-mono text-[10.5px] uppercase tracking-wider text-zinc-400">Format</p>
+            <button role="menuitemradio" aria-checked="true" data-label="Export HTML" data-icon="lucide:file-code-2" data-status="Format: static HTML" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left"><iconify-icon icon="lucide:file-code-2" class="mt-0.5 text-[16px] text-zinc-500"></iconify-icon><span class="flex-1"><span class="block text-[13px] font-medium">HTML</span><span class="block text-[12px] text-zinc-500">Static files with inlined CSS</span></span><iconify-icon icon="lucide:check" class="tick mt-0.5 text-[15px]"></iconify-icon></button>
+            <button role="menuitemradio" aria-checked="false" data-label="Export React" data-icon="lucide:atom" data-status="Format: React + Tailwind" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left"><iconify-icon icon="lucide:atom" class="mt-0.5 text-[16px] text-zinc-500"></iconify-icon><span class="flex-1"><span class="block text-[13px] font-medium">React</span><span class="block text-[12px] text-zinc-500">JSX components, Tailwind classes</span></span><iconify-icon icon="lucide:check" class="tick mt-0.5 text-[15px]"></iconify-icon></button>
+            <button role="menuitemradio" aria-checked="false" data-label="Export to design file" data-icon="lucide:pen-tool" data-status="Format: design frames" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left"><iconify-icon icon="lucide:pen-tool" class="mt-0.5 text-[16px] text-zinc-500"></iconify-icon><span class="flex-1"><span class="block text-[13px] font-medium">Design file</span><span class="block text-[12px] text-zinc-500">Auto-layout frames and styles</span></span><iconify-icon icon="lucide:check" class="tick mt-0.5 text-[15px]"></iconify-icon></button>
+          </div>
+        </div>
+
+        <div class="split relative inline-flex" data-split="deploy">
+          <button class="main inline-flex h-9 items-center gap-2 rounded-l-lg bg-zinc-900 pl-3 pr-3.5 text-[13px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)] transition hover:bg-zinc-800">
+            <iconify-icon data-main-icon icon="lucide:rocket" class="text-[15px] text-zinc-300"></iconify-icon><span data-main-label>Deploy</span>
+          </button>
+          <span class="w-px bg-zinc-700" aria-hidden="true"></span>
+          <button class="toggle grid h-9 w-8 place-items-center rounded-r-lg bg-zinc-900 text-zinc-300 shadow-[inset_0_1px_0_rgba(255,255,255,.12)] transition hover:bg-zinc-800 hover:text-white" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-deploy" aria-label="Choose deploy target">
+            <iconify-icon icon="lucide:chevron-down" class="text-[15px]"></iconify-icon>
+          </button>
+          <div id="menu-deploy" role="menu" aria-label="Deploy target" class="menu absolute right-0 top-full z-20 mt-2 hidden w-72 rounded-xl border border-zinc-200 bg-white p-1.5">
+            <p class="px-2.5 pb-1.5 pt-1 font-mono text-[10.5px] uppercase tracking-wider text-zinc-400">Target</p>
+            <button role="menuitemradio" aria-checked="true" data-label="Deploy" data-icon="lucide:rocket" data-status="Target: production" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left"><iconify-icon icon="lucide:rocket" class="mt-0.5 text-[16px] text-zinc-500"></iconify-icon><span class="flex-1"><span class="block text-[13px] font-medium">Deploy to production</span><span class="block text-[12px] text-zinc-500">Promote to halcyonroasters.co</span></span><iconify-icon icon="lucide:check" class="tick mt-0.5 text-[15px]"></iconify-icon></button>
+            <button role="menuitemradio" aria-checked="false" data-label="Deploy preview" data-icon="lucide:eye" data-status="Target: preview URL" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left"><iconify-icon icon="lucide:eye" class="mt-0.5 text-[16px] text-zinc-500"></iconify-icon><span class="flex-1"><span class="block text-[13px] font-medium">Preview</span><span class="block text-[12px] text-zinc-500">Private link, hidden from search</span></span><iconify-icon icon="lucide:check" class="tick mt-0.5 text-[15px]"></iconify-icon></button>
+            <div class="my-1 h-px bg-zinc-100"></div>
+            <button role="menuitemradio" aria-checked="false" data-label="Schedule deploy" data-icon="lucide:calendar-clock" data-status="Target: Fri 09:00 window" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left"><iconify-icon icon="lucide:calendar-clock" class="mt-0.5 text-[16px] text-zinc-500"></iconify-icon><span class="flex-1"><span class="block text-[13px] font-medium">Schedule...</span><span class="block text-[12px] text-zinc-500">Ship in the next release window</span></span><iconify-icon icon="lucide:check" class="tick mt-0.5 text-[15px]"></iconify-icon></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 pb-5 pt-4 sm:px-6">
+      <div class="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+        <div class="flex items-center gap-2 border-b border-zinc-200 bg-white px-3 py-2">
+          <span class="flex gap-1"><i class="h-2 w-2 rounded-full bg-zinc-200"></i><i class="h-2 w-2 rounded-full bg-zinc-200"></i><i class="h-2 w-2 rounded-full bg-zinc-200"></i></span>
+          <span class="mx-auto flex items-center gap-1.5 rounded-md bg-zinc-100 px-3 py-0.5 font-mono text-[11px] text-zinc-500"><iconify-icon icon="lucide:lock" class="text-[10px]"></iconify-icon>halcyonroasters.co</span>
+        </div>
+        <div id="preview" class="preview-body px-6 py-9 text-left sm:px-10">
+          <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-amber-700">Single origin, roasted weekly</p>
+          <h2 class="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-zinc-900">Coffee worth waking up for.</h2>
+          <p class="mt-2 text-[14px] leading-relaxed text-zinc-500">Small-lot beans from three farms we visit every harvest, shipped within 48 hours of roasting.</p>
+          <div id="previewCtas" class="mt-5 flex flex-wrap justify-start gap-2">
+            <span class="rounded-md bg-zinc-900 px-3 py-1.5 text-[12px] font-medium text-white">Start a subscription</span>
+            <span class="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-[12px] font-medium text-zinc-700">Browse beans</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 px-5 py-3 font-mono text-[11.5px] text-zinc-500 sm:px-6">
+      <span><span id="exportStatus">Format: static HTML</span> <span class="text-zinc-300">/</span> <span id="deployStatus">Target: production</span></span>
+      <span id="activity" aria-live="polite" class="inline-flex items-center gap-1.5"><iconify-icon icon="lucide:history" class="text-[13px]"></iconify-icon>Last deploy 14 min ago</span>
+    </footer>
+  </section>
+
+  <script>
+    (function () {
+      var splits = Array.prototype.slice.call(document.querySelectorAll('[data-split]'));
+      var activity = document.getElementById('activity');
+      function setActivity(icon, text) { activity.innerHTML = '<iconify-icon icon="' + icon + '" class="text-[13px]"></iconify-icon>' + text; }
+
+      function close(split, refocus) {
+        var menu = split.querySelector('[role=menu]'), toggle = split.querySelector('.toggle');
+        if (!menu.classList.contains('open')) return;
+        menu.classList.remove('open'); menu.classList.add('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
+        if (refocus) toggle.focus();
+      }
+      function open(split) {
+        splits.forEach(function (s) { if (s !== split) close(s); });
+        var menu = split.querySelector('[role=menu]'), toggle = split.querySelector('.toggle');
+        menu.classList.remove('hidden', 'left-0', 'left-anchored'); menu.classList.add('open', 'right-0');
+        toggle.setAttribute('aria-expanded', 'true');
+        var r = menu.getBoundingClientRect();
+        if (r.left < 8) { menu.classList.remove('right-0'); menu.classList.add('left-0', 'left-anchored'); }
+        var current = menu.querySelector('[aria-checked=true]') || menu.querySelector('[role=menuitemradio]');
+        if (current) current.focus();
+      }
+
+      splits.forEach(function (split) {
+        var toggle = split.querySelector('.toggle'), menu = split.querySelector('[role=menu]');
+        var items = Array.prototype.slice.call(menu.querySelectorAll('[role=menuitemradio]'));
+        var main = split.querySelector('.main');
+        toggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (menu.classList.contains('open')) close(split); else open(split);
+        });
+        items.forEach(function (item, i) {
+          item.addEventListener('click', function () {
+            items.forEach(function (o) { o.setAttribute('aria-checked', String(o === item)); });
+            split.querySelector('[data-main-label]').textContent = item.dataset.label;
+            split.querySelector('[data-main-icon]').setAttribute('icon', item.dataset.icon);
+            document.getElementById(split.dataset.split + 'Status').textContent = item.dataset.status;
+            close(split, true);
+          });
+          item.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus();
+            } else if (e.key === 'Tab') { close(split); }
+          });
+        });
+        main.addEventListener('click', function () {
+          var label = split.querySelector('[data-main-label]').textContent;
+          if (split.dataset.split === 'deploy') {
+            setActivity('lucide:loader', label + ' queued, building...');
+            setTimeout(function () { setActivity('lucide:circle-check', 'Deployed just now'); }, 1400);
+          } else {
+            setActivity('lucide:download', label.replace('Export ', '').replace('to ', '') + ' bundle ready');
+          }
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        splits.forEach(function (s) { if (!s.contains(e.target)) close(s); });
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') splits.forEach(function (s) { close(s, s.contains(document.activeElement)); });
+      });
+
+      var group = document.getElementById('align');
+      var segs = Array.prototype.slice.call(group.querySelectorAll('.seg'));
+      var preview = document.getElementById('preview'), ctas = document.getElementById('previewCtas');
+      var justify = { left: 'justify-start', center: 'justify-center', right: 'justify-end' };
+      function select(seg, focus) {
+        segs.forEach(function (s) { var on = s === seg; s.setAttribute('aria-checked', String(on)); s.tabIndex = on ? 0 : -1; });
+        var a = seg.dataset.align;
+        preview.style.textAlign = a;
+        ctas.classList.remove('justify-start', 'justify-center', 'justify-end'); ctas.classList.add(justify[a]);
+        if (focus) seg.focus();
+      }
+      segs.forEach(function (seg, i) {
+        seg.addEventListener('click', function () { select(seg); });
+        seg.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            select(segs[(i + (e.key === 'ArrowRight' ? 1 : segs.length - 1)) % segs.length], true);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

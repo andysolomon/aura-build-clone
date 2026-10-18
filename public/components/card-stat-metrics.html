@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stat Metric Cards - KPI tiles with sparklines and range switch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { font-feature-settings: 'cv11', 'ss01'; }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum', 'cv11'; }
+    .panel { box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 24px 48px -24px rgba(15,23,42,.22); }
+    .tile { box-shadow: 0 1px 2px rgba(15,23,42,.04); transition: border-color .2s, box-shadow .2s; }
+    .tile:hover { border-color: #d4d4d8; box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 20px -12px rgba(15,23,42,.18); }
+    .range[aria-checked=true] { background: #fff; color: #18181b; box-shadow: 0 1px 2px rgba(15,23,42,.12), 0 0 0 1px rgba(15,23,42,.06); }
+    .line { fill: none; stroke: #4f46e5; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .line.drawing { transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1); }
+    .area { transition: opacity .6s ease; }
+    .cross { opacity: 0; transition: opacity .12s; }
+    .chart:hover .cross { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) { .line.drawing, .area { transition: none; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-8 font-sans antialiased">
+  <section class="panel w-full max-w-5xl rounded-[22px] border border-zinc-200 bg-zinc-50 p-2 text-zinc-900">
+    <header class="flex flex-wrap items-center justify-between gap-3 px-4 pb-4 pt-3">
+      <div>
+        <h1 class="text-[15px] font-semibold tracking-tight">Revenue health</h1>
+        <p class="text-[12.5px] text-zinc-500">Ledgerline workspace <span class="text-zinc-300">/</span> <span id="rangeLabel">Last 30 days</span> <span class="text-zinc-300">/</span> period average</p>
+      </div>
+      <div role="radiogroup" aria-label="Date range" class="inline-flex rounded-lg border border-zinc-200 bg-zinc-100 p-0.5 text-[12.5px] font-medium text-zinc-500" id="ranges">
+        <button role="radio" class="range num rounded-md px-3 py-1 transition hover:text-zinc-900" data-range="7d" aria-checked="false" tabindex="-1">7d</button>
+        <button role="radio" class="range num rounded-md px-3 py-1 transition hover:text-zinc-900" data-range="30d" aria-checked="true">30d</button>
+        <button role="radio" class="range num rounded-md px-3 py-1 transition hover:text-zinc-900" data-range="90d" aria-checked="false" tabindex="-1">90d</button>
+      </div>
+    </header>
+    <div id="grid" class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"></div>
+  </section>
+
+  <template id="tileTpl">
+    <article class="tile flex flex-col rounded-2xl border border-zinc-200 bg-white p-4">
+      <div class="flex items-center justify-between">
+        <span class="flex items-center gap-2 text-[13px] font-medium text-zinc-600"><span class="grid h-6 w-6 place-items-center rounded-md bg-zinc-100 text-zinc-600"><iconify-icon data-icon class="text-[13px]"></iconify-icon></span><span data-label></span></span>
+        <span data-badge class="num inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-semibold"><iconify-icon data-badge-icon class="text-[12px]"></iconify-icon><span data-delta></span></span>
+      </div>
+      <p data-value class="num mt-3 text-[28px] font-semibold leading-none tracking-[-0.02em] text-zinc-950"></p>
+      <div class="chart relative mt-4 h-16 cursor-crosshair">
+        <svg class="h-full w-full overflow-visible" viewBox="0 0 200 64" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient data-grad x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f46e5" stop-opacity=".16"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></linearGradient></defs>
+          <line x1="0" x2="200" y1="63.5" y2="63.5" stroke="#e4e4e7" stroke-width="1" vector-effect="non-scaling-stroke"/>
+          <path data-area class="area"/>
+          <path data-line class="line" pathLength="100"/>
+        </svg>
+        <span data-end class="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-indigo-600 shadow-[0_0_0_1px_rgba(79,70,229,.25)]"></span>
+        <span data-xline class="cross pointer-events-none absolute bottom-0 top-0 w-px bg-zinc-300"></span>
+        <span data-xdot class="cross pointer-events-none absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600 ring-2 ring-white"></span>
+      </div>
+      <p data-foot class="mt-3 text-[12px] text-zinc-500"></p>
+    </article>
+  </template>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var RANGES = { '7d': { label: 'Last 7 days', n: 7, step: 1 }, '30d': { label: 'Last 30 days', n: 10, step: 3 }, '90d': { label: 'Last 90 days', n: 13, step: 7 } };
+      var METRICS = [
+        { key: 'mrr', label: 'MRR', icon: 'lucide:circle-dollar-sign', upGood: true, fmt: function (v) { return '$' + v.toFixed(1) + 'k'; },
+          data: { '7d': [85.1, 1.9, 83.5], '30d': [84.2, 12.4, 74.9], '90d': [79.6, 31.6, 60.5] }, unit: '%' },
+        { key: 'seats', label: 'Active seats', icon: 'lucide:users', upGood: true, fmt: function (v) { return Math.round(v).toLocaleString('en-US'); },
+          data: { '7d': [3968, 1.2, 3921], '30d': [3912, 6.3, 3680], '90d': [3655, 17.8, 3103] }, unit: '%' },
+        { key: 'nrr', label: 'Net retention', icon: 'lucide:repeat', upGood: true, fmt: function (v) { return Math.round(v) + '%'; },
+          data: { '7d': [118.9, 0.4, 118.5], '30d': [118, 2.1, 115.9], '90d': [116, 5.3, 110.7] }, unit: 'pt' },
+        { key: 'churn', label: 'Churn', icon: 'lucide:user-minus', upGood: false, fmt: function (v) { return v.toFixed(1) + '%'; },
+          data: { '7d': [1.8, -0.1, 1.9], '30d': [1.9, -0.4, 2.3], '90d': [2.4, -1.1, 3.5] }, unit: 'pt' }
+      ];
+      var END = new Date(2026, 9, 18);
+      function seeded(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+      function series(m, range) {
+        var cfg = RANGES[range], d = m.data[range], start = d[2], end = d[0], rnd = seeded(m.key.length * 97 + cfg.n * 13);
+        var out = [], span = Math.abs(end - start) || end * 0.02;
+        for (var i = 0; i < cfg.n; i++) {
+          var t = i / (cfg.n - 1), ease = t * t * (3 - 2 * t) * 0.7 + t * 0.3;
+          var noise = (i === 0 || i === cfg.n - 1) ? 0 : (rnd() - 0.5) * span * 0.45;
+          out.push(start + (end - start) * ease + noise);
+        }
+        return out;
+      }
+      function dateLabel(range, i) {
+        var cfg = RANGES[range], d = new Date(END); d.setDate(d.getDate() - (cfg.n - 1 - i) * cfg.step);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+      function points(vals) {
+        var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals), pad = (max - min) * 0.15 || 1;
+        return vals.map(function (v, i) { return [i / (vals.length - 1) * 200, 60 - (v - (min - pad)) / ((max + pad) - (min - pad)) * 54]; });
+      }
+      function linePath(p) {
+        var d = 'M' + p[0][0].toFixed(2) + ' ' + p[0][1].toFixed(2);
+        for (var i = 1; i < p.length; i++) {
+          var mx = (p[i - 1][0] + p[i][0]) / 2;
+          d += ' C' + mx.toFixed(2) + ' ' + p[i - 1][1].toFixed(2) + ',' + mx.toFixed(2) + ' ' + p[i][1].toFixed(2) + ',' + p[i][0].toFixed(2) + ' ' + p[i][1].toFixed(2);
+        }
+        return d;
+      }
+
+      var grid = document.getElementById('grid'), tpl = document.getElementById('tileTpl');
+      var tiles = METRICS.map(function (m, idx) {
+        var node = tpl.content.firstElementChild.cloneNode(true);
+        var q = function (s) { return node.querySelector('[data-' + s + ']'); };
+        q('icon').setAttribute('icon', m.icon); q('label').textContent = m.label;
+        var gid = 'g' + idx; q('grad').id = gid; q('area').setAttribute('fill', 'url(#' + gid + ')');
+        grid.appendChild(node);
+        var t = { m: m, node: node, q: q, shown: m.data['30d'][0], vals: [], range: '30d' };
+        var chart = node.querySelector('.chart');
+        chart.addEventListener('pointermove', function (e) {
+          var r = chart.getBoundingClientRect(), n = t.vals.length;
+          var i = Math.round(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * (n - 1));
+          var p = t.pts[i], x = p[0] / 200 * 100, y = p[1] / 64 * 100;
+          q('xline').style.left = x + '%'; q('xdot').style.left = x + '%'; q('xdot').style.top = y + '%';
+          t.hover = true;
+          q('value').textContent = m.fmt(t.vals[i]);
+          q('foot').innerHTML = '<span class="num font-medium text-zinc-700">' + dateLabel(t.range, i) + '</span> <span class="text-zinc-300">/</span> ' + (i === n - 1 ? 'latest' : 'point ' + (i + 1) + ' of ' + n);
+        });
+        chart.addEventListener('pointerleave', function () { t.hover = false; q('value').textContent = m.fmt(t.shown); q('foot').innerHTML = t.foot; });
+        return t;
+      });
+
+      function render(t, range, animate) {
+        var m = t.m, d = m.data[range], q = t.q;
+        t.range = range; t.vals = series(m, range); t.pts = points(t.vals);
+        var lp = linePath(t.pts), last = t.pts[t.pts.length - 1];
+        var line = q('line'), area = q('area');
+        line.setAttribute('d', lp);
+        area.setAttribute('d', lp + ' L200 64 L0 64 Z');
+        q('end').style.left = '100%'; q('end').style.top = (last[1] / 64 * 100) + '%';
+        var good = m.upGood ? d[1] >= 0 : d[1] <= 0, badge = q('badge');
+        badge.className = 'num inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-semibold ring-1 ring-inset ' + (good ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/15' : 'bg-rose-50 text-rose-700 ring-rose-600/15');
+        q('badge-icon').setAttribute('icon', d[1] >= 0 ? 'lucide:trending-up' : 'lucide:trending-down');
+        q('delta').textContent = (d[1] > 0 ? '+' : '') + d[1].toFixed(1) + (m.unit === '%' ? '%' : ' pt');
+        t.foot = 'vs <span class="num font-medium text-zinc-700">' + m.fmt(d[2]) + '</span> in the prior ' + RANGES[range].label.replace('Last ', '');
+        q('foot').innerHTML = t.foot;
+        if (animate && !reduce) {
+          var len = 100;
+          line.classList.remove('drawing'); line.style.strokeDasharray = len; line.style.strokeDashoffset = len; area.style.opacity = 0;
+          void line.getBoundingClientRect();
+          line.classList.add('drawing'); line.style.strokeDashoffset = 0; area.style.opacity = 1;
+          var from = t.shown, to = d[0], t0 = performance.now();
+          (function step(now) {
+            var k = Math.min(1, (now - t0) / 600), e = 1 - Math.pow(1 - k, 3);
+            if (!t.hover) q('value').textContent = m.fmt(from + (to - from) * e);
+            if (k < 1) requestAnimationFrame(step);
+          })(t0);
+        } else {
+          q('value').textContent = m.fmt(d[0]);
+        }
+        t.shown = d[0];
+      }
+
+      var ranges = Array.prototype.slice.call(document.querySelectorAll('.range'));
+      function setRange(btn, focus) {
+        ranges.forEach(function (b) { var on = b === btn; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+        var r = btn.dataset.range;
+        document.getElementById('rangeLabel').textContent = RANGES[r].label;
+        tiles.forEach(function (t) { render(t, r, true); });
+        if (focus) btn.focus();
+      }
+      ranges.forEach(function (b, i) {
+        b.addEventListener('click', function () { setRange(b); });
+        b.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); setRange(ranges[(i + (e.key === 'ArrowRight' ? 1 : ranges.length - 1)) % ranges.length], true); }
+        });
+      });
+      tiles.forEach(function (t) { render(t, '30d', false); });
+    })();
+  </script>
+</body>
+</html>

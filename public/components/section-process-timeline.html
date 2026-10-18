@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding timeline - From signed contract to live in 14 days</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f8fafc; -webkit-font-smoothing: antialiased; }
+  .panel { background: #fff; border-radius: 16px; box-shadow: 0 0 0 1px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04), 0 12px 32px -18px rgba(15,23,42,.18); }
+  .dot { transition: background-color .4s ease, color .4s ease, box-shadow .4s ease, transform .4s ease; }
+  .step.active .dot { background: #10b981; color: #fff; box-shadow: 0 0 0 6px rgba(16,185,129,.14), 0 8px 20px -6px rgba(16,185,129,.6); transform: scale(1.04); }
+  .step.active .num { color: #059669; }
+  #fill { transition: height .15s linear; }
+  .pulse { animation: pulse 2s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.5); } 100% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } #fill, .dot { transition: none; } }
+</style>
+</head>
+<body class="font-sans text-slate-900">
+  <section class="max-w-5xl mx-auto px-5 sm:px-8 pt-14 pb-20">
+    <div class="text-center max-w-2xl mx-auto">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 ring-1 ring-emerald-200/70 px-3 py-1 text-[12.5px] font-medium text-emerald-700"><iconify-icon icon="lucide:calendar-check" width="14"></iconify-icon>Onboarding with Carrow</span>
+      <h2 class="mt-4 text-[34px] sm:text-[44px] font-semibold leading-[1.06] tracking-[-0.035em]">From signed contract to live in 14 days</h2>
+      <p class="mt-3 text-[16px] text-slate-500">A fixed plan, a named team and no surprise invoices. Here is exactly what happens.</p>
+    </div>
+
+    <div id="timeline" class="relative mt-10 space-y-8 md:space-y-6">
+      <div id="rail" class="absolute left-[19px] md:left-1/2 md:-translate-x-1/2 w-[2px] rounded-full bg-slate-200" aria-hidden="true">
+        <div id="fill" class="w-full rounded-full bg-gradient-to-b from-emerald-400 to-emerald-600" style="height:0"></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step relative grid grid-cols-[40px_1fr] md:grid-cols-[1fr_64px_1fr] gap-x-4 md:gap-x-6 gap-y-3 items-center">
+        <div class="dot relative z-10 col-start-1 row-start-1 md:col-start-2 self-start md:self-center justify-self-center w-10 h-10 rounded-full bg-white text-slate-500 ring-1 ring-slate-200 grid place-items-center"><iconify-icon icon="lucide:handshake" width="18"></iconify-icon></div>
+        <div class="col-start-2 row-start-1 md:col-start-1 md:text-right">
+          <div class="flex items-center gap-2.5 md:justify-end"><span class="num font-mono text-[12px] font-semibold text-slate-400">01</span><span class="text-[12px] font-medium rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5">Days 1&ndash;2</span></div>
+          <h3 class="mt-2 text-[20px] font-semibold tracking-[-0.02em]">Kickoff and scoping</h3>
+          <p class="mt-1.5 text-[14.5px] leading-relaxed text-slate-500 md:ml-auto max-w-sm">Meet your implementation lead, map the systems you run today and agree on what success looks like.</p>
+        </div>
+        <div class="panel col-start-2 row-start-2 md:col-start-3 md:row-start-1 p-4 max-w-sm w-full">
+          <div class="flex items-center justify-between text-[12.5px]"><span class="font-semibold">Kickoff checklist</span><span class="text-emerald-600 font-medium">2 of 3</span></div>
+          <ul class="mt-3 space-y-2 text-[13px]">
+            <li class="flex items-center gap-2.5"><span class="w-[18px] h-[18px] rounded-[5px] bg-emerald-500 text-white grid place-items-center"><iconify-icon icon="lucide:check" width="12"></iconify-icon></span><span class="text-slate-400 line-through decoration-slate-300">Kickoff call with Dana Ruiz</span></li>
+            <li class="flex items-center gap-2.5"><span class="w-[18px] h-[18px] rounded-[5px] bg-emerald-500 text-white grid place-items-center"><iconify-icon icon="lucide:check" width="12"></iconify-icon></span><span class="text-slate-400 line-through decoration-slate-300">Success plan signed off</span></li>
+            <li class="flex items-center gap-2.5"><span class="w-[18px] h-[18px] rounded-[5px] ring-1 ring-slate-300"></span><span class="text-slate-700">SSO and admin access</span><span class="ml-auto text-[11px] text-slate-400">Today</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step relative grid grid-cols-[40px_1fr] md:grid-cols-[1fr_64px_1fr] gap-x-4 md:gap-x-6 gap-y-3 items-center">
+        <div class="dot relative z-10 col-start-1 row-start-1 md:col-start-2 self-start md:self-center justify-self-center w-10 h-10 rounded-full bg-white text-slate-500 ring-1 ring-slate-200 grid place-items-center"><iconify-icon icon="lucide:plug" width="18"></iconify-icon></div>
+        <div class="col-start-2 row-start-1 md:col-start-3">
+          <div class="flex items-center gap-2.5"><span class="num font-mono text-[12px] font-semibold text-slate-400">02</span><span class="text-[12px] font-medium rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5">Days 3&ndash;6</span></div>
+          <h3 class="mt-2 text-[20px] font-semibold tracking-[-0.02em]">Connect your data</h3>
+          <p class="mt-1.5 text-[14.5px] leading-relaxed text-slate-500 max-w-sm">Secure, read-only connectors for your warehouse, CRM and billing. No engineering tickets required.</p>
+        </div>
+        <div class="panel col-start-2 row-start-2 md:col-start-1 md:row-start-1 md:justify-self-end p-4 max-w-sm w-full space-y-2.5 text-[13px]">
+          <div class="flex items-center gap-3"><span class="w-8 h-8 rounded-lg bg-slate-50 ring-1 ring-slate-200 grid place-items-center text-slate-500"><iconify-icon icon="lucide:database" width="15"></iconify-icon></span><span class="font-medium">Warehouse</span><span class="ml-auto inline-flex items-center gap-1.5 text-[12px] text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>1.2M rows synced</span></div>
+          <div class="flex items-center gap-3"><span class="w-8 h-8 rounded-lg bg-slate-50 ring-1 ring-slate-200 grid place-items-center text-slate-500"><iconify-icon icon="lucide:contact" width="15"></iconify-icon></span><span class="font-medium">CRM</span><span class="ml-auto flex items-center gap-2 text-[12px] text-slate-500"><span class="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden"><span class="block h-full w-[64%] bg-emerald-500 rounded-full"></span></span>64%</span></div>
+          <div class="flex items-center gap-3"><span class="w-8 h-8 rounded-lg bg-slate-50 ring-1 ring-slate-200 grid place-items-center text-slate-500"><iconify-icon icon="lucide:receipt" width="15"></iconify-icon></span><span class="font-medium">Billing</span><span class="ml-auto text-[12px] text-slate-400">Queued</span></div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step relative grid grid-cols-[40px_1fr] md:grid-cols-[1fr_64px_1fr] gap-x-4 md:gap-x-6 gap-y-3 items-center">
+        <div class="dot relative z-10 col-start-1 row-start-1 md:col-start-2 self-start md:self-center justify-self-center w-10 h-10 rounded-full bg-white text-slate-500 ring-1 ring-slate-200 grid place-items-center"><iconify-icon icon="lucide:sliders-horizontal" width="18"></iconify-icon></div>
+        <div class="col-start-2 row-start-1 md:col-start-1 md:text-right">
+          <div class="flex items-center gap-2.5 md:justify-end"><span class="num font-mono text-[12px] font-semibold text-slate-400">03</span><span class="text-[12px] font-medium rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5">Days 7&ndash;11</span></div>
+          <h3 class="mt-2 text-[20px] font-semibold tracking-[-0.02em]">Configure and train</h3>
+          <p class="mt-1.5 text-[14.5px] leading-relaxed text-slate-500 md:ml-auto max-w-sm">We tune workflows with your admins, then run two live training sessions for the wider team.</p>
+        </div>
+        <div class="panel col-start-2 row-start-2 md:col-start-3 md:row-start-1 p-4 max-w-sm w-full text-[13px]">
+          <div class="flex items-center justify-between"><span class="font-semibold text-[12.5px]">Workflows tuned</span><span class="text-slate-500 text-[12px]">18 / 22</span></div>
+          <div id="wf" class="mt-2 grid grid-cols-[repeat(22,minmax(0,1fr))] gap-[3px] h-2"></div>
+          <div class="mt-3 flex items-center gap-2 rounded-lg bg-slate-50 ring-1 ring-slate-100 px-3 py-2"><iconify-icon icon="lucide:video" width="15" class="text-emerald-600"></iconify-icon><span class="font-medium">Team training</span><span class="ml-auto text-[12px] text-slate-500">Thu 14:00 &middot; 42 seats</span></div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step relative grid grid-cols-[40px_1fr] md:grid-cols-[1fr_64px_1fr] gap-x-4 md:gap-x-6 gap-y-3 items-center">
+        <div class="dot relative z-10 col-start-1 row-start-1 md:col-start-2 self-start md:self-center justify-self-center w-10 h-10 rounded-full bg-white text-slate-500 ring-1 ring-slate-200 grid place-items-center"><iconify-icon icon="lucide:rocket" width="18"></iconify-icon></div>
+        <div class="col-start-2 row-start-1 md:col-start-3">
+          <div class="flex items-center gap-2.5"><span class="num font-mono text-[12px] font-semibold text-slate-400">04</span><span class="text-[12px] font-medium rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-0.5">Days 12&ndash;14</span></div>
+          <h3 class="mt-2 text-[20px] font-semibold tracking-[-0.02em]">Go live, with backup</h3>
+          <p class="mt-1.5 text-[14.5px] leading-relaxed text-slate-500 max-w-sm">A phased rollout team by team, with a named engineer on call for your first 30 days.</p>
+        </div>
+        <div class="panel col-start-2 row-start-2 md:col-start-1 md:row-start-1 md:justify-self-end p-4 max-w-sm w-full text-[13px]">
+          <div class="flex items-center gap-2.5"><span class="pulse w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="font-semibold">All systems go</span><span class="ml-auto text-[12px] text-slate-400">Day 14</span></div>
+          <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div class="rounded-lg bg-slate-50 py-2"><div class="text-[17px] font-semibold tracking-tight">87%</div><div class="text-[11px] text-slate-500">Adoption</div></div>
+            <div class="rounded-lg bg-slate-50 py-2"><div class="text-[17px] font-semibold tracking-tight">6/6</div><div class="text-[11px] text-slate-500">Teams live</div></div>
+            <div class="rounded-lg bg-slate-50 py-2"><div class="text-[17px] font-semibold tracking-tight">0</div><div class="text-[11px] text-slate-500">Open issues</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+(function () {
+  document.getElementById('wf').innerHTML = Array.from({ length: 22 }, function (_, i) {
+    return '<span class="h-2 rounded-sm ' + (i < 18 ? 'bg-emerald-500' : 'bg-slate-200') + '"></span>';
+  }).join('');
+  var tl = document.getElementById('timeline'), rail = document.getElementById('rail'), fill = document.getElementById('fill');
+  var steps = Array.prototype.slice.call(tl.querySelectorAll('.step'));
+  var dots = steps.map(function (s) { return s.querySelector('.dot'); });
+  var centers = [], ticking = false;
+  function measure() {
+    var top = tl.getBoundingClientRect().top;
+    centers = dots.map(function (d) { var r = d.getBoundingClientRect(); return r.top - top + r.height / 2; });
+    rail.style.top = centers[0] + 'px';
+    rail.style.height = (centers[centers.length - 1] - centers[0]) + 'px';
+  }
+  function update() {
+    ticking = false;
+    var tlTop = tl.getBoundingClientRect().top;
+    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    var ratio = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 1;
+    var focus = window.innerHeight * (0.62 + 0.38 * ratio) - tlTop; // viewport point mapped into timeline space
+    var total = centers[centers.length - 1] - centers[0];
+    var h = Math.max(0, Math.min(total, Math.max(focus, centers[0] + 1) - centers[0]));
+    fill.style.height = h + 'px';
+    steps.forEach(function (s, i) { s.classList.toggle('active', i === 0 || centers[i] - centers[0] <= h + 1); });
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  measure(); update();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function () { measure(); update(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(); update(); });
+})();
+</script>
+</body>
+</html>

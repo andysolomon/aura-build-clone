@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEVICE_WIDTH, type Device } from "../components/DeviceToggle";
 import { cx } from "../lib/util";
-import { buildPreviewDocument, type FrameMessage, type ParentCommand, type SelectionInfo } from "./bridge";
+import {
+  buildPreviewDocument,
+  type FrameMessage,
+  type ParentCommand,
+  type SelectionInfo,
+} from "./bridge";
 
 interface Props {
   html: string;
@@ -16,16 +21,41 @@ interface Props {
  * Two iframes alternate: the next document loads in the hidden one and is swapped
  * in once it reports ready, so regenerations and edits don't flash a blank page.
  */
-export function PreviewFrame({ html, device, designMode, selectedId, onSelect, onTextEdit }: Props) {
-  const frames = [useRef<HTMLIFrameElement>(null), useRef<HTMLIFrameElement>(null)];
-  const [docs, setDocs] = useState<[string, string]>(["", ""]);
+interface Slot {
+  id: number;
+  doc: string;
+}
+
+export function PreviewFrame({
+  html,
+  device,
+  designMode,
+  selectedId,
+  onSelect,
+  onTextEdit,
+}: Props) {
+  const frames = [
+    useRef<HTMLIFrameElement>(null),
+    useRef<HTMLIFrameElement>(null),
+  ];
+  // Each slot holds the document for one buffer frame. A new document always gets a new
+  // <iframe> element (keyed by id) with srcdoc set at creation: changing srcdoc on a live
+  // iframe races its initial empty load, and Chrome can drop the update, leaving it blank.
+  const [slots, setSlots] = useState<[Slot | null, Slot | null]>([null, null]);
+  const nextId = useRef(0);
   const [active, setActive] = useState(0);
   // The first document can sit blank while render-blocking CDN scripts download.
   const [firstPaint, setFirstPaint] = useState(false);
   const pending = useRef<number | null>(null);
   const fallback = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scrollY = useRef(0);
-  const state = useRef({ designMode, selectedId, onSelect, onTextEdit, active });
+  const state = useRef({
+    designMode,
+    selectedId,
+    onSelect,
+    onTextEdit,
+    active,
+  });
   state.current = { designMode, selectedId, onSelect, onTextEdit, active };
 
   const doc = useMemo(() => buildPreviewDocument(html), [html]);
@@ -33,15 +63,15 @@ export function PreviewFrame({ html, device, designMode, selectedId, onSelect, o
   useEffect(() => {
     if (!doc) return;
     // First document goes straight into the visible frame.
-    const target = docs[active] === "" ? active : 1 - active;
+    const target = slots[active] === null ? active : 1 - active;
     pending.current = target;
     // If the bridge's ready message never arrives (blocked script, lost message), show the frame anyway.
     clearTimeout(fallback.current);
     fallback.current = setTimeout(() => shown(target), 4000);
-    setDocs((prev) => {
-      const next: [string, string] = [...prev];
-      // A unique suffix forces a reload even if this frame already holds identical markup.
-      next[target] = `${doc}\n<!-- r${Date.now()} -->`;
+    const slot = { id: ++nextId.current, doc };
+    setSlots((prev) => {
+      const next: [Slot | null, Slot | null] = [...prev];
+      next[target] = slot;
       return next;
     });
   }, [doc]);
@@ -59,13 +89,18 @@ export function PreviewFrame({ html, device, designMode, selectedId, onSelect, o
   useEffect(() => () => clearTimeout(fallback.current), []);
 
   const send = (index: number, message: ParentCommand) =>
-    frames[index].current?.contentWindow?.postMessage({ source: "aura-parent", ...message }, "*");
+    frames[index].current?.contentWindow?.postMessage(
+      { source: "aura-parent", ...message },
+      "*",
+    );
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const data = e.data as (FrameMessage & { source?: string }) | null;
       if (!data || data.source !== "aura-frame") return;
-      const index = frames.findIndex((f) => f.current?.contentWindow === e.source);
+      const index = frames.findIndex(
+        (f) => f.current?.contentWindow === e.source,
+      );
       if (index === -1) return;
       const s = state.current;
 
@@ -105,20 +140,30 @@ export function PreviewFrame({ html, device, designMode, selectedId, onSelect, o
         )}
         style={{ width: width ?? "100%" }}
       >
-        {docs.map((srcDoc, i) => (
-          <iframe
-            key={i}
-            ref={frames[i]}
-            title={i === active ? "Page preview" : "Next preview"}
-            srcDoc={srcDoc}
-            sandbox="allow-scripts allow-forms allow-popups allow-modals"
-            className={cx("absolute inset-0 h-full w-full border-0", i === active ? "visible" : "invisible")}
-            aria-hidden={i !== active}
-          />
-        ))}
+        {slots.map((slot, i) =>
+          slot ? (
+            <iframe
+              key={slot.id}
+              ref={frames[i]}
+              title={i === active ? "Page preview" : "Next preview"}
+              srcDoc={slot.doc}
+              sandbox="allow-scripts allow-forms allow-popups allow-modals"
+              className={cx(
+                "absolute inset-0 h-full w-full border-0",
+                i === active
+                  ? "visible z-10"
+                  : "invisible pointer-events-none z-0",
+              )}
+              aria-hidden={i !== active}
+            />
+          ) : null,
+        )}
         {!firstPaint && (
           <div className="absolute inset-0 grid place-items-center bg-canvas text-[13px] text-muted">
-            <span className="flex items-center gap-2"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent" /> Rendering preview</span>
+            <span className="flex items-center gap-2">
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent" />{" "}
+              Rendering preview
+            </span>
           </div>
         )}
       </div>

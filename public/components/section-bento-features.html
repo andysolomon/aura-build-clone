@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ember - Bento feature grid for an edge platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] },
+    colors: { ember: '#ff8a3d' } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #0b0b0f; -webkit-font-smoothing: antialiased; }
+  .card { position: relative; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); overflow: hidden; isolation: isolate; --x: 50%; --y: 50%; }
+  .card::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .35s ease; background: radial-gradient(420px circle at var(--x) var(--y), rgba(255,138,61,.10), transparent 45%); }
+  .card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; opacity: 0; transition: opacity .35s ease; pointer-events: none; background: radial-gradient(260px circle at var(--x) var(--y), rgba(255,138,61,.7), transparent 50%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .card:hover::before, .card:hover::after { opacity: 1; }
+  .arc { stroke-dasharray: 6 10; animation: dash 2.4s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -32; } }
+  .ping { animation: ping 2.4s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes ping { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(2.6); opacity: 0; } }
+  .switch { width: 34px; height: 20px; border-radius: 999px; background: rgba(255,255,255,.12); position: relative; transition: background .25s ease; flex-shrink: 0; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: #fff; transition: transform .25s cubic-bezier(.3,.8,.3,1.2); box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  .switch[aria-checked="true"] { background: #ff8a3d; }
+  .switch[aria-checked="true"]::after { transform: translateX(14px); }
+  .switch:focus-visible { outline: 2px solid #ff8a3d; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .arc, .ping { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-white">
+  <section class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-[72px]">
+    <div class="grid lg:grid-cols-[1.3fr_1fr] gap-6 lg:gap-16 items-end">
+      <div>
+        <p class="inline-flex items-center gap-2 text-[12px] font-medium uppercase tracking-[.18em] text-ember"><span class="w-4 h-px bg-ember"></span>The Ember platform</p>
+        <h2 class="mt-4 text-[34px] sm:text-[46px] font-semibold leading-[1.05] tracking-[-0.04em]">Built for the edge.<br><span class="text-white/40">Tuned for p99.</span></h2>
+      </div>
+      <div class="lg:pb-1.5">
+        <p class="text-[15px] leading-relaxed text-white/50">Run functions, caches and data in 312 cities with one config file. Everything you need to ship fast and stay fast, nothing you have to babysit.</p>
+        <a href="#" class="mt-3 inline-flex items-center gap-1.5 text-[14px] text-white/85 hover:text-ember transition">Explore the platform <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon></a>
+      </div>
+    </div>
+
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-3 lg:auto-rows-[244px]">
+      <!-- Uptime -->
+      <article class="card md:col-span-6 lg:col-span-5 p-5 sm:p-6 flex flex-col">
+        <div class="flex items-start justify-between gap-4">
+          <div><div class="text-[12px] text-white/45">Global uptime &middot; 90 days</div><div class="mt-1 text-[30px] font-semibold tracking-[-0.03em]">99.998<span class="text-white/40">%</span></div></div>
+          <span class="inline-flex items-center gap-1.5 text-[11.5px] text-white/70 rounded-full bg-white/[.05] ring-1 ring-white/10 px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>All systems normal</span>
+        </div>
+        <div id="bars" class="mt-4 flex items-end gap-px sm:gap-[2px] h-10" aria-label="Uptime over the last 90 days"></div>
+        <div class="mt-2 flex justify-between font-mono text-[10.5px] text-white/30"><span>90 days ago</span><span id="bar-tip" class="text-white/60"></span><span>Today</span></div>
+        <div class="mt-auto pt-3"><h3 class="text-[15px] font-medium">Always on, provably</h3><p class="mt-1 text-[13px] text-white/45">Per-minute health checks from every region, published live.</p></div>
+      </article>
+
+      <!-- Globe -->
+      <article class="card md:col-span-3 lg:col-span-4 p-5 sm:p-6 flex flex-col">
+        <svg viewBox="0 0 300 150" class="w-full h-[150px] -mt-1" aria-hidden="true">
+          <defs>
+            <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(255,255,255,.22)"/></pattern>
+            <radialGradient id="gl" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".18"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+            <clipPath id="clip"><circle cx="150" cy="150" r="140"/></clipPath>
+          </defs>
+          <circle cx="150" cy="150" r="140" fill="url(#gl)"/>
+          <g clip-path="url(#clip)"><rect x="0" y="0" width="300" height="300" fill="url(#dots)"/></g>
+          <g fill="none" stroke="rgba(255,255,255,.08)"><circle cx="150" cy="150" r="140"/><ellipse cx="150" cy="150" rx="70" ry="140"/><ellipse cx="150" cy="150" rx="140" ry="55"/><ellipse cx="150" cy="150" rx="140" ry="100"/></g>
+          <g fill="none" stroke="#ff8a3d" stroke-width="1.6" stroke-linecap="round">
+            <path class="arc" d="M62 96 Q110 20 168 62"/><path class="arc" d="M168 62 Q215 30 248 104" style="animation-delay:-.8s"/><path class="arc" d="M110 118 Q140 70 168 62" style="animation-delay:-1.6s"/>
+          </g>
+          <g fill="#ff8a3d"><circle class="ping" cx="168" cy="62" r="4" opacity=".6"/><circle cx="168" cy="62" r="3.5"/><circle cx="62" cy="96" r="3"/><circle cx="248" cy="104" r="3"/><circle cx="110" cy="118" r="3"/></g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,.55)"><text x="176" y="78">FRA 8ms</text><text x="30" y="88">IAD</text><text x="226" y="124">SIN</text></g>
+        </svg>
+        <div class="mt-auto"><h3 class="text-[15px] font-medium">312 edge cities</h3><p class="mt-1 text-[13px] text-white/45">Within 50ms of 95% of the world's internet users.</p></div>
+      </article>
+
+      <!-- Code -->
+      <article class="card md:col-span-3 lg:col-span-3 p-5 sm:p-6 flex flex-col">
+        <div class="rounded-xl bg-black/40 ring-1 ring-white/[.06] p-3.5 font-mono text-[11.5px] leading-[1.7] text-white/70 overflow-hidden">
+          <div class="flex items-center gap-1.5 mb-2 text-[10.5px] text-white/35"><iconify-icon icon="lucide:file-code-2" width="12"></iconify-icon>ember.config.ts</div>
+          <div><span class="text-[#c792ea]">export default</span> route({</div>
+          <div class="pl-3">cache: <span class="text-ember">'swr'</span>,</div>
+          <div class="pl-3">regions: <span class="text-ember">'auto'</span>,</div>
+          <div class="pl-3">limit: <span class="text-ember">'120/min'</span>,</div>
+          <div>})</div>
+        </div>
+        <div class="mt-auto pt-3"><h3 class="text-[15px] font-medium">Config as code</h3><p class="mt-1 text-[13px] text-white/45">Typed, reviewed, versioned.</p></div>
+      </article>
+
+      <!-- Toggles -->
+      <article class="card md:col-span-3 lg:col-span-3 p-5 sm:p-6 flex flex-col">
+        <ul class="space-y-2 text-[12.5px]">
+          <li class="flex items-center gap-3"><iconify-icon icon="lucide:rocket" width="15" class="text-white/40"></iconify-icon><span class="flex-1 text-white/75">Deploy to prod</span><button class="switch" role="switch" aria-checked="true" aria-label="Deploy to production"></button></li>
+          <li class="flex items-center gap-3"><iconify-icon icon="lucide:scroll-text" width="15" class="text-white/40"></iconify-icon><span class="flex-1 text-white/75">Read logs</span><button class="switch" role="switch" aria-checked="true" aria-label="Read logs"></button></li>
+          <li class="flex items-center gap-3"><iconify-icon icon="lucide:key-round" width="15" class="text-white/40"></iconify-icon><span class="flex-1 text-white/75">Rotate secrets</span><button class="switch" role="switch" aria-checked="false" aria-label="Rotate secrets"></button></li>
+          <li class="flex items-center gap-3"><iconify-icon icon="lucide:credit-card" width="15" class="text-white/40"></iconify-icon><span class="flex-1 text-white/75">Manage billing</span><button class="switch" role="switch" aria-checked="false" aria-label="Manage billing"></button></li>
+        </ul>
+        <div class="mt-3 font-mono text-[10.5px] text-white/35">role: <span id="role" class="text-white/60">deployer</span> &middot; <span id="perm-count">2</span>/4 scopes</div>
+        <div class="mt-auto pt-3"><h3 class="text-[15px] font-medium">Granular access</h3><p class="mt-1 text-[13px] text-white/45">Scoped roles per environment.</p></div>
+      </article>
+
+      <!-- Latency -->
+      <article class="card md:col-span-3 lg:col-span-5 p-5 sm:p-6 flex flex-col">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px]">
+          <span class="flex items-center gap-1.5 text-white/60"><span class="w-2.5 h-0.5 rounded bg-ember"></span>p99 <b class="font-medium text-white">38ms</b></span>
+          <span class="flex items-center gap-1.5 text-white/60"><span class="w-2.5 h-0.5 rounded bg-white/40"></span>p50 <b class="font-medium text-white">12ms</b></span>
+          <span class="ml-auto text-emerald-400 font-mono text-[11px]">-41% since migration</span>
+        </div>
+        <svg viewBox="0 0 400 110" preserveAspectRatio="none" class="mt-3 w-full flex-1 min-h-[80px]" aria-hidden="true">
+          <defs><linearGradient id="lat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".28"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient></defs>
+          <g stroke="rgba(255,255,255,.06)"><line x1="0" y1="27" x2="400" y2="27"/><line x1="0" y1="55" x2="400" y2="55"/><line x1="0" y1="83" x2="400" y2="83"/></g>
+          <line x1="232" y1="0" x2="232" y2="110" stroke="rgba(255,255,255,.18)" stroke-dasharray="3 4"/>
+          <path d="M0 18 L20 24 L40 14 L60 22 L80 12 L100 20 L120 16 L140 26 L160 14 L180 22 L200 18 L220 24 L240 48 L260 56 L280 52 L300 60 L320 54 L340 62 L360 56 L380 60 L400 58 L400 110 L0 110Z" fill="url(#lat)"/>
+          <path d="M0 18 L20 24 L40 14 L60 22 L80 12 L100 20 L120 16 L140 26 L160 14 L180 22 L200 18 L220 24 L240 48 L260 56 L280 52 L300 60 L320 54 L340 62 L360 56 L380 60 L400 58" fill="none" stroke="#ff8a3d" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+          <path d="M0 74 L20 78 L40 72 L60 76 L80 70 L100 75 L120 73 L140 78 L160 72 L180 76 L200 74 L220 77 L240 88 L260 92 L280 90 L300 93 L320 91 L340 94 L360 92 L380 93 L400 92" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        </svg>
+        <div class="mt-auto pt-3"><h3 class="text-[15px] font-medium">Latency you can see</h3><p class="mt-1 text-[13px] text-white/45">Real-user percentiles by route, region and release.</p></div>
+      </article>
+
+      <!-- Integrations -->
+      <article class="card md:col-span-6 lg:col-span-4 p-5 sm:p-6 flex flex-col">
+        <div class="flex-1 grid place-items-center"><div class="relative grid grid-cols-5 gap-2.5">
+          <span class="w-11 h-11 rounded-xl bg-white/[.03] ring-1 ring-white/[.07] grid place-items-center text-white/35"><iconify-icon icon="lucide:database" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.04] ring-1 ring-white/[.08] grid place-items-center text-white/55"><iconify-icon icon="lucide:webhook" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.05] ring-1 ring-white/10 grid place-items-center text-white/70"><iconify-icon icon="lucide:git-branch" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.04] ring-1 ring-white/[.08] grid place-items-center text-white/55"><iconify-icon icon="lucide:bell-ring" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.03] ring-1 ring-white/[.07] grid place-items-center text-white/35"><iconify-icon icon="lucide:cloud" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.04] ring-1 ring-white/[.08] grid place-items-center text-white/50"><iconify-icon icon="lucide:message-square" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.05] ring-1 ring-white/10 grid place-items-center text-white/70"><iconify-icon icon="lucide:shield-check" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl grid place-items-center text-[#0b0b0f] bg-gradient-to-br from-[#ffb070] to-ember shadow-[0_0_40px_-4px_rgba(255,138,61,.7)]"><iconify-icon icon="lucide:flame" width="20"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.05] ring-1 ring-white/10 grid place-items-center text-white/70"><iconify-icon icon="lucide:key-round" width="18"></iconify-icon></span>
+          <span class="w-11 h-11 rounded-xl bg-white/[.04] ring-1 ring-white/[.08] grid place-items-center text-white/50"><iconify-icon icon="lucide:chart-line" width="18"></iconify-icon></span>
+        </div></div>
+        <div class="mt-auto pt-3"><h3 class="text-[15px] font-medium">Plugs into your stack</h3><p class="mt-1 text-[13px] text-white/45">40+ integrations for alerts, data, auth and CI.</p></div>
+      </article>
+    </div>
+  </section>
+
+<script>
+(function () {
+  // 90 uptime bars, deterministic
+  var bars = document.getElementById('bars'), tip = document.getElementById('bar-tip');
+  var incidents = { 23: 'partial', 61: 'degraded', 62: 'partial' };
+  var html = '';
+  for (var i = 0; i < 90; i++) {
+    var s = incidents[i], h = s === 'degraded' ? 55 : s === 'partial' ? 78 : 100;
+    var c = s === 'degraded' ? '#f43f5e' : s === 'partial' ? '#fbbf24' : 'rgba(255,138,61,' + (0.45 + ((i * 37) % 11) / 30).toFixed(2) + ')';
+    html += '<span data-i="' + i + '" data-s="' + (s || 'ok') + '" class="flex-1 min-w-0 rounded-[2px] transition-opacity hover:opacity-60" style="height:' + h + '%;background:' + c + '"></span>';
+  }
+  bars.innerHTML = html;
+  var labels = { ok: '100% operational', partial: '99.91%, partial outage', degraded: '99.62%, degraded' };
+  bars.addEventListener('mouseover', function (e) {
+    var b = e.target.closest('[data-i]'); if (!b) return;
+    var d = new Date(2026, 9, 17); d.setDate(d.getDate() - (89 - b.dataset.i));
+    tip.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' + labels[b.dataset.s];
+  });
+  bars.addEventListener('mouseleave', function () { tip.textContent = ''; });
+
+  // Permission toggles
+  var switches = document.querySelectorAll('.switch'), roles = ['viewer', 'viewer', 'deployer', 'maintainer', 'owner'];
+  switches.forEach(function (sw) {
+    sw.addEventListener('click', function () {
+      sw.setAttribute('aria-checked', sw.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+      var n = document.querySelectorAll('.switch[aria-checked="true"]').length;
+      document.getElementById('perm-count').textContent = n;
+      document.getElementById('role').textContent = roles[n];
+    });
+  });
+
+  // Cursor-following highlight
+  document.querySelectorAll('.card').forEach(function (card) {
+    card.addEventListener('pointermove', function (e) {
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--x', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--y', (e.clientY - r.top) + 'px');
+    });
+  });
+})();
+</script>
+</body>
+</html>

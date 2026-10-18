@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Waitlist Form with Live Validation - signup card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .card { box-shadow: 0 1px 2px rgba(10,20,15,.05), 0 30px 60px -28px rgba(10,30,20,.35); }
+    .aside { background: radial-gradient(90% 60% at 0% 0%, rgba(190,242,100,.22), transparent 60%), radial-gradient(70% 50% at 100% 100%, rgba(45,212,191,.2), transparent 60%), linear-gradient(160deg, #0c2a22, #071812); }
+    .ctl { transition: border-color .15s, box-shadow .15s; }
+    .ctl:focus { outline: none; border-color: #a1a1aa; box-shadow: 0 0 0 4px rgba(161,161,170,.18); }
+    .field[data-state=error] .ctl { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.14); }
+    .field[data-state=ok] .ctl { border-color: #22c55e; }
+    .field[data-state=ok] .ctl:focus { box-shadow: 0 0 0 4px rgba(34,197,94,.15); }
+    .field .s-ok, .field .s-err { display: none; }
+    .field[data-state=ok] .s-ok, .field[data-state=error] .s-err { display: inline-flex; }
+    .field[data-state=error] .help { color: #dc2626; }
+    .field[data-state=ok] .help { color: #16a34a; }
+    .pill input:checked + span { background: #0c2a22; color: #fff; border-color: #0c2a22; }
+    .pill input:focus-visible + span { box-shadow: 0 0 0 3px rgba(34,197,94,.35); }
+    .field[data-state=error] .pill span { border-color: #fca5a5; }
+    .box input:checked + span { background: #0c2a22; border-color: #0c2a22; color: #fff; }
+    .box input:focus-visible + span { box-shadow: 0 0 0 3px rgba(34,197,94,.35); }
+    .spinner { width: 16px; height: 16px; border-radius: 9999px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fade .45s cubic-bezier(.2,.8,.2,1); }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+    button:focus-visible { outline: 2px solid #16a34a; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } .spinner { animation-duration: 1.6s; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-8 font-sans antialiased">
+  <section class="card grid w-full max-w-4xl overflow-hidden rounded-[26px] border border-zinc-200 bg-white text-zinc-900 md:grid-cols-[0.9fr_1.1fr]">
+    <aside class="aside relative flex flex-col justify-between gap-8 p-7 text-white sm:p-9">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-lime-300 text-[#0c2a22]"><iconify-icon icon="lucide:layers-3" class="text-[18px]"></iconify-icon></span>
+          <span class="text-[17px] font-semibold tracking-tight">Fernwave</span>
+        </div>
+        <p class="mt-10 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[12px] font-medium text-lime-200 ring-1 ring-inset ring-white/15"><span class="h-1.5 w-1.5 rounded-full bg-lime-300"></span>Early access, winter cohort</p>
+        <h2 class="mt-4 text-[30px] font-semibold leading-[1.1] tracking-tight">Landing pages at the speed of a sentence.</h2>
+        <ul class="mt-6 space-y-3 text-[14px] text-white/75">
+          <li class="flex gap-2.5"><iconify-icon icon="lucide:wand-sparkles" class="mt-0.5 text-lime-300"></iconify-icon>Describe it once, get a responsive page</li>
+          <li class="flex gap-2.5"><iconify-icon icon="lucide:git-branch" class="mt-0.5 text-lime-300"></iconify-icon>Version every edit, roll back in a click</li>
+          <li class="flex gap-2.5"><iconify-icon icon="lucide:gauge" class="mt-0.5 text-lime-300"></iconify-icon>Ships with a 98+ performance score</li>
+        </ul>
+      </div>
+      <div>
+      <figure class="mb-6 hidden rounded-2xl bg-white/[0.06] p-4 ring-1 ring-inset ring-white/10 sm:block">
+        <blockquote class="text-[14px] leading-relaxed text-white/85">"We replaced a two-week landing page sprint with one afternoon and a good prompt."</blockquote>
+        <figcaption class="mt-2 text-[12px] text-white/50">Priya Natarajan, Growth lead at Tidewater</figcaption>
+      </figure>
+      <div class="flex items-center gap-3">
+        <div class="flex -space-x-2">
+          <span class="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-amber-300 to-rose-500 text-[11px] font-bold ring-2 ring-[#0a2219]">JT</span>
+          <span class="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-indigo-500 text-[11px] font-bold ring-2 ring-[#0a2219]">AR</span>
+          <span class="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-lime-300 to-emerald-600 text-[11px] font-bold ring-2 ring-[#0a2219]">SK</span>
+          <span class="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-fuchsia-300 to-purple-600 text-[11px] font-bold ring-2 ring-[#0a2219]">LM</span>
+        </div>
+        <p class="text-[13px] leading-tight text-white/70"><span class="font-semibold text-white">2,147 builders</span><br>already on the list</p>
+      </div>
+      </div>
+    </aside>
+
+    <div id="panel" class="p-7 sm:p-9">
+      <form id="form" novalidate class="fade-in">
+        <h1 class="text-[24px] font-semibold tracking-tight">Join the waitlist</h1>
+        <p class="mt-1 text-[14px] text-zinc-500">We onboard 200 teams a week. It takes about 30 seconds.</p>
+
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div class="field" data-field="name">
+            <label for="name" class="mb-1.5 block text-[13px] font-medium text-zinc-700">Full name</label>
+            <div class="relative">
+              <input id="name" name="name" autocomplete="name" placeholder="Maya Okonkwo" class="ctl h-11 w-full rounded-xl border border-zinc-200 bg-white pl-3.5 pr-10 text-[14px] placeholder:text-zinc-400" aria-describedby="name-help">
+              <iconify-icon icon="lucide:circle-check" class="s-ok absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-green-500"></iconify-icon>
+              <iconify-icon icon="lucide:circle-alert" class="s-err absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-red-500"></iconify-icon>
+            </div>
+            <p id="name-help" class="help mt-1.5 min-h-[16px] text-[12px] text-zinc-400" data-default="As it should appear on invites">As it should appear on invites</p>
+          </div>
+          <div class="field" data-field="email">
+            <label for="email" class="mb-1.5 block text-[13px] font-medium text-zinc-700">Work email</label>
+            <div class="relative">
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="maya@fieldnote.studio" class="ctl h-11 w-full rounded-xl border border-zinc-200 bg-white pl-3.5 pr-10 text-[14px] placeholder:text-zinc-400" aria-describedby="email-help">
+              <iconify-icon icon="lucide:circle-check" class="s-ok absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-green-500"></iconify-icon>
+              <iconify-icon icon="lucide:circle-alert" class="s-err absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-red-500"></iconify-icon>
+            </div>
+            <p id="email-help" class="help mt-1.5 min-h-[16px] text-[12px] text-zinc-400" data-default="We never share it">We never share it</p>
+          </div>
+        </div>
+
+        <div class="field mt-3" data-field="role">
+          <label for="role" class="mb-1.5 block text-[13px] font-medium text-zinc-700">Role</label>
+          <div class="relative">
+            <select id="role" name="role" class="ctl h-11 w-full appearance-none rounded-xl border border-zinc-200 bg-white pl-3.5 pr-16 text-[14px] text-zinc-900 invalid:text-zinc-400" required aria-describedby="role-help">
+              <option value="" disabled selected>Select your role</option>
+              <option>Founder</option><option>Designer</option><option>Engineer</option><option>Marketer</option><option>Product manager</option><option>Other</option>
+            </select>
+            <iconify-icon icon="lucide:chevrons-up-down" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[15px] text-zinc-400"></iconify-icon>
+            <iconify-icon icon="lucide:circle-check" class="s-ok pointer-events-none absolute right-9 top-1/2 -translate-y-1/2 text-[18px] text-green-500"></iconify-icon>
+            <iconify-icon icon="lucide:circle-alert" class="s-err pointer-events-none absolute right-9 top-1/2 -translate-y-1/2 text-[18px] text-red-500"></iconify-icon>
+          </div>
+          <p id="role-help" class="help mt-1.5 min-h-[16px] text-[12px] text-zinc-400" data-default="Helps us tailor your templates">Helps us tailor your templates</p>
+        </div>
+
+        <fieldset class="field mt-3" data-field="size" aria-describedby="size-help">
+          <legend class="mb-1.5 flex items-center gap-1.5 text-[13px] font-medium text-zinc-700">Team size
+            <iconify-icon icon="lucide:circle-check" class="s-ok text-[15px] text-green-500"></iconify-icon>
+            <iconify-icon icon="lucide:circle-alert" class="s-err text-[15px] text-red-500"></iconify-icon>
+          </legend>
+          <div class="flex flex-wrap gap-2">
+            <label class="pill cursor-pointer"><input type="radio" name="size" value="solo" class="sr-only"><span class="inline-flex h-9 items-center rounded-full border border-zinc-200 px-4 text-[13px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">Just me</span></label>
+            <label class="pill cursor-pointer"><input type="radio" name="size" value="2-10" class="sr-only"><span class="inline-flex h-9 items-center rounded-full border border-zinc-200 px-4 text-[13px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">2-10</span></label>
+            <label class="pill cursor-pointer"><input type="radio" name="size" value="11-50" class="sr-only"><span class="inline-flex h-9 items-center rounded-full border border-zinc-200 px-4 text-[13px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">11-50</span></label>
+            <label class="pill cursor-pointer"><input type="radio" name="size" value="51+" class="sr-only"><span class="inline-flex h-9 items-center rounded-full border border-zinc-200 px-4 text-[13px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">51+</span></label>
+          </div>
+          <p id="size-help" class="help mt-1.5 min-h-[16px] text-[12px] text-zinc-400" data-default="Pick the closest match">Pick the closest match</p>
+        </fieldset>
+
+        <div class="field mt-3" data-field="consent">
+          <label class="box flex cursor-pointer items-start gap-2.5 text-[13px] leading-snug text-zinc-600">
+            <input id="consent" type="checkbox" class="sr-only" aria-describedby="consent-help">
+            <span class="mt-px grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] border border-zinc-300 bg-white text-transparent transition"><iconify-icon icon="lucide:check" class="text-[13px]"></iconify-icon></span>
+            <span>Send me launch updates and early-access invites. Unsubscribe anytime.</span>
+          </label>
+          <p id="consent-help" class="help mt-1 min-h-[16px] pl-7 text-[12px] text-zinc-400" data-default=""></p>
+        </div>
+
+        <button id="submit" type="submit" class="mt-3 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0c2a22] text-[15px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_10px_24px_-12px_rgba(12,42,34,.8)] transition hover:bg-[#123a2f] disabled:cursor-wait disabled:opacity-90">
+          <span data-label>Request early access</span><iconify-icon icon="lucide:arrow-right" class="text-[17px]" data-arrow></iconify-icon>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <template id="successTpl">
+    <div class="fade-in flex h-full flex-col justify-center" role="status">
+      <span class="grid h-14 w-14 place-items-center rounded-2xl bg-green-50 text-green-600 ring-1 ring-inset ring-green-600/15"><iconify-icon icon="lucide:party-popper" class="text-[26px]"></iconify-icon></span>
+      <h1 class="mt-6 text-[26px] font-semibold leading-tight tracking-tight">You're #2,148 on the waitlist</h1>
+      <p class="mt-2 text-[14.5px] leading-relaxed text-zinc-500"><span data-first></span>, we sent a confirmation to <span data-email class="font-medium text-zinc-800"></span>. Share your link: every friend who joins moves you up 25 spots.</p>
+      <div class="mt-6 flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-1.5 pl-3.5">
+        <iconify-icon icon="lucide:link-2" class="text-[16px] text-zinc-400"></iconify-icon>
+        <input data-link readonly class="min-w-0 flex-1 bg-transparent text-[14px] text-zinc-700 outline-none" aria-label="Your referral link">
+        <button data-copy type="button" class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 text-[13px] font-semibold text-zinc-800 shadow-[0_1px_2px_rgba(0,0,0,.08)] ring-1 ring-zinc-200 transition hover:bg-zinc-50"><iconify-icon icon="lucide:copy" class="text-[14px]"></iconify-icon><span>Copy</span></button>
+      </div>
+      <button data-reset type="button" class="mt-5 inline-flex items-center gap-1.5 self-start text-[13px] font-medium text-zinc-500 transition hover:text-zinc-900"><iconify-icon icon="lucide:rotate-ccw" class="text-[13px]"></iconify-icon>Sign up someone else</button>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      var panel = document.getElementById('panel');
+      var form = document.getElementById('form');
+      var formTemplate = form.cloneNode(true);
+      var EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+      function rules(f) {
+        return {
+          name: function () { var v = f.querySelector('#name').value.trim(); return !v ? 'Please enter your name' : (v.length < 2 || !/[a-z]/i.test(v)) ? 'That looks a little short' : ''; },
+          email: function () { var v = f.querySelector('#email').value.trim(); return !v ? 'We need an email to send your invite' : !EMAIL.test(v) ? 'Enter a valid email, like you@company.com' : ''; },
+          role: function () { return f.querySelector('#role').value ? '' : 'Choose the role closest to yours'; },
+          size: function () { return f.querySelector('input[name=size]:checked') ? '' : 'Select a team size'; },
+          consent: function () { return f.querySelector('#consent').checked ? '' : 'Please agree so we can send your invite'; }
+        };
+      }
+      var okText = { name: 'Looks good', email: 'Looks good', role: 'Got it', size: 'Got it', consent: '' };
+
+      function validate(f, key) {
+        var field = f.querySelector('[data-field=' + key + ']');
+        var msg = rules(f)[key]();
+        var help = field.querySelector('.help');
+        field.dataset.state = msg ? 'error' : 'ok';
+        help.textContent = msg || okText[key] || help.dataset.default;
+        var ctl = field.querySelector('input:not([type=radio]), select');
+        if (ctl) ctl.setAttribute('aria-invalid', String(!!msg));
+        return !msg;
+      }
+
+      function wire(f) {
+        var touched = {};
+        ['name', 'email', 'role'].forEach(function (k) {
+          var el = f.querySelector('#' + k);
+          el.addEventListener('blur', function () { if (el.value.trim() || touched[k]) { touched[k] = true; validate(f, k); } });
+          el.addEventListener(k === 'role' ? 'change' : 'input', function () { if (touched[k] || k === 'role') { touched[k] = true; validate(f, k); } });
+        });
+        f.querySelectorAll('input[name=size]').forEach(function (r) { r.addEventListener('change', function () { validate(f, 'size'); }); });
+        f.querySelector('#consent').addEventListener('change', function () { validate(f, 'consent'); });
+
+        f.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var keys = ['name', 'email', 'role', 'size', 'consent'], firstBad = null;
+          keys.forEach(function (k) { touched[k] = true; if (!validate(f, k) && !firstBad) firstBad = k; });
+          if (firstBad) {
+            var target = firstBad === 'size' ? f.querySelector('input[name=size]') : f.querySelector('#' + firstBad);
+            if (target) target.focus();
+            return;
+          }
+          var btn = f.querySelector('#submit');
+          btn.disabled = true;
+          btn.querySelector('[data-label]').textContent = 'Saving your spot';
+          var arrow = btn.querySelector('[data-arrow]'), spin = document.createElement('span');
+          spin.className = 'spinner'; arrow.replaceWith(spin);
+          var name = f.querySelector('#name').value.trim(), email = f.querySelector('#email').value.trim();
+          setTimeout(function () { showSuccess(name, email); }, 1200);
+        });
+      }
+
+      function showSuccess(name, email) {
+        var node = document.getElementById('successTpl').content.firstElementChild.cloneNode(true);
+        var first = name.split(/\s+/)[0];
+        var slug = first.toLowerCase().replace(/[^a-z0-9]/g, '') || 'friend';
+        node.querySelector('[data-first]').textContent = first;
+        node.querySelector('[data-email]').textContent = email;
+        var link = node.querySelector('[data-link]');
+        link.value = 'fernwave.app/w/' + slug + '-k8f2';
+        var copy = node.querySelector('[data-copy]');
+        copy.addEventListener('click', function () {
+          var done = function () {
+            copy.querySelector('iconify-icon').setAttribute('icon', 'lucide:check');
+            copy.querySelector('span').textContent = 'Copied';
+            setTimeout(function () { copy.querySelector('iconify-icon').setAttribute('icon', 'lucide:copy'); copy.querySelector('span').textContent = 'Copy'; }, 1800);
+          };
+          var fallback = function () { try { link.select(); document.execCommand('copy'); } catch (err) {} done(); };
+          try {
+            if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText('https://' + link.value).then(done, fallback);
+            else fallback();
+          } catch (err) { fallback(); }
+        });
+        node.querySelector('[data-reset]').addEventListener('click', function () {
+          var fresh = formTemplate.cloneNode(true);
+          panel.replaceChildren(fresh); wire(fresh);
+          fresh.querySelector('#name').focus();
+        });
+        panel.replaceChildren(node);
+      }
+
+      wire(form);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipyard - Preview deploys from your terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] },
+    colors: { lime: { DEFAULT: '#c8f25a' } } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background-color: #0a0a0a; background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px); background-size: 22px 22px; -webkit-font-smoothing: antialiased; }
+  .vignette { background: radial-gradient(ellipse 70% 60% at 70% 40%, rgba(200,242,90,.08), transparent 60%), radial-gradient(ellipse 100% 80% at 50% 50%, transparent 40%, #0a0a0a 95%); }
+  .term { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 30px 80px -20px rgba(0,0,0,.9), 0 0 120px -40px rgba(200,242,90,.25); }
+  .cursor { display: inline-block; width: 8px; height: 16px; background: #c8f25a; vertical-align: -3px; animation: blink 1.05s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .line { animation: in .25s ease-out both; white-space: pre-wrap; word-break: break-word; }
+  @keyframes in { from { opacity: 0; transform: translateY(3px); } }
+  .ready { background: linear-gradient(90deg, rgba(200,242,90,.12), rgba(200,242,90,0)); }
+  @media (prefers-reduced-motion: reduce) { .cursor, .line { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-white min-h-screen">
+  <div class="vignette min-h-screen">
+    <header class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2 font-mono text-[15px] font-medium tracking-tight"><span class="w-7 h-7 grid place-items-center rounded-md bg-lime text-black"><iconify-icon icon="lucide:anchor" width="16"></iconify-icon></span>shipyard</a>
+      <nav class="hidden md:flex items-center gap-8 text-[14px] text-white/55">
+        <a href="#" class="hover:text-white transition">Docs</a><a href="#" class="hover:text-white transition">CLI reference</a><a href="#" class="hover:text-white transition">Changelog</a><a href="#" class="hover:text-white transition">Pricing</a>
+      </nav>
+      <div class="flex items-center gap-3 text-[14px]">
+        <a href="#" class="hidden sm:block text-white/65 hover:text-white transition">Sign in</a>
+        <a href="#" class="px-3.5 py-1.5 rounded-md bg-white text-black font-medium hover:bg-lime transition">Get started</a>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-5 sm:px-8 pt-12 lg:pt-24 pb-16 grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-12 items-center">
+      <section class="min-w-0">
+        <a href="#" class="inline-flex items-center gap-2 font-mono text-[12px] text-white/60 rounded-full border border-white/10 bg-white/[.03] px-3 py-1 hover:border-lime/40 transition">
+          <span class="w-1.5 h-1.5 rounded-full bg-lime shadow-[0_0_10px_#c8f25a]"></span>v3.4 &middot; branch previews in 9s
+        </a>
+        <h1 class="mt-6 text-[44px] sm:text-[58px] lg:text-[62px] font-semibold leading-[1] tracking-[-0.045em]">Preview deploys,<br><span class="text-lime">from your terminal.</span></h1>
+        <p class="mt-6 max-w-[30rem] text-[17px] leading-relaxed text-white/55">One command builds your branch, seeds a database copy and posts a shareable URL to the pull request. No dashboards, no YAML, no waiting on CI.</p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <div class="flex items-center h-12 rounded-lg border border-white/10 bg-[#111] pl-4 pr-1.5 font-mono text-[14px]">
+            <span class="text-lime/80 select-none mr-2.5">$</span><code id="install">npm i -g shipyard</code>
+            <button id="copy" type="button" class="ml-4 inline-flex items-center gap-1.5 h-9 px-3 rounded-md bg-white/[.06] hover:bg-white/[.12] text-[12px] text-white/75 transition" aria-label="Copy install command">
+              <iconify-icon id="copy-icon" icon="lucide:copy" width="14"></iconify-icon><span id="copy-label">Copy</span>
+            </button>
+          </div>
+          <a href="#" class="group inline-flex items-center gap-1.5 h-12 px-2 text-[15px] text-white/80 hover:text-white transition">Read the docs<iconify-icon icon="lucide:arrow-right" width="15" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+        </div>
+        <dl class="mt-12 grid grid-cols-3 max-w-md border-t border-white/10 pt-5">
+          <div><dt class="font-mono text-[11px] uppercase tracking-wider text-white/40">Median deploy</dt><dd class="mt-1 text-[24px] font-medium tracking-tight">9.2s</dd></div>
+          <div><dt class="font-mono text-[11px] uppercase tracking-wider text-white/40">Teams</dt><dd class="mt-1 text-[24px] font-medium tracking-tight">41k</dd></div>
+          <div><dt class="font-mono text-[11px] uppercase tracking-wider text-white/40">Config files</dt><dd class="mt-1 text-[24px] font-medium tracking-tight">0</dd></div>
+        </dl>
+      </section>
+
+      <section class="min-w-0" aria-label="Terminal demo">
+        <div class="term rounded-xl bg-[#0e0e0e] overflow-hidden">
+          <div class="h-10 flex items-center px-4 border-b border-white/[.07] bg-white/[.02]">
+            <div class="flex gap-1.5"><span class="w-3 h-3 rounded-full bg-[#ff5f57]/80"></span><span class="w-3 h-3 rounded-full bg-[#febc2e]/80"></span><span class="w-3 h-3 rounded-full bg-[#28c840]/80"></span></div>
+            <div class="flex-1 text-center font-mono text-[12px] text-white/40">~/orbit/web &mdash; zsh</div>
+            <iconify-icon icon="lucide:square-terminal" width="15" class="text-white/30"></iconify-icon>
+          </div>
+          <div id="screen" class="h-[400px] sm:h-[420px] p-5 font-mono text-[12.5px] sm:text-[13px] leading-[1.75] text-white/80 overflow-hidden"></div>
+          <div class="h-9 flex items-center gap-4 px-4 border-t border-white/[.07] font-mono text-[11px] text-white/40">
+            <span class="flex items-center gap-1.5 text-lime/90"><iconify-icon icon="lucide:git-branch" width="12"></iconify-icon><span id="branch">feat/checkout-v2</span></span>
+            <span class="hidden sm:inline">node 22.4</span>
+            <span class="ml-auto flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lime"></span><span id="live">3</span> previews live</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<div hidden aria-hidden="true"><iconify-icon icon="lucide:check"></iconify-icon></div>
+<script>
+(function () {
+  var screen = document.getElementById('screen');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MAX = 16, live = 3;
+  var scenarios = [
+    { branch: 'feat/checkout-v2', cmd: 'shipyard deploy', out: [
+      ['dim', 'Linked orbit/web on branch feat/checkout-v2'],
+      ['', 'Building   214 files, 3 edge functions'],
+      ['', 'Uploading  3.1 MB in 1.4s'],
+      ['ok', 'Smoke tests passed (12/12)'],
+      ['url', 'https://checkout-v2.orbit.shipyard.run', '9.2s'] ] },
+    { branch: 'pr-482', cmd: 'shipyard preview --pr 482', out: [
+      ['dim', 'Pulling PR #482 "Redesign pricing table"'],
+      ['', 'Database   branched pr-482 from main (2.1 GB)'],
+      ['', 'Build      87% cached, 4.1s'],
+      ['url', 'https://pr-482.orbit.shipyard.run', '6.8s'],
+      ['ok', 'Commented on PR #482 with preview link'] ] },
+    { branch: 'fix/auth-redirect', cmd: 'shipyard deploy --env staging', out: [
+      ['dim', 'Pulled 14 env vars from staging'],
+      ['', 'Building   198 files, 2 edge functions'],
+      ['ok', 'Lighthouse  perf 98, a11y 100'],
+      ['url', 'https://auth-redirect.orbit.shipyard.run', '7.4s'] ] }
+  ];
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function add(html, cls) {
+    var d = document.createElement('div');
+    d.className = 'line ' + (cls || '');
+    d.innerHTML = html;
+    screen.appendChild(d);
+    while (screen.children.length > MAX || (screen.scrollHeight > screen.clientHeight && screen.children.length > 1)) screen.removeChild(screen.firstChild);
+    return d;
+  }
+  function prompt() { return '<span class="text-lime">&rarr;</span> <span class="text-sky-300/80">orbit/web</span> <span class="text-white/30">git:(</span><span class="text-rose-300/80">' + esc(current.branch) + '</span><span class="text-white/30">)</span> '; }
+  function outLine(o) {
+    if (o[0] === 'dim') return add('<span class="text-white/40">' + esc(o[1]) + '</span>');
+    if (o[0] === 'ok') return add('<span class="text-lime">ok</span>  <span class="text-white/75">' + esc(o[1]) + '</span>');
+    if (o[0] === 'url') {
+      live++; document.getElementById('live').textContent = live;
+      return add('<span class="inline-flex flex-wrap items-center gap-x-3 rounded px-2 -mx-2 py-0.5"><span class="text-black bg-lime px-1.5 rounded-sm font-medium">Preview ready</span><span class="text-lime underline decoration-lime/40 underline-offset-4 break-all">' + esc(o[1]) + '</span><span class="text-white/35">' + o[2] + '</span></span>', 'ready rounded');
+    }
+    return add('<span class="text-white/30">&rsaquo;</span> <span class="text-white/70">' + esc(o[1]) + '</span>');
+  }
+  var i = 0, current = scenarios[0];
+  function run() {
+    current = scenarios[i];
+    document.getElementById('branch').textContent = current.branch;
+    var line = add(prompt() + '<span class="cmd text-white"></span><span class="cursor"></span>');
+    var cmdEl = line.querySelector('.cmd'), cur = line.querySelector('.cursor'), n = 0;
+    function type() {
+      n++; cmdEl.textContent = current.cmd.slice(0, n);
+      if (n < current.cmd.length) setTimeout(type, reduce ? 0 : 38 + Math.random() * 40);
+      else setTimeout(function () { cur.remove(); emit(0); }, reduce ? 0 : 260);
+    }
+    function emit(k) {
+      if (k >= current.out.length) {
+        add('&nbsp;');
+  add('<span class="text-lime">&rarr;</span> <span class="text-sky-300/80">orbit/web</span> <span class="text-white/30">git:(</span><span class="text-rose-300/80">main</span><span class="text-white/30">)</span> <span class="text-white">shipyard ls</span>');
+  [['pr-479', '2h ago'], ['pr-481', '41m ago'], ['main', '12m ago']].forEach(function (r) {
+    add('<span class="text-white/70">' + (r[0] + '        ').slice(0, 9) + '</span><span class="text-lime">ready</span>   <span class="text-white/40">' + r[0].replace('main', 'www') + '.orbit.shipyard.run</span>  <span class="text-white/30">' + r[1] + '</span>');
+  });
+        i = (i + 1) % scenarios.length;
+        setTimeout(run, reduce ? 6000 : 2600);
+        return;
+      }
+      outLine(current.out[k]);
+      setTimeout(function () { emit(k + 1); }, reduce ? 0 : (current.out[k][0] === 'url' ? 500 : 280 + Math.random() * 180));
+    }
+    setTimeout(type, reduce ? 0 : 350);
+  }
+  add('<span class="text-white/30">shipyard 3.4.0 &middot; signed in as dana@orbit.dev &middot; team orbit</span>');
+  add('&nbsp;');
+  add('<span class="text-lime">&rarr;</span> <span class="text-sky-300/80">orbit/web</span> <span class="text-white/30">git:(</span><span class="text-rose-300/80">main</span><span class="text-white/30">)</span> <span class="text-white">shipyard ls</span>');
+  [['pr-479', '2h ago'], ['pr-481', '41m ago'], ['main', '12m ago']].forEach(function (r) {
+    add('<span class="text-white/70">' + (r[0] + '        ').slice(0, 9) + '</span><span class="text-lime">ready</span>   <span class="text-white/40">' + r[0].replace('main', 'www') + '.orbit.shipyard.run</span>  <span class="text-white/30">' + r[1] + '</span>');
+  });
+  add('<span class="text-lime">&rarr;</span> <span class="text-sky-300/80">orbit/web</span> <span class="text-white/30">git:(</span><span class="text-rose-300/80">main</span><span class="text-white/30">)</span> <span class="text-white">git switch feat/checkout-v2</span>');
+  add('<span class="text-white/40">Switched to branch \'feat/checkout-v2\'</span>');
+  run();
+
+  var btn = document.getElementById('copy'), label = document.getElementById('copy-label'), icon = document.getElementById('copy-icon'), t;
+  btn.addEventListener('click', function () {
+    var text = document.getElementById('install').textContent;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).catch(function () {});
+    } catch (e) {}
+    label.textContent = 'Copied'; icon.setAttribute('icon', 'lucide:check'); btn.classList.add('text-lime');
+    clearTimeout(t);
+    t = setTimeout(function () { label.textContent = 'Copy'; icon.setAttribute('icon', 'lucide:copy'); btn.classList.remove('text-lime'); }, 1600);
+  });
+})();
+</script>
+</body>
+</html>

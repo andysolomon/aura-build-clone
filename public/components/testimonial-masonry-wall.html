@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keel - Customer testimonial masonry wall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background-color: #fafaf9; background-image: radial-gradient(rgb(41 37 36 / .045) 1px, transparent 1.2px), radial-gradient(60% 40% at 50% 0%, rgb(254 243 199 / .55), transparent 70%); background-size: 18px 18px, 100% 100%; }
+    .wall { max-height: 470px; overflow: hidden; transition: max-height .7s cubic-bezier(.3,.8,.2,1); }
+    .fade { background: linear-gradient(to bottom, rgb(250 250 249 / 0), #fafaf9 72%); transition: opacity .4s ease; }
+    .open .fade { opacity: 0; pointer-events: none; }
+    .tcard { break-inside: avoid; background: #fff; box-shadow: 0 0 0 1px rgb(41 37 36 / .07), 0 1px 2px rgb(41 37 36 / .04), 0 8px 24px -16px rgb(41 37 36 / .18); transition: transform .3s ease, box-shadow .3s ease; }
+    .tcard:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgb(41 37 36 / .1), 0 14px 32px -18px rgb(41 37 36 / .3); }
+    .tcard mark { background: linear-gradient(transparent 8%, rgb(253 230 138 / .75) 8%, rgb(253 230 138 / .75) 92%, transparent 92%); color: #1c1917; padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+    .star { display: block; width: 14px; height: 14px; background: linear-gradient(180deg, #fbbf24, #f59e0b); clip-path: polygon(50% 0%, 61.8% 35.4%, 98% 35.4%, 68.8% 57.3%, 79.4% 91.6%, 50% 70.4%, 20.6% 91.6%, 31.2% 57.3%, 2% 35.4%, 38.2% 35.4%); }
+    .av { color: #fff; font-weight: 600; font-size: 12px; text-shadow: 0 1px 1px rgb(0 0 0 / .15); }
+    @media (max-width: 767px) { .wall { max-height: 980px; } }
+  </style>
+</head>
+<body class="font-sans text-stone-800">
+  <section class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <div class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[13px] text-stone-600 shadow-sm ring-1 ring-stone-200">
+        <span class="flex gap-0.5"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></span>
+        <span><b class="font-semibold text-stone-900">4.9</b> from 1,240 reviews</span>
+      </div>
+      <h2 class="mt-4 text-[2.2rem] font-semibold leading-[1.04] tracking-[-0.035em] text-stone-900 sm:text-[3.1rem]">Loved by teams who keep<br class="hidden sm:block"> customers <span class="font-serif text-[1.12em] font-normal italic tracking-[-0.01em] text-stone-700">around.</span></h2>
+      <p class="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-stone-500">Over 3,000 success teams use Keel to spot churn early and turn renewals into the easy part of the quarter.</p>
+    </div>
+
+    <div id="wallWrap" class="relative mt-10">
+      <div id="wall" class="wall">
+      <div class="columns-1 gap-5 md:columns-2 lg:columns-3">
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <div class="flex gap-0.5"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></div>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">We used to find out a customer was unhappy when they cancelled. Keel flags the risk <mark>about six weeks earlier</mark>, which is plenty of time to fix it.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-rose-400 to-orange-400">MC</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Maya Castellanos</span><span class="text-stone-500">VP Customer Success, Parcelwise</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <p class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-emerald-700 ring-1 ring-emerald-100"><iconify-icon icon="lucide:trending-down"></iconify-icon><span class="text-lg font-semibold tracking-tight">-38%</span><span class="text-xs">logo churn</span></p>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">Within two quarters our churn dropped by more than a third. <mark>The health scores are the first ones my team actually trusts.</mark></blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-500">TB</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Theo Brandt</span><span class="text-stone-500">Head of CS, Quillstack</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <blockquote class="text-[14.5px] leading-relaxed text-stone-600"><mark>Setup took an afternoon.</mark> The renewal playbooks paid for the whole year by Friday.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500">PR</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Priya Raman</span><span class="text-stone-500">Founder, Tidewell Health</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <div class="flex gap-0.5"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></div>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">I have rolled out four customer success platforms in my career, and Keel is the first one my account managers opened voluntarily. It pulls product usage, tickets and billing into one timeline, so every renewal call starts with facts instead of vibes. <mark>Net revenue retention went from 104 to 118 percent</mark> in a single year.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600">JE</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Jonas Ekstrom</span><span class="text-stone-500">Director of Customer Ops, Brambleworks</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <blockquote class="text-[14.5px] leading-relaxed text-stone-600">The chat alerts are perfectly tuned. Not noisy, <mark>never late</mark>, and they link straight to the account.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-rose-500">AO</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Amara Okoye</span><span class="text-stone-500">CS Lead, Lumacart</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <p class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-indigo-700 ring-1 ring-indigo-100"><iconify-icon icon="lucide:shield-check"></iconify-icon><span class="text-lg font-semibold tracking-tight">$1.4M</span><span class="text-xs">ARR saved</span></p>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">Keel caught three enterprise accounts quietly sliding away. Saving them alone <mark>covered the contract ten times over</mark>.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-stone-500 to-stone-800">RD</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Rafael Duarte</span><span class="text-stone-500">COO, Gridline Energy</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <div class="flex gap-0.5"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></div>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">I can finally forecast renewals without a spreadsheet the size of a novel. My CFO noticed the difference <mark>before I even told her</mark>.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-pink-400 to-rose-600">HL</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Hannah Leclerc</span><span class="text-stone-500">Renewals Manager, Ostrander Legal</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <blockquote class="text-[14.5px] leading-relaxed text-stone-600">Support and success finally look at the same customer. Escalations that used to bounce between teams for a week <mark>now get resolved in a day</mark>, and our CSAT climbed eleven points.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600">KW</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Kenji Watanabe</span><span class="text-stone-500">Head of Support, Hollow Pine Games</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <blockquote class="text-[14.5px] leading-relaxed text-stone-600">Small team, big book of accounts. Keel's playbooks are <mark>like hiring two extra CSMs</mark>.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-lime-400 to-emerald-600">SM</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Sofia Marchetti</span><span class="text-stone-500">Account Director, Saltmarsh Coffee</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <p class="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-amber-700 ring-1 ring-amber-100"><iconify-icon icon="lucide:trending-up"></iconify-icon><span class="text-lg font-semibold tracking-tight">3.1x</span><span class="text-xs">expansion pipeline</span></p>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">Expansion signals show up on their own now, so <mark>upsells feel like help, not a pitch</mark>. We rebuilt our whole QBR around it.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-orange-400 to-amber-600">DO</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Daniel Osei</span><span class="text-stone-500">VP Revenue, Ferro Analytics</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <div class="flex gap-0.5"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></div>
+          <blockquote class="mt-3 text-[14.5px] leading-relaxed text-stone-600">Clean, fast, and <mark>the onboarding team actually listens</mark>. Rare combination.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-violet-600">LH</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Lena Hoffmann</span><span class="text-stone-500">CX Manager, Fernway Travel</span></span></figcaption>
+        </figure>
+        <figure class="tcard mb-5 rounded-2xl p-5">
+          <blockquote class="text-[14.5px] leading-relaxed text-stone-600">We spent two years building churn models in-house. Keel beat them in a week, and <mark>it explains every score in plain language</mark> our managers can act on.</blockquote>
+          <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-teal-300 to-sky-600">NP</span><span class="text-sm leading-tight"><span class="block font-semibold text-stone-900">Nadia Petrova</span><span class="text-stone-500">Head of Accounts, Kestrel Freight</span></span></figcaption>
+        </figure>
+        <a href="#" class="tcard group mb-5 block rounded-2xl !bg-stone-900 p-5 text-stone-300">
+          <p class="font-serif text-2xl italic leading-tight text-white">120+ customer stories</p>
+          <p class="mt-2 text-sm leading-relaxed text-stone-400">See how success teams in SaaS, health and logistics use Keel to keep revenue on the books.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-white">Read the stories<iconify-icon icon="lucide:arrow-right" class="transition-transform group-hover:translate-x-1"></iconify-icon></span>
+        </a>
+      </div>
+      </div>
+      <div class="fade pointer-events-none absolute inset-x-0 bottom-0 h-56"></div>
+      <div class="absolute inset-x-0 bottom-6 flex justify-center" id="moreBar">
+        <button id="more" type="button" aria-expanded="false" aria-controls="wall" class="inline-flex h-10 items-center gap-2 rounded-full bg-stone-900 px-5 text-sm font-medium text-white shadow-lg shadow-stone-900/20 transition hover:bg-stone-700"><span>Show more stories</span><iconify-icon icon="lucide:chevron-down" class="transition-transform"></iconify-icon></button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var wrap = document.getElementById('wallWrap');
+      var wall = document.getElementById('wall');
+      var btn = document.getElementById('more');
+      var bar = document.getElementById('moreBar');
+      btn.addEventListener('click', function () {
+        var open = btn.getAttribute('aria-expanded') !== 'true';
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        wrap.classList.toggle('open', open);
+        btn.querySelector('span').textContent = open ? 'Show less' : 'Show more stories';
+        btn.querySelector('iconify-icon').style.transform = open ? 'rotate(180deg)' : '';
+        if (open) {
+          wall.style.maxHeight = wall.scrollHeight + 'px';
+          bar.classList.remove('absolute', 'bottom-6');
+          bar.classList.add('relative', 'mt-4');
+        } else {
+          wall.style.maxHeight = '';
+          bar.classList.add('absolute', 'bottom-6');
+          bar.classList.remove('relative', 'mt-4');
+          wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+      window.addEventListener('resize', function () {
+        if (btn.getAttribute('aria-expanded') === 'true') wall.style.maxHeight = wall.scrollHeight + 'px';
+      });
+    })();
+  </script>
+</body>
+</html>

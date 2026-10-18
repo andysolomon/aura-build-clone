@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas - Feature grid for the AI ops copilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; font-feature-settings: "ss01", "cv11"; }
+    .cell { position: relative; background: #fff; transition: background-color .35s ease; }
+    .cell::before {
+      content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease; pointer-events: none;
+      background: radial-gradient(420px circle at var(--x, 50%) var(--y, 0%), rgb(var(--hue) / .08), transparent 60%);
+    }
+    .cell:hover { background: #fcfcfd; }
+    .cell:hover::before { opacity: 1; }
+    .tile {
+      background: linear-gradient(160deg, #fff 0%, rgb(var(--hue) / .10) 55%, rgb(var(--hue) / .20) 100%);
+      box-shadow: inset 0 0 0 1px rgb(var(--hue) / .18), inset 0 1px 0 #fff, 0 1px 2px rgb(15 23 42 / .06), 0 6px 16px -8px rgb(var(--hue) / .45);
+      color: rgb(var(--hue)); transition: transform .45s cubic-bezier(.2,.8,.2,1);
+    }
+    .cell:hover .tile { transform: translate(3px, -3px) rotate(-4deg); }
+    .more iconify-icon { transition: transform .3s ease; }
+    .cell:hover .more { color: rgb(var(--hue)); }
+    .cell:hover .more iconify-icon { transform: translateX(3px); }
+    .grain { background-image: radial-gradient(rgb(15 23 42 / .07) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(to bottom, #000, transparent 70%); }
+  </style>
+</head>
+<body class="bg-white font-sans text-zinc-900">
+  <section class="relative overflow-hidden">
+    <div class="grain pointer-events-none absolute inset-x-0 top-0 h-72"></div>
+    <div class="relative mx-auto max-w-6xl px-5 pb-16 pt-12 sm:px-8 sm:pt-12">
+      <div class="grid items-end gap-6 md:grid-cols-[1.25fr_1fr] md:gap-12">
+        <div>
+          <a href="#" class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white py-1 pl-1 pr-3 text-xs font-medium text-zinc-600 shadow-sm transition hover:border-zinc-300">
+            <span class="rounded-full bg-zinc-900 px-2 py-0.5 text-[11px] text-white">New</span>
+            Atlas 3.2 ships change intelligence
+            <iconify-icon icon="lucide:chevron-right" class="text-zinc-400"></iconify-icon>
+          </a>
+          <h2 class="mt-5 text-[2.15rem] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-5xl">
+            The ops copilot that<br class="hidden sm:block"> already knows your stack.
+          </h2>
+        </div>
+        <div class="md:pb-1">
+          <p class="text-[15px] leading-relaxed text-zinc-500">Atlas connects to your clusters, CI and pager, then helps platform teams triage faster, change safer and spend less. No new dashboards to babysit.</p>
+          <div class="mt-5 flex flex-wrap items-center gap-3">
+            <a href="#" class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800">Start free trial</a>
+            <a href="#" class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">Book a walkthrough</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-9 overflow-hidden rounded-2xl border border-zinc-200 shadow-[0_1px_2px_rgba(15,23,42,.04),0_12px_40px_-24px_rgba(15,23,42,.25)]">
+        <div class="grid gap-px bg-zinc-200 sm:grid-cols-2 lg:grid-cols-3">
+          <article class="cell group p-6 sm:p-7" style="--hue: 79 70 229">
+            <div class="flex items-start justify-between">
+              <div class="tile grid h-11 w-11 place-items-center rounded-xl text-[20px]"><iconify-icon icon="lucide:siren"></iconify-icon></div>
+              <span class="font-mono text-[11px] text-zinc-400">01</span>
+            </div>
+            <h3 class="mt-6 text-[15px] font-semibold tracking-[-0.01em]">Incident triage in seconds</h3>
+            <p class="mt-1.5 text-sm leading-6 text-zinc-500">Atlas reads alerts, traces and recent deploys, then drafts the root cause for you.</p>
+            <a href="#" class="more mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-500">Learn more <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          </article>
+          <article class="cell group p-6 sm:p-7" style="--hue: 14 165 233">
+            <div class="flex items-start justify-between">
+              <div class="tile grid h-11 w-11 place-items-center rounded-xl text-[20px]"><iconify-icon icon="lucide:book-open-check"></iconify-icon></div>
+              <span class="font-mono text-[11px] text-zinc-400">02</span>
+            </div>
+            <h3 class="mt-6 text-[15px] font-semibold tracking-[-0.01em]">Runbooks that run themselves</h3>
+            <p class="mt-1.5 text-sm leading-6 text-zinc-500">Turn tribal knowledge into executable steps, with approvals where it matters.</p>
+            <a href="#" class="more mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-500">Learn more <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          </article>
+          <article class="cell group p-6 sm:p-7" style="--hue: 16 185 129">
+            <div class="flex items-start justify-between">
+              <div class="tile grid h-11 w-11 place-items-center rounded-xl text-[20px]"><iconify-icon icon="lucide:git-pull-request-arrow"></iconify-icon></div>
+              <span class="font-mono text-[11px] text-zinc-400">03</span>
+            </div>
+            <h3 class="mt-6 text-[15px] font-semibold tracking-[-0.01em]">Change intelligence</h3>
+            <p class="mt-1.5 text-sm leading-6 text-zinc-500">Every deploy, flag flip and config edit lined up against the metrics it moved.</p>
+            <a href="#" class="more mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-500">Learn more <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          </article>
+          <article class="cell group p-6 sm:p-7" style="--hue: 217 119 6">
+            <div class="flex items-start justify-between">
+              <div class="tile grid h-11 w-11 place-items-center rounded-xl text-[20px]"><iconify-icon icon="lucide:gauge"></iconify-icon></div>
+              <span class="font-mono text-[11px] text-zinc-400">04</span>
+            </div>
+            <h3 class="mt-6 text-[15px] font-semibold tracking-[-0.01em]">Cost guardrails</h3>
+            <p class="mt-1.5 text-sm leading-6 text-zinc-500">Catch idle node pools and runaway autoscaling, then ship the rightsizing PR.</p>
+            <a href="#" class="more mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-500">Learn more <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          </article>
+          <article class="cell group p-6 sm:p-7" style="--hue: 225 29 72">
+            <div class="flex items-start justify-between">
+              <div class="tile grid h-11 w-11 place-items-center rounded-xl text-[20px]"><iconify-icon icon="lucide:shield-check"></iconify-icon></div>
+              <span class="font-mono text-[11px] text-zinc-400">05</span>
+            </div>
+            <h3 class="mt-6 text-[15px] font-semibold tracking-[-0.01em]">Access answers, not audits</h3>
+            <p class="mt-1.5 text-sm leading-6 text-zinc-500">Ask who can reach prod-db in plain English, answered from your real IAM graph.</p>
+            <a href="#" class="more mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-500">Learn more <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          </article>
+          <article class="cell group p-6 sm:p-7" style="--hue: 124 58 237">
+            <div class="flex items-start justify-between">
+              <div class="tile grid h-11 w-11 place-items-center rounded-xl text-[20px]"><iconify-icon icon="lucide:boxes"></iconify-icon></div>
+              <span class="font-mono text-[11px] text-zinc-400">06</span>
+            </div>
+            <h3 class="mt-6 text-[15px] font-semibold tracking-[-0.01em]">A catalog that stays fresh</h3>
+            <p class="mt-1.5 text-sm leading-6 text-zinc-500">Owners, SLOs, dependencies and docs for every service, synced on every merge.</p>
+            <a href="#" class="more mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-500">Learn more <iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          </article>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-col items-start justify-between gap-3 text-[13px] text-zinc-500 sm:flex-row sm:items-center">
+        <p class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>SOC 2 Type II, read-only by default, runs in your VPC</p>
+        <a href="#" class="inline-flex items-center gap-1 font-medium text-zinc-700 hover:text-zinc-900">See all 40+ integrations <iconify-icon icon="lucide:arrow-up-right"></iconify-icon></a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll('.cell').forEach(function (cell) {
+      cell.addEventListener('pointermove', function (e) {
+        var r = cell.getBoundingClientRect();
+        cell.style.setProperty('--x', (e.clientX - r.left) + 'px');
+        cell.style.setProperty('--y', (e.clientY - r.top) + 'px');
+      });
+    });
+  </script>
+</body>
+</html>

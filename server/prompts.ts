@@ -15,7 +15,7 @@ Technical constraints for the document:
 - Tailwind CSS through <script src="https://cdn.tailwindcss.com"></script>. A tailwind.config script block and a small <style> block for custom keyframes or effects are fine.
 - Fonts from Google Fonts <link> tags. Icons through <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script> using <iconify-icon icon="lucide:NAME"></iconify-icon>, or inline SVG.
 - Images only from https://picsum.photos/seed/WORD/WIDTH/HEIGHT. Prefer gradients, SVG art and HTML/CSS-built product mockups for the hero so it looks striking without photos.
-- Vanilla JavaScript only, inline at the end of <body>, kept small (scroll reveals, tabs, toggles, counters).
+- Vanilla JavaScript only, inline at the end of <body>, kept small (scroll reveals, tabs, toggles, counters). Exception: when an attached skill explicitly calls for a library (for example GSAP or three.js) or a different Tailwind build, load it from cdn.jsdelivr.net as the skill describes.
 - Responsive from 375px to 1440px+, semantic, accessible contrast, real-sounding copy (never lorem ipsum).
 
 Design standard: aim for the polish of an award-winning agency site. Commit to a clear art direction (type pairing, palette, spacing rhythm, one memorable visual idea in the hero), keep hierarchy obvious, and make interactive states feel considered. A typical page has navigation, hero, social proof, features, a showcase or product section, testimonials, pricing or an offer where it fits, FAQ or a closing CTA, and a footer, but follow the user's brief over this outline.
@@ -37,6 +37,9 @@ export function renderRequest(req: GenerateRequest): string {
     const lines = history.map((t) => `${t.role === "user" ? "User" : "Assistant"}: ${t.content}`);
     parts.push(`<conversation_so_far>\n${lines.join("\n")}\n</conversation_so_far>`);
   }
+  for (const skill of (req.skills ?? []).slice(0, 6)) {
+    parts.push(`<skill name="${skill.name}">\nFollow these instructions while building the page.\n\n${skill.instructions.slice(0, 8000)}\n</skill>`);
+  }
   const designSystem = findDesignSystem(req.designSystemId);
   if (designSystem) {
     parts.push(`<design_system name="${designSystem.name}">\n${designSystem.guidance}\n</design_system>`);
@@ -57,4 +60,24 @@ export function renderRequest(req: GenerateRequest): string {
     parts.push(`Brief: ${req.prompt}`);
   }
   return parts.join("\n\n");
+}
+
+export const PROJECT_TYPES = ["Landing page", "SaaS website", "Mobile screen", "Portfolio", "Ecommerce", "DESIGN.md direction"];
+export const OUTPUT_STYLES = ["Full prompt", "Concise prompt", "Design-heavy", "Conversion-heavy"];
+
+export const ENHANCE_TOOL_SYSTEM_PROMPT = `You turn rough website ideas into strong prompts for AI website builders.
+Keep the user's intent, names and facts. Add concrete art direction (palette, typography, layout, one signature visual), the sections the page needs, interaction and motion notes, and the tone of the copy.
+
+Reply with only a JSON object, no Markdown fences:
+{"prompt": "the enhanced prompt", "short": "a one or two sentence version", "notes": ["3 to 5 short design notes explaining key choices"]}`;
+
+export function enhanceToolRequest(prompt: string, projectType: string, outputStyle: string): string {
+  const style: Record<string, string> = {
+    "Full prompt": "Write a complete prompt of 150 to 250 words.",
+    "Concise prompt": "Write a tight prompt under 80 words.",
+    "Design-heavy": "Emphasize visual design: type, color, layout, imagery and motion. 150 to 250 words.",
+    "Conversion-heavy": "Emphasize structure for conversion: value proposition, proof, objections, CTAs. 150 to 250 words.",
+  };
+  const target = projectType === "DESIGN.md direction" ? "a DESIGN.md design direction (palette, typography, components, motion rules)" : `a ${projectType.toLowerCase()}`;
+  return `Project type: ${target}\nOutput style: ${style[outputStyle] ?? style["Full prompt"]}\n\nRough idea:\n${prompt}`;
 }
