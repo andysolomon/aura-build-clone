@@ -82,3 +82,97 @@ Publish buttons. The home composer offers a prompt builder, Design System picker
 
 Not cloned: auth and billing, CMS, React/Canvas/Code-agent modes, user-submitted marketplace content,
 image generation and upscaling, custom domains, team collaboration, Figma export and video generation.
+
+# Reverse engineering agent UI libraries
+
+Notes from studying three public agent UI libraries with REA, captured 2026-11-01. They informed
+the Agent UI kit, the `agentic-interfaces` skill and the Prompt Builder's Agent UI section. The kit
+was written from scratch and shares no code, copy or assets with these projects.
+
+- [AI SDK Elements](https://elements.ai-sdk.dev)
+- [assistant-ui](https://www.assistant-ui.com)
+- [prompt-kit](https://www.prompt-kit.com)
+
+## Method
+
+1. Opened each site in local headless Chromium and ran REA's `inspect_web_page` over CDP for the
+   DOM outline and accessibility tree, which gave each library's component inventory.
+2. Ran `capture_browser_scenario` over 43 component and docs pages, keeping the rendered DOM and a
+   1440×1000 screenshot after each step. A small script then printed tag and class trees to show
+   each component's anatomy.
+3. On assistant-ui's homepage, clicked one suggested prompt ("Weather in Tokyo") to watch a live
+   stream. This sent one message to their public demo. Nothing else was submitted.
+
+Scenario Evidence IDs from the REA session (the evidence bundle itself isn't checked in):
+
+| Capture | Evidence ID |
+|---|---|
+| Elements, 25 pages | `ev_2a8521a2e7b3a08defd75831c0210d76e22a33bbcbd668bb6f6023ea46a2c8f8` |
+| Elements, Tool page | `ev_a0665df0bfe99e0e6068f5fe4a5350e3d12619f0ed775caae38d7a7ae6a8e5b7` |
+| prompt-kit, 15 pages | `ev_3ae9ceb1d8924b821196d12025ef3a1bd0e96243bc07148beb1525581e0129bf` |
+| assistant-ui, home and components | `ev_475caab7245d98aafe6468624fab578a65ec8433f6646cfdd7f7a28b55583cef` |
+
+Limits of this pass:
+
+- Pages were captured in light mode with reduced motion, so animation timing wasn't measured.
+- Some demos rendered empty in headless Chromium, including the Elements Persona (Rive) and Web
+  Preview frame. Their anatomy comes from the docs text and controls, not from seeing them run.
+- The Elements Canvas page shows no live preview at the top of the page, so the workflow anatomy
+  comes from its docs and component names.
+- No JavaScript bundles were analyzed, and no source was recovered. These findings cover rendered
+  output only, not how the libraries work internally.
+
+## Findings
+
+**Inventory.** Elements lists 49 components in five groups: Chatbot, Code, Voice, Workflow and
+Utilities. prompt-kit lists 19 components plus blocks such as "Full chat app" and "Sidebar with chat history".
+assistant-ui organizes its catalog as Chat UI, Take actions, Data visualization and generative UI,
+Backend and Agent tools, and advertises Streaming, Reasoning, Tools, Approval, Sources, Attachments,
+Branching, Suggestions, Voice and Generative UI as what its runtime handles.
+
+**Shared anatomy.** All three converge on the same pieces:
+
+- **Thread:** right-aligned user bubbles, bubble-free assistant prose, and a scroll-to-latest button.
+- **Composer:** a bordered card with a textarea above a toolbar of attach, model and submit. On
+  assistant-ui the send button became a square stop button while streaming.
+- **Reasoning:** a collapsible "Thinking…" trigger with shimmering text. Elements documents that it
+  opens during streaming and closes when finished.
+- **Tool call:** a collapsible card with a name, a status badge, and a parameters block. Elements
+  shows seven states: Pending, Awaiting Approval, Responded, Running, Completed, Error and Denied.
+- **Shimmer:** a moving gradient behind `background-clip: text`. prompt-kit's `Text Shimmer` runs at
+  2 s, 4 s and 6 s durations.
+
+**Other notes.**
+
+- A banner on Elements said the project is moving to shadcn/ui and will be deprecated at the end of
+  November 2026. The kit doesn't depend on it.
+- Distribution differs from this project's. These libraries ship React components (Elements and
+  prompt-kit through a shadcn-style install, assistant-ui through a CLI that copies UI source). This
+  builder outputs a single HTML file, so the kit reimplements the patterns in HTML, Tailwind and
+  vanilla JavaScript.
+
+## What the clone implements
+
+| Observed pattern | Clone |
+|---|---|
+| Conversation, Message, Branch, Suggestion, Scroll button | `agent-chat-thread` |
+| Thread list, model selector, generative UI | `agent-app-shell` |
+| Prompt input, attachments, Context, Model selector, Speech input, mentions and slash commands | `agent-prompt-composer` |
+| Reasoning, Chain of Thought, Steps, Thinking Bar | `agent-reasoning-chain` |
+| Tool, tool states, tool group, approval card | `agent-tool-calls` |
+| Sources, Inline Citation, Source | `agent-sources-citations`, `agent-chat-widget` |
+| Loader, Text Shimmer | `agent-loaders-shimmer` |
+| Confirmation, Question, Checkpoint, System Message, Feedback Bar | `agent-human-in-the-loop` |
+| Plan, Queue, Task | `agent-plan-queue` |
+| Artifact, Web Preview, Terminal, Test Results, File Tree | `agent-artifact-workspace` |
+| Agent, Schema Display, Context | `agent-run-inspector` |
+| Persona, Transcription, Audio Player, Mic and Voice Selector | `agent-voice-mode` |
+| Canvas, Node, Edge, Controls, Toolbar, Panel | `agent-workflow-canvas` |
+
+The status color system, the scripted-run approach and the auto-attached skill are this project's
+own design choices, not something observed in the libraries.
+
+Not implemented: the runtime layer these libraries provide (real model streaming, backend adapters,
+thread persistence, MCP). Generated agent interfaces simulate their runs with scripted JavaScript
+and don't call a model. Also not built, among others: the Commit, Package Info, Sandbox, Snippet,
+Environment Variables and JSX Preview components, and React output.

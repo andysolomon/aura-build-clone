@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Approvals and questions - Human in the loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --accent: #4f46e5; --line: #e4e4e7; --fg: #18181b; --muted: #71717a; --faint: #a1a1aa; }
+  body { background: #fafafa; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: 16px; }
+  .eyebrow { font: 500 11.5px/1 'Geist Mono', monospace; color: var(--muted); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 9px; font-size: 13px; font-weight: 500; transition: background-color .15s, border-color .15s, color .15s, opacity .15s, transform .1s; }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+  .btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover:not(:disabled) { background: #4338ca; } .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-ghost { background: #fff; border: 1px solid var(--line); } .btn-ghost:hover { background: #f4f4f5; }
+  .chip { height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; background: #fff; transition: background-color .15s, border-color .15s, color .15s; }
+  .chip:hover { border-color: #a1a1aa; } .chip[aria-pressed="true"] { background: #eef2ff; border-color: #a5b4fc; color: #3730a3; }
+  .radio-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); cursor: pointer; transition: background-color .15s, border-color .15s; }
+  .radio-row:hover { background: #fafafa; } .radio-row:has(input:checked) { border-color: #a5b4fc; background: #eef2ff; }
+  .radio-row:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .rise { animation: rise .28s cubic-bezier(.2,.8,.2,1) both; } @keyframes rise { from { opacity: 0; transform: translateY(5px) } }
+  .spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg) } }
+  @media (prefers-reduced-motion: reduce) { .rise, .spin { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-[14px]">
+  <main class="mx-auto max-w-[1180px] px-5 py-7 sm:px-8">
+    <header class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="eyebrow">relay agent / human in the loop</p>
+        <h1 class="mt-1.5 text-[28px] font-semibold tracking-[-.025em]">Keep people in the loop</h1>
+        <p class="mt-1 max-w-[580px] text-[14px] text-[var(--muted)]">Moments where the agent stops and asks: approvals for risky actions, questions it can't answer alone, and ways to go back.</p>
+      </div>
+      <button id="reset" class="btn btn-ghost"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon>Reset demo</button>
+    </header>
+
+    <div class="mt-5 grid items-start gap-4 lg:grid-cols-[1fr_1fr_.92fr]">
+      <!-- Confirmations -->
+      <section class="space-y-3" aria-label="Tool confirmations">
+        <h2 class="eyebrow">01 · confirmation</h2>
+        <article id="confirm" class="panel p-4"></article>
+        <article class="panel p-4">
+          <div class="flex items-center gap-2 text-[13px] font-medium text-emerald-700"><iconify-icon icon="lucide:circle-check" width="16"></iconify-icon>Approved<span class="ml-auto font-mono text-[11.5px] font-normal text-[var(--faint)]">14:02:11</span></div>
+          <p class="mt-1.5 text-[13px] leading-snug text-[var(--muted)]">You approved <code class="rounded bg-zinc-100 px-1 font-mono text-[12px] text-[var(--fg)]">rotate_api_key billing-prod</code>. The old key stops working in 24 hours.</p>
+        </article>
+        <article class="panel p-4">
+          <div class="flex items-center gap-2 text-[13px] font-medium text-orange-700"><iconify-icon icon="lucide:ban" width="16"></iconify-icon>Rejected<span class="ml-auto font-mono text-[11.5px] font-normal text-[var(--faint)]">13:47:36</span></div>
+          <p class="mt-1.5 text-[13px] leading-snug text-[var(--muted)]">You rejected <code class="rounded bg-zinc-100 px-1 font-mono text-[12px] text-[var(--fg)]">scale_down web x2</code>. Relay kept the current capacity.</p>
+        </article>
+
+        <h2 class="eyebrow pt-2">02 · checkpoint</h2>
+        <article id="checkpoint" class="panel space-y-3 p-4"></article>
+      </section>
+
+      <!-- Questions -->
+      <section class="space-y-3" aria-label="Questions">
+        <h2 class="eyebrow">03 · question</h2>
+        <article id="q1" class="panel p-4"></article>
+        <h2 class="eyebrow pt-2">04 · option list</h2>
+        <article id="q2" class="panel p-4"></article>
+      </section>
+
+      <!-- Notices -->
+      <section class="space-y-3" aria-label="Notices and feedback">
+        <h2 class="eyebrow">05 · system messages</h2>
+        <div class="space-y-2">
+          <p class="flex items-start gap-2 rounded-xl border border-[var(--line)] bg-white px-3 py-2.5 text-[13px] leading-snug text-[var(--muted)]"><iconify-icon icon="lucide:info" width="15" class="mt-px shrink-0"></iconify-icon>This conversation is visible to your on-call team.</p>
+          <p class="flex items-start gap-2 rounded-xl bg-zinc-100 px-3 py-2.5 text-[13px] leading-snug text-zinc-700"><iconify-icon icon="lucide:brain" width="15" class="mt-px shrink-0"></iconify-icon>Reasoning mode is on, so replies may take a little longer.</p>
+          <p class="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-[13px] leading-snug text-amber-900 ring-1 ring-amber-600/15"><iconify-icon icon="lucide:triangle-alert" width="15" class="mt-px shrink-0 text-amber-600"></iconify-icon>Relay has write access to production for the next 30 minutes.</p>
+          <div id="errorNote" class="flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-[13px] leading-snug text-red-900 ring-1 ring-red-600/15"><iconify-icon icon="lucide:circle-x" width="15" class="mt-px shrink-0 text-red-600"></iconify-icon><span class="min-w-0 flex-1">The deploy tool timed out after 30 s. <button id="retry" class="font-medium underline underline-offset-2">Try again</button></span></div>
+        </div>
+
+        <h2 class="eyebrow pt-2">06 · feedback</h2>
+        <div id="feedback" class="panel flex items-center gap-1.5 !rounded-full py-1.5 pl-3.5 pr-1.5"></div>
+        <article class="panel p-4">
+          <h3 class="text-[13px] font-medium">When to stop and ask</h3>
+          <ul class="mt-2 space-y-1.5 text-[13px] leading-snug text-[var(--muted)]">
+            <li class="flex gap-2"><iconify-icon icon="lucide:shield-alert" width="14" class="mt-0.5 shrink-0 text-amber-600"></iconify-icon><span><strong class="font-medium text-[var(--fg)]">Confirm</strong> anything destructive or hard to undo.</span></li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:circle-help" width="14" class="mt-0.5 shrink-0 text-indigo-600"></iconify-icon><span><strong class="font-medium text-[var(--fg)]">Ask</strong> when a wrong guess costs more than a short wait.</span></li>
+            <li class="flex gap-2"><iconify-icon icon="lucide:bookmark" width="14" class="mt-0.5 shrink-0 text-[var(--muted)]"></iconify-icon><span><strong class="font-medium text-[var(--fg)]">Checkpoint</strong> before long runs, so people can go back.</span></li>
+          </ul>
+        </article>
+      </section>
+    </div>
+  </main>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = (n, w, c) => '<iconify-icon icon="lucide:' + n + '" width="' + (w || 14) + '"' + (c ? ' class="' + c + '"' : '') + '></iconify-icon>';
+  const now = () => new Date().toLocaleTimeString('en-GB', { hour12: false });
+  const code = (s) => '<code class="rounded bg-zinc-100 px-1 py-px font-mono text-[12.5px] text-[var(--fg)]">' + esc(s) + '</code>';
+
+  // ---------- 01 Confirmation ----------
+  function confirmRequest() {
+    $('confirm').innerHTML = '<div class="flex items-center gap-2 text-[13px] font-medium text-amber-700">' + icon('clock', 16) + 'Awaiting approval<span class="ml-auto font-mono text-[11.5px] font-normal text-[var(--faint)]">delete_branch</span></div>'
+      + '<p class="mt-2 text-[14px] leading-snug">Relay wants to delete the branch ' + code('feature/legacy-auth') + '. It has 3 commits that aren\'t on <span class="font-mono text-[12.5px]">main</span>. Do you approve?</p>'
+      + '<dl class="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-xl bg-zinc-50 p-2.5 font-mono text-[12px]"><dt class="text-[var(--faint)]">repo</dt><dd class="truncate">relay/control-plane</dd><dt class="text-[var(--faint)]">last push</dt><dd>41 days ago</dd><dt class="text-[var(--faint)]">undo</dt><dd>Restorable for 30 days</dd></dl>'
+      + '<div class="mt-3 flex justify-end gap-2"><button class="btn btn-ghost" data-decide="reject">Reject</button><button class="btn btn-primary" data-decide="approve">Approve</button></div>';
+  }
+  function decide(kind) {
+    const ok = kind === 'approve';
+    $('confirm').innerHTML = '<div class="rise"><div class="flex items-center gap-2 text-[13px] font-medium ' + (ok ? 'text-emerald-700' : 'text-orange-700') + '">' + icon(ok ? 'circle-check' : 'ban', 16) + (ok ? 'Approved' : 'Rejected') + '<span class="ml-auto font-mono text-[11.5px] font-normal text-[var(--faint)]">' + now() + '</span></div>'
+      + '<p class="mt-1.5 text-[13px] leading-snug text-[var(--muted)]">' + (ok ? 'Relay deleted ' + code('feature/legacy-auth') + ' and noted the 3 commits in the thread.' : 'Relay kept ' + code('feature/legacy-auth') + ' and won\'t ask again in this run.') + '</p>'
+      + '<button class="mt-2 text-[12.5px] font-medium text-[var(--accent)] hover:underline" data-undo>Change decision</button></div>';
+    $('confirm').querySelector('[data-undo]').focus({ preventScroll: true });
+  }
+  $('confirm').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.decide) decide(b.dataset.decide);
+    if ('undo' in b.dataset) { confirmRequest(); $('confirm').querySelector('[data-decide=approve]').focus({ preventScroll: true }); }
+  });
+
+  // ---------- 02 Checkpoint ----------
+  const bubble = (t) => '<div class="flex justify-end"><p class="max-w-[85%] rounded-2xl bg-zinc-100 px-3 py-1.5 text-[13px]">' + esc(t) + '</p></div>';
+  const reply = (t) => '<p class="text-[13px] leading-snug">' + esc(t) + '</p>';
+  function checkpointView(restored) {
+    $('checkpoint').innerHTML = bubble('Bump the staging replicas to 4') + reply('Done. Staging is on 4 replicas and healthy.')
+      + '<div class="flex items-center gap-2 text-[12.5px] text-[var(--muted)]">' + icon('bookmark', 14, restored ? 'text-[var(--accent)]' : '') + '<button data-cp class="shrink-0 rounded-md px-1 font-medium transition-colors hover:text-[var(--fg)]">' + (restored ? 'Undo restore' : 'Restore checkpoint') + '</button><span class="h-px flex-1 bg-[var(--line)]"></span></div>'
+      + (restored ? '<p class="rise rounded-xl bg-indigo-50 px-3 py-2 text-[12.5px] text-indigo-900">Restored. Staging is back on 4 replicas, and the later changes were discarded.</p>' : bubble('Now apply that to production') + reply('Production is scaling to 4 replicas. This should finish in about 3 minutes.'));
+  }
+  $('checkpoint').addEventListener('click', (e) => {
+    if (!e.target.closest('[data-cp]')) return;
+    checkpointView(!$('checkpoint').querySelector('.bg-indigo-50'));
+    $('checkpoint').querySelector('[data-cp]').focus({ preventScroll: true });
+  });
+
+  // ---------- 03 Multi-select question ----------
+  const ENVS = ['Development', 'Staging', 'Canary', 'Production'];
+  let q1State = { picked: new Set(['Staging']), note: '' };
+  function q1Form() {
+    $('q1').innerHTML = '<form id="q1Form"><h3 class="text-[15px] font-medium leading-snug">Which environments should this migration run on?</h3><p class="mt-1 text-[13px] text-[var(--muted)]">Pick any that apply. It runs in the order you see here.</p>'
+      + '<div class="mt-3 flex flex-wrap gap-1.5">' + ENVS.map((n) => '<button type="button" class="chip" data-env="' + n + '" aria-pressed="' + q1State.picked.has(n) + '">' + n + '</button>').join('') + '</div>'
+      + '<label class="mt-3 block"><span class="sr-only">Other requirements</span><textarea id="q1Note" rows="2" placeholder="Anything else Relay should know?" class="w-full resize-y rounded-xl border border-[var(--line)] bg-white p-2.5 text-[13.5px] outline-none transition-colors placeholder:text-[var(--faint)] focus:border-zinc-400">' + esc(q1State.note) + '</textarea></label>'
+      + '<div class="mt-2 flex justify-end"><button id="q1Answer" type="submit" class="btn btn-primary">Answer</button></div></form>';
+    syncQ1();
+  }
+  function syncQ1() { const b = $('q1Answer'); if (b) b.disabled = q1State.picked.size === 0 && !q1State.note.trim(); }
+  function q1Summary() {
+    const picked = ENVS.filter((n) => q1State.picked.has(n));
+    const text = (picked.join(', ') || 'No environments') + (q1State.note.trim() ? ' · “' + q1State.note.trim() + '”' : '');
+    $('q1').innerHTML = '<div class="rise"><div class="flex items-center gap-2 text-[12.5px] text-[var(--muted)]">' + icon('circle-check', 15, 'text-emerald-600') + 'You answered<button id="q1Edit" class="ml-auto font-medium text-[var(--accent)] hover:underline">Edit</button></div><p class="mt-1.5 text-[14px] leading-snug">' + esc(text) + '</p></div>';
+    $('q1Edit').focus({ preventScroll: true });
+  }
+  $('q1').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.env) {
+      q1State.picked.has(b.dataset.env) ? q1State.picked.delete(b.dataset.env) : q1State.picked.add(b.dataset.env);
+      b.setAttribute('aria-pressed', String(q1State.picked.has(b.dataset.env)));
+      syncQ1();
+    }
+    if (b.id === 'q1Edit') { q1Form(); $('q1Answer').focus({ preventScroll: true }); }
+  });
+  $('q1').addEventListener('input', (e) => { if (e.target.id === 'q1Note') { q1State.note = e.target.value; syncQ1(); } });
+  $('q1').addEventListener('submit', (e) => { e.preventDefault(); q1Summary(); });
+
+  // ---------- 04 Option list ----------
+  const WINDOWS = [['now', 'Run it now', 'About 4 minutes of read-only mode for customers.'], ['night', 'Tonight at 02:00 UTC', 'Lowest traffic of the day. Recommended.'], ['weekend', 'This weekend', 'Safest, but delays the billing release by 3 days.']];
+  let q2Value = 'night';
+  function q2Form() {
+    $('q2').innerHTML = '<form id="q2Form"><fieldset><legend class="text-[15px] font-medium leading-snug">When should the migration start?</legend><div class="mt-3 space-y-1.5">' + WINDOWS.map((w) => '<label class="radio-row"><input type="radio" name="window" value="' + w[0] + '"' + (w[0] === q2Value ? ' checked' : '') + ' class="mt-0.5 h-4 w-4 accent-[var(--accent)]"><span><span class="block text-[13.5px] font-medium">' + esc(w[1]) + '</span><span class="block text-[12.5px] leading-snug text-[var(--muted)]">' + esc(w[2]) + '</span></span></label>').join('') + '</div></fieldset><div class="mt-3 flex justify-end"><button type="submit" class="btn btn-primary">Continue</button></div></form>';
+  }
+  $('q2').addEventListener('change', (e) => { if (e.target.name === 'window') q2Value = e.target.value; });
+  $('q2').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const w = WINDOWS.find((x) => x[0] === q2Value);
+    $('q2').innerHTML = '<div class="rise"><div class="flex items-center gap-2 text-[12.5px] text-[var(--muted)]">' + icon('circle-check', 15, 'text-emerald-600') + 'You answered<button id="q2Edit" class="ml-auto font-medium text-[var(--accent)] hover:underline">Edit</button></div><p class="mt-1.5 text-[14px]">' + esc(w[1]) + '</p></div>';
+    $('q2Edit').focus({ preventScroll: true });
+  });
+  $('q2').addEventListener('click', (e) => { if (e.target.closest('#q2Edit')) { q2Form(); $('q2').querySelector('input:checked').focus({ preventScroll: true }); } });
+
+  // ---------- 05 Retry ----------
+  function bindRetry() {
+    $('retry').addEventListener('click', () => {
+      const n = $('errorNote');
+      n.className = 'flex items-start gap-2 rounded-xl bg-sky-50 px-3 py-2.5 text-[13px] leading-snug text-sky-900 ring-1 ring-sky-600/15';
+      n.innerHTML = icon('loader-circle', 15, 'spin mt-px shrink-0 text-sky-600') + '<span>Retrying the deploy tool…</span>';
+      setTimeout(() => {
+        n.className = 'rise flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-[13px] leading-snug text-emerald-900 ring-1 ring-emerald-600/15';
+        n.innerHTML = icon('circle-check', 15, 'mt-px shrink-0 text-emerald-600') + '<span>Deploy finished in 18 s.</span>';
+      }, 1100);
+    });
+  }
+  const errorHtml = $('errorNote').outerHTML;
+
+  // ---------- 06 Feedback ----------
+  function feedback() {
+    $('feedback').innerHTML = icon('info', 15, 'text-[var(--muted)]') + '<span class="ml-0.5 min-w-0 flex-1 truncate text-[13px] font-medium">Was this response helpful?</span><button data-vote class="grid h-8 w-8 place-items-center rounded-full text-[var(--muted)] transition-colors hover:bg-zinc-100 hover:text-[var(--fg)]" aria-label="Yes, helpful">' + icon('thumbs-up', 15) + '</button><button data-vote class="grid h-8 w-8 place-items-center rounded-full text-[var(--muted)] transition-colors hover:bg-zinc-100 hover:text-[var(--fg)]" aria-label="No, not helpful">' + icon('thumbs-down', 15) + '</button><button data-dismiss class="grid h-8 w-8 place-items-center rounded-full text-[var(--muted)] transition-colors hover:bg-zinc-100 hover:text-[var(--fg)]" aria-label="Dismiss">' + icon('x', 15) + '</button>';
+    $('feedback').hidden = false;
+  }
+  $('feedback').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if ('vote' in b.dataset) $('feedback').innerHTML = icon('circle-check', 15, 'text-emerald-600') + '<span class="py-1.5 text-[13px] font-medium">Thanks for the feedback</span>';
+    if ('dismiss' in b.dataset) $('feedback').hidden = true;
+  });
+
+  function resetAll() {
+    q1State = { picked: new Set(['Staging']), note: '' }; q2Value = 'night';
+    confirmRequest(); checkpointView(false); q1Form(); q2Form(); feedback();
+    $('errorNote').outerHTML = errorHtml; bindRetry();
+  }
+  $('reset').addEventListener('click', resetAll);
+  resetAll();
+})();
+</script>
+</body>
+</html>

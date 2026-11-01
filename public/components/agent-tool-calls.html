@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool Call Lifecycle - Agent UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+        }
+      }
+    }
+  };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root { --accent: #3157f6; --fg: #18181b; --muted: #71717a; --faint: #a1a1aa; }
+  body { background: #fafafa; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  iconify-icon { display: inline-block; flex-shrink: 0; }
+  .grid-bg { background-image: linear-gradient(rgba(24,24,27,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(24,24,27,.045) 1px, transparent 1px); background-size: 32px 32px; -webkit-mask-image: linear-gradient(#000, transparent 70%); mask-image: linear-gradient(#000, transparent 70%); }
+  .card { box-shadow: 0 1px 2px rgba(24,24,27,.04), 0 12px 32px -18px rgba(24,24,27,.14); }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  .caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.14em; background: currentColor; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rise { animation: rise .3s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
+  .indet { animation: indet 1.3s ease-in-out infinite; }
+  @keyframes indet { from { transform: translateX(-110%); } to { transform: translateX(330%); } }
+  .pulse-dot { animation: pulse 1.6s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(2,132,199,.45); } 100% { box-shadow: 0 0 0 9px rgba(2,132,199,0); } }
+  .flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px rgba(49,87,246,.35); } 100% { box-shadow: 0 0 0 3px rgba(49,87,246,0); } }
+  .collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s cubic-bezier(.2,.8,.2,1); }
+  .collapse.open { grid-template-rows: 1fr; }
+  .collapse > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s .28s; }
+  .collapse.open > div { visibility: visible; transition: visibility 0s; }
+  .chev { transition: transform .2s ease; }
+  [aria-expanded="true"] > .chev { transform: rotate(180deg); }
+  pre { tab-size: 2; }
+  .j-k { color: #4338ca; } .j-s { color: #047857; } .j-n { color: #b45309; } .j-l { color: #7c3aed; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer { animation: none; background: none; color: var(--fg); }
+    .rise, .indet, .pulse-dot, .flash, .caret { animation: none; }
+    .collapse, .collapse > div, .chev { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans min-h-screen relative overflow-x-hidden">
+  <div class="grid-bg absolute inset-x-0 top-0 h-[360px] pointer-events-none" aria-hidden="true"></div>
+
+  <header class="relative max-w-[1200px] mx-auto px-5 sm:px-8 pt-7 sm:pt-8 pb-5 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div class="min-w-0">
+      <div class="inline-flex items-center gap-2 rounded-full bg-white ring-1 ring-zinc-200 px-2.5 py-1 text-[12px] font-medium text-zinc-600">
+        <span class="w-1.5 h-1.5 rounded-full" style="background: var(--accent)"></span>Agent UI <span class="text-zinc-300">/</span> Tools
+      </div>
+      <h1 class="mt-2.5 text-[27px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-tight">Tool call lifecycle</h1>
+      <p class="mt-1.5 text-[14.5px] text-zinc-500 max-w-[580px]">One tool in every state it can be in, next to a live agent run that asks before it acts and answers with UI instead of JSON.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-1.5 text-[12px] font-mono text-zinc-500">
+      <span class="inline-flex items-center gap-1.5 rounded-md bg-white ring-1 ring-zinc-200 px-2 h-7"><iconify-icon icon="lucide:database" width="13"></iconify-icon>orders-db v3</span>
+      <span class="inline-flex items-center gap-1.5 rounded-md bg-white ring-1 ring-zinc-200 px-2 h-7"><iconify-icon icon="lucide:shield-check" width="13"></iconify-icon>policy: ask on write</span>
+    </div>
+  </header>
+
+  <main class="relative max-w-[1200px] mx-auto px-5 sm:px-8 pb-16 grid lg:grid-cols-2 gap-5 items-start">
+    <!-- 1: state gallery -->
+    <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0" aria-labelledby="galTitle">
+      <div class="flex items-center gap-2.5 px-4 sm:px-5 h-12 border-b border-zinc-100">
+        <span class="font-mono text-[11px] w-5 h-5 grid place-items-center rounded-md bg-zinc-100 text-zinc-500">1</span>
+        <h2 id="galTitle" class="text-[13.5px] font-medium">State gallery</h2>
+        <span class="hidden sm:inline text-[12px] text-zinc-400 truncate">query_orders, eight ways</span>
+        <div class="ml-auto flex items-center gap-1">
+          <button id="toggleAll" type="button" class="h-7 px-2.5 rounded-md text-[12.5px] text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition">Expand all</button>
+          <button id="resetGal" type="button" class="w-7 h-7 grid place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition" aria-label="Reset gallery"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </div>
+      </div>
+      <div id="gallery" class="p-3 sm:p-4 space-y-2"></div>
+    </section>
+
+    <div class="flex flex-col gap-5 min-w-0">
+      <!-- 2: live run -->
+      <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0" aria-labelledby="liveTitle">
+        <div class="flex items-center gap-2.5 px-4 sm:px-5 h-12 border-b border-zinc-100">
+          <span class="font-mono text-[11px] w-5 h-5 grid place-items-center rounded-md bg-zinc-100 text-zinc-500">2</span>
+          <h2 id="liveTitle" class="text-[13.5px] font-medium">Live run</h2>
+          <span class="hidden sm:inline text-[12px] text-zinc-400 truncate">Parcelline support agent</span>
+          <button id="runBtn" type="button" class="ml-auto h-8 inline-flex items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[12.5px] font-medium text-white shadow-[0_6px_16px_-8px_rgba(49,87,246,.9)] hover:brightness-110 active:scale-[.98] transition" style="background: var(--accent)">
+            <iconify-icon icon="lucide:play" width="13"></iconify-icon><span>Run agent</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-3 px-4 sm:px-5 h-10 border-b border-zinc-100 bg-zinc-50/60 text-[12px] text-zinc-500">
+          <span class="inline-flex items-center gap-1.5 min-w-0 truncate"><iconify-icon icon="lucide:message-square" width="13"></iconify-icon>Scenario: late parcel</span>
+          <label class="ml-auto inline-flex items-center gap-2 cursor-pointer select-none">
+            <span>Ask before acting</span>
+            <input id="askToggle" type="checkbox" class="peer sr-only" checked>
+            <span class="relative w-8 h-[18px] rounded-full bg-zinc-300 transition peer-checked:bg-[var(--accent)] peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--accent)] peer-focus-visible:ring-offset-2 after:absolute after:top-[2px] after:left-[2px] after:w-[14px] after:h-[14px] after:rounded-full after:bg-white after:shadow after:transition peer-checked:after:translate-x-[14px]" aria-hidden="true"></span>
+          </label>
+        </div>
+        <div id="thread" class="p-4 sm:p-5 space-y-4" role="log" aria-live="polite" aria-label="Agent run transcript"></div>
+      </section>
+
+      <!-- lifecycle map -->
+      <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 p-4 sm:p-5 min-w-0" aria-labelledby="lifeTitle">
+        <div class="flex items-center gap-2">
+          <iconify-icon icon="lucide:git-fork" width="15" class="text-zinc-400"></iconify-icon>
+          <h2 id="lifeTitle" class="text-[13.5px] font-medium">Lifecycle</h2>
+          <span class="text-[12px] text-zinc-400">click a state to open it in the gallery</span>
+        </div>
+        <div id="life" class="mt-3.5 space-y-2.5 text-[12px]"></div>
+      </section>
+    </div>
+  </main>
+
+<div hidden aria-hidden="true">
+  <iconify-icon icon="lucide:circle"></iconify-icon><iconify-icon icon="lucide:loader-circle"></iconify-icon><iconify-icon icon="lucide:clock"></iconify-icon>
+  <iconify-icon icon="lucide:circle-check"></iconify-icon><iconify-icon icon="lucide:circle-x"></iconify-icon><iconify-icon icon="lucide:ban"></iconify-icon>
+  <iconify-icon icon="lucide:copy"></iconify-icon><iconify-icon icon="lucide:check"></iconify-icon><iconify-icon icon="lucide:wrench"></iconify-icon>
+  <iconify-icon icon="lucide:chevron-down"></iconify-icon><iconify-icon icon="lucide:book-open"></iconify-icon><iconify-icon icon="lucide:user-round-search"></iconify-icon>
+  <iconify-icon icon="lucide:radar"></iconify-icon><iconify-icon icon="lucide:package"></iconify-icon><iconify-icon icon="lucide:shield-alert"></iconify-icon>
+  <iconify-icon icon="lucide:square"></iconify-icon><iconify-icon icon="lucide:map-pin"></iconify-icon><iconify-icon icon="lucide:arrow-right"></iconify-icon>
+  <iconify-icon icon="lucide:corner-down-right"></iconify-icon><iconify-icon icon="lucide:bell"></iconify-icon><iconify-icon icon="lucide:link"></iconify-icon>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+  /* ---------- data ---------- */
+  var PARAMS = '{\n  "status": "delayed",\n  "since": "2026-10-25",\n  "limit": 3\n}';
+  var RESULT = '{\n  "count": 3,\n  "orders": [\n    { "id": "ORD-48213", "eta": "2026-11-03" },\n    { "id": "ORD-48190", "eta": "2026-11-02" },\n    { "id": "ORD-48122", "eta": "2026-11-04" }\n  ],\n  "query_ms": 142\n}';
+  var COPY = { params: PARAMS, result: RESULT };
+  var BADGE = {
+    pending:   ['Pending', 'bg-zinc-100 text-zinc-600 ring-zinc-500/15', 'lucide:circle'],
+    streaming: ['Streaming input', 'bg-sky-50 text-sky-700 ring-sky-600/15', 'lucide:loader-circle', 1],
+    awaiting:  ['Awaiting approval', 'bg-amber-50 text-amber-700 ring-amber-600/20', 'lucide:clock'],
+    approved:  ['Approved', 'bg-indigo-50 text-indigo-700 ring-indigo-600/15', 'lucide:circle-check'],
+    running:   ['Running', 'bg-sky-50 text-sky-700 ring-sky-600/15', 'lucide:loader-circle', 1],
+    completed: ['Completed', 'bg-emerald-50 text-emerald-700 ring-emerald-600/15', 'lucide:circle-check'],
+    error:     ['Error', 'bg-red-50 text-red-700 ring-red-600/15', 'lucide:circle-x'],
+    denied:    ['Denied', 'bg-orange-50 text-orange-700 ring-orange-600/15', 'lucide:ban'],
+    stopped:   ['Stopped', 'bg-zinc-100 text-zinc-600 ring-zinc-500/15', 'lucide:square']
+  };
+  var GALLERY = [
+    { key: 'pending', meta: 'queued' },
+    { key: 'streaming', meta: '0 tok' },
+    { key: 'awaiting', meta: 'needs you' },
+    { key: 'approved', meta: '14:02:11' },
+    { key: 'running', meta: '0.0s' },
+    { key: 'completed', meta: '1.42s', open: true },
+    { key: 'error', meta: '5.00s', open: true },
+    { key: 'denied', meta: '14:03:40' }
+  ];
+  var GROUP = [
+    { name: 'search_docs', icon: 'lucide:book-open', args: '"late delivery policy"', ms: '0.4s' },
+    { name: 'lookup_customer', icon: 'lucide:user-round-search', args: '"j.ortega@fernhill.co"', ms: '0.6s' },
+    { name: 'query_orders', icon: 'lucide:database', args: '{ "id": "48213" }', ms: '0.9s' }
+  ];
+  var STOPS = ['Ordered', 'Packed', 'In transit', 'Out today', 'Delivered'];
+  var SHIP = {
+    approved: { at: 3, pill: ['Out for delivery', 'bg-sky-50 text-sky-700 ring-sky-600/15'], dates: ['Oct 27', 'Oct 28', 'Oct 29', '07:42', '16–18h'], note: 'Van 14 · 9 stops away · ETA today 16:00–18:00', cta: 'Notify customer' },
+    denied:   { at: 2, pill: ['Delayed in transit', 'bg-amber-50 text-amber-700 ring-amber-600/20'], dates: ['Oct 27', 'Oct 28', 'Oct 29', '—', '—'], note: 'Last scan Oct 29, 21:14 at Leeds hub · no live position', cta: 'Notify customer' }
+  };
+  var TEXT = {
+    intro: 'Order #48213 left the Leeds hub on Oct 29 and has not been scanned since. A carrier trace would give us its live position.',
+    approved: 'Found it. The parcel was mis-sorted to Bristol, rerouted overnight and is on the van today.',
+    denied: 'Understood, no trace opened. Here is where it stands from the last scan only.',
+    auto: 'Policy allows traces under £1, so I opened one automatically.'
+  };
+
+  /* ---------- helpers ---------- */
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function hl(code) {
+    return esc(code).replace(/("(?:[^"\\]|\\.)*")(\s*:)?|\b(true|false|null)\b|-?\b\d+(?:\.\d+)?\b/g, function (m, str, colon, lit) {
+      if (str) return '<span class="' + (colon ? 'j-k' : 'j-s') + '">' + str + '</span>' + (colon || '');
+      return '<span class="' + (lit ? 'j-l' : 'j-n') + '">' + m + '</span>';
+    });
+  }
+  function badge(key, live) {
+    var b = BADGE[key];
+    return '<span class="shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium ring-1 ' + b[1] + '"' + (live ? ' data-live' : '') + '>' +
+      '<iconify-icon icon="' + b[2] + '" width="12"' + (b[3] ? ' class="spin"' : '') + '></iconify-icon>' + b[0] + '</span>';
+  }
+  function microLabel(text, tone, copyKey) {
+    return '<div class="flex items-center justify-between mb-1.5"><span class="font-mono text-[10.5px] uppercase tracking-[0.1em] ' + (tone || 'text-zinc-400') + '">' + text + '</span>' +
+      (copyKey ? '<button type="button" class="copy w-6 h-6 grid place-items-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 transition" data-copy="' + copyKey + '" aria-label="Copy ' + text.toLowerCase() + '"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>' : '') + '</div>';
+  }
+  function codeBlock(code, extra) {
+    return '<pre class="rounded-lg bg-zinc-50 ring-1 ring-zinc-200/80 px-3 py-2.5 font-mono text-[12px] leading-5 text-zinc-700 overflow-x-auto ' + (extra || '') + '"><code>' + hl(code) + '</code></pre>';
+  }
+  function note(tone, icon, html) {
+    var tones = {
+      indigo: 'bg-indigo-50/70 ring-indigo-600/10 text-indigo-900 [&>iconify-icon]:text-indigo-600',
+      orange: 'bg-orange-50/70 ring-orange-600/15 text-orange-900 [&>iconify-icon]:text-orange-600',
+      zinc: 'bg-zinc-50 ring-zinc-200 text-zinc-600 [&>iconify-icon]:text-zinc-400'
+    };
+    return '<div class="flex items-start gap-2 rounded-lg ring-1 px-3 py-2 text-[12.5px] leading-5 ' + tones[tone] + '"><iconify-icon icon="' + icon + '" width="14" class="mt-[3px]"></iconify-icon><span>' + html + '</span></div>';
+  }
+  function confirmBox(attr, html) {
+    return '<div class="rounded-lg bg-amber-50/60 ring-1 ring-amber-600/15 p-3" data-confirm>' +
+      '<p class="flex items-start gap-2 text-[13px] leading-5 text-zinc-700"><iconify-icon icon="lucide:shield-alert" width="15" class="mt-[2px] text-amber-600"></iconify-icon><span>' + html + '</span></p>' +
+      '<div class="mt-3 flex justify-end gap-2">' +
+        '<button type="button" ' + attr + '="denied" class="h-8 px-3.5 rounded-lg bg-white ring-1 ring-zinc-200 text-[12.5px] font-medium text-zinc-700 hover:ring-zinc-300 hover:bg-zinc-50 active:scale-[.98] transition">Deny</button>' +
+        '<button type="button" ' + attr + '="approved" class="h-8 px-3.5 rounded-lg bg-zinc-900 text-[12.5px] font-medium text-white hover:bg-zinc-700 active:scale-[.98] transition">Approve</button>' +
+      '</div></div>';
+  }
+  function now() { return new Date().toLocaleTimeString('en-GB', { hour12: false }); }
+  function setOpen(btn, open) {
+    btn.setAttribute('aria-expanded', String(open));
+    $(btn.getAttribute('aria-controls')).classList.toggle('open', open);
+  }
+
+  /* ---------- 1: gallery ---------- */
+  function galleryBody(state, meta) {
+    var params = microLabel('Parameters', '', 'params') + codeBlock(PARAMS);
+    switch (state) {
+      case 'pending':
+        return microLabel('Parameters') + codeBlock('{}', 'text-zinc-400') + note('zinc', 'lucide:hourglass', 'Waiting for the model to choose arguments.');
+      case 'streaming':
+        return microLabel('Parameters') + '<pre class="rounded-lg bg-zinc-50 ring-1 ring-zinc-200/80 px-3 py-2.5 font-mono text-[12px] leading-5 text-zinc-700 min-h-[124px]"><code data-typing></code><span class="caret text-sky-600"></span></pre>';
+      case 'awaiting':
+        return params + confirmBox('data-gal-decide', '<span class="font-mono text-[12px] text-zinc-900">query_orders</span> wants to read <b class="font-medium text-zinc-900">1,284 customer rows</b> from <span class="font-mono text-[12px]">orders-db (production)</span>. Do you approve this action?');
+      case 'approved':
+        return params + note('indigo', 'lucide:circle-check', 'Approved by you at <span class="font-mono tabular-nums">' + meta + '</span> · queued to run');
+      case 'running':
+        return params + '<div>' + microLabel('Result') + '<div class="rounded-lg ring-1 ring-zinc-200/80 px-3 py-2.5"><p class="text-[12.5px]"><span class="shimmer">Querying orders-db across 3 shards…</span></p><div class="mt-2.5 h-1 rounded-full bg-zinc-100 overflow-hidden"><div class="indet h-full w-1/3 rounded-full bg-sky-500"></div></div></div></div>';
+      case 'completed':
+        return params + '<div>' + microLabel('Result', 'text-emerald-700', 'result') + codeBlock(RESULT) + '</div>' +
+          '<div class="flex items-center gap-3 font-mono text-[11.5px] text-zinc-400"><span>3 rows</span><span>142 ms query</span><span>1.42 s total</span></div>';
+      case 'error':
+        return '<p class="font-mono text-[11.5px] text-zinc-400 truncate">args {"status":"delayed","since":"2026-10-25","limit":3}</p>' +
+          '<div>' + microLabel('Error', 'text-red-600') + '<div class="rounded-lg bg-red-50 ring-1 ring-red-600/15 px-3 py-2.5 font-mono text-[12px] leading-5 text-red-800">' +
+          '<p class="font-medium">TimeoutError: orders-replica-2 did not answer within 5000 ms</p><p class="text-red-700/70">at query_orders (tools/orders.ts:88:13)</p></div></div>' +
+          '<div class="flex items-center justify-between gap-3"><span class="text-[12px] text-zinc-500">The agent retries once before giving up.</span>' +
+          '<button type="button" data-retry class="h-7 px-3 rounded-md bg-white ring-1 ring-zinc-200 text-[12px] font-medium text-zinc-700 hover:ring-zinc-300 hover:bg-zinc-50 inline-flex items-center gap-1.5 transition"><iconify-icon icon="lucide:rotate-cw" width="12"></iconify-icon>Retry</button></div>';
+      case 'denied':
+        return params + note('orange', 'lucide:ban', 'Denied by you at <span class="font-mono tabular-nums">' + meta + '</span>. The agent was told the call was refused and continued without order data.');
+    }
+  }
+  function galleryCard(g) {
+    return '<article class="tool rounded-xl bg-white ring-1 ring-zinc-200 hover:ring-zinc-300 transition-shadow" id="g-' + g.key + '">' +
+      '<h3><button type="button" data-toggle aria-expanded="' + !!g.open + '" aria-controls="gb-' + g.key + '" class="w-full flex items-center gap-2.5 px-3 h-11 text-left rounded-xl">' +
+        '<span class="w-6 h-6 rounded-md bg-zinc-100 text-zinc-500 grid place-items-center"><iconify-icon icon="lucide:database" width="13"></iconify-icon></span>' +
+        '<span class="font-mono text-[13px] text-zinc-900">query_orders</span>' +
+        '<span data-badge>' + badge(g.key) + '</span>' +
+        '<span class="ml-auto hidden sm:inline font-mono tabular-nums text-[11.5px] text-zinc-400" data-meta>' + g.meta + '</span>' +
+        '<iconify-icon icon="lucide:chevron-down" width="15" class="chev ml-auto sm:ml-0 text-zinc-400"></iconify-icon>' +
+      '</button></h3>' +
+      '<div id="gb-' + g.key + '" class="collapse' + (g.open ? ' open' : '') + '"><div><div class="px-3 pb-3 pt-0.5 space-y-3" data-body>' + galleryBody(g.key, g.meta) + '</div></div></div>' +
+    '</article>';
+  }
+  function setGallery(cardKey, state, meta) {
+    var card = $('g-' + cardKey);
+    card.querySelector('[data-badge]').innerHTML = badge(state);
+    card.querySelector('[data-meta]').textContent = meta;
+    card.querySelector('[data-body]').innerHTML = galleryBody(state, meta);
+  }
+  function renderGallery() {
+    $('gallery').innerHTML = GALLERY.map(galleryCard).join('');
+    $('toggleAll').textContent = 'Expand all';
+  }
+  var typed = 0, runT0 = performance.now();
+  setInterval(function () {
+    var box = document.querySelector('[data-typing]');
+    var meta = document.querySelector('#g-streaming [data-meta]');
+    if (!box) return;
+    typed = typed > PARAMS.length + 18 ? 0 : typed + 1;
+    box.innerHTML = hl(PARAMS.slice(0, Math.min(typed, PARAMS.length)));
+    if (meta) meta.textContent = Math.round(Math.min(typed, PARAMS.length) / 3.4) + ' tok';
+  }, 70);
+  setInterval(function () {
+    var meta = document.querySelector('#g-running [data-meta]');
+    if (meta && document.querySelector('#g-running .indet')) meta.textContent = (((performance.now() - runT0) / 1000) % 4).toFixed(1) + 's';
+  }, 100);
+
+  /* ---------- lifecycle map ---------- */
+  function lifePill(key) {
+    return '<button type="button" data-goto="' + key + '" class="rounded-full hover:-translate-y-px active:translate-y-0 transition" aria-label="Open the ' + BADGE[key][0] + ' example">' + badge(key) + '</button>';
+  }
+  var arrow = '<iconify-icon icon="lucide:arrow-right" width="13" class="text-zinc-300"></iconify-icon>';
+  var branch = '<iconify-icon icon="lucide:corner-down-right" width="14" class="text-zinc-300 ml-3"></iconify-icon>';
+  $('life').innerHTML =
+    '<div class="flex flex-wrap items-center gap-1.5">' + ['pending', 'streaming', 'awaiting'].map(lifePill).join(arrow) + '</div>' +
+    '<div class="flex flex-wrap items-center gap-1.5">' + branch + ['approved', 'running', 'completed'].map(lifePill).join(arrow) + '<span class="text-zinc-300 px-0.5">or</span>' + lifePill('error') + '</div>' +
+    '<div class="flex flex-wrap items-center gap-1.5">' + branch + lifePill('denied') + '<span class="text-zinc-400">the agent continues without the result</span></div>';
+
+  /* ---------- 2: live run ---------- */
+  var run = 0, running = false;
+  function add(html, cls) {
+    var d = document.createElement('div');
+    d.className = 'rise ' + (cls || '');
+    d.innerHTML = html;
+    $('thread').appendChild(d);
+    return d;
+  }
+  async function stream(el, text, id, fast) {
+    if (fast) { el.textContent = text; return true; }
+    var caret = document.createElement('span');
+    caret.className = 'caret text-zinc-500';
+    var span = document.createElement('span');
+    el.append(span, caret);
+    var w = text.match(/\s+|\S+\s*/g);
+    for (var i = 0; i < w.length; i++) {
+      if (id !== run) { caret.remove(); return false; }
+      span.textContent += w[i];
+      await wait(32);
+    }
+    caret.remove();
+    return true;
+  }
+  function textBlock() { return add('<p class="text-[14px] leading-relaxed text-zinc-800"></p>').firstChild; }
+  function groupRow(t, state) {
+    var icon = state === 'running' ? '<iconify-icon icon="lucide:loader-circle" width="14" class="spin text-sky-600"></iconify-icon>'
+      : state === 'completed' ? '<iconify-icon icon="lucide:circle-check" width="14" class="text-emerald-600"></iconify-icon>'
+      : state === 'stopped' ? '<iconify-icon icon="lucide:square" width="13" class="text-zinc-400"></iconify-icon>'
+      : '<iconify-icon icon="lucide:circle" width="14" class="text-zinc-300"></iconify-icon>';
+    return icon + '<span class="font-mono text-[12.5px] ' + (state === 'pending' ? 'text-zinc-400' : 'text-zinc-800') + '">' + t.name + '</span>' +
+      '<span class="min-w-0 truncate font-mono text-[11.5px] text-zinc-400">' + esc(t.args) + '</span>' +
+      '<span class="ml-auto shrink-0 font-mono tabular-nums text-[11.5px] text-zinc-400">' + (state === 'completed' ? t.ms : state === 'running' ? '…' : '') + '</span>';
+  }
+  function addGroup() {
+    var el = add(
+      '<div class="rounded-xl ring-1 ring-zinc-200 bg-white">' +
+        '<button type="button" data-toggle aria-expanded="true" aria-controls="grpBody" class="w-full flex items-center gap-2 px-3 h-10 rounded-xl text-[13px] text-zinc-600 hover:text-zinc-900">' +
+          '<iconify-icon icon="lucide:wrench" width="14"></iconify-icon><span data-glabel class="shimmer font-medium">Using 3 tools…</span>' +
+          '<span class="ml-auto flex -space-x-1" data-gicons>' + GROUP.map(function (t) { return '<span class="w-5 h-5 rounded-full bg-zinc-100 ring-2 ring-white grid place-items-center text-zinc-500"><iconify-icon icon="' + t.icon + '" width="11"></iconify-icon></span>'; }).join('') + '</span>' +
+          '<iconify-icon icon="lucide:chevron-down" width="15" class="chev text-zinc-400"></iconify-icon>' +
+        '</button>' +
+        '<div id="grpBody" class="collapse open"><div><ul class="px-3 pb-3 pt-0.5 space-y-2 border-t border-zinc-100 mx-0">' +
+          GROUP.map(function (t, i) { return '<li class="flex items-center gap-2 pt-2 first:pt-2.5" data-row="' + i + '">' + groupRow(t, 'pending') + '</li>'; }).join('') +
+        '</ul></div></div>' +
+      '</div>');
+    return {
+      row: function (i, state) { el.querySelector('[data-row="' + i + '"]').innerHTML = groupRow(GROUP[i], state); },
+      done: function () {
+        var l = el.querySelector('[data-glabel]');
+        l.textContent = 'Used 3 tools';
+        l.className = 'font-medium';
+        setOpen(el.querySelector('[data-toggle]'), false);
+      }
+    };
+  }
+  function traceCard(state, outcome, time, auto) {
+    var body;
+    if (state === 'awaiting') {
+      body = confirmBox('data-live-decide', '<span class="font-mono text-[12px] text-zinc-900">request_carrier_trace</span> wants to open a trace with DPD for parcel <span class="font-mono text-[12px]">1Z84A2F091</span>. The carrier charges a £0.40 fee. Do you approve this action?');
+    } else {
+      var ok = outcome === 'approved';
+      body = '<div class="flex items-center gap-2 rounded-lg px-3 py-2 text-[12.5px] ring-1 ' + (ok ? 'bg-emerald-50/70 ring-emerald-600/15 text-emerald-900' : 'bg-orange-50/70 ring-orange-600/15 text-orange-900') + '">' +
+        '<iconify-icon icon="' + (ok ? 'lucide:circle-check' : 'lucide:ban') + '" width="14" class="' + (ok ? 'text-emerald-600' : 'text-orange-600') + '"></iconify-icon>' +
+        '<span>' + (ok ? (auto ? 'Auto-approved by policy' : 'Accepted by you') : 'Rejected by you') + '</span>' +
+        '<span class="ml-auto font-mono tabular-nums text-[11.5px] opacity-70">' + time + '</span></div>' +
+        (state === 'running' ? '<p class="mt-2 text-[12.5px] px-0.5"><span class="shimmer">Contacting DPD trace desk…</span></p>' : '');
+    }
+    return '<div class="rounded-xl ring-1 ring-zinc-200 bg-white">' +
+      '<div class="flex items-center gap-2.5 px-3 h-11"><span class="w-6 h-6 rounded-md bg-zinc-100 text-zinc-500 grid place-items-center"><iconify-icon icon="lucide:radar" width="13"></iconify-icon></span>' +
+      '<span class="font-mono text-[13px] text-zinc-900 truncate">request_carrier_trace</span>' + badge(state, state === 'running') +
+      '<span class="ml-auto hidden sm:inline font-mono text-[11.5px] text-zinc-400">£0.40</span></div>' +
+      '<div class="px-3 pb-3">' + body + '</div></div>';
+  }
+  function shipmentCard(kind) {
+    var s = SHIP[kind];
+    var pct = (s.at / (STOPS.length - 1)) * 100;
+    return '<div class="rounded-2xl ring-1 ring-zinc-200 bg-gradient-to-b from-white to-zinc-50/80 p-4 shadow-[0_8px_24px_-16px_rgba(24,24,27,.25)]">' +
+      '<div class="flex items-start gap-3">' +
+        '<span class="w-10 h-10 shrink-0 rounded-xl bg-[var(--accent)] text-white grid place-items-center shadow-[0_6px_14px_-6px_rgba(49,87,246,.8)]"><iconify-icon icon="lucide:package" width="19"></iconify-icon></span>' +
+        '<div class="min-w-0 flex-1"><p class="text-[14.5px] font-semibold tracking-[-0.01em]">Order #48213</p><p class="text-[12px] text-zinc-500 truncate">2 items · DPD · <span class="font-mono">1Z84A2F091</span></p></div>' +
+        '<span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[11.5px] font-medium ring-1 ' + s.pill[1] + '">' + s.pill[0] + '</span>' +
+      '</div>' +
+      '<div class="relative mt-5 mx-[7px]">' +
+        '<div class="absolute left-0 right-0 top-[5px] h-[2px] rounded-full bg-zinc-200"></div>' +
+        '<div class="absolute left-0 top-[5px] h-[2px] rounded-full bg-[var(--accent)]" style="width:' + pct + '%"></div>' +
+        '<div class="relative flex justify-between">' + STOPS.map(function (_, i) {
+          var cls = i < s.at ? 'bg-[var(--accent)]' : i === s.at ? (kind === 'approved' ? 'bg-sky-500 pulse-dot ring-2 ring-white' : 'bg-amber-500 ring-2 ring-white') : 'bg-white ring-2 ring-zinc-200';
+          return '<span class="w-3 h-3 rounded-full ' + cls + '"></span>';
+        }).join('') + '</div>' +
+      '</div>' +
+      '<div class="mt-2 grid grid-cols-5 text-[11px] leading-4">' + STOPS.map(function (l, i) {
+        var align = i === 0 ? 'text-left' : i === STOPS.length - 1 ? 'text-right' : 'text-center';
+        return '<div class="' + align + '"><p class="' + (i <= s.at ? 'text-zinc-800 font-medium' : 'text-zinc-400') + '">' + l + '</p><p class="font-mono tabular-nums text-zinc-400">' + s.dates[i] + '</p></div>';
+      }).join('') + '</div>' +
+      '<div class="mt-4 pt-3 border-t border-zinc-200/70 flex flex-wrap items-center gap-2">' +
+        '<span class="inline-flex items-center gap-1.5 min-w-0 text-[12px] text-zinc-600"><iconify-icon icon="lucide:map-pin" width="13" class="text-zinc-400"></iconify-icon><span class="truncate">' + s.note + '</span></span>' +
+        '<div class="ml-auto flex gap-1.5">' +
+          '<button type="button" class="copy h-7 px-2.5 rounded-md bg-white ring-1 ring-zinc-200 text-[12px] font-medium text-zinc-700 hover:ring-zinc-300 inline-flex items-center gap-1.5 transition" data-copy="link" aria-label="Copy tracking link"><iconify-icon icon="lucide:link" width="12"></iconify-icon>Link</button>' +
+          '<button type="button" data-notify class="h-7 px-2.5 rounded-md bg-zinc-900 text-[12px] font-medium text-white hover:bg-zinc-700 inline-flex items-center gap-1.5 transition"><iconify-icon icon="lucide:bell" width="12"></iconify-icon>' + s.cta + '</button>' +
+        '</div>' +
+      '</div></div>';
+  }
+  function pills(outcome) {
+    var list = GROUP.map(function (t) { return [t.name, 'completed']; }).concat([['request_carrier_trace', outcome === 'approved' ? 'completed' : 'denied']]);
+    return '<div class="flex flex-wrap gap-1.5">' + list.map(function (p) {
+      var ok = p[1] === 'completed';
+      return '<span class="inline-flex items-center gap-1.5 rounded-full bg-white ring-1 ring-zinc-200 pl-1.5 pr-2.5 h-7 text-[12px]">' +
+        '<iconify-icon icon="' + (ok ? 'lucide:circle-check' : 'lucide:ban') + '" width="14" class="' + (ok ? 'text-emerald-600' : 'text-orange-600') + '"></iconify-icon>' +
+        '<span class="font-mono text-zinc-800">' + p[0] + '</span><span class="' + (ok ? 'text-emerald-700' : 'text-orange-700') + '">' + (ok ? 'Completed' : 'Denied') + '</span></span>';
+    }).join('') + '</div>';
+  }
+
+  var decide = null;
+  async function play(fast) {
+    var id = ++run;
+    var pause = function (ms) { return fast ? Promise.resolve() : wait(ms); };
+    setRunning(!fast);
+    $('thread').innerHTML = '';
+    add('<div class="flex justify-end"><p class="max-w-[85%] rounded-2xl bg-zinc-100 px-3.5 py-2 text-[14px] leading-relaxed">Where is order #48213? The customer says it is three days late.</p></div>');
+    await pause(450); if (id !== run) return;
+    add('<div class="flex items-center gap-2 text-[12.5px] text-zinc-500"><span class="w-5 h-5 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[10px] font-semibold">P</span>Parcelline Assist</div>');
+    var g = addGroup();
+    for (var i = 0; i < GROUP.length; i++) {
+      await pause(260); if (id !== run) return;
+      g.row(i, 'running');
+      if (i > 0) { await pause(380); if (id !== run) return; g.row(i - 1, 'completed'); }
+    }
+    await pause(560); if (id !== run) return;
+    g.row(GROUP.length - 1, 'completed');
+    await pause(320); if (id !== run) return;
+    g.done();
+    await pause(240); if (id !== run) return;
+    if (!(await stream(textBlock(), TEXT.intro, id, fast))) return;
+    await pause(300); if (id !== run) return;
+
+    var ask = $('askToggle').checked && !fast;
+    var card = add(traceCard(ask ? 'awaiting' : 'approved', 'approved', now(), !ask && !fast));
+    var outcome = 'approved';
+    if (ask) {
+      outcome = await new Promise(function (r) { decide = r; });
+      decide = null;
+      if (id !== run) return;
+    }
+    var stamp = now();
+    if (outcome === 'approved') {
+      card.innerHTML = traceCard('approved', outcome, stamp, !ask && !fast);
+      await pause(500); if (id !== run) return;
+      card.innerHTML = traceCard('running', outcome, stamp, !ask);
+      await pause(1400); if (id !== run) return;
+      card.innerHTML = traceCard('completed', outcome, fast ? '14:06:12' : stamp, !ask && !fast);
+    } else {
+      card.innerHTML = traceCard('denied', outcome, stamp);
+    }
+    await pause(250); if (id !== run) return;
+    var txt = outcome === 'approved' ? (ask || fast ? TEXT.approved : TEXT.auto + ' ' + TEXT.approved) : TEXT.denied;
+    if (!(await stream(textBlock(), txt, id, fast))) return;
+    await pause(200); if (id !== run) return;
+    add(shipmentCard(outcome));
+    await pause(400); if (id !== run) return;
+    add(pills(outcome));
+    setRunning(false, true);
+  }
+  function setRunning(on, done) {
+    running = on;
+    var btn = $('runBtn');
+    btn.innerHTML = on ? '<iconify-icon icon="lucide:square" width="12"></iconify-icon><span>Stop</span>'
+      : '<iconify-icon icon="' + (done ? 'lucide:rotate-ccw' : 'lucide:play') + '" width="13"></iconify-icon><span>' + (done ? 'Run again' : 'Run agent') + '</span>';
+    btn.setAttribute('aria-label', on ? 'Stop the run' : 'Run the agent');
+  }
+  function stop() {
+    run++;
+    if (decide) { decide = null; }
+    document.querySelectorAll('#thread .caret').forEach(function (c) { c.remove(); });
+    document.querySelectorAll('#thread [data-live]').forEach(function (b) { b.outerHTML = badge('stopped'); });
+    document.querySelectorAll('#thread [data-row]').forEach(function (r) { if (r.querySelector('.spin')) r.innerHTML = groupRow(GROUP[+r.dataset.row], 'stopped'); });
+    document.querySelectorAll('#thread .shimmer').forEach(function (s) { s.classList.remove('shimmer'); });
+    document.querySelectorAll('#thread [data-confirm] button').forEach(function (b) { b.disabled = true; b.classList.add('opacity-50'); });
+    add('<p class="flex items-center gap-2 text-[12.5px] text-zinc-500"><iconify-icon icon="lucide:square" width="12"></iconify-icon>Run stopped by you at <span class="font-mono tabular-nums">' + now() + '</span></p>');
+    setRunning(false, true);
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-toggle]');
+    if (t) setOpen(t, t.getAttribute('aria-expanded') !== 'true');
+
+    var copy = e.target.closest('.copy');
+    if (copy) {
+      var text = COPY[copy.dataset.copy] || 'https://track.parcelline.example/1Z84A2F091';
+      if (navigator.clipboard) navigator.clipboard.writeText(text).catch(function () {});
+      var old = copy.innerHTML;
+      copy.innerHTML = copy.innerHTML.replace(/lucide:(copy|link)/, 'lucide:check');
+      copy.classList.add('text-emerald-600');
+      setTimeout(function () { copy.innerHTML = old; copy.classList.remove('text-emerald-600'); }, 1200);
+    }
+
+    var gd = e.target.closest('[data-gal-decide]');
+    if (gd) { setGallery('awaiting', gd.dataset.galDecide, now()); $('g-awaiting').querySelector('[data-toggle]').focus(); }
+
+    var ld = e.target.closest('[data-live-decide]');
+    if (ld && decide) decide(ld.dataset.liveDecide);
+
+    var retry = e.target.closest('[data-retry]');
+    if (retry) {
+      runT0 = performance.now();
+      setGallery('error', 'running', '0.0s');
+      setTimeout(function () { setGallery('error', 'completed', '1.18s'); }, 1600);
+    }
+
+    var go = e.target.closest('[data-goto]');
+    if (go) {
+      var card = $('g-' + go.dataset.goto);
+      setOpen(card.querySelector('[data-toggle]'), true);
+      card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    }
+
+    var notify = e.target.closest('[data-notify]');
+    if (notify) {
+      notify.innerHTML = '<iconify-icon icon="lucide:check" width="12"></iconify-icon>Customer notified';
+      notify.className = 'h-7 px-2.5 rounded-md bg-emerald-600 text-[12px] font-medium text-white inline-flex items-center gap-1.5';
+      notify.disabled = true;
+    }
+  });
+  $('runBtn').addEventListener('click', function () { running ? stop() : play(false); });
+  $('toggleAll').addEventListener('click', function () {
+    var open = this.textContent === 'Expand all';
+    document.querySelectorAll('#gallery [data-toggle]').forEach(function (b) { setOpen(b, open); });
+    this.textContent = open ? 'Collapse all' : 'Expand all';
+  });
+  $('resetGal').addEventListener('click', renderGallery);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && running) stop(); });
+
+  renderGallery();
+  play(true);
+})();
+</script>
+</body>
+</html>

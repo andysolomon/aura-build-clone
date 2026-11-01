@@ -1,6 +1,6 @@
 import { AtSign, BookText, Check, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useJson, type ComponentEntry } from "../lib/content";
+import { useComponents } from "../lib/content";
 import { SKILLS } from "../lib/skills";
 import { MAX_REFERENCES, MAX_SKILLS, componentItems, templateItems, type ReferenceItem } from "../lib/references";
 import { cx } from "../lib/util";
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function useReferenceCatalog(): ReferenceItem[] {
-  const components = useJson<ComponentEntry[]>("/components/index.json", []);
+  const components = useComponents();
   return useMemo(() => [...templateItems(), ...componentItems(components)], [components]);
 }
 

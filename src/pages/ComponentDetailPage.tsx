@@ -5,7 +5,7 @@ import { CodeBlock } from "../components/CodeBlock";
 import { DEVICE_WIDTH, DeviceToggle, type Device } from "../components/DeviceToggle";
 import { Avatar } from "../components/TemplateCard";
 import { Badge, Button, Spinner } from "../components/ui";
-import { componentHtmlUrl, pseudoStats, useJson, type ComponentEntry } from "../lib/content";
+import { componentHtmlUrl, pseudoStats, useComponents } from "../lib/content";
 import { setPrefill } from "../lib/prefill";
 import { createProjectFromHtml } from "../lib/projects";
 import { componentRef } from "../lib/references";
@@ -15,7 +15,7 @@ import { ComponentCard } from "./ComponentsPage";
 export function ComponentDetailPage() {
   const { slug = "" } = useParams();
   const navigate = useNavigate();
-  const components = useJson<ComponentEntry[]>("/components/index.json", []);
+  const components = useComponents();
   const component = components.find((c) => c.slug === slug);
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [device, setDevice] = useState<Device>("desktop");

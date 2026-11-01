@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almanac - Sources and inline citations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'], serif: ['Newsreader', 'Georgia', 'serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --paper: #fbfaf7; --ink: #1c1917; --muted: #78716c; --faint: #a8a29e; --line: #e7e5e0; --accent: #0f766e; --mark: #fef3c7; }
+  body { background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .prose-answer { font-family: Newsreader, Georgia, serif; font-size: 19px; line-height: 1.62; font-optical-sizing: auto; }
+  .cite { display: inline-flex; align-items: center; height: 21px; padding: 0 8px; margin: 0 2px; border-radius: 999px; background: #efece5; color: #57534e; font: 500 11.5px/1 Geist, system-ui, sans-serif; white-space: nowrap; vertical-align: 2px; cursor: pointer; transition: background-color .15s, color .15s; }
+  .cite:hover, .cite[aria-expanded="true"] { background: var(--ink); color: #fff; }
+  .card { box-shadow: 0 0 0 1px rgba(28,25,23,.08), 0 18px 40px -14px rgba(28,25,23,.3); animation: card .14s ease-out both; } @keyframes card { from { opacity: 0; transform: translateY(4px) } }
+  .shimmer { background: linear-gradient(90deg, var(--faint) 35%, var(--ink) 50%, var(--faint) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0 } to { background-position: -150% 0 } }
+  .caret::after { content: ""; display: inline-block; width: 2px; height: .95em; margin-left: 2px; vertical-align: -.12em; background: var(--accent); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0 } }
+  .rise { animation: rise .35s cubic-bezier(.2,.8,.2,1) both; } @keyframes rise { from { opacity: 0; transform: translateY(8px) } }
+  .sources-row { scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 94%, transparent); mask-image: linear-gradient(90deg, #000 94%, transparent); } .sources-row::-webkit-scrollbar { display: none; }
+  @media (prefers-reduced-motion: reduce) { .card, .shimmer, .caret::after, .rise { animation: none; } .shimmer { color: var(--muted); background: none; } }
+</style>
+</head>
+<body class="font-sans">
+  <header class="mx-auto flex h-14 max-w-[820px] items-center gap-3 px-5">
+    <span class="flex items-center gap-2 text-[15px] font-semibold tracking-tight"><span class="grid h-6 w-6 place-items-center rounded-md bg-[var(--ink)] text-[var(--paper)]"><iconify-icon icon="lucide:library-big" width="14"></iconify-icon></span>Almanac</span>
+    <span class="ml-auto hidden font-mono text-[11.5px] text-[var(--faint)] sm:block">Answer · 6 sources · 9 s</span>
+    <button id="share" class="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-[var(--muted)] transition-colors hover:bg-black/5 hover:text-[var(--ink)] max-sm:ml-auto"><iconify-icon icon="lucide:link" width="14"></iconify-icon>Copy link</button>
+  </header>
+
+  <main id="feed" role="log" aria-live="polite" aria-label="Answers" class="mx-auto max-w-[820px] px-5 pb-40"></main>
+
+  <div class="pointer-events-none fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[var(--paper)] via-[var(--paper)] to-transparent pb-4 pt-8">
+    <form id="composer" class="pointer-events-auto mx-auto flex max-w-[780px] items-end gap-2 rounded-2xl border border-[var(--line)] bg-white p-2 shadow-[0_10px_30px_-14px_rgba(28,25,23,.25)] transition-colors focus-within:border-stone-400 max-[820px]:mx-4">
+      <label for="input" class="sr-only">Ask a follow-up</label>
+      <iconify-icon icon="lucide:search" width="16" class="mb-[9px] ml-2 shrink-0 text-[var(--faint)]"></iconify-icon>
+      <textarea id="input" rows="1" placeholder="Ask a follow-up…" class="max-h-28 min-w-0 flex-1 resize-none bg-transparent py-1.5 text-[14.5px] leading-snug outline-none placeholder:text-[var(--faint)]"></textarea>
+      <button id="send" type="submit" disabled class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[var(--ink)] text-white transition-opacity hover:opacity-85 disabled:opacity-25" aria-label="Send question"><iconify-icon id="sendIcon" icon="lucide:arrow-up" width="16"></iconify-icon></button>
+    </form>
+  </div>
+
+  <div id="card" role="dialog" aria-label="Citation sources" hidden class="card fixed z-30 w-[330px] max-w-[calc(100vw-24px)] rounded-2xl bg-white p-3.5">
+    <div class="flex items-center gap-1">
+      <span id="cardFav" class="grid h-5 w-5 shrink-0 place-items-center rounded text-[10.5px] font-semibold text-white"></span>
+      <span id="cardDomain" class="ml-1 min-w-0 flex-1 truncate text-[12px] text-[var(--muted)]"></span>
+      <button id="cardPrev" class="grid h-6 w-6 place-items-center rounded-md text-[var(--muted)] hover:bg-stone-100 hover:text-[var(--ink)] disabled:opacity-30" aria-label="Previous source"><iconify-icon icon="lucide:chevron-left" width="15"></iconify-icon></button>
+      <span id="cardPos" class="min-w-[26px] text-center font-mono text-[11px] tabular-nums text-[var(--muted)]"></span>
+      <button id="cardNext" class="grid h-6 w-6 place-items-center rounded-md text-[var(--muted)] hover:bg-stone-100 hover:text-[var(--ink)] disabled:opacity-30" aria-label="Next source"><iconify-icon icon="lucide:chevron-right" width="15"></iconify-icon></button>
+    </div>
+    <a id="cardTitle" href="#" class="mt-2 block text-[14px] font-medium leading-snug hover:underline"></a>
+    <p id="cardSnippet" class="mt-1 text-[12.5px] leading-relaxed text-[var(--muted)]"></p>
+    <blockquote class="mt-2.5 border-l-2 border-amber-300 pl-2.5 font-serif text-[14px] leading-snug"><mark id="cardQuote" class="bg-[var(--mark)] box-decoration-clone px-0.5"></mark></blockquote>
+  </div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const feed = $('feed'), input = $('input'), send = $('send'), card = $('card');
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = (n, w, c) => '<iconify-icon icon="lucide:' + n + '" width="' + (w || 14) + '"' + (c ? ' class="' + c + '"' : '') + '></iconify-icon>';
+  const node = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+
+  // Publications are invented for this demo.
+  const SRC = {
+    reg: { domain: 'battery-regulation.eu', color: '#1d4ed8', title: 'What the Battery Regulation requires, article by article', snippet: 'A plain-language guide to the EU rules on sustainability, labelling and digital records for batteries.', quote: 'The passport becomes mandatory from February 2027 for EV, light transport and large industrial batteries.' },
+    cell: { domain: 'circularcell.org', color: '#0f766e', title: 'Inside a battery passport: the data model explained', snippet: 'How carbon footprint, recycled content and durability data fit together in one record.', quote: 'Think of it as a logbook that follows one battery from the factory to the recycler.' },
+    volt: { domain: 'voltjournal.com', color: '#b45309', title: 'Carmakers race to meet the passport deadline', snippet: 'Suppliers are being asked for material data they have never had to collect before.', quote: 'The hardest part is not the QR code. It is getting audited data from the mines upward.' },
+    comp: { domain: 'cellcompliance.io', color: '#7c3aed', title: 'Who can see what: passport access tiers', snippet: 'Public, interested-party and authority access levels, and what each one unlocks.', quote: 'Anyone can read the basics, while repairers and regulators get the detailed records.' },
+    giga: { domain: 'gigafactory-review.com', color: '#be123c', title: 'What the passport costs a battery maker', snippet: 'Early estimates for software, audits and supplier onboarding per pack.', quote: 'Most of the cost sits in data collection and third-party verification, not the software.' },
+    recy: { domain: 'recyclerbrief.org', color: '#15803d', title: 'Why recyclers want passports most of all', snippet: 'Knowing a pack\'s chemistry and history before opening it changes the economics of recycling.', quote: 'Chemistry data at intake means safer handling and better recovery rates.' },
+  };
+  const ORDER = Object.keys(SRC);
+
+  // {a,b} marks a citation of those sources at that point in the sentence.
+  const ANSWERS = {
+    main: {
+      q: 'How do EU battery passports work?',
+      paragraphs: [
+        'A battery passport is a digital record tied to one physical battery. You reach it by scanning a QR code on the pack, and it holds the battery\'s carbon footprint, recycled content, performance and supply-chain checks. {cell,reg}',
+        'Under the EU Battery Regulation, it becomes mandatory from February 2027 for electric vehicle and light transport batteries, and for industrial batteries above 2 kWh. {reg,volt,giga}',
+        'Not everyone sees the same data. The public gets general information, while repairers, recyclers and authorities can unlock more detailed records. {comp,recy}',
+      ],
+    },
+    who: {
+      q: 'Who is responsible for creating the passport?',
+      paragraphs: [
+        'The company that places the battery on the EU market is responsible, which is usually the manufacturer or importer. {reg,comp}',
+        'In practice, carmakers are pushing the data collection down to their cell and material suppliers, because most of the required figures start there. {volt,giga}',
+      ],
+    },
+    cost: {
+      q: 'How much does a battery passport cost to run?',
+      paragraphs: [
+        'There is no official figure yet, and early estimates vary widely. Most of the spend goes to collecting supplier data and paying for third-party verification, rather than the software itself. {giga,volt}',
+        'Costs should fall per pack as volumes grow, since most of the setup work happens once per battery model rather than once per battery. {giga,cell}',
+      ],
+    },
+    recycling: {
+      q: 'How do passports help battery recycling?',
+      paragraphs: [
+        'Recyclers can check a pack\'s chemistry and history before they open it, which makes handling safer and helps them choose the right recovery process. {recy,cell}',
+        'The same record also tracks recycled content, which helps manufacturers show they meet the rising minimum shares the regulation sets. {reg,recy}',
+      ],
+    },
+  };
+  const RELATED = [['who', 'Who is responsible for creating the passport?'], ['cost', 'How much does a battery passport cost to run?'], ['recycling', 'How do passports help battery recycling?']];
+  const pickAnswer = (text) => {
+    const t = text.toLowerCase();
+    if (/who|responsib|manufactur|importer/.test(t)) return ANSWERS.who;
+    if (/cost|price|expens|money/.test(t)) return ANSWERS.cost;
+    if (/recycl|second life|end of life/.test(t)) return ANSWERS.recycling;
+    return { q: text, paragraphs: ANSWERS.main.paragraphs.slice(0, 2) };
+  };
+
+  const fav = (id, size) => '<span class="grid shrink-0 place-items-center rounded text-[10.5px] font-semibold text-white" style="width:' + (size || 18) + 'px;height:' + (size || 18) + 'px;background:' + SRC[id].color + '">' + SRC[id].domain[0].toUpperCase() + '</span>';
+  const pill = (ids) => '<button type="button" class="cite" data-ids="' + ids + '" aria-haspopup="dialog" aria-expanded="false" aria-label="' + ids.split(',').length + ' sources, starting with ' + SRC[ids.split(',')[0]].domain + '">' + SRC[ids.split(',')[0]].domain + (ids.includes(',') ? ' +' + (ids.split(',').length - 1) : '') + '</button>';
+  const cited = (para) => esc(para).replace(/\s*\{([a-z,]+)\}/g, (m, ids) => ' ' + pill(ids));
+  const plain = (para) => para.replace(/\s*\{[a-z,]+\}/g, '');
+  const idsIn = (answer) => { const seen = []; answer.paragraphs.join(' ').replace(/\{([a-z,]+)\}/g, (m, ids) => { ids.split(',').forEach((i) => seen.includes(i) || seen.push(i)); return m; }); return seen; };
+
+  function sourceCards(ids) {
+    return '<div class="sources-row -mx-1 flex snap-x gap-2 overflow-x-auto px-1 py-1" tabindex="0" aria-label="Sources">' + ids.map((id, i) => '<a href="#" class="srcCard block w-[186px] shrink-0 snap-start rounded-xl border border-[var(--line)] bg-white p-3 transition-colors hover:border-stone-400"><span class="flex items-center gap-1.5">' + fav(id) + '<span class="min-w-0 flex-1 truncate text-[12px] text-[var(--muted)]">' + SRC[id].domain + '</span><span class="font-mono text-[11px] text-[var(--faint)]">' + (i + 1) + '</span></span><span class="mt-2 line-clamp-2 block text-[13px] font-medium leading-snug">' + esc(SRC[id].title) + '</span></a>').join('') + '</div>';
+  }
+  let uid = 0;
+  function disclosure(ids) {
+    const id = 'list' + (++uid);
+    return '<div class="mt-5"><button class="srcToggle inline-flex items-center gap-1 text-[13px] font-medium text-[var(--accent)] hover:underline" aria-expanded="false" aria-controls="' + id + '">Used ' + ids.length + ' sources' + icon('chevron-down', 14, 'chev transition-transform') + '</button><ol id="' + id + '" hidden class="mt-2 divide-y divide-[var(--line)] rounded-xl border border-[var(--line)] bg-white">' + ids.map((s, i) => '<li><a href="#" class="srcCard flex items-start gap-3 p-3 transition-colors hover:bg-stone-50"><span class="mt-0.5 font-mono text-[11px] text-[var(--faint)]">' + (i + 1) + '</span>' + fav(s, 20) + '<span class="min-w-0"><span class="block text-[13.5px] font-medium leading-snug">' + esc(SRC[s].title) + '</span><span class="mt-0.5 block text-[12.5px] text-[var(--muted)]">' + esc(SRC[s].snippet) + '</span></span></a></li>').join('') + '</ol></div>';
+  }
+  const relatedList = (skip) => '<section class="mt-7" aria-label="Related questions"><h2 class="text-[12px] font-medium uppercase tracking-[.08em] text-[var(--faint)]">Related</h2><ul class="mt-1.5 divide-y divide-[var(--line)] border-y border-[var(--line)]">' + RELATED.filter((r) => !skip.includes(r[0])).map((r) => '<li><button data-related="' + r[0] + '" class="group flex w-full items-center justify-between gap-3 py-2.5 text-left font-serif text-[17px] transition-colors hover:text-[var(--accent)]">' + esc(r[1]) + icon('plus', 15, 'shrink-0 text-[var(--faint)] transition-transform group-hover:rotate-90') + '</button></li>').join('') + '</ul></section>';
+  const heading = (q, first) => '<h1 class="font-serif ' + (first ? 'text-[34px] sm:text-[40px]' : 'text-[28px]') + ' font-normal leading-[1.1] tracking-[-.015em]">' + esc(q) + '</h1>';
+
+  function renderAnswer(a) {
+    const ids = idsIn(a);
+    feed.appendChild(node('<article class="pt-5">' + heading(a.q, true) + '<div class="mt-5">' + sourceCards(ids) + '</div><div class="prose-answer mt-5 space-y-4">' + a.paragraphs.map((p) => '<p>' + cited(p) + '</p>').join('') + '</div>' + disclosure(ORDER) + '<div class="related">' + relatedList([]) + '</div></article>'));
+  }
+
+  // ---------- Hover / focus citation card ----------
+  let cardIds = [], cardIndex = 0, anchor = null, hideTimer;
+  function fillCard() {
+    const s = SRC[cardIds[cardIndex]];
+    const f = $('cardFav'); f.textContent = s.domain[0].toUpperCase(); f.style.background = s.color;
+    $('cardDomain').textContent = s.domain;
+    $('cardPos').textContent = (cardIndex + 1) + '/' + cardIds.length;
+    $('cardTitle').textContent = s.title;
+    $('cardSnippet').textContent = s.snippet;
+    $('cardQuote').textContent = '“' + s.quote + '”';
+    $('cardPrev').disabled = cardIndex === 0;
+    $('cardNext').disabled = cardIndex === cardIds.length - 1;
+  }
+  function placeCard() {
+    const r = anchor.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+    const left = Math.max(12, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 12));
+    const below = r.bottom + 8 + h < innerHeight - 8;
+    card.style.left = left + 'px';
+    card.style.top = (below ? r.bottom + 8 : Math.max(8, r.top - h - 8)) + 'px';
+  }
+  function showCard(btn) {
+    clearTimeout(hideTimer);
+    if (anchor === btn && !card.hidden) return;
+    if (anchor && anchor !== btn) anchor.setAttribute('aria-expanded', 'false');
+    anchor = btn; cardIds = btn.dataset.ids.split(','); cardIndex = 0;
+    btn.setAttribute('aria-expanded', 'true');
+    fillCard(); card.hidden = false; placeCard();
+  }
+  function hideCard() { card.hidden = true; if (anchor) anchor.setAttribute('aria-expanded', 'false'); anchor = null; }
+  const scheduleHide = () => { clearTimeout(hideTimer); hideTimer = setTimeout(hideCard, 180); };
+
+  feed.addEventListener('mouseover', (e) => { const b = e.target.closest('.cite'); if (b && b !== anchor) showCard(b); else if (b) clearTimeout(hideTimer); });
+  feed.addEventListener('mouseout', (e) => { if (e.target.closest('.cite')) scheduleHide(); });
+  let refocusing = false;
+  feed.addEventListener('focusin', (e) => { const b = e.target.closest('.cite'); if (b && !refocusing) showCard(b); });
+  feed.addEventListener('focusout', (e) => { if (e.target.closest('.cite') && !(e.relatedTarget && card.contains(e.relatedTarget))) scheduleHide(); });
+  card.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  card.addEventListener('mouseleave', scheduleHide);
+  card.addEventListener('focusin', () => clearTimeout(hideTimer));
+  card.addEventListener('focusout', (e) => { if (!card.contains(e.relatedTarget)) scheduleHide(); });
+  $('cardPrev').addEventListener('click', () => { if (cardIndex > 0) { cardIndex--; fillCard(); } });
+  $('cardNext').addEventListener('click', () => { if (cardIndex < cardIds.length - 1) { cardIndex++; fillCard(); } });
+  addEventListener('scroll', () => { if (!card.hidden && anchor) placeCard(); }, { passive: true });
+  addEventListener('resize', () => { if (!card.hidden && anchor) placeCard(); });
+
+  // ---------- Streaming ----------
+  let running = false, stopped = false;
+  const asked = [];
+  function setRunning(on) {
+    running = on;
+    $('sendIcon').setAttribute('icon', on ? 'lucide:square' : 'lucide:arrow-up');
+    send.setAttribute('aria-label', on ? 'Stop answering' : 'Send question');
+    send.disabled = !on && !input.value.trim();
+    feed.setAttribute('aria-busy', String(on));
+  }
+  const nearBottom = () => document.documentElement.scrollHeight - scrollY - innerHeight < 220;
+  const follow = () => { if (nearBottom()) scrollTo({ top: document.documentElement.scrollHeight }); };
+  async function ask(answer, key) {
+    if (running) return;
+    hideCard();
+    if (key) asked.push(key);
+    feed.querySelectorAll('.related').forEach((r) => { r.innerHTML = ''; });
+    const ids = idsIn(answer);
+    const art = node('<article class="rise mt-10 border-t border-[var(--line)] pt-8">' + heading(answer.q) + '<p class="status mt-3 flex items-center gap-2 text-[13px]">' + icon('globe', 14, 'text-[var(--faint)]') + '<span class="shimmer font-medium">Reading ' + ids.length + ' sources…</span></p><div class="srcs mt-4" hidden></div><div class="prose-answer body mt-4 space-y-4"></div><div class="after"></div></article>');
+    feed.appendChild(art);
+    scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+    stopped = false; setRunning(true);
+    await sleep(800);
+    const srcs = art.querySelector('.srcs');
+    if (!stopped) { srcs.innerHTML = sourceCards(ids); srcs.hidden = false; art.querySelector('.status').remove(); follow(); await sleep(250); }
+    const body = art.querySelector('.body');
+    let done = true;
+    const written = [];
+    for (const para of answer.paragraphs) {
+      if (stopped) { done = false; break; }
+      const p = node('<p class="caret"></p>');
+      body.appendChild(p);
+      const words = plain(para).split(/(\s+)/);
+      let out = '';
+      for (const w of words) {
+        if (stopped) break;
+        out += w; p.textContent = out; follow();
+        if (w.trim()) await sleep(24);
+      }
+      p.classList.remove('caret');
+      if (stopped) { done = false; written.push(null); } else { p.innerHTML = cited(para); written.push(para); }
+    }
+    const status = art.querySelector('.status'); if (status) status.remove();
+    if (!done) art.querySelector('.after').innerHTML = '<p class="mt-3 flex items-center gap-1.5 text-[12.5px] text-[var(--faint)]">' + icon('circle-stop', 13) + 'Stopped</p>';
+    else art.querySelector('.after').innerHTML = disclosure(ids);
+    art.querySelector('.after').insertAdjacentHTML('beforeend', '<div class="related">' + relatedList(asked) + '</div>');
+    setRunning(false); follow();
+  }
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a'); if (a && a.getAttribute('href') === '#') e.preventDefault();
+    if (!card.hidden && !e.target.closest('#card, .cite')) hideCard();
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.classList.contains('cite')) { showCard(b); return; }
+    if (b.classList.contains('srcToggle')) {
+      const list = document.getElementById(b.getAttribute('aria-controls'));
+      list.hidden = !list.hidden;
+      b.setAttribute('aria-expanded', String(!list.hidden));
+      b.querySelector('.chev').style.transform = list.hidden ? '' : 'rotate(180deg)';
+    }
+    if (b.dataset.related) ask(ANSWERS[b.dataset.related], b.dataset.related);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { if (running) stopped = true; if (!card.hidden) { const a = anchor; hideCard(); refocusing = true; if (a) a.focus({ preventScroll: true }); refocusing = false; } }
+    if (!card.hidden && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); (e.key === 'ArrowRight' ? $('cardNext') : $('cardPrev')).click(); }
+  });
+  $('composer').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (running) { stopped = true; return; }
+    const text = input.value.trim(); if (!text) return;
+    input.value = ''; input.style.height = ''; send.disabled = true;
+    ask(pickAnswer(text));
+  });
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 112) + 'px'; if (!running) send.disabled = !input.value.trim(); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); } });
+  $('share').addEventListener('click', (e) => {
+    const b = e.currentTarget; if (navigator.clipboard) navigator.clipboard.writeText(location.href).catch(() => {});
+    b.innerHTML = icon('check', 14, 'text-[var(--accent)]') + 'Copied';
+    setTimeout(() => { b.innerHTML = icon('link', 14) + 'Copy link'; }, 1200);
+  });
+
+  renderAnswer(ANSWERS.main);
+})();
+</script>
+</body>
+</html>

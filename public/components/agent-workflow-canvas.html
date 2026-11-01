@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead triage - Agent workflow canvas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --bg: #09090b; --surface: #111113; --raised: #18181b; --line: rgba(255,255,255,.09); --line-strong: rgba(255,255,255,.18); --fg: #fafafa; --muted: #a1a1aa; --faint: #71717a; --accent: #a78bfa; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; overflow: hidden; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #canvas { background-color: var(--bg); background-image: radial-gradient(rgba(255,255,255,.13) 1px, transparent 1px); touch-action: none; cursor: grab; user-select: none; }
+  #canvas.panning { cursor: grabbing; }
+  #world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .wf-node { position: absolute; width: 228px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line-strong); cursor: grab; box-shadow: 0 10px 24px -14px rgba(0,0,0,.9); transition: border-color .15s, box-shadow .15s; touch-action: none; }
+  .wf-node.dragging { cursor: grabbing; z-index: 5; box-shadow: 0 20px 40px -14px rgba(0,0,0,.95); }
+  .wf-node[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 12px 30px -14px rgba(167,139,250,.55); }
+  .wf-node[data-status="running"] { border-color: #38bdf8; }
+  .wf-node[data-status="waiting"] { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .wf-node[data-status="done"] { border-color: rgba(52,211,153,.45); }
+  .wf-node[data-status="skipped"] { opacity: .5; }
+  .wf-node[data-status="rejected"] { border-color: #fb923c; }
+  path.edge { fill: none; stroke: rgba(255,255,255,.22); stroke-width: 1.6; vector-effect: non-scaling-stroke; transition: stroke .2s; }
+  path.edge.done { stroke: #34d399; }
+  path.edge.active { stroke: var(--accent); stroke-dasharray: 6 5; animation: flow .7s linear infinite; }
+  path.edge.skipped { stroke: rgba(255,255,255,.1); stroke-dasharray: 2 5; }
+  @keyframes flow { to { stroke-dashoffset: -11; } }
+  .end-dot { fill: var(--surface); stroke: rgba(255,255,255,.4); stroke-width: 1.5; }
+  .spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg) } }
+  .sheet-in { animation: rise .2s ease-out both; } @keyframes rise { from { opacity: 0; transform: translateY(6px) } }
+  .scroll::-webkit-scrollbar { width: 7px; } .scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 7px; }
+  .field { width: 100%; border-radius: 9px; border: 1px solid var(--line); background: rgba(255,255,255,.03); padding: 7px 10px; font-size: 13px; color: var(--fg); outline: none; transition: border-color .15s; }
+  .field:focus { border-color: var(--line-strong); }
+  @media (prefers-reduced-motion: reduce) { path.edge.active, .spin, .sheet-in { animation: none; } }
+</style>
+</head>
+<body class="flex h-[100dvh] flex-col font-sans text-[13px]">
+  <header class="flex h-14 shrink-0 items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-3 sm:px-4">
+    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--accent)] text-zinc-950"><iconify-icon icon="lucide:workflow" width="15"></iconify-icon></span>
+    <label class="min-w-0"><span class="sr-only">Workflow name</span><input id="wfName" value="Lead triage" class="w-[104px] min-w-0 truncate rounded-md bg-transparent px-1 py-0.5 text-[14px] font-medium outline-none hover:bg-white/5 focus:bg-white/5 sm:w-[150px]"></label>
+    <span id="badge" class="shrink-0 rounded-full bg-white/[.07] px-2 py-0.5 text-[11.5px] font-medium text-[var(--muted)]">Draft</span>
+    <span id="runMsg" role="status" class="ml-2 hidden min-w-0 truncate text-[12.5px] text-[var(--muted)] md:block"></span>
+    <button id="run" class="ml-auto flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-2.5 text-[13px] font-medium transition-colors hover:bg-white/5"><iconify-icon id="runIcon" icon="lucide:play" width="14"></iconify-icon><span id="runLabel">Run</span></button>
+    <button id="publish" class="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[var(--fg)] px-2.5 text-[13px] font-medium text-zinc-950 transition-opacity hover:opacity-90"><iconify-icon icon="lucide:rocket" width="14" class="max-sm:hidden"></iconify-icon>Publish</button>
+  </header>
+
+  <div class="relative flex min-h-0 flex-1">
+    <div id="canvas" class="relative min-w-0 flex-1 overflow-hidden" aria-label="Workflow canvas" role="application">
+      <div id="world">
+        <svg id="edges" class="absolute left-0 top-0 overflow-visible" width="1" height="1" aria-hidden="true"></svg>
+        <div id="labels"></div>
+        <div id="nodes"></div>
+      </div>
+      <div id="nodeBar" hidden role="toolbar" aria-label="Node actions" class="absolute z-20 flex items-center gap-0.5 rounded-lg border border-[var(--line-strong)] bg-[var(--raised)] p-0.5 shadow-xl shadow-black/60">
+        <button data-bar="step" class="flex h-7 items-center gap-1 rounded-md px-2 text-[12px] hover:bg-white/10"><iconify-icon icon="lucide:play" width="12"></iconify-icon>Run step</button>
+        <button data-bar="dup" class="grid h-7 w-7 place-items-center rounded-md hover:bg-white/10" aria-label="Duplicate node"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>
+        <button data-bar="del" class="grid h-7 w-7 place-items-center rounded-md text-red-300 hover:bg-white/10" aria-label="Delete node"><iconify-icon icon="lucide:trash-2" width="13"></iconify-icon></button>
+      </div>
+      <div class="absolute bottom-3 left-3 z-10 flex items-center gap-0.5 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1 shadow-lg shadow-black/40">
+        <button id="zoomOut" class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Zoom out"><iconify-icon icon="lucide:minus" width="15"></iconify-icon></button>
+        <span id="zoomLabel" class="min-w-[42px] text-center font-mono text-[11.5px] tabular-nums text-[var(--muted)]">100%</span>
+        <button id="zoomIn" class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Zoom in"><iconify-icon icon="lucide:plus" width="15"></iconify-icon></button>
+        <span class="mx-0.5 h-5 w-px bg-[var(--line)]"></span>
+        <button id="fit" class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Fit to screen"><iconify-icon icon="lucide:maximize" width="15"></iconify-icon></button>
+      </div>
+    </div>
+
+    <aside id="inspector" aria-label="Node inspector" class="scroll z-30 w-[300px] shrink-0 overflow-y-auto border-l border-[var(--line)] bg-[var(--surface)] max-md:absolute max-md:inset-x-0 max-md:bottom-0 max-md:max-h-[46%] max-md:w-full max-md:rounded-t-2xl max-md:border-l-0 max-md:border-t max-md:shadow-2xl max-md:shadow-black"></aside>
+  </div>
+  <div id="toast" role="status" class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full border border-[var(--line-strong)] bg-[var(--raised)] px-3.5 py-1.5 text-[12.5px] opacity-0 transition-opacity"></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = (n, w, c) => '<iconify-icon icon="lucide:' + n + '" width="' + (w || 14) + '"' + (c ? ' class="' + c + '"' : '') + '></iconify-icon>';
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = $('canvas'), world = $('world'), edgesEl = $('edges'), nodesEl = $('nodes'), labelsEl = $('labels');
+  const narrow = () => canvas.clientWidth < 640;
+
+  const TYPES = {
+    trigger: { icon: 'webhook', tint: 'bg-sky-500/15 text-sky-300', label: 'Trigger' },
+    llm: { icon: 'sparkles', tint: 'bg-violet-500/15 text-violet-300', label: 'Model step' },
+    condition: { icon: 'git-branch', tint: 'bg-amber-500/15 text-amber-300', label: 'Condition' },
+    tool: { icon: 'wrench', tint: 'bg-emerald-500/15 text-emerald-300', label: 'Tool' },
+    agent: { icon: 'bot', tint: 'bg-fuchsia-500/15 text-fuchsia-300', label: 'Agent' },
+    human: { icon: 'user-check', tint: 'bg-orange-500/15 text-orange-300', label: 'Human approval' },
+    action: { icon: 'send', tint: 'bg-teal-500/15 text-teal-300', label: 'Action' },
+    list: { icon: 'list-plus', tint: 'bg-zinc-500/20 text-zinc-300', label: 'Action' },
+  };
+  const WIDE = { webhook: [20, 200], classify: [282, 200], condition: [544, 200], enrich: [806, 20], draft: [1068, 20], approval: [1068, 200], send: [1068, 400], nurture: [806, 400] };
+  const TALL = { webhook: [126, 0], classify: [126, 128], condition: [126, 256], enrich: [0, 392], nurture: [252, 392], draft: [0, 520], approval: [0, 648], send: [0, 800] };
+
+  let nodes = [
+    { id: 'webhook', type: 'trigger', title: 'New lead webhook', sub: 'POST /hooks/leads', out: 'Lead #4821 from Acme Robotics', fields: [['Path', '/hooks/leads', 'sub'], ['Method', 'POST'], ['Signing secret', 'whsec_••••••••4f2a']] },
+    { id: 'classify', type: 'llm', title: 'Classify lead', sub: 'meridian-4-mini', out: 'score 86 · segment: mid-market', fields: [['Model', 'meridian-4-mini', 'sub'], ['Prompt', 'Score this lead from 0 to 100 for fit, using company size, role and message intent. Return score and segment.', 'long'], ['Output', 'score, segment']] },
+    { id: 'condition', type: 'condition', title: 'High intent?', sub: 'score > 70', out: 'true (86 > 70)', fields: [['Expression', 'score > 70', 'sub'], ['If true', 'Enrich company'], ['If false', 'Add to nurture']] },
+    { id: 'enrich', type: 'tool', title: 'Enrich company', sub: 'company_lookup', out: '240 staff · Series B · Austin', fields: [['Tool', 'company_lookup', 'sub'], ['Input', '{{lead.email_domain}}'], ['Timeout', '8 s']] },
+    { id: 'draft', type: 'agent', title: 'Draft reply', sub: 'sdr-writer agent', out: '142-word reply, cites their robotics launch', fields: [['Agent', 'sdr-writer agent', 'sub'], ['Instructions', 'Write a short first reply in our voice. Mention one specific thing about their company.', 'long'], ['Max tokens', '600']] },
+    { id: 'approval', type: 'human', title: 'Human approval', sub: '#sales-leads', out: 'Approved by Dana', fields: [['Ask in', '#sales-leads', 'sub'], ['Timeout', '4 hours'], ['On timeout', 'Add to nurture']] },
+    { id: 'send', type: 'action', title: 'Send email', sub: 'gmail.send', out: 'Sent to priya@acmerobotics.example', fields: [['Connector', 'gmail.send', 'sub'], ['From', 'alex@northline.example'], ['Track opens', 'On']] },
+    { id: 'nurture', type: 'list', title: 'Add to nurture list', sub: 'crm.add_to_list', out: 'Added to Q4 nurture', fields: [['Connector', 'crm.add_to_list', 'sub'], ['List', 'Q4 nurture'], ['Cadence', 'Every 2 weeks']] },
+  ];
+  let edges = [
+    { id: 'e1', from: 'webhook', to: 'classify' },
+    { id: 'e2', from: 'classify', to: 'condition' },
+    { id: 'e3', from: 'condition', to: 'enrich', label: 'true' },
+    { id: 'e4', from: 'condition', to: 'nurture', label: 'false' },
+    { id: 'e5', from: 'enrich', to: 'draft' },
+    { id: 'e6', from: 'draft', to: 'approval' },
+    { id: 'e7', from: 'approval', to: 'send' },
+  ];
+  nodes.forEach((n) => { n.x = 0; n.y = 0; n.status = 'idle'; n.result = ''; });
+  const byId = (id) => nodes.find((n) => n.id === id);
+  const view = { x: 0, y: 0, k: 1 };
+  let selected = null, uid = 1, running = false, stopRequested = false, resolveApproval = null;
+
+  // ---------- Layout and edges ----------
+  function applyLayout() {
+    const map = narrow() ? TALL : WIDE;
+    nodes.forEach((n) => { const p = map[n.id]; if (p) { n.x = p[0]; n.y = p[1]; } });
+  }
+  const STATUS = {
+    running: ['loader-circle', 'text-sky-300', 'Running', 'spin'],
+    done: ['circle-check', 'text-emerald-300', 'Done', ''],
+    waiting: ['clock', 'text-amber-300', 'Waiting', ''],
+    skipped: ['circle-minus', 'text-zinc-400', 'Skipped', ''],
+    rejected: ['ban', 'text-orange-300', 'Rejected', ''],
+  };
+  function nodeHtml(n) {
+    const t = TYPES[n.type], s = STATUS[n.status];
+    const badge = s ? '<span class="ml-auto flex shrink-0 items-center gap-1 text-[11px] font-medium ' + s[1] + '">' + icon(s[0], 13, s[3]) + (n.status === 'done' || n.status === 'skipped' ? '<span class="sr-only">' + s[2] + '</span>' : '<span class="max-sm:sr-only">' + s[2] + '</span>') + '</span>' : '';
+    const foot = n.status === 'waiting'
+      ? '<div class="flex gap-1.5 border-t border-[var(--line)] p-2"><button data-approve="no" class="h-7 flex-1 rounded-md border border-[var(--line-strong)] text-[12px] font-medium hover:bg-white/5">Reject</button><button data-approve="yes" class="h-7 flex-1 rounded-md bg-amber-400 text-[12px] font-medium text-zinc-950 hover:bg-amber-300">Approve</button></div>'
+      : n.result ? '<div class="truncate border-t border-[var(--line)] px-3 py-1.5 text-[11.5px] text-[var(--muted)]">' + esc(n.result) + '</div>' : '';
+    return '<div class="flex items-center gap-2 px-2.5 pt-2.5"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg ' + t.tint + '">' + icon(t.icon, 15) + '</span><span class="min-w-0 flex-1"><span class="block truncate text-[13px] font-medium">' + esc(n.title) + '</span></span>' + badge + '</div><div class="truncate px-2.5 pb-2.5 pl-[46px] font-mono text-[11px] text-[var(--faint)]">' + esc(n.sub) + '</div>' + foot;
+  }
+  function renderNodes() {
+    const focused = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.node : null;
+    nodesEl.innerHTML = nodes.map((n) => '<div class="wf-node" role="button" tabindex="0" data-node="' + n.id + '" data-status="' + n.status + '" aria-pressed="' + (selected === n.id) + '" aria-label="' + esc(TYPES[n.type].label + ': ' + n.title) + (STATUS[n.status] ? ', ' + STATUS[n.status][2] : '') + '" style="left:' + n.x + 'px;top:' + n.y + 'px">' + nodeHtml(n) + '</div>').join('');
+    if (focused && byId(focused)) nodesEl.querySelector('[data-node="' + focused + '"]').focus({ preventScroll: true });
+    drawEdges(); placeBar();
+  }
+  const box = (n) => { const el = nodesEl.querySelector('[data-node="' + n.id + '"]'); return { w: el ? el.offsetWidth : 228, h: el ? el.offsetHeight : 62 }; };
+  function route(a, b) {
+    const A = box(a), B = box(b);
+    const dx = (b.x + B.w / 2) - (a.x + A.w / 2), dy = (b.y + B.h / 2) - (a.y + A.h / 2);
+    let p1, p2, c1, c2;
+    if (Math.abs(dx) > Math.abs(dy) * 1.05) {
+      const sx = dx >= 0 ? 1 : -1;
+      p1 = [a.x + (sx > 0 ? A.w : 0), a.y + A.h / 2]; p2 = [b.x + (sx > 0 ? 0 : B.w), b.y + B.h / 2];
+      const o = Math.max(30, Math.abs(p2[0] - p1[0]) * .5);
+      c1 = [p1[0] + sx * o, p1[1]]; c2 = [p2[0] - sx * o, p2[1]];
+    } else {
+      const sy = dy >= 0 ? 1 : -1;
+      p1 = [a.x + A.w / 2, a.y + (sy > 0 ? A.h : 0)]; p2 = [b.x + B.w / 2, b.y + (sy > 0 ? 0 : B.h)];
+      const o = Math.max(24, Math.abs(p2[1] - p1[1]) * .5);
+      c1 = [p1[0], p1[1] + sy * o]; c2 = [p2[0], p2[1] - sy * o];
+    }
+    return { p1: p1, p2: p2, d: 'M' + p1 + ' C' + c1 + ' ' + c2 + ' ' + p2 };
+  }
+  function drawEdges() {
+    let svg = '', labels = '';
+    edges = edges.filter((e) => byId(e.from) && byId(e.to));
+    edges.forEach((e) => {
+      const r = route(byId(e.from), byId(e.to));
+      svg += '<path class="edge ' + (e.state || '') + '" data-edge="' + e.id + '" d="' + r.d + '"></path><circle class="end-dot" cx="' + r.p1[0] + '" cy="' + r.p1[1] + '" r="3.5"></circle><circle class="end-dot" cx="' + r.p2[0] + '" cy="' + r.p2[1] + '" r="3.5"></circle>';
+      if (e.label) labels += '<span data-label="' + e.id + '" class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--line-strong)] bg-[var(--raised)] px-1.5 py-px font-mono text-[10.5px] text-[var(--muted)]">' + e.label + '</span>';
+    });
+    svg += '<circle id="token" r="5" fill="#c4b5fd" stroke="#fff" stroke-width="1.5" visibility="hidden"></circle>';
+    edgesEl.innerHTML = svg;
+    labelsEl.innerHTML = labels;
+    edges.filter((e) => e.label).forEach((e) => {
+      const path = edgesEl.querySelector('[data-edge="' + e.id + '"]'), pt = path.getPointAtLength(path.getTotalLength() * .5);
+      const tag = labelsEl.querySelector('[data-label="' + e.id + '"]');
+      tag.style.left = pt.x + 'px'; tag.style.top = pt.y + 'px';
+    });
+  }
+
+  // ---------- Pan and zoom ----------
+  function applyView() {
+    world.style.transform = 'translate(' + view.x + 'px,' + view.y + 'px) scale(' + view.k + ')';
+    const size = 20 * view.k;
+    canvas.style.backgroundSize = size + 'px ' + size + 'px';
+    canvas.style.backgroundPosition = view.x + 'px ' + view.y + 'px';
+    $('zoomLabel').textContent = Math.round(view.k * 100) + '%';
+    placeBar();
+  }
+  function zoomAt(factor, cx, cy) {
+    const k = Math.min(1.8, Math.max(.25, view.k * factor));
+    view.x = cx - (cx - view.x) * (k / view.k);
+    view.y = cy - (cy - view.y) * (k / view.k);
+    view.k = k; applyView();
+  }
+  function fit() {
+    if (!nodes.length) return;
+    const pad = 36, xs = [], ys = [];
+    nodes.forEach((n) => { const b = box(n); xs.push(n.x, n.x + b.w); ys.push(n.y, n.y + b.h); });
+    const minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    const k = Math.min(1.1, (W - pad * 2) / (maxX - minX), (H - pad * 2 - 40) / (maxY - minY));
+    view.k = Math.max(.25, k);
+    view.x = (W - (maxX - minX) * view.k) / 2 - minX * view.k;
+    view.y = Math.max(pad, (H - 40 - (maxY - minY) * view.k) / 2) - minY * view.k;
+    applyView();
+  }
+  function placeBar() {
+    const bar = $('nodeBar'), n = selected && byId(selected);
+    bar.hidden = !n || running;
+    if (bar.hidden) return;
+    const b = box(n);
+    const x = view.x + (n.x + b.w / 2) * view.k, y = view.y + n.y * view.k;
+    bar.style.left = Math.max(4, Math.min(x - bar.offsetWidth / 2, canvas.clientWidth - bar.offsetWidth - 4)) + 'px';
+    bar.style.top = Math.max(4, y - bar.offsetHeight - 8) + 'px';
+  }
+
+  // ---------- Selection and inspector ----------
+  function select(id) {
+    selected = id;
+    nodesEl.querySelectorAll('.wf-node').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.node === id)));
+    renderInspector(); placeBar();
+  }
+  function renderInspector() {
+    const ins = $('inspector'), n = selected && byId(selected);
+    if (!n) {
+      if (narrow()) { ins.hidden = true; return; }
+      ins.hidden = false;
+      ins.innerHTML = '<div class="p-4"><h2 class="text-[14px] font-medium">Workflow</h2><p class="mt-1 text-[12.5px] leading-relaxed text-[var(--muted)]">Scores new leads, drafts a reply for the good ones and waits for a person to approve it. Select a node to edit it.</p><dl class="mt-3 grid grid-cols-2 gap-2"><div class="rounded-xl bg-white/[.04] p-2.5"><dt class="text-[11.5px] text-[var(--faint)]">Nodes</dt><dd class="mt-0.5 text-[18px] font-semibold tabular-nums">' + nodes.length + '</dd></div><div class="rounded-xl bg-white/[.04] p-2.5"><dt class="text-[11.5px] text-[var(--faint)]">Edges</dt><dd class="mt-0.5 text-[18px] font-semibold tabular-nums">' + edges.length + '</dd></div></dl></div>';
+      return;
+    }
+    const t = TYPES[n.type];
+    ins.hidden = false;
+    ins.innerHTML = '<div class="sheet-in"><div class="sticky top-0 z-10 flex items-center gap-2.5 border-b border-[var(--line)] bg-[var(--surface)] p-3"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg ' + t.tint + '">' + icon(t.icon, 16) + '</span><span class="min-w-0 flex-1"><span class="block truncate text-[13.5px] font-medium">' + esc(n.title) + '</span><span class="block text-[11.5px] text-[var(--faint)]">' + t.label + '</span></span><button id="closeInspector" class="grid h-7 w-7 place-items-center rounded-md text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Deselect node">' + icon('x', 15) + '</button></div>'
+      + '<div class="space-y-3 p-3"><label class="block"><span class="mb-1 block text-[11.5px] font-medium text-[var(--muted)]">Name</span><input class="field" data-title value="' + esc(n.title) + '"></label>'
+      + n.fields.map((f, i) => '<label class="block"><span class="mb-1 block text-[11.5px] font-medium text-[var(--muted)]">' + esc(f[0]) + '</span>' + (f[2] === 'long' ? '<textarea rows="4" class="field resize-y leading-snug" data-field="' + i + '">' + esc(f[1]) + '</textarea>' : '<input class="field ' + (f[2] === 'sub' ? 'font-mono !text-[12.5px]' : '') + '" data-field="' + i + '" value="' + esc(f[1]) + '">') + '</label>').join('')
+      + (n.result ? '<div><div class="mb-1 text-[11.5px] font-medium text-[var(--muted)]">Last output</div><p class="rounded-lg bg-white/[.04] p-2.5 font-mono text-[12px] leading-snug text-[var(--muted)]">' + esc(n.result) + '</p></div>' : '') + '</div></div>';
+  }
+  function markDraft() { $('badge').textContent = 'Draft'; $('badge').className = 'shrink-0 rounded-full bg-white/[.07] px-2 py-0.5 text-[11.5px] font-medium text-[var(--muted)]'; }
+  $('inspector').addEventListener('input', (e) => {
+    const n = selected && byId(selected); if (!n) return;
+    if ('title' in e.target.dataset) n.title = e.target.value;
+    if (e.target.dataset.field !== undefined) {
+      const f = n.fields[+e.target.dataset.field]; f[1] = e.target.value;
+      if (f[2] === 'sub') n.sub = e.target.value;
+    }
+    const el = nodesEl.querySelector('[data-node="' + n.id + '"]');
+    el.innerHTML = nodeHtml(n); el.setAttribute('aria-label', TYPES[n.type].label + ': ' + n.title);
+    markDraft();
+  });
+  $('inspector').addEventListener('click', (e) => { if (e.target.closest('#closeInspector')) { select(null); } });
+
+  // ---------- Pointer: drag nodes, pan the canvas ----------
+  let gesture = null;
+  canvas.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('button, #nodeBar')) return;
+    const el = e.target.closest('.wf-node');
+    gesture = { id: e.pointerId, sx: e.clientX, sy: e.clientY, moved: false, node: el ? el.dataset.node : null, ox: view.x, oy: view.y };
+    if (el) { const n = byId(el.dataset.node); gesture.nx = n.x; gesture.ny = n.y; }
+    canvas.setPointerCapture(e.pointerId);
+    if (!el) canvas.classList.add('panning');
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const dx = e.clientX - gesture.sx, dy = e.clientY - gesture.sy;
+    if (!gesture.moved && Math.hypot(dx, dy) < 4) return;
+    gesture.moved = true;
+    if (gesture.node) {
+      const n = byId(gesture.node);
+      n.x = gesture.nx + dx / view.k; n.y = gesture.ny + dy / view.k;
+      const el = nodesEl.querySelector('[data-node="' + n.id + '"]');
+      el.style.left = n.x + 'px'; el.style.top = n.y + 'px'; el.classList.add('dragging');
+      drawEdges(); placeBar();
+    } else {
+      view.x = gesture.ox + dx; view.y = gesture.oy + dy; applyView();
+    }
+  });
+  function endGesture(e) {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    canvas.classList.remove('panning');
+    if (gesture.node) {
+      const el = nodesEl.querySelector('[data-node="' + gesture.node + '"]'); if (el) el.classList.remove('dragging');
+      if (gesture.moved) markDraft();
+      if (!gesture.moved || selected !== gesture.node) select(gesture.node);
+    } else if (!gesture.moved) select(null);
+    gesture = null;
+  }
+  canvas.addEventListener('pointerup', endGesture);
+  canvas.addEventListener('pointercancel', endGesture);
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY * .01), e.clientX - r.left, e.clientY - r.top);
+    else { view.x -= e.deltaX; view.y -= e.deltaY; applyView(); }
+  }, { passive: false });
+  const center = (f) => zoomAt(f, canvas.clientWidth / 2, canvas.clientHeight / 2);
+  $('zoomIn').addEventListener('click', () => center(1.2));
+  $('zoomOut').addEventListener('click', () => center(1 / 1.2));
+  $('fit').addEventListener('click', fit);
+
+  // Keyboard: nodes are focusable, Enter selects, arrows nudge, Delete removes.
+  nodesEl.addEventListener('keydown', (e) => {
+    const el = e.target.closest('.wf-node'); if (!el || e.target !== el) return;
+    const n = byId(el.dataset.node);
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(n.id); return; }
+    const move = { ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, -10], ArrowDown: [0, 10] }[e.key];
+    if (move) { e.preventDefault(); n.x += move[0]; n.y += move[1]; el.style.left = n.x + 'px'; el.style.top = n.y + 'px'; drawEdges(); placeBar(); markDraft(); }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && !running) { e.preventDefault(); removeNode(n.id); }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (running) stopRequested = true; if (selected && !e.target.closest('input, textarea')) select(null); } });
+
+  // ---------- Toolbar ----------
+  function removeNode(id) {
+    nodes = nodes.filter((n) => n.id !== id);
+    edges = edges.filter((e) => e.from !== id && e.to !== id);
+    selected = null; renderNodes(); renderInspector(); markDraft(); toast('Node deleted');
+  }
+  function setStatus(n, status, result) {
+    n.status = status;
+    if (result !== undefined) n.result = result;
+    const el = nodesEl.querySelector('[data-node="' + n.id + '"]');
+    if (el) { el.dataset.status = status; el.innerHTML = nodeHtml(n); el.setAttribute('aria-label', TYPES[n.type].label + ': ' + n.title + (STATUS[status] ? ', ' + STATUS[status][2] : '')); }
+    drawEdges(); placeBar();
+    if (selected === n.id) renderInspector();
+  }
+  $('nodeBar').addEventListener('click', async (e) => {
+    const b = e.target.closest('button'); if (!b || !selected) return;
+    const n = byId(selected);
+    if (b.dataset.bar === 'del') removeNode(n.id);
+    if (b.dataset.bar === 'dup') {
+      const id = n.id + '_' + (uid++);
+      nodes.push(Object.assign({}, n, { id: id, x: n.x + 28, y: n.y + 150, status: 'idle', result: '', title: n.title + ' copy', fields: n.fields.map((f) => f.slice()) }));
+      renderNodes(); select(id); markDraft();
+    }
+    if (b.dataset.bar === 'step' && !running) {
+      setStatus(n, 'running'); await sleep(reduced ? 150 : 800); setStatus(n, 'done', n.out || 'Step finished');
+    }
+  });
+
+  // ---------- Run: walk the graph, animate a token, pause for approval ----------
+  function setRun(on) {
+    running = on;
+    $('runIcon').setAttribute('icon', on ? 'lucide:square' : 'lucide:play');
+    $('runLabel').textContent = on ? 'Stop' : 'Run';
+    placeBar();
+  }
+  const say = (m) => { $('runMsg').textContent = m; };
+  function setEdge(e, state) { e.state = state; const p = edgesEl.querySelector('[data-edge="' + e.id + '"]'); if (p) p.setAttribute('class', 'edge ' + state); }
+  function travel(edge) {
+    return new Promise((resolve) => {
+      const path = edgesEl.querySelector('[data-edge="' + edge.id + '"]'), token = $('token');
+      if (reduced || !path || !token) { resolve(); return; }
+      const len = path.getTotalLength(), start = performance.now(), dur = 520;
+      token.setAttribute('visibility', 'visible');
+      (function frame(now) {
+        const t = Math.min(1, (now - start) / dur), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const p = path.getPointAtLength(len * e);
+        token.setAttribute('cx', p.x); token.setAttribute('cy', p.y);
+        if (t < 1 && !stopRequested) requestAnimationFrame(frame);
+        else { token.setAttribute('visibility', 'hidden'); resolve(); }
+      })(start);
+    });
+  }
+  function reset() {
+    nodes.forEach((n) => { n.status = 'idle'; n.result = ''; });
+    edges.forEach((e) => { e.state = ''; });
+    renderNodes();
+  }
+  const waitApproval = () => new Promise((resolve) => { resolveApproval = resolve; });
+  async function execute(from, startEdges) {
+    let current = from, incoming = startEdges;
+    while (current && !stopRequested) {
+      if (incoming) { setEdge(incoming, 'active'); await travel(incoming); if (stopRequested) break; setEdge(incoming, 'done'); }
+      setStatus(current, 'running'); say(current.title + '…');
+      await sleep(reduced ? 150 : 720);
+      if (stopRequested) break;
+      if (current.type === 'human') {
+        setStatus(current, 'waiting'); say('Paused: waiting for approval');
+        const ok = await waitApproval();
+        resolveApproval = null;
+        if (stopRequested) break;
+        if (!ok) { setStatus(current, 'rejected', 'Rejected by Dana'); say('Run ended: reply rejected'); return 'rejected'; }
+      }
+      setStatus(current, 'done', current.out || 'Step finished');
+      const out = edges.filter((e) => e.from === current.id);
+      let next = out[0];
+      if (current.type === 'condition' && out.length > 1) {
+        next = out.find((e) => e.label === 'true') || out[0];
+        out.filter((e) => e !== next).forEach((e) => { setEdge(e, 'skipped'); const t = byId(e.to); if (t) setStatus(t, 'skipped'); });
+      }
+      if (!next) break;
+      incoming = next; current = byId(next.to);
+    }
+    return stopRequested ? 'stopped' : 'done';
+  }
+  async function run() {
+    if (running) { stopRequested = true; if (resolveApproval) resolveApproval(false); return; }
+    reset(); select(null);
+    const hasIn = new Set(edges.map((e) => e.to));
+    const start = nodes.find((n) => n.type === 'trigger' && !hasIn.has(n.id)) || nodes.find((n) => !hasIn.has(n.id));
+    if (!start) { toast('Add a trigger node to run this workflow'); return; }
+    stopRequested = false; setRun(true);
+    const outcome = await execute(start, null);
+    if (outcome === 'done') say('Run finished: reply sent to Priya');
+    if (outcome === 'stopped') {
+      nodes.filter((n) => n.status === 'running' || n.status === 'waiting').forEach((n) => setStatus(n, 'idle'));
+      edges.filter((e) => e.state === 'active').forEach((e) => setEdge(e, ''));
+      say('Run stopped');
+    }
+    setRun(false);
+  }
+  nodesEl.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-approve]'); if (!b) return;
+    if (resolveApproval) resolveApproval(b.dataset.approve === 'yes');
+    else resumeDemo(b.dataset.approve === 'yes');
+  });
+  $('run').addEventListener('click', run);
+
+  // First paint: a run paused at the approval gate, so the canvas shows every state.
+  function seedPausedRun() {
+    ['webhook', 'classify', 'condition', 'enrich', 'draft'].forEach((id) => { const n = byId(id); n.status = 'done'; n.result = n.out; });
+    byId('approval').status = 'waiting';
+    byId('nurture').status = 'skipped';
+    edges.forEach((e) => { e.state = { e1: 'done', e2: 'done', e3: 'done', e4: 'skipped', e5: 'done', e6: 'active' }[e.id] || ''; });
+    say('Paused: waiting for approval');
+  }
+  async function resumeDemo(ok) {
+    if (running) return;
+    const gate = nodes.find((n) => n.status === 'waiting'); if (!gate) return;
+    edges.filter((e) => e.state === 'active').forEach((e) => setEdge(e, 'done'));
+    stopRequested = false; setRun(true);
+    if (!ok) { setStatus(gate, 'rejected', 'Rejected by Dana'); say('Run ended: reply rejected'); setRun(false); return; }
+    setStatus(gate, 'done', gate.out);
+    const next = edges.find((e) => e.from === gate.id);
+    const outcome = next && byId(next.to) ? await execute(byId(next.to), next) : 'done';
+    say(outcome === 'stopped' ? 'Run stopped' : 'Run finished: reply sent to Priya');
+    setRun(false);
+  }
+
+  // ---------- Misc ----------
+  let toastTimer;
+  function toast(m) { const t = $('toast'); t.textContent = m; t.style.opacity = '1'; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1500); }
+  $('publish').addEventListener('click', () => { $('badge').textContent = 'Published'; $('badge').className = 'shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11.5px] font-medium text-emerald-300'; toast('Published version 4'); });
+  $('wfName').addEventListener('input', markDraft);
+  let resizeTimer;
+  addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(fit, 120); });
+
+  applyLayout();
+  seedPausedRun();
+  selected = narrow() ? null : 'classify';
+  renderNodes();
+  renderInspector();
+  fit();
+})();
+</script>
+</body>
+</html>

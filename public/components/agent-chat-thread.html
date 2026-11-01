@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · Streaming research chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+        }
+      }
+    }
+  };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --accent: #4f46e5; --accent-soft: #eef2ff; --fg: #18181b; --muted: #71717a; --faint: #a1a1aa; --line: #e4e4e7; }
+  html, body { height: 100%; }
+  body { background: #fafafa; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  .glow { background: radial-gradient(48% 38% at 50% 0%, rgba(79,70,229,.10), transparent 70%), radial-gradient(36% 30% at 88% 92%, rgba(14,165,233,.07), transparent 70%); }
+  .dots { background-image: radial-gradient(rgba(24,24,27,.075) 1px, transparent 1px); background-size: 22px 22px; -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 40%, #000 25%, transparent 80%); mask-image: radial-gradient(ellipse 75% 65% at 50% 40%, #000 25%, transparent 80%); }
+  .card-shadow { box-shadow: 0 1px 2px rgba(24,24,27,.04), 0 28px 70px -32px rgba(24,24,27,.28); }
+  .no-scrollbar { scrollbar-width: none; } .no-scrollbar::-webkit-scrollbar { display: none; }
+  .thin-scroll { scrollbar-width: thin; scrollbar-color: #e4e4e7 transparent; }
+  button:focus-visible, a:focus-visible, [role="menuitemradio"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* icon button */
+  .ib { width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: 8px; color: var(--muted); transition: background-color .15s, color .15s, transform .1s; }
+  .ib:hover { background: #f4f4f5; color: var(--fg); }
+  .ib:active { background: #e4e4e7; transform: scale(.96); }
+  .ib:disabled { opacity: .35; pointer-events: none; }
+  .ib[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+  .ib.sm { width: 26px; height: 26px; border-radius: 7px; }
+
+  /* assistant prose */
+  .prose-l { font-size: 15px; line-height: 1.7; color: #27272a; }
+  .prose-l > * + * { margin-top: .7em; }
+  .prose-l h3 { font-size: 15px; font-weight: 600; color: var(--fg); margin-top: 1.05em; }
+  .prose-l strong { font-weight: 600; color: var(--fg); }
+  .prose-l ul { list-style: disc; padding-left: 1.3em; }
+  .prose-l li { padding-left: .2em; } .prose-l li + li { margin-top: .3em; }
+  .prose-l li::marker { color: #a1a1aa; }
+  .prose-l :not(pre) > code { font-family: 'Geist Mono', monospace; font-size: .85em; background: #f4f4f5; border: 1px solid var(--line); border-radius: 6px; padding: .05em .35em; }
+  .tk-k { color: #7c3aed; } .tk-f { color: #2563eb; } .tk-s { color: #059669; } .tk-n { color: #c2410c; } .tk-c { color: #a1a1aa; font-style: italic; }
+
+  .reason-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -.17em; background: var(--fg); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  .enter { animation: enter .3s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+  .pop { animation: pop .16s ease-out both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(4px) scale(.98); } }
+  .spin { animation: spin .9s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+  .rec { animation: rec 1.2s ease-in-out infinite; } @keyframes rec { 50% { box-shadow: 0 0 0 6px rgba(239,68,68,.16); } }
+  #toLatest { transition: opacity .2s, transform .2s; }
+  #toLatest[data-show="false"] { opacity: 0; transform: translate(-50%, 8px); pointer-events: none; }
+  #dropzone { transition: opacity .15s; }
+  @media (hover: none) { .u-actions { opacity: 1 !important; } }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer { animation: none; background: none; color: var(--muted); }
+    .enter, .pop, .rec, .caret { animation: none; }
+    #toLatest { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans">
+  <div class="glow fixed inset-0 pointer-events-none" aria-hidden="true"></div>
+  <div class="dots fixed inset-0 pointer-events-none" aria-hidden="true"></div>
+
+  <main class="relative h-[100dvh] sm:p-6 flex justify-center">
+    <section id="card" class="relative w-full max-w-[760px] h-full bg-white sm:rounded-2xl sm:border border-zinc-200 card-shadow flex flex-col overflow-hidden" aria-label="Lumen research chat">
+
+      <!-- Header -->
+      <header class="h-14 shrink-0 px-4 sm:px-5 flex items-center gap-3 border-b border-zinc-200/80">
+        <span class="w-8 h-8 shrink-0 rounded-[10px] grid place-items-center text-white shadow-[0_6px_14px_-6px_rgba(79,70,229,.8)]" style="background:linear-gradient(135deg,#818cf8,#4338ca)"><iconify-icon icon="lucide:sparkle" width="16"></iconify-icon></span>
+        <div class="min-w-0 leading-tight">
+          <div class="flex items-center gap-2">
+            <h1 class="text-[14.5px] font-semibold">Lumen</h1>
+            <span class="hidden sm:inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-600"><iconify-icon icon="lucide:lock" width="11"></iconify-icon>Private</span>
+          </div>
+          <p class="text-[12px] text-zinc-500 truncate">Grid storage brief · 2 files · 6 sources</p>
+        </div>
+        <div class="ml-auto flex items-center gap-0.5">
+          <button class="ib" data-act="share" aria-label="Copy share link"><iconify-icon icon="lucide:link-2" width="16"></iconify-icon></button>
+          <button class="ib" data-act="export" aria-label="Download transcript"><iconify-icon icon="lucide:download" width="16"></iconify-icon></button>
+        </div>
+      </header>
+
+      <!-- Thread -->
+      <div class="relative flex-1 min-h-0">
+        <div id="thread" class="thin-scroll absolute inset-0 overflow-y-auto" role="log" aria-live="polite" aria-label="Conversation with Lumen">
+          <div id="log" class="max-w-[688px] mx-auto px-4 sm:px-6 pt-6 pb-8 space-y-7">
+            <div class="flex items-center gap-3 text-[11.5px] text-zinc-400"><span class="h-px flex-1 bg-zinc-100"></span>Today, 2:14 PM<span class="h-px flex-1 bg-zinc-100"></span></div>
+
+            <!-- User message with attachments -->
+            <div class="u-msg group flex flex-col items-end gap-2">
+              <div class="flex flex-wrap justify-end gap-2" aria-label="Attachments">
+                <figure class="w-[132px] rounded-xl border border-zinc-200 bg-white overflow-hidden">
+                  <div class="h-[74px] bg-gradient-to-b from-indigo-50/80 to-white px-2.5 pt-2.5">
+                    <svg viewBox="0 0 116 56" class="w-full h-full" fill="none" aria-hidden="true">
+                      <path d="M0 14H116M0 28H116M0 42H116" stroke="#e0e7ff"/>
+                      <path d="M2 6 20 10 38 17 56 24 74 31 92 35 114 38" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 3" stroke-linecap="round"/>
+                      <path d="M2 12 20 18 38 22 56 30 74 36 92 40 114 44" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="114" cy="44" r="2.5" fill="#4f46e5"/>
+                    </svg>
+                  </div>
+                  <figcaption class="px-2.5 py-1.5 border-t border-zinc-100 text-[11.5px] text-zinc-600 truncate">pack-prices.png</figcaption>
+                </figure>
+                <div class="w-[212px] self-end rounded-xl border border-zinc-200 bg-white p-2.5 flex items-center gap-3">
+                  <span class="w-9 h-11 shrink-0 rounded-md bg-red-50 ring-1 ring-red-100 text-red-600 grid place-items-center font-mono text-[9.5px] font-medium">PDF</span>
+                  <div class="min-w-0">
+                    <div class="text-[13px] font-medium truncate">storage-outlook-2026.pdf</div>
+                    <div class="text-[11.5px] text-zinc-500">48 pages · 3.1 MB</div>
+                  </div>
+                </div>
+              </div>
+              <div class="u-text max-w-[85%] rounded-2xl bg-zinc-100 px-4 py-2.5 text-[14.5px] leading-relaxed whitespace-pre-wrap">Compare LFP and sodium-ion for a 4-hour grid battery. Use my chart and the outlook report, and give me a small cost model I can run.</div>
+              <div class="u-actions flex gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <button class="ib sm" data-act="edit" aria-label="Edit message"><iconify-icon icon="lucide:pencil" width="14"></iconify-icon></button>
+                <button class="ib sm" data-act="copy-user" aria-label="Copy message"><iconify-icon icon="lucide:copy" width="14"></iconify-icon></button>
+              </div>
+            </div>
+
+            <!-- Assistant reply (branch 2 of 2) -->
+            <article class="a-msg" data-msg="a1" data-key="alts" aria-label="Lumen response">
+              <div class="a-body">
+                <div data-reason>
+                  <button class="reason-btn inline-flex items-center gap-1.5 h-7 -ml-1 px-1 rounded-md text-[13px] text-zinc-500 hover:text-zinc-900 transition-colors" aria-expanded="false" aria-controls="r-a1">
+                    <iconify-icon icon="lucide:brain" width="15"></iconify-icon><span data-label>Thought for 4 seconds</span><iconify-icon icon="lucide:chevron-down" width="14" class="chev transition-transform"></iconify-icon>
+                  </button>
+                  <div id="r-a1" hidden>
+                    <div data-think class="mt-1.5 ml-[7px] pl-4 border-l border-zinc-200 text-[13px] leading-relaxed text-zinc-500 space-y-1.5">
+                      <p>The chart is pack-level $/kWh by year; the 2026 point is the one that matters. The PDF has cold-weather capacity on p. 11 and cycle-life tables in the appendix.</p>
+                      <p>A simple LCOS without financing is enough for a first comparison, so keep the model to five lines.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="prose-l mt-3" data-prose>
+                  <p>Short version: <strong>LFP wins on cost today</strong>, while sodium-ion is the better hedge for cold sites and lithium supply risk.</p>
+                  <h3>What your sources show</h3>
+                  <ul>
+                    <li>Your chart puts LFP packs at <strong>$92/kWh</strong> in 2026, about 18% below sodium-ion at $112/kWh.</li>
+                    <li>The report has sodium-ion keeping ~90% of capacity at −20 °C, versus ~70% for LFP (p. 11).</li>
+                    <li>Cycle life is close for daily 4-hour duty: 6,000 vs 5,500 cycles at 80% depth of discharge.</li>
+                  </ul>
+                  <p>Here's a minimal levelized-cost model you can run and tweak:</p>
+                  <div class="codeblock not-prose rounded-xl border border-zinc-200 overflow-hidden bg-[#fcfcfd]">
+                    <div class="h-9 pl-3 pr-1.5 flex items-center justify-between border-b border-zinc-200 bg-zinc-50">
+                      <span class="flex items-center gap-1.5 font-mono text-[12px] text-zinc-500"><iconify-icon icon="lucide:file-code-2" width="14"></iconify-icon><span data-file>lcos.py</span><span class="text-zinc-300">·</span>python</span>
+                      <span class="flex">
+                        <button class="ib sm" data-act="download-code" aria-label="Download file"><iconify-icon icon="lucide:download" width="14"></iconify-icon></button>
+                        <button class="ib sm" data-act="copy-code" aria-label="Copy code"><iconify-icon icon="lucide:copy" width="14"></iconify-icon></button>
+                      </span>
+                    </div>
+                    <pre class="thin-scroll px-4 py-3 overflow-x-auto font-mono text-[12.5px] leading-[1.7] text-zinc-800"><code data-hl>def lcos(capex, cycles, rte, opex=0.02, years=15):
+    """Levelized cost of storage, $/MWh delivered."""
+    delivered = cycles * rte  # MWh per MWh installed
+    spend = capex * 1_000 * (1 + opex * years)
+    return round(spend / delivered, 1)
+
+print("LFP   ", lcos(92, 6000, 0.88))   # 22.7
+print("Na-ion", lcos(112, 5500, 0.84))  # 31.5</code></pre>
+                  </div>
+                  <p>Before financing, that puts LFP near <strong>$23/MWh</strong> and sodium-ion near <strong>$32/MWh</strong> delivered.</p>
+                </div>
+              </div>
+              <div class="a-actions" data-meta="612 tokens · 9.4 s"></div>
+            </article>
+
+            <!-- Second user message -->
+            <div class="u-msg group flex flex-col items-end gap-2">
+              <div class="u-text max-w-[85%] rounded-2xl bg-zinc-100 px-4 py-2.5 text-[14.5px] leading-relaxed whitespace-pre-wrap">Now apply a $35/kWh tax credit. Which one pencils out first?</div>
+              <div class="u-actions flex gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <button class="ib sm" data-act="edit" aria-label="Edit message"><iconify-icon icon="lucide:pencil" width="14"></iconify-icon></button>
+                <button class="ib sm" data-act="copy-user" aria-label="Copy message"><iconify-icon icon="lucide:copy" width="14"></iconify-icon></button>
+              </div>
+            </div>
+
+            <!-- Assistant reply, mid-stream -->
+            <article class="a-msg" data-msg="a2" data-key="credit" aria-label="Lumen response">
+              <div class="a-body">
+                <div data-reason>
+                  <button class="reason-btn inline-flex items-center gap-1.5 h-7 -ml-1 px-1 rounded-md text-[13px] text-zinc-500 hover:text-zinc-900 transition-colors" aria-expanded="false" aria-controls="r-a2">
+                    <iconify-icon icon="lucide:brain" width="15"></iconify-icon><span data-label>Thought for 2 seconds</span><iconify-icon icon="lucide:chevron-down" width="14" class="chev transition-transform"></iconify-icon>
+                  </button>
+                  <div id="r-a2" hidden>
+                    <div data-think class="mt-1.5 ml-[7px] pl-4 border-l border-zinc-200 text-[13px] leading-relaxed text-zinc-500 space-y-1.5"><p>Apply the credit to capex in the same model: 92 − 35 = 57 and 112 − 35 = 77. Then compare the spread with and without it.</p></div>
+                  </div>
+                </div>
+                <div class="prose-l mt-3" data-prose>
+                  <p>With a <strong>$35/kWh credit</strong> taken off capex, both chemistries get cheaper, but LFP stays ahead.</p>
+                  <ul><li><strong>LFP</strong> falls to $57/kWh installed, about <strong>$14/MWh</strong> delivered before <span class="caret" aria-hidden="true"></span></li></ul>
+                </div>
+              </div>
+              <div class="a-actions" hidden></div>
+            </article>
+          </div>
+        </div>
+
+        <button id="toLatest" data-show="false" tabindex="-1" aria-hidden="true" aria-label="Scroll to latest message" class="absolute left-1/2 -translate-x-1/2 bottom-3 w-9 h-9 rounded-full bg-white border border-zinc-200 shadow-[0_6px_20px_-6px_rgba(24,24,27,.3)] grid place-items-center text-zinc-700 hover:bg-zinc-50 active:scale-95">
+          <iconify-icon icon="lucide:arrow-down" width="16"></iconify-icon>
+        </button>
+      </div>
+
+      <!-- Suggestions + composer -->
+      <div class="shrink-0 px-3 sm:px-6 pb-3 sm:pb-4 pt-1">
+        <div class="max-w-[640px] mx-auto">
+          <div id="suggestions" class="no-scrollbar flex gap-2 overflow-x-auto pb-3 -mx-1 px-1" aria-label="Suggested prompts"></div>
+
+          <form id="composer" class="relative rounded-2xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(24,24,27,.04),0_8px_24px_-16px_rgba(24,24,27,.18)] transition focus-within:border-zinc-300 focus-within:ring-4 focus-within:ring-indigo-500/10">
+            <div id="attachments" class="flex flex-wrap gap-2 px-3 pt-3" hidden></div>
+            <label for="input" class="sr-only">Message Lumen</label>
+            <textarea id="input" rows="1" placeholder="Ask Lumen a follow-up…" class="block w-full resize-none bg-transparent px-4 pt-3.5 pb-1 text-[14.5px] leading-6 text-zinc-900 placeholder:text-zinc-400 outline-none max-h-40 thin-scroll"></textarea>
+            <div class="flex items-center gap-1 px-2 pb-2 pt-1">
+              <button type="button" class="ib" data-act="attach" aria-label="Attach files"><iconify-icon icon="lucide:plus" width="18"></iconify-icon></button>
+              <button type="button" id="searchToggle" aria-pressed="true" class="h-8 px-2.5 rounded-full inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors ring-1 ring-inset aria-pressed:bg-indigo-50 aria-pressed:text-indigo-700 aria-pressed:ring-indigo-200 ring-transparent text-zinc-500 hover:bg-zinc-100"><iconify-icon icon="lucide:globe" width="15"></iconify-icon>Search</button>
+              <div class="relative">
+                <button type="button" id="modelBtn" aria-haspopup="menu" aria-expanded="false" class="h-8 pl-2 pr-1.5 rounded-full inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-600 hover:bg-zinc-100 transition-colors">
+                  <span class="w-4 h-4 rounded-[5px] grid place-items-center text-white" style="background:linear-gradient(135deg,#818cf8,#4338ca)"><iconify-icon icon="lucide:sparkle" width="10"></iconify-icon></span>
+                  <span id="modelName">Lumen 3 Pro</span><iconify-icon icon="lucide:chevron-down" width="14" class="text-zinc-400"></iconify-icon>
+                </button>
+                <div id="modelMenu" role="menu" aria-label="Choose a model" hidden class="pop absolute bottom-full left-0 mb-2 w-[248px] rounded-xl border border-zinc-200 bg-white p-1 shadow-[0_16px_40px_-12px_rgba(24,24,27,.3)] z-20"></div>
+              </div>
+              <div class="ml-auto flex items-center gap-1">
+                <button type="button" id="micBtn" class="ib" aria-label="Start dictation" aria-pressed="false"><iconify-icon icon="lucide:mic" width="17"></iconify-icon></button>
+                <button type="submit" id="sendBtn" class="w-8 h-8 rounded-full grid place-items-center transition-colors bg-zinc-900 text-white hover:bg-zinc-700 active:scale-95 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:active:scale-100" aria-label="Send message"></button>
+              </div>
+            </div>
+            <div id="dropzone" class="absolute inset-0 rounded-2xl border-2 border-dashed border-indigo-400 bg-indigo-50/90 grid place-items-center text-[13.5px] font-medium text-indigo-700 opacity-0 pointer-events-none" aria-hidden="true">
+              <span class="flex items-center gap-2"><iconify-icon icon="lucide:upload" width="16"></iconify-icon>Drop files to attach</span>
+            </div>
+          </form>
+          <p class="mt-2 text-center text-[11.5px] text-zinc-400 hidden sm:block">Lumen can make mistakes. Check figures against the cited sources.</p>
+        </div>
+      </div>
+
+      <input id="fileInput" type="file" multiple class="hidden" tabindex="-1">
+      <div id="toast" role="status" class="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[68px] rounded-full bg-zinc-900 text-white text-[12.5px] font-medium px-3 py-1.5 shadow-lg" hidden></div>
+    </section>
+  </main>
+
+  <template id="a1-v1">
+    <div data-reason>
+      <button class="reason-btn inline-flex items-center gap-1.5 h-7 -ml-1 px-1 rounded-md text-[13px] text-zinc-500 hover:text-zinc-900 transition-colors" aria-expanded="false" aria-controls="r-a1v1">
+        <iconify-icon icon="lucide:brain" width="15"></iconify-icon><span data-label>Thought for 3 seconds</span><iconify-icon icon="lucide:chevron-down" width="14" class="chev transition-transform"></iconify-icon>
+      </button>
+      <div id="r-a1v1" hidden><div data-think class="mt-1.5 ml-[7px] pl-4 border-l border-zinc-200 text-[13px] leading-relaxed text-zinc-500"><p>Lead with the recommendation, then the two numbers that justify it.</p></div></div>
+    </div>
+    <div class="prose-l mt-3" data-prose>
+      <p><strong>LFP is the safer bet for a 4-hour system today.</strong> It's cheaper per kWh and has a much deeper supplier base.</p>
+      <ul>
+        <li>Pack price: $92/kWh for LFP vs $112/kWh for sodium-ion in your chart.</li>
+        <li>Sodium-ion is worth piloting where winters are harsh or lithium supply is a concern.</li>
+      </ul>
+      <p>Want me to turn this into a cost model you can run?</p>
+    </div>
+  </template>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var thread = $('#thread'), log = $('#log'), input = $('#input'), sendBtn = $('#sendBtn');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var run = null, stick = true, uid = 0, files = [];
+  var branches = {};
+
+  /* ---------- content ---------- */
+  var SUGGESTIONS = [
+    ['file-text', 'Summarize the PDF', 'Give me an executive summary of the outlook report.'],
+    ['chart-line', 'Chart prices to 2030', 'Chart both pack prices out to 2030.'],
+    ['flame', 'Which is safer?', 'Which chemistry is safer in a hot climate?'],
+    ['recycle', 'Recycling costs', 'What do recycling and end-of-life add to the cost?'],
+    ['badge-percent', 'Apply a tax credit', 'Apply a $35/kWh tax credit and compare again.']
+  ];
+  var MODELS = [['Lumen 3 Pro', 'Best for research'], ['Lumen 3 Flash', 'Fastest replies'], ['Lumen Deep Research', 'Multi-step, slower']];
+
+  var R = {
+    credit: { re: /credit|tax|incentive|subsid/i, think: 'Apply the credit to capex in the same model: 92 − 35 = 57 and 112 − 35 = 77. Then compare the spread with and without it.', blocks: [
+      ['p', 'With a **$35/kWh credit** taken off capex, both chemistries get cheaper, but LFP stays ahead.'],
+      ['li', '**LFP** falls to $57/kWh installed, about **$14/MWh** delivered before financing.'],
+      ['li', '**Sodium-ion** lands at $77/kWh, about **$22/MWh**, and keeps closing the gap as cell prices fall through 2027.'],
+      ['li', 'The spread narrows from $8.9 to $7.6/MWh, but in relative terms the credit helps LFP more (−38% vs −31%).'],
+      ['p', 'If your project reaches financial close before 2027, LFP pencils out first. Want me to rerun this with your interconnection and financing costs?']] },
+    summary: { re: /summar|exec|brief|tl;?dr|pdf|report/i, think: 'The report is 48 pages; the executive points sit in chapters 2 and 4. Keep it to bullets a non-technical reader can scan.', blocks: [
+      ['h', 'Executive summary'],
+      ['li', 'Four-hour storage is now cheapest to build with **LFP**, at about $92/kWh at pack level.'],
+      ['li', '**Sodium-ion** costs roughly 20% more today but avoids lithium supply risk and holds up better below freezing.'],
+      ['li', 'Both last 15+ years at one cycle a day, so the choice comes down to climate, supply chain and price.'],
+      ['p', 'Recommendation: procure LFP for 2026–27 projects and run a sodium-ion pilot at a cold-climate site.']] },
+    chart: { re: /chart|plot|trend|2030|forecast|graph/i, think: 'Seven points per series. A smooth extension to 2030 is fine as long as I flag it as an extrapolation.', blocks: [
+      ['p', 'Extending the trend in your chart, both curves keep falling and the gap narrows to about **$9/kWh by 2030**.'],
+      ['code', 'import matplotlib.pyplot as plt\n\nyears = [2024, 2025, 2026, 2027, 2028, 2029, 2030]\nlfp = [118, 104, 92, 84, 78, 73, 69]\nna_ion = [151, 130, 112, 99, 89, 82, 78]\n\nplt.plot(years, lfp, label="LFP")\nplt.plot(years, na_ion, label="Sodium-ion", linestyle="--")\nplt.ylabel("Pack price ($/kWh)")\nplt.legend(); plt.show()', 'price_trend.py'],
+      ['p', 'Treat 2028 onward as an extrapolation: the report\'s own range widens to ±15% by then.']] },
+    safety: { re: /safe|fire|thermal|hot|heat|climate/i, think: 'Hot-climate safety is mostly runaway onset temperature plus cooling design. Both chemistries are benign next to nickel-rich cells.', blocks: [
+      ['p', 'Both are among the safest options for stationary storage, and far less prone to thermal runaway than nickel-based cells.'],
+      ['li', '**LFP** cells typically enter runaway above ~270 °C and release little oxygen, which limits fire spread.'],
+      ['li', '**Sodium-ion** can be shipped and stored at 0 V, which removes a whole class of transport risk.'],
+      ['p', 'In hot climates, container cooling and spacing matter more than chemistry. Share the site and I\'ll pull the local fire-code rules.']] },
+    recycle: { re: /recycl|end.of.life|second.life|dispos/i, think: 'Neither chemistry has cobalt or nickel to recover, so recycling is a small net cost rather than a credit.', blocks: [
+      ['p', 'End-of-life costs are small next to capex, but they aren\'t zero.'],
+      ['li', '**LFP** recycling runs about $1–3/kWh net today, since there is little cobalt or nickel to recover.'],
+      ['li', '**Sodium-ion** looks similar; aluminum current collectors make it slightly easier to process.'],
+      ['li', 'Repurposing modules for lighter-duty storage can defer that cost by 5–8 years.'],
+      ['p', 'In a 15-year model, adding `$2/kWh` at end of life moves LCOS by less than 1%.']] }
+  };
+  var FALLBACK = [
+    { think: 'This doesn\'t map to one section of the sources, so answer from the comparison so far and say what I would check next.', blocks: [
+      ['p', 'Based on the two files you shared, here\'s my best read.'],
+      ['li', 'For a 4-hour system the deciding factors are **installed cost**, **climate** and **supply risk**, in that order.'],
+      ['li', 'On today\'s numbers LFP leads on cost; sodium-ion leads on cold performance and materials risk.'],
+      ['p', 'Tell me the site and target in-service date and I\'ll make this concrete.']] },
+    { think: 'A short answer is better here. Offer to look for newer sources.', blocks: [
+      ['p', 'Good question. The outlook report only touches on this briefly, in chapter 5.'],
+      ['p', 'My take: it doesn\'t change the **LFP vs sodium-ion** ranking, though it could shift timing by a year or two. Want me to search for newer sources?']] }
+  ];
+  var ALTS = [
+    { think: 'Re-reading the chart axis: these are pack prices, not installed. The report lists installed adders on p. 23, so mention that.', blocks: [
+      ['p', 'Another way to frame it: **LFP is the default, sodium-ion is the hedge.**'],
+      ['h', 'Where each one wins'],
+      ['li', '**LFP:** lowest installed cost today and the deepest supplier base, with 6,000+ cycles at 80% depth.'],
+      ['li', '**Sodium-ion:** better cold-weather output and no lithium exposure, at roughly a 20% premium in 2026.'],
+      ['p', 'For a first project I\'d size the system on LFP and keep sodium-ion as an alternate bid.']] },
+    { think: 'Keep the model, but show sensitivity to round-trip efficiency, since that is where the chemistries differ most.', blocks: [
+      ['p', 'Here\'s a tighter take focused on the inputs that move the result.'],
+      ['li', 'Round-trip efficiency matters more than cycle life at this duration: each 2 points of RTE shifts cost about 2.5%.'],
+      ['li', 'Pack price is the biggest lever. LFP\'s ~$20/kWh advantage outweighs sodium-ion\'s cold-weather edge in most climates.'],
+      ['code', 'for rte in (0.82, 0.85, 0.88):\n    print(rte, lcos(92, 6000, rte), lcos(112, 5500, rte))', 'sensitivity.py'],
+      ['p', 'Run it after the earlier function: LFP stays ahead across the whole range.']] }
+  ];
+  var fallbackIdx = 0;
+
+  /* ---------- helpers ---------- */
+  function ico(name, w, cls) { return '<iconify-icon icon="lucide:' + name + '" width="' + (w || 15) + '"' + (cls ? ' class="' + cls + '"' : '') + ' aria-hidden="true"></iconify-icon>'; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function inline(s) {
+    return esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*\*([^*]+)$/, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/[*`]+$/, '');
+  }
+  var HL = /(#.*$)|("""[^"]*"""|"[^"]*"|'[^']*')|\b(def|return|import|from|for|in|if|else|and|or|not|None|True|False|as)\b|\b(\d[\d_]*\.?\d*)\b|\b([A-Za-z_]\w*)(?=\()/gm;
+  function highlight(src) {
+    var out = '', last = 0;
+    src.replace(HL, function (m, c, s, k, n, f, i) {
+      out += esc(src.slice(last, i));
+      out += '<span class="tk-' + (c ? 'c' : s ? 's' : k ? 'k' : n ? 'n' : 'f') + '">' + esc(m) + '</span>';
+      last = i + m.length;
+      return m;
+    });
+    return out + esc(src.slice(last));
+  }
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.hidden = false; t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop');
+    clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 1600);
+  }
+  function flashCheck(btn) {
+    if (!btn._orig) { btn._orig = btn.innerHTML; btn._label = btn.getAttribute('aria-label'); }
+    btn.innerHTML = ico('check', 15, 'text-emerald-600'); btn.setAttribute('aria-label', 'Copied');
+    clearTimeout(btn._t); btn._t = setTimeout(function () { btn.innerHTML = btn._orig; btn.setAttribute('aria-label', btn._label); }, 1200);
+  }
+  function copyText(btn, text) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).catch(function () {});
+    flashCheck(btn);
+  }
+  function download(name, text) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+    a.download = name; a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 500);
+  }
+  function follow() { if (stick) thread.scrollTop = thread.scrollHeight; }
+
+  /* ---------- builders ---------- */
+  function codeBlockHTML(file) {
+    return '<div class="codeblock rounded-xl border border-zinc-200 overflow-hidden bg-[#fcfcfd]">' +
+      '<div class="h-9 pl-3 pr-1.5 flex items-center justify-between border-b border-zinc-200 bg-zinc-50">' +
+      '<span class="flex items-center gap-1.5 font-mono text-[12px] text-zinc-500">' + ico('file-code-2', 14) + '<span data-file>' + esc(file) + '</span><span class="text-zinc-300">·</span>python</span>' +
+      '<span class="flex"><button class="ib sm" data-act="download-code" aria-label="Download file">' + ico('download', 14) + '</button>' +
+      '<button class="ib sm" data-act="copy-code" aria-label="Copy code">' + ico('copy', 14) + '</button></span></div>' +
+      '<pre class="thin-scroll px-4 py-3 overflow-x-auto font-mono text-[12.5px] leading-[1.7] text-zinc-800"><code></code></pre></div>';
+  }
+  function reasonHTML(id) {
+    return '<div data-reason><button class="reason-btn inline-flex items-center gap-1.5 h-7 -ml-1 px-1 rounded-md text-[13px] text-zinc-500 hover:text-zinc-900 transition-colors" aria-expanded="true" aria-controls="' + id + '">' +
+      ico('brain', 15) + '<span data-label class="shimmer">Thinking…</span>' + ico('chevron-down', 14, 'chev transition-transform') + '</button>' +
+      '<div id="' + id + '"><div data-think class="mt-1.5 ml-[7px] pl-4 border-l border-zinc-200 text-[13px] leading-relaxed text-zinc-500"><p></p></div></div></div>';
+  }
+  function actionsHTML(msg) {
+    var b = branches[msg.dataset.msg], meta = msg.querySelector('.a-actions').dataset.meta || '';
+    var picker = b && b.list.length > 1 ?
+      '<div class="flex items-center ml-1 text-[12px] text-zinc-500 tabular-nums">' +
+      '<button class="ib sm" data-act="prev" aria-label="Previous version"' + (b.cur === 0 ? ' disabled' : '') + '>' + ico('chevron-left', 15) + '</button>' +
+      '<span class="min-w-[38px] text-center" aria-label="Version ' + (b.cur + 1) + ' of ' + b.list.length + '">' + (b.cur + 1) + ' / ' + b.list.length + '</span>' +
+      '<button class="ib sm" data-act="next" aria-label="Next version"' + (b.cur === b.list.length - 1 ? ' disabled' : '') + '>' + ico('chevron-right', 15) + '</button></div>' : '';
+    return '<div class="flex items-center gap-0.5 mt-3 -ml-1.5">' +
+      '<button class="ib" data-act="copy" aria-label="Copy response">' + ico('copy') + '</button>' +
+      '<button class="ib" data-act="regen" aria-label="Regenerate response">' + ico('refresh-cw') + '</button>' +
+      '<button class="ib" data-act="vote" data-v="up" aria-pressed="false" aria-label="Good response">' + ico('thumbs-up') + '</button>' +
+      '<button class="ib" data-act="vote" data-v="down" aria-pressed="false" aria-label="Bad response">' + ico('thumbs-down') + '</button>' +
+      '<div class="relative"><button class="ib" data-act="more" aria-label="More actions" aria-haspopup="menu" aria-expanded="false">' + ico('ellipsis') + '</button></div>' +
+      picker +
+      (meta ? '<span class="ml-auto hidden sm:block font-mono text-[11px] text-zinc-400 tabular-nums">' + meta + '</span>' : '') + '</div>';
+  }
+  function renderActions(msg) {
+    var bar = msg.querySelector('.a-actions');
+    bar.innerHTML = actionsHTML(msg); bar.hidden = false;
+  }
+  function blockEl(prose, type, file) {
+    var el;
+    if (type === 'li') {
+      var ul = prose.lastElementChild;
+      if (!ul || ul.tagName !== 'UL') { ul = document.createElement('ul'); prose.appendChild(ul); }
+      el = document.createElement('li'); ul.appendChild(el); return el;
+    }
+    if (type === 'code') { prose.insertAdjacentHTML('beforeend', codeBlockHTML(file || 'snippet.py')); return prose.lastElementChild.querySelector('code'); }
+    el = document.createElement(type === 'h' ? 'h3' : 'p'); prose.appendChild(el); return el;
+  }
+  function paintBlock(el, type, text) { el.innerHTML = type === 'code' ? highlight(text) : inline(text); }
+  function tokens(type, text) { return type === 'code' ? text.split(/(?<=\n)/) : text.match(/\S+\s*/g) || []; }
+
+  /* ---------- streaming engine ---------- */
+  function schedule(fn, ms) { if (run) run.timer = setTimeout(fn, ms); }
+  function delayFor(tok, slow) {
+    var base = (slow ? 62 : 30) + Math.random() * (slow ? 40 : 30);
+    if (/[.!?:]\s*$/.test(tok)) base += 160; else if (/[,;]\s*$/.test(tok)) base += 70;
+    return reduce ? base / 3 : base;
+  }
+  function makeCaret() { var c = document.createElement('span'); c.className = 'caret'; c.setAttribute('aria-hidden', 'true'); return c; }
+
+  // Streams blocks into prose, optionally resuming at block bi / token ti.
+  function streamBlocks(prose, blocks, bi, ti, slow, done) {
+    var caret = makeCaret(), el = null, toks = [];
+    prose.innerHTML = '';
+    for (var i = 0; i < bi; i++) paintBlock(blockEl(prose, blocks[i][0], blocks[i][2]), blocks[i][0], blocks[i][1]);
+    function open() { el = blockEl(prose, blocks[bi][0], blocks[bi][2]); toks = tokens(blocks[bi][0], blocks[bi][1]); }
+    function paint() { paintBlock(el, blocks[bi][0], toks.slice(0, ti).join('')); el.appendChild(caret); follow(); }
+    if (ti > 0) { open(); paint(); }
+    (function tick() {
+      if (bi >= blocks.length) { caret.remove(); return done(); }
+      if (!el) open();
+      ti++; paint();
+      var tok = toks[ti - 1];
+      if (ti >= toks.length) { bi++; ti = 0; el = null; }
+      schedule(tick, blocks[bi - (ti === 0 ? 1 : 0)] && blocks[Math.max(0, bi - (ti === 0 ? 1 : 0))][0] === 'code' ? 90 : delayFor(tok, slow));
+    })();
+  }
+
+  function streamThinking(msg, text, done) {
+    var p = msg.querySelector('[data-think] p'), toks = text.match(/\S+\s*/g), i = 0, caret = makeCaret();
+    (function tick() {
+      if (i >= toks.length) { caret.remove(); return schedule(done, 420); }
+      i += 2; p.textContent = toks.slice(0, i).join(''); p.appendChild(caret); follow();
+      schedule(tick, reduce ? 10 : 34);
+    })();
+  }
+  function settleReason(msg, label) {
+    var btn = msg.querySelector('.reason-btn'); if (!btn) return;
+    var lab = btn.querySelector('[data-label]');
+    lab.classList.remove('shimmer'); lab.textContent = label;
+    btn.setAttribute('aria-expanded', 'false');
+    document.getElementById(btn.getAttribute('aria-controls')).hidden = true;
+  }
+
+  function startReply(msg, reply) {
+    var body = msg.querySelector('.a-body'), id = 'r-' + (++uid), t0 = Date.now(), words = 0;
+    msg.querySelector('.a-actions').hidden = true;
+    body.innerHTML = reasonHTML(id) + '<div class="prose-l mt-3" data-prose></div>';
+    run = { msg: msg, timer: 0, t0: t0 };
+    setState('submitted'); thread.setAttribute('aria-busy', 'true'); follow();
+    schedule(function () {
+      setState('streaming');
+      streamThinking(msg, reply.think, function () {
+        var secs = Math.max(1, Math.round((Date.now() - t0) / 1000));
+        settleReason(msg, 'Thought for ' + secs + ' second' + (secs > 1 ? 's' : ''));
+        reply.blocks.forEach(function (b) { words += b[1].split(/\s+/).length; });
+        msg.querySelector('.a-actions').dataset.meta = Math.round(words * 1.45) + ' tokens · ' + ((Date.now() - t0) / 1000 + words * 0.05).toFixed(1) + ' s';
+        streamBlocks(body.querySelector('[data-prose]'), reply.blocks, 0, 0, false, function () { finish(false); });
+      });
+    }, 480);
+  }
+
+  function finish(stopped) {
+    if (!run) return;
+    clearTimeout(run.timer);
+    var msg = run.msg, body = msg.querySelector('.a-body');
+    msg.querySelectorAll('.caret').forEach(function (c) { c.remove(); });
+    var live = msg.querySelector('[data-label].shimmer');
+    if (live) settleReason(msg, 'Stopped thinking');
+    if (stopped) body.insertAdjacentHTML('beforeend', '<p class="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-zinc-500">' + ico('circle-stop', 14) + 'Stopped by you · response incomplete</p>');
+    var b = branches[msg.dataset.msg] || (branches[msg.dataset.msg] = { list: [''], cur: 0 });
+    b.list[b.cur] = body.innerHTML;
+    run = null;
+    renderActions(msg);
+    thread.removeAttribute('aria-busy');
+    setState('ready'); follow();
+  }
+  function stop() { if (run) finish(true); }
+
+  /* ---------- composer state ---------- */
+  function hasContent() { return input.value.trim().length > 0 || files.length > 0; }
+  function setState(s) {
+    sendBtn.dataset.state = s;
+    if (s === 'streaming') { sendBtn.innerHTML = '<span class="w-2.5 h-2.5 rounded-[2px] bg-current"></span>'; sendBtn.setAttribute('aria-label', 'Stop generating'); sendBtn.disabled = false; }
+    else if (s === 'submitted') { sendBtn.innerHTML = ico('loader-circle', 16, 'spin'); sendBtn.setAttribute('aria-label', 'Sending'); sendBtn.disabled = true; }
+    else { sendBtn.innerHTML = ico('arrow-up', 16); sendBtn.setAttribute('aria-label', 'Send message'); sendBtn.disabled = !hasContent(); }
+  }
+  function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 160) + 'px'; }
+
+  function pickReply(text) {
+    for (var k in R) if (R[k].re.test(text)) return { key: k, reply: R[k] };
+    return { key: 'fallback', reply: FALLBACK[fallbackIdx++ % FALLBACK.length] };
+  }
+  function userHTML(text, att) {
+    var tiles = att.map(function (f) {
+      return f.url ? '<img src="' + f.url + '" alt="' + esc(f.name) + '" class="w-[72px] h-[72px] rounded-xl object-cover border border-zinc-200">' :
+        '<div class="w-[200px] rounded-xl border border-zinc-200 bg-white p-2.5 flex items-center gap-3"><span class="w-9 h-11 shrink-0 rounded-md bg-zinc-50 ring-1 ring-zinc-200 text-zinc-500 grid place-items-center font-mono text-[9.5px] font-medium uppercase">' + esc(f.ext) + '</span><div class="min-w-0"><div class="text-[13px] font-medium truncate">' + esc(f.name) + '</div><div class="text-[11.5px] text-zinc-500">' + f.size + '</div></div></div>';
+    }).join('');
+    return (tiles ? '<div class="flex flex-wrap justify-end gap-2">' + tiles + '</div>' : '') +
+      (text ? '<div class="u-text max-w-[85%] rounded-2xl bg-zinc-100 px-4 py-2.5 text-[14.5px] leading-relaxed whitespace-pre-wrap">' + esc(text) + '</div>' : '') +
+      '<div class="u-actions flex gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">' +
+      '<button class="ib sm" data-act="edit" aria-label="Edit message">' + ico('pencil', 14) + '</button>' +
+      '<button class="ib sm" data-act="copy-user" aria-label="Copy message">' + ico('copy', 14) + '</button></div>';
+  }
+  function send(text) {
+    text = (text || '').trim();
+    if (run || (!text && !files.length)) return;
+    var u = document.createElement('div');
+    u.className = 'u-msg group flex flex-col items-end gap-2 enter';
+    u.innerHTML = userHTML(text, files);
+    log.appendChild(u);
+    var pick = pickReply(text || 'attachment'), a = document.createElement('article');
+    a.className = 'a-msg enter'; a.dataset.msg = 'm' + (++uid); a.dataset.key = pick.key; a.setAttribute('aria-label', 'Lumen response');
+    a.innerHTML = '<div class="a-body"></div><div class="a-actions" hidden></div>';
+    log.appendChild(a);
+    input.value = ''; files = []; renderAttachments(); autosize();
+    stick = true;
+    startReply(a, pick.reply);
+  }
+
+  /* ---------- branches ---------- */
+  function regenerate(msg) {
+    if (run) return;
+    var id = msg.dataset.msg, b = branches[id], key = msg.dataset.key;
+    var reply = key === 'alts' ? ALTS[(b.list.length - 2 + ALTS.length) % ALTS.length] : (R[key] || FALLBACK[fallbackIdx++ % FALLBACK.length]);
+    b.list.push(''); b.cur = b.list.length - 1;
+    startReply(msg, reply);
+  }
+  function showBranch(msg, dir) {
+    var b = branches[msg.dataset.msg], next = b.cur + dir;
+    if (run || next < 0 || next >= b.list.length) return;
+    b.cur = next;
+    msg.querySelector('.a-body').innerHTML = b.list[next];
+    renderActions(msg);
+  }
+
+  /* ---------- menus ---------- */
+  function renderModels() {
+    var cur = $('#modelName').textContent;
+    $('#modelMenu').innerHTML = '<div class="px-2.5 pt-1.5 pb-1 text-[11px] font-medium text-zinc-400">Model</div>' + MODELS.map(function (m) {
+      var on = m[0] === cur;
+      return '<button type="button" role="menuitemradio" aria-checked="' + on + '" data-model="' + m[0] + '" class="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left hover:bg-zinc-100 focus:bg-zinc-100 outline-none">' +
+        '<span class="flex-1 min-w-0"><span class="block text-[13px] font-medium">' + m[0] + '</span><span class="block text-[11.5px] text-zinc-500">' + m[1] + '</span></span>' +
+        (on ? ico('check', 15, 'text-indigo-600') : '') + '</button>';
+    }).join('');
+  }
+  function toggleModelMenu(open) {
+    var menu = $('#modelMenu'), btn = $('#modelBtn');
+    open = open === undefined ? menu.hidden : open;
+    if (open) { renderModels(); }
+    menu.hidden = !open; btn.setAttribute('aria-expanded', open);
+    if (open) (menu.querySelector('[aria-checked="true"]') || menu.querySelector('button')).focus();
+  }
+  function closeMoreMenus() {
+    document.querySelectorAll('.more-menu').forEach(function (m) { m.previousElementSibling.setAttribute('aria-expanded', 'false'); m.remove(); });
+  }
+  function openMoreMenu(btn) {
+    var was = btn.getAttribute('aria-expanded') === 'true';
+    closeMoreMenus(); if (was) return;
+    btn.setAttribute('aria-expanded', 'true');
+    btn.insertAdjacentHTML('afterend', '<div class="more-menu pop absolute left-0 top-full mt-1 w-[184px] rounded-xl border border-zinc-200 bg-white p-1 shadow-[0_16px_40px_-12px_rgba(24,24,27,.3)] z-20" role="menu">' +
+      [['volume-2', 'Read aloud'], ['file-text', 'Copy as Markdown'], ['flag', 'Report a problem']].map(function (it) {
+        return '<button role="menuitem" data-act="menu-item" data-label="' + it[1] + '" class="w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-zinc-700 hover:bg-zinc-100">' + ico(it[0], 14, 'text-zinc-400') + it[1] + '</button>';
+      }).join('') + '</div>');
+  }
+
+  /* ---------- attachments ---------- */
+  function addFiles(list) {
+    Array.prototype.forEach.call(list, function (f) {
+      var kb = f.size / 1024;
+      files.push({ name: f.name, ext: (f.name.split('.').pop() || 'file').slice(0, 4), size: kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(kb)) + ' KB', url: /^image\//.test(f.type) ? URL.createObjectURL(f) : '' });
+    });
+    renderAttachments(); setState(run ? sendBtn.dataset.state : 'ready');
+  }
+  function renderAttachments() {
+    var box = $('#attachments');
+    box.hidden = !files.length;
+    box.innerHTML = files.map(function (f, i) {
+      return '<div class="relative group/t pop">' + (f.url ? '<img src="' + f.url + '" alt="" class="w-14 h-14 rounded-lg object-cover border border-zinc-200">' :
+        '<div class="h-14 max-w-[180px] rounded-lg border border-zinc-200 bg-zinc-50 pl-2 pr-3 flex items-center gap-2"><span class="w-7 h-8 rounded bg-white ring-1 ring-zinc-200 grid place-items-center font-mono text-[8.5px] uppercase text-zinc-500">' + esc(f.ext) + '</span><span class="min-w-0"><span class="block text-[12px] font-medium truncate">' + esc(f.name) + '</span><span class="block text-[11px] text-zinc-500">' + f.size + '</span></span></div>') +
+        '<button type="button" data-act="remove-file" data-i="' + i + '" aria-label="Remove ' + esc(f.name) + '" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-zinc-900 text-white grid place-items-center ring-2 ring-white hover:bg-zinc-700">' + ico('x', 11) + '</button></div>';
+    }).join('');
+  }
+
+  /* ---------- dictation ---------- */
+  var mic = { on: false, timer: 0 };
+  function toggleMic() {
+    var btn = $('#micBtn');
+    mic.on = !mic.on; clearInterval(mic.timer);
+    btn.setAttribute('aria-pressed', mic.on); btn.setAttribute('aria-label', mic.on ? 'Stop dictation' : 'Start dictation');
+    btn.classList.toggle('rec', mic.on); btn.classList.toggle('!text-red-600', mic.on); btn.classList.toggle('!bg-red-50', mic.on);
+    if (!mic.on) return;
+    var phrase = 'How long until sodium-ion reaches cost parity?', i = 0, base = input.value ? input.value.replace(/\s*$/, ' ') : '';
+    mic.timer = setInterval(function () {
+      i += 2; input.value = base + phrase.slice(0, i); autosize(); setState(run ? sendBtn.dataset.state : 'ready');
+      if (i >= phrase.length) toggleMic();
+    }, 55);
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-act]'), act = btn && btn.dataset.act;
+    if (!e.target.closest('.more-menu') && act !== 'more') closeMoreMenus();
+    if (!e.target.closest('#modelMenu') && !e.target.closest('#modelBtn') && !$('#modelMenu').hidden) toggleModelMenu(false);
+    var reasonBtn = e.target.closest('.reason-btn');
+    if (reasonBtn) {
+      var open = reasonBtn.getAttribute('aria-expanded') !== 'true';
+      reasonBtn.setAttribute('aria-expanded', open);
+      document.getElementById(reasonBtn.getAttribute('aria-controls')).hidden = !open;
+      return;
+    }
+    if (!act) return;
+    var msg = btn.closest('.a-msg'), u = btn.closest('.u-msg');
+    switch (act) {
+      case 'copy': copyText(btn, msg.querySelector('[data-prose]').innerText.trim()); break;
+      case 'copy-code': copyText(btn, btn.closest('.codeblock').querySelector('code').textContent); break;
+      case 'download-code': var cb = btn.closest('.codeblock'); download(cb.querySelector('[data-file]').textContent, cb.querySelector('code').textContent); break;
+      case 'copy-user': copyText(btn, u.querySelector('.u-text') ? u.querySelector('.u-text').textContent : ''); break;
+      case 'edit':
+        input.value = u.querySelector('.u-text') ? u.querySelector('.u-text').textContent : '';
+        autosize(); input.focus(); input.setSelectionRange(input.value.length, input.value.length); setState(run ? sendBtn.dataset.state : 'ready');
+        break;
+      case 'regen': regenerate(msg); break;
+      case 'prev': showBranch(msg, -1); break;
+      case 'next': showBranch(msg, 1); break;
+      case 'vote':
+        var on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.parentElement.querySelectorAll('[data-act="vote"]').forEach(function (v) { v.setAttribute('aria-pressed', 'false'); });
+        btn.setAttribute('aria-pressed', on);
+        if (on) toast(btn.dataset.v === 'up' ? 'Thanks, noted as helpful' : 'Thanks, we\'ll use this to improve');
+        break;
+      case 'more': openMoreMenu(btn); break;
+      case 'menu-item':
+        if (btn.dataset.label === 'Copy as Markdown') { if (navigator.clipboard) navigator.clipboard.writeText(msg.querySelector('[data-prose]').innerText).catch(function () {}); toast('Copied as Markdown'); }
+        else toast(btn.dataset.label === 'Read aloud' ? 'Reading aloud…' : 'Report sent. Thank you');
+        closeMoreMenus(); break;
+      case 'attach': $('#fileInput').click(); break;
+      case 'remove-file': files.splice(+btn.dataset.i, 1); renderAttachments(); setState(run ? sendBtn.dataset.state : 'ready'); break;
+      case 'suggest': if (!run) { input.value = btn.dataset.prompt; send(input.value); } break;
+      case 'share': copyText(btn, 'https://lumen.example/share/grid-storage-brief'); toast('Share link copied'); break;
+      case 'export': download('grid-storage-brief.md', log.innerText); break;
+    }
+  });
+
+  $('#composer').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (run) stop(); else send(input.value);
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!run) send(input.value); }
+  });
+  input.addEventListener('input', function () { autosize(); if (!run) setState('ready'); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!$('#modelMenu').hidden) { toggleModelMenu(false); $('#modelBtn').focus(); return; }
+    if (document.querySelector('.more-menu')) { closeMoreMenus(); return; }
+    if (run) stop();
+  });
+
+  $('#searchToggle').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', on); toast(on ? 'Web search on' : 'Web search off');
+  });
+  $('#modelBtn').addEventListener('click', function () { toggleModelMenu(); });
+  $('#modelMenu').addEventListener('click', function (e) {
+    var it = e.target.closest('[data-model]'); if (!it) return;
+    $('#modelName').textContent = it.dataset.model; toggleModelMenu(false); $('#modelBtn').focus();
+  });
+  $('#modelMenu').addEventListener('keydown', function (e) {
+    var items = Array.prototype.slice.call(this.querySelectorAll('[data-model]')), i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+  });
+  $('#micBtn').addEventListener('click', toggleMic);
+  $('#fileInput').addEventListener('change', function () { addFiles(this.files); this.value = ''; });
+
+  var card = $('#card'), drop = $('#dropzone'), dragDepth = 0;
+  function isFileDrag(e) { return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') > -1; }
+  card.addEventListener('dragenter', function (e) { if (!isFileDrag(e)) return; dragDepth++; drop.style.opacity = 1; });
+  card.addEventListener('dragleave', function () { if (--dragDepth <= 0) { dragDepth = 0; drop.style.opacity = 0; } });
+  card.addEventListener('dragover', function (e) { if (isFileDrag(e)) e.preventDefault(); });
+  card.addEventListener('drop', function (e) { e.preventDefault(); dragDepth = 0; drop.style.opacity = 0; if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+  var toLatest = $('#toLatest'), jumping = false;
+  thread.addEventListener('scroll', function () {
+    var gap = thread.scrollHeight - thread.scrollTop - thread.clientHeight;
+    if (!jumping) stick = gap < 40;
+    var show = gap > 160 && !jumping;
+    toLatest.dataset.show = show; toLatest.tabIndex = show ? 0 : -1; toLatest.setAttribute('aria-hidden', !show);
+  });
+  toLatest.addEventListener('click', function () {
+    stick = true; jumping = true;
+    thread.scrollTo({ top: thread.scrollHeight, behavior: reduce ? 'auto' : 'smooth' });
+    setTimeout(function () { jumping = false; thread.scrollTop = thread.scrollHeight; }, reduce ? 0 : 450);
+  });
+
+  /* ---------- init ---------- */
+  $('#suggestions').innerHTML = SUGGESTIONS.map(function (s) {
+    return '<button type="button" data-act="suggest" data-prompt="' + esc(s[2]) + '" class="shrink-0 h-8 px-3 rounded-full border border-zinc-200 bg-white inline-flex items-center gap-1.5 text-[13px] text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 active:bg-zinc-100 transition-colors">' + ico(s[0], 14, 'text-zinc-400') + s[1] + '</button>';
+  }).join('');
+  document.querySelectorAll('code[data-hl]').forEach(function (c) { c.innerHTML = highlight(c.textContent); });
+  var a1 = $('[data-msg="a1"]');
+  branches.a1 = { list: [$('#a1-v1').innerHTML, a1.querySelector('.a-body').innerHTML], cur: 1 };
+  renderActions(a1);
+  thread.scrollTop = thread.scrollHeight;
+
+  // Resume the in-flight reply: block 1, token 9 matches the pre-rendered partial.
+  var a2 = $('[data-msg="a2"]');
+  run = { msg: a2, timer: 0 };
+  a2.querySelector('.a-actions').dataset.meta = '148 tokens · 6.2 s';
+  setState('streaming'); thread.setAttribute('aria-busy', 'true');
+  function resume() {
+    if (!run || run.msg !== a2) return;
+    schedule(function () { streamBlocks(a2.querySelector('[data-prose]'), R.credit.blocks, 1, 9, true, function () { finish(false); }); }, 650);
+  }
+  if (document.readyState === 'complete') resume(); else window.addEventListener('load', resume);
+})();
+</script>
+</body>
+</html>

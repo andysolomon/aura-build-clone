@@ -3,6 +3,7 @@ import {
   ArrowRight,
   AtSign,
   BookOpen,
+  Bot,
   CircleHelp,
   Cpu,
   Globe,
@@ -27,6 +28,7 @@ import { cx } from "../lib/util";
 
 const ICONS: Record<string, LucideIcon> = {
   "book-open": BookOpen,
+  bot: Bot,
   "mouse-pointer-2": MousePointer2,
   globe: Globe,
   cpu: Cpu,

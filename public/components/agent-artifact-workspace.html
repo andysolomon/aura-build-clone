@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge - Chat and artifact workspace for a coding agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+        },
+        colors: { accent: 'var(--accent)', surface: '#111113', raised: '#18181b' }
+      }
+    }
+  };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --accent: #ff8a3d; --app: #0d9488; --fg: #fafafa; --muted: #71717a; --chat-w: 384px; }
+  html, body { height: 100%; }
+  body { background: #09090b; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  iconify-icon { display: inline-block; flex-shrink: 0; }
+  * { scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .hair { border-color: rgba(255,255,255,.08); }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  .caret::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+  .blockcur { display: inline-block; width: .6em; height: 1.05em; vertical-align: -2px; background: #e4e4e7; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .spin { animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rise { animation: rise .3s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes rise { from { opacity: .2; transform: translateY(4px); } }
+  .fchip { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 6px 0 5px; border-radius: 6px; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); font: 500 11.5px/1 "Geist Mono", ui-monospace, monospace; color: #d4d4d8; white-space: nowrap; }
+  .chev { transition: transform .2s ease; }
+  [aria-expanded="false"] > .chev { transform: rotate(-90deg); }
+  .tab[aria-selected="true"] { color: #fafafa; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .code-line { display: grid; grid-template-columns: 3.25rem 1fr; }
+  .code-line[data-mark="add"] { background: rgba(16,185,129,.09); }
+  .code-line[data-mark="add"] .ln { color: #34d399; box-shadow: inset 2px 0 0 #10b981; }
+  .c-key { color: #c4b5fd; } .c-str { color: #86efac; } .c-com { color: #71717a; font-style: italic; } .c-num { color: #fcd34d; } .c-tag { color: #7dd3fc; } .c-typ { color: #fdba74; }
+  .tree-row[aria-selected="true"] { background: rgba(255,138,61,.12); color: #fff; box-shadow: inset 2px 0 0 var(--accent); }
+  .picking .app * { cursor: crosshair; }
+  .picking .app *:hover { outline: 1px dashed var(--accent); outline-offset: 2px; }
+  .cell { transition: background-color .15s ease, transform .1s ease; }
+  .cell:active { transform: scale(.92); }
+  #frame { transition: opacity .25s ease; }
+  #ws.max #chat, #ws.max #divider { display: none; }
+  @media (max-width: 767px) {
+    #ws[data-view="chat"] #artifact { display: none; }
+    #ws[data-view="artifact"] #chat { display: none; }
+  }
+  @media (min-width: 768px) { #chat { width: var(--chat-w); } }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer { animation: none; background: none; color: var(--fg); }
+    .spin, .rise, .caret::after, .blockcur { animation: none; }
+    .chev, .cell, #frame { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans flex flex-col overflow-hidden">
+  <!-- Top bar -->
+  <header class="h-12 shrink-0 flex items-center gap-3 px-3 sm:px-4 border-b hair bg-[#0c0c0e]">
+    <a href="#" class="flex items-center gap-2 font-semibold text-[14px] tracking-tight">
+      <span class="w-7 h-7 rounded-lg grid place-items-center text-black bg-accent shadow-[0_0_24px_-6px_var(--accent)]"><iconify-icon icon="lucide:flame" width="15"></iconify-icon></span>Forge
+    </a>
+    <span class="hidden md:inline text-zinc-700">/</span>
+    <span class="hidden md:inline font-mono text-[12px] text-zinc-400">tidepool/habit-tracker</span>
+    <span class="hidden lg:inline-flex items-center gap-1 h-6 px-2 rounded-full bg-white/5 ring-1 ring-white/10 font-mono text-[11px] text-zinc-400"><iconify-icon icon="lucide:git-branch" width="12"></iconify-icon>forge/streak-grid</span>
+    <div class="md:hidden ml-auto flex p-0.5 rounded-lg bg-white/5 ring-1 ring-white/10" role="group" aria-label="Workspace view">
+      <button data-view="chat" aria-pressed="true" class="view-btn h-7 px-3 rounded-md text-[12.5px] font-medium">Chat</button>
+      <button data-view="artifact" aria-pressed="false" class="view-btn h-7 px-3 rounded-md text-[12.5px] font-medium">Artifact</button>
+    </div>
+    <div class="hidden md:flex ml-auto items-center gap-2">
+      <span class="flex -space-x-1.5" aria-hidden="true">
+        <span class="w-6 h-6 rounded-full ring-2 ring-[#0c0c0e] bg-gradient-to-br from-amber-300 to-rose-400 grid place-items-center text-[10px] font-semibold text-black">SK</span>
+        <span class="w-6 h-6 rounded-full ring-2 ring-[#0c0c0e] bg-gradient-to-br from-sky-300 to-indigo-400 grid place-items-center text-[10px] font-semibold text-black">JP</span>
+      </span>
+      <button class="h-8 px-3 rounded-lg bg-white text-black text-[12.5px] font-medium hover:bg-zinc-200 active:scale-[.98] transition inline-flex items-center gap-1.5"><iconify-icon icon="lucide:rocket" width="14"></iconify-icon>Deploy</button>
+    </div>
+  </header>
+
+  <div id="ws" data-view="chat" class="flex-1 min-h-0 flex">
+    <!-- Chat column -->
+    <section id="chat" class="w-full shrink-0 flex flex-col min-w-0 bg-surface" aria-label="Chat with Forge">
+      <div id="thread" role="log" aria-live="polite" class="flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-5 text-[13.5px] leading-relaxed">
+        <div class="flex justify-end"><p class="max-w-[85%] rounded-2xl rounded-br-md bg-raised ring-1 ring-white/[.06] px-3.5 py-2.5 text-zinc-100">Scaffold a habit tracker for Tidepool. One page, React and Tailwind.</p></div>
+        <div class="space-y-2.5">
+          <p class="text-zinc-300">Started from the Vite React template and added Tailwind. State will live in a small hook so the UI stays simple.</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="inline-flex items-center gap-1.5 h-6 px-2 rounded-full bg-white/5 ring-1 ring-white/10 text-[11.5px]"><iconify-icon icon="lucide:circle-check" width="12" class="text-emerald-400"></iconify-icon><span class="font-mono">create_project</span><span class="text-zinc-500">Completed</span></span>
+            <span class="inline-flex items-center gap-1.5 h-6 px-2 rounded-full bg-white/5 ring-1 ring-white/10 text-[11.5px]"><iconify-icon icon="lucide:circle-check" width="12" class="text-emerald-400"></iconify-icon><span class="font-mono">install</span><span class="text-zinc-500">3 packages</span></span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-[11.5px] text-zinc-500" role="separator" aria-label="Checkpoint">
+          <span class="h-px flex-1 bg-white/[.08]"></span>
+          <iconify-icon icon="lucide:bookmark" width="12"></iconify-icon><span>Checkpoint v2</span>
+          <button id="restore" class="h-6 px-2 rounded-md ring-1 ring-white/10 text-zinc-300 hover:bg-white/5 hover:text-white transition">Restore checkpoint</button>
+          <span class="h-px flex-1 bg-white/[.08]"></span>
+        </div>
+        <div class="flex justify-end"><p class="max-w-[85%] rounded-2xl rounded-br-md bg-raised ring-1 ring-white/[.06] px-3.5 py-2.5 text-zinc-100">Add a weekly streak grid with a progress ring for today, and cover it with tests.</p></div>
+        <div class="space-y-3">
+          <button class="flex items-center gap-1.5 text-[12.5px] text-zinc-500 hover:text-zinc-300 transition" aria-expanded="false" aria-controls="reason-1" data-disclosure>
+            <iconify-icon icon="lucide:brain" width="14"></iconify-icon>Thought for 5 seconds<iconify-icon icon="lucide:chevron-down" width="13" class="chev"></iconify-icon>
+          </button>
+          <p id="reason-1" hidden class="pl-3 border-l hair text-[12.5px] text-zinc-500">The grid is 4 habits by 7 days. Streak math is the risky part, so it gets its own function and tests around week boundaries.</p>
+          <div class="rounded-xl ring-1 ring-white/[.08] bg-white/[.02]">
+            <button class="w-full flex items-center gap-2 px-3 py-2.5 text-left text-[12.5px]" aria-expanded="true" aria-controls="task-1" data-disclosure>
+              <iconify-icon icon="lucide:layers" width="14" class="text-zinc-500"></iconify-icon><span class="font-medium text-zinc-200">Built the streak grid</span>
+              <span class="font-mono text-[11px] tabular-nums"><span class="text-emerald-400">+98</span> <span class="text-red-400">−4</span></span>
+              <iconify-icon icon="lucide:chevron-down" width="14" class="chev ml-auto text-zinc-500"></iconify-icon>
+            </button>
+            <ul id="task-1" class="mx-3 mb-3 ml-[19px] pl-3.5 border-l hair space-y-2 text-[12.5px] text-zinc-400">
+              <li class="flex items-center gap-1.5 flex-wrap">Searching <code class="font-mono text-[11.5px] text-zinc-200">"habit, streak"</code> in <code class="font-mono text-[11.5px] text-zinc-200">src/</code></li>
+              <li class="flex items-center gap-1.5 flex-wrap">Read <span class="fchip"><iconify-icon icon="vscode-icons:file-type-reactts" width="12"></iconify-icon>App.tsx</span><span class="fchip"><iconify-icon icon="vscode-icons:file-type-typescript-official" width="12"></iconify-icon>useHabits.ts</span></li>
+              <li class="flex items-center gap-1.5 flex-wrap">Created <span class="fchip"><iconify-icon icon="vscode-icons:file-type-reactts" width="12"></iconify-icon>HabitGrid.tsx</span><span class="font-mono text-[11px] text-emerald-400">+86</span></li>
+              <li class="flex items-center gap-1.5 flex-wrap">Edited <span class="fchip"><iconify-icon icon="vscode-icons:file-type-reactts" width="12"></iconify-icon>App.tsx</span><span class="font-mono text-[11px]"><span class="text-emerald-400">+12</span> <span class="text-red-400">−4</span></span></li>
+              <li id="task-tests" class="flex items-center gap-1.5 flex-wrap text-zinc-200">Ran <code class="font-mono text-[11.5px]">pnpm test</code><span class="text-zinc-500">·</span><span class="text-emerald-400">14 passed</span><span class="text-red-400">1 failed</span></li>
+            </ul>
+          </div>
+          <p class="text-zinc-300">The grid renders and saves to local storage. One test fails at the week boundary because <code class="font-mono text-[12px] px-1 py-0.5 rounded bg-white/5 text-accent">streakFor()</code> treats Sunday as day 0.</p>
+          <div class="flex flex-wrap gap-1.5" id="suggestions">
+            <button class="sugg h-7 px-2.5 rounded-full ring-1 ring-white/10 text-[12px] text-zinc-300 hover:bg-white/5 hover:text-white transition">Fix the failing test</button>
+            <button class="sugg h-7 px-2.5 rounded-full ring-1 ring-white/10 text-[12px] text-zinc-300 hover:bg-white/5 hover:text-white transition">Try a violet theme</button>
+            <button class="sugg h-7 px-2.5 rounded-full ring-1 ring-white/10 text-[12px] text-zinc-300 hover:bg-white/5 hover:text-white transition">Run the build</button>
+          </div>
+        </div>
+      </div>
+
+      <form id="composer" class="m-3 mt-0 rounded-2xl bg-raised ring-1 ring-white/10 focus-within:ring-white/20 transition">
+        <label for="input" class="sr-only">Message Forge</label>
+        <textarea id="input" rows="1" placeholder="Ask Forge to change the app…" class="block w-full resize-none bg-transparent px-3.5 pt-3 pb-1 text-[13.5px] text-zinc-100 placeholder:text-zinc-500 focus:outline-none max-h-40"></textarea>
+        <div class="flex items-center gap-1 px-2 pb-2">
+          <button type="button" aria-label="Attach file" class="w-8 h-8 grid place-items-center rounded-lg text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:plus" width="16"></iconify-icon></button>
+          <button type="button" class="h-7 px-2 rounded-lg inline-flex items-center gap-1.5 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-white transition"><span class="w-1.5 h-1.5 rounded-full bg-accent"></span><span class="font-mono">forge-2</span><iconify-icon icon="lucide:chevron-down" width="12"></iconify-icon></button>
+          <span class="ml-auto font-mono text-[11px] tabular-nums text-zinc-500" title="Context used">31%</span>
+          <button id="send" type="submit" aria-label="Send message" disabled class="w-8 h-8 grid place-items-center rounded-lg bg-accent text-black hover:brightness-110 active:scale-95 transition disabled:bg-white/10 disabled:text-zinc-500"><iconify-icon id="send-icon" icon="lucide:arrow-up" width="16"></iconify-icon></button>
+        </div>
+      </form>
+    </section>
+
+    <div id="divider" role="separator" aria-orientation="vertical" aria-label="Resize chat" aria-valuemin="300" aria-valuemax="560" aria-valuenow="384" tabindex="0" class="hidden md:block w-1.5 -mx-[3px] z-10 cursor-col-resize group relative shrink-0">
+      <span class="absolute inset-y-0 left-1/2 w-px bg-white/[.08] group-hover:bg-accent group-focus-visible:bg-accent transition"></span>
+    </div>
+
+    <!-- Artifact panel -->
+    <section id="artifact" class="flex-1 min-w-0 flex flex-col bg-[#0b0b0d]" aria-label="Artifact">
+      <div class="h-12 shrink-0 flex items-center gap-3 px-3 sm:px-4 border-b hair">
+        <span class="w-7 h-7 rounded-lg grid place-items-center bg-white/5 ring-1 ring-white/10 text-accent"><iconify-icon icon="lucide:app-window" width="15"></iconify-icon></span>
+        <div class="min-w-0">
+          <p class="text-[13px] font-medium truncate">Tidepool habit tracker</p>
+          <p class="text-[11.5px] text-zinc-500 truncate"><span id="updated">Updated 1 minute ago</span> · <span id="ver" class="font-mono">v3</span></p>
+        </div>
+        <div class="ml-auto flex items-center gap-0.5">
+          <button id="run" class="h-8 px-2.5 mr-1 rounded-lg bg-accent text-black text-[12.5px] font-medium inline-flex items-center gap-1.5 hover:brightness-110 active:scale-[.97] transition disabled:opacity-60"><iconify-icon id="run-icon" icon="lucide:play" width="13"></iconify-icon>Run</button>
+          <button id="copy-code" aria-label="Copy code" class="w-8 h-8 grid place-items-center rounded-lg text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:copy" width="15"></iconify-icon></button>
+          <button id="download" aria-label="Download file" class="w-8 h-8 grid place-items-center rounded-lg text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:download" width="15"></iconify-icon></button>
+          <button id="share" aria-label="Copy share link" class="w-8 h-8 grid place-items-center rounded-lg text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:share-2" width="15"></iconify-icon></button>
+        </div>
+      </div>
+
+      <div role="tablist" aria-label="Artifact views" class="h-11 shrink-0 flex items-center gap-1 px-2 sm:px-3 border-b hair overflow-x-auto">
+        <button role="tab" id="tab-preview" aria-controls="panel-preview" aria-selected="true" class="tab h-8 px-2.5 rounded-lg inline-flex items-center gap-1.5 text-[12.5px] font-medium text-zinc-400 hover:text-white transition"><iconify-icon icon="lucide:eye" width="14"></iconify-icon>Preview</button>
+        <button role="tab" id="tab-code" aria-controls="panel-code" aria-selected="false" tabindex="-1" class="tab h-8 px-2.5 rounded-lg inline-flex items-center gap-1.5 text-[12.5px] font-medium text-zinc-400 hover:text-white transition"><iconify-icon icon="lucide:code-xml" width="14"></iconify-icon>Code</button>
+        <button role="tab" id="tab-terminal" aria-controls="panel-terminal" aria-selected="false" tabindex="-1" class="tab h-8 px-2.5 rounded-lg inline-flex items-center gap-1.5 text-[12.5px] font-medium text-zinc-400 hover:text-white transition"><iconify-icon icon="lucide:square-terminal" width="14"></iconify-icon>Terminal</button>
+        <button role="tab" id="tab-tests" aria-controls="panel-tests" aria-selected="false" tabindex="-1" class="tab h-8 px-2.5 rounded-lg inline-flex items-center gap-1.5 text-[12.5px] font-medium text-zinc-400 hover:text-white transition"><iconify-icon icon="lucide:flask-conical" width="14"></iconify-icon>Tests<span id="tests-badge" class="ml-0.5 h-4 min-w-4 px-1 rounded-full bg-red-500/15 text-red-400 text-[10.5px] font-mono grid place-items-center">1</span></button>
+      </div>
+
+      <!-- Preview -->
+      <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" class="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
+        <div class="flex-1 min-h-0 flex flex-col rounded-xl ring-1 ring-white/[.08] overflow-hidden bg-raised">
+          <div class="h-10 shrink-0 flex items-center gap-1 px-2 border-b hair">
+            <button disabled aria-label="Back" class="w-7 h-7 grid place-items-center rounded-md text-zinc-400 hover:bg-white/5 disabled:opacity-35"><iconify-icon icon="lucide:arrow-left" width="14"></iconify-icon></button>
+            <button disabled aria-label="Forward" class="w-7 h-7 grid place-items-center rounded-md text-zinc-400 hover:bg-white/5 disabled:opacity-35"><iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon></button>
+            <button id="reload" aria-label="Reload preview" class="w-7 h-7 grid place-items-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon id="reload-icon" icon="lucide:rotate-cw" width="14"></iconify-icon></button>
+            <div class="flex-1 min-w-0 h-7 mx-1 px-2.5 rounded-md bg-black/40 ring-1 ring-white/[.06] flex items-center gap-1.5 font-mono text-[11.5px] text-zinc-400">
+              <iconify-icon icon="lucide:globe" width="12" class="text-zinc-500"></iconify-icon><span class="truncate"><span class="text-zinc-500">localhost:5173</span>/habits</span>
+            </div>
+            <button id="pick" aria-label="Pick element" aria-pressed="false" class="w-7 h-7 grid place-items-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white aria-pressed:bg-accent/15 aria-pressed:text-accent transition"><iconify-icon icon="lucide:mouse-pointer-click" width="14"></iconify-icon></button>
+            <button aria-label="Open in new tab" class="hidden sm:grid w-7 h-7 place-items-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:external-link" width="14"></iconify-icon></button>
+            <button id="maximize" aria-label="Maximize artifact" aria-pressed="false" class="hidden md:grid w-7 h-7 place-items-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:maximize-2" width="14"></iconify-icon></button>
+          </div>
+          <div id="frame" class="flex-1 min-h-0 bg-[#f4f6f8] overflow-auto"><div id="app" class="app"></div></div>
+          <div class="shrink-0 border-t hair bg-[#0e0e10]">
+            <button class="w-full h-8 flex items-center gap-2 px-3 text-[12px] font-mono text-zinc-400 hover:text-white transition" aria-expanded="true" aria-controls="console" data-disclosure>
+              <iconify-icon icon="lucide:chevron-down" width="13" class="chev"></iconify-icon>Console
+              <span id="console-count" class="text-[10.5px] text-zinc-500">3 logs</span>
+              <span class="ml-auto inline-flex items-center gap-1 text-amber-400 text-[10.5px]"><iconify-icon icon="lucide:triangle-alert" width="11"></iconify-icon>1</span>
+            </button>
+            <ol id="console" class="max-h-28 overflow-y-auto px-3 pb-2 font-mono text-[11.5px] leading-[1.7]"></ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code -->
+      <div id="panel-code" role="tabpanel" aria-labelledby="tab-code" hidden class="flex-1 min-h-0 flex">
+        <nav aria-label="Files" class="hidden sm:block w-52 shrink-0 border-r hair overflow-y-auto py-2 font-mono text-[12px]">
+          <p class="px-3 pb-2 text-[10.5px] uppercase tracking-[.08em] text-zinc-500 font-sans font-medium">Explorer</p>
+          <ul id="tree" role="tree" aria-label="Project files"></ul>
+        </nav>
+        <div class="flex-1 min-w-0 flex flex-col">
+          <div class="h-9 shrink-0 flex items-center gap-2 px-3 border-b hair text-[12px]">
+            <iconify-icon id="code-icon" icon="vscode-icons:file-type-reactts" width="14"></iconify-icon>
+            <span id="code-name" class="font-mono text-zinc-200">HabitGrid.tsx</span>
+            <span id="code-path" class="font-mono text-zinc-500 truncate">src/components/</span>
+            <span class="ml-auto font-mono text-[11px] text-zinc-500">TypeScript JSX</span>
+          </div>
+          <pre id="code" class="flex-1 min-h-0 overflow-auto py-2 font-mono text-[12.5px] leading-[1.65] text-zinc-300"></pre>
+        </div>
+      </div>
+
+      <!-- Terminal -->
+      <div id="panel-terminal" role="tabpanel" aria-labelledby="tab-terminal" hidden class="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
+        <div class="flex-1 min-h-0 flex flex-col rounded-xl ring-1 ring-white/[.08] bg-black overflow-hidden">
+          <div class="h-10 shrink-0 flex items-center gap-2 px-3 border-b hair">
+            <span class="font-mono text-[12px] text-zinc-300"><span class="text-accent">›_</span> Build Output</span>
+            <span id="term-status" class="text-[11px] text-zinc-500">exited 1 · 4.1s</span>
+            <button id="term-copy" aria-label="Copy output" class="ml-auto w-7 h-7 grid place-items-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:copy" width="14"></iconify-icon></button>
+            <button id="term-clear" aria-label="Clear output" class="w-7 h-7 grid place-items-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white transition"><iconify-icon icon="lucide:trash-2" width="14"></iconify-icon></button>
+          </div>
+          <pre id="term" class="flex-1 min-h-0 overflow-auto p-3 font-mono text-[12px] leading-[1.7] text-zinc-300 whitespace-pre-wrap"></pre>
+        </div>
+      </div>
+
+      <!-- Tests -->
+      <div id="panel-tests" role="tabpanel" aria-labelledby="tab-tests" hidden class="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4">
+        <div id="tests"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite" class="fixed left-1/2 bottom-5 -translate-x-1/2 z-50 inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-white text-black text-[12.5px] font-medium shadow-2xl transition opacity-0 translate-y-2 pointer-events-none"><iconify-icon icon="lucide:check" width="14" class="text-emerald-600"></iconify-icon><span id="toast-text"></span></div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function wait(ms) { return reduce ? Math.min(ms, 40) : ms; }
+  var toastTimer;
+  function toast(text) {
+    var t = $('toast'); $('toast-text').textContent = text;
+    t.classList.remove('opacity-0', 'translate-y-2');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.add('opacity-0', 'translate-y-2'); }, 2000);
+  }
+  function copyText(text, btn) {
+    try { navigator.clipboard && navigator.clipboard.writeText(text).catch(function () {}); } catch (e) {}
+    var icon = btn.querySelector('iconify-icon'), prev = icon.getAttribute('icon');
+    icon.setAttribute('icon', 'lucide:check'); btn.classList.add('text-emerald-400');
+    setTimeout(function () { icon.setAttribute('icon', prev); btn.classList.remove('text-emerald-400'); }, 1200);
+  }
+
+  /* ---------- Mock app inside the preview ---------- */
+  var DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  var habits = [
+    { name: 'Morning run', streak: 12, week: [1, 1, 0, 1, 1, 0, 0] },
+    { name: 'Read 20 pages', streak: 21, week: [1, 1, 1, 1, 0, 0, 0] },
+    { name: 'No phone after 10', streak: 4, week: [0, 1, 1, 1, 1, 0, 0] },
+    { name: 'Drink 2 L water', streak: 9, week: [1, 1, 1, 0, 0, 0, 0] }
+  ];
+  var TODAY = 3;
+  function ring(done, total) {
+    var r = 26, c = 2 * Math.PI * r, off = c * (1 - done / total);
+    return '<svg width="68" height="68" viewBox="0 0 68 68" aria-hidden="true"><circle cx="34" cy="34" r="' + r + '" fill="none" stroke="#e2e8f0" stroke-width="7"/>' +
+      '<circle cx="34" cy="34" r="' + r + '" fill="none" stroke="var(--app)" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 34 34)" style="transition:stroke-dashoffset .4s ease"/></svg>';
+  }
+  function renderApp() {
+    var done = habits.filter(function (h) { return h.week[TODAY]; }).length;
+    var pct = Math.round(habits.reduce(function (a, h) { return a + h.week.slice(0, TODAY + 1).filter(Boolean).length; }, 0) / (habits.length * (TODAY + 1)) * 100);
+    $('app').innerHTML =
+      '<div class="max-w-[600px] mx-auto p-4 sm:p-6 text-slate-900 font-sans">' +
+        '<div class="flex items-center justify-between gap-4">' +
+          '<div><p class="text-[12px] text-slate-500">Thursday, 30 October</p><h3 class="text-[20px] sm:text-[22px] font-semibold tracking-tight">Good evening, Sam</h3></div>' +
+          '<div class="relative">' + ring(done, habits.length) + '<span class="absolute inset-0 grid place-items-center text-[13px] font-semibold tabular-nums">' + done + '/' + habits.length + '</span></div>' +
+        '</div>' +
+        '<div class="mt-4 rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm p-3 sm:p-4">' +
+          '<div class="grid grid-cols-[minmax(0,1fr)_repeat(7,1.6rem)_2.5rem] sm:grid-cols-[minmax(0,1fr)_repeat(7,2rem)_3rem] gap-1.5 sm:gap-2 items-center">' +
+            '<span class="text-[12px] font-medium text-slate-500">This week</span>' +
+            DAYS.map(function (d, i) { return '<span class="text-center text-[11px] font-medium ' + (i === TODAY ? 'text-[color:var(--app)]' : 'text-slate-400') + '">' + d + '</span>'; }).join('') +
+            '<span class="text-right text-[11px] text-slate-400">Streak</span>' +
+            habits.map(function (h, hi) {
+              return '<span class="text-[13px] text-slate-700 truncate">' + h.name + '</span>' +
+                h.week.map(function (on, di) {
+                  return '<button class="cell h-[1.6rem] sm:h-8 rounded-md ' + (on ? 'bg-[color:var(--app)]' : (di > TODAY ? 'bg-slate-50 ring-1 ring-slate-100' : 'bg-slate-100 hover:bg-slate-200')) + '" data-h="' + hi + '" data-d="' + di + '" aria-pressed="' + !!on + '" aria-label="' + h.name + ', ' + DAYS[di] + '"></button>';
+                }).join('') +
+                '<span class="text-right text-[12px] font-semibold tabular-nums text-slate-700 inline-flex items-center justify-end gap-0.5"><iconify-icon icon="lucide:flame" width="12" class="text-orange-500"></iconify-icon>' + h.streak + '</span>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+        '<div class="mt-3 grid grid-cols-3 gap-2 sm:gap-3">' +
+          [['Best streak', '21 days'], ['This week', pct + '%'], ['Habits', String(habits.length)]].map(function (s) {
+            return '<div class="rounded-xl bg-white ring-1 ring-slate-200 px-3 py-2.5"><p class="text-[11px] text-slate-500">' + s[0] + '</p><p class="text-[15px] font-semibold tabular-nums">' + s[1] + '</p></div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+  }
+  $('app').addEventListener('click', function (e) {
+    if ($('frame').classList.contains('picking')) {
+      e.preventDefault();
+      var el = e.target.closest('[class]');
+      log('info', 'Picked <' + el.tagName.toLowerCase() + (el.className ? '.' + el.className.split(' ')[0] : '') + '>, added to chat context');
+      setPick(false);
+      $('input').value = 'Change the ' + (el.tagName === 'BUTTON' ? 'habit cell' : 'selected element') + ' so that ';
+      $('input').dispatchEvent(new Event('input'));
+      return;
+    }
+    var cell = e.target.closest('.cell');
+    if (!cell) return;
+    var h = habits[+cell.dataset.h], d = +cell.dataset.d;
+    h.week[d] = h.week[d] ? 0 : 1;
+    renderApp();
+  });
+
+  /* ---------- Console ---------- */
+  var LOG_STYLE = { log: ['text-zinc-500', ''], info: ['text-sky-400', 'info'], warn: ['text-amber-400', 'warn'], ok: ['text-emerald-400', 'ok'] };
+  var logCount = 0;
+  function log(kind, text) {
+    var s = LOG_STYLE[kind];
+    $('console').insertAdjacentHTML('beforeend', '<li class="flex gap-2 ' + (kind === 'warn' ? 'bg-amber-400/[.06] -mx-3 px-3' : '') + '"><span class="w-9 shrink-0 ' + s[0] + '">' + s[1] + '</span><span class="text-zinc-300 min-w-0 break-words">' + esc(text) + '</span></li>');
+    logCount++;
+    $('console-count').textContent = logCount + ' logs';
+    $('console').scrollTop = $('console').scrollHeight;
+  }
+
+  /* ---------- Code files ---------- */
+  var FILES = {
+    'src/components/HabitGrid.tsx': [
+      'import { useHabits } from "../hooks/useHabits";',
+      'import { ProgressRing } from "./ProgressRing";',
+      '',
+      'const DAYS = ["M", "T", "W", "T", "F", "S", "S"];',
+      '',
+      'export function HabitGrid() {',
+      '  const { habits, toggle, doneToday } = useHabits();',
+      '',
+      '  return (',
+      '    <section className="rounded-2xl bg-white p-6 shadow-sm">',
+      '      <header className="flex items-center justify-between">',
+      '        <h1 className="text-xl font-semibold">This week</h1>',
+      '        <ProgressRing value={doneToday} max={habits.length} />',
+      '      </header>',
+      '      <div className="mt-6 grid grid-cols-[1fr_repeat(7,2rem)] gap-2">',
+      '        {habits.map((habit) => (',
+      '          <Row key={habit.id} habit={habit} onToggle={toggle} />',
+      '        ))}',
+      '      </div>',
+      '    </section>',
+      '  );',
+      '}',
+      '',
+      'function Row({ habit, onToggle }: RowProps) {',
+      '  return DAYS.map((day, i) => (',
+      '    <button',
+      '      key={i}',
+      '      aria-pressed={habit.week[i]}',
+      '      onClick={() => onToggle(habit.id, i)}',
+      '      className="h-8 rounded-md bg-teal-600 data-[off]:bg-slate-100"',
+      '      data-off={!habit.week[i] || undefined}',
+      '    />',
+      '  ));',
+      '}',
+      '',
+      'export function streakFor(days: boolean[], today = new Date()) {',
+      '  // getDay() starts the week on Sunday, so Monday resets the count',
+      '  let streak = 0;',
+      '  for (let i = today.getDay(); i >= 0 && days[i]; i--) streak++;',
+      '  return streak;',
+      '}'
+    ],
+    'src/components/ProgressRing.tsx': [
+      'type Props = { value: number; max: number; size?: number };',
+      '',
+      'export function ProgressRing({ value, max, size = 68 }: Props) {',
+      '  const r = size / 2 - 8;',
+      '  const c = 2 * Math.PI * r;',
+      '  return (',
+      '    <svg width={size} height={size} role="img" aria-label={`${value} of ${max} done`}>',
+      '      <circle cx="50%" cy="50%" r={r} className="stroke-slate-200" />',
+      '      <circle cx="50%" cy="50%" r={r} strokeDasharray={c}',
+      '        strokeDashoffset={c * (1 - value / max)} className="stroke-teal-600" />',
+      '    </svg>',
+      '  );',
+      '}'
+    ],
+    'src/hooks/useHabits.ts': [
+      'import { useLocalStorage } from "./useLocalStorage";',
+      'import { SEED } from "../seed";',
+      '',
+      'export function useHabits() {',
+      '  const [habits, setHabits] = useLocalStorage("tidepool:habits", SEED);',
+      '  const today = (new Date().getDay() + 6) % 7;',
+      '',
+      '  function toggle(id: string, day: number) {',
+      '    setHabits((all) => all.map((h) =>',
+      '      h.id === id ? { ...h, week: h.week.with(day, !h.week[day]) } : h));',
+      '  }',
+      '',
+      '  const doneToday = habits.filter((h) => h.week[today]).length;',
+      '  return { habits, toggle, doneToday };',
+      '}'
+    ],
+    'src/App.tsx': [
+      'import { HabitGrid } from "./components/HabitGrid";',
+      '',
+      'export default function App() {',
+      '  return (',
+      '    <main className="min-h-screen bg-slate-100 p-6">',
+      '      <HabitGrid />',
+      '    </main>',
+      '  );',
+      '}'
+    ],
+    'package.json': [
+      '{',
+      '  "name": "tidepool",',
+      '  "version": "0.3.0",',
+      '  "scripts": {',
+      '    "dev": "vite",',
+      '    "build": "tsc -b && vite build",',
+      '    "test": "vitest"',
+      '  }',
+      '}'
+    ]
+  };
+  var addedLines = { 'src/components/HabitGrid.tsx': [] };
+  var TREE = [
+    { name: 'src', dir: true, open: true, kids: [
+      { name: 'components', dir: true, open: true, kids: [{ path: 'src/components/HabitGrid.tsx' }, { path: 'src/components/ProgressRing.tsx' }] },
+      { name: 'hooks', dir: true, open: true, kids: [{ path: 'src/hooks/useHabits.ts' }] },
+      { path: 'src/App.tsx' }
+    ] },
+    { name: 'tests', dir: true, open: false, kids: [{ name: 'HabitGrid.test.tsx' }, { name: 'useHabits.test.ts' }] },
+    { path: 'package.json' }
+  ];
+  var current = 'src/components/HabitGrid.tsx';
+  function iconFor(name) {
+    if (/\.test\./.test(name)) return 'vscode-icons:file-type-vitest';
+    if (/\.tsx$/.test(name)) return 'vscode-icons:file-type-reactts';
+    if (/\.json$/.test(name)) return 'vscode-icons:file-type-json';
+    return 'vscode-icons:file-type-typescript-official';
+  }
+  function treeHTML(nodes, depth) {
+    return nodes.map(function (n, i) {
+      var pad = 'padding-left:' + (12 + depth * 12) + 'px';
+      if (n.dir) {
+        var id = 'dir-' + depth + '-' + n.name;
+        return '<li role="treeitem" aria-expanded="' + n.open + '"><button class="tree-dir w-full h-7 flex items-center gap-1.5 text-zinc-300 hover:bg-white/5 transition" style="' + pad + '" data-dir="' + id + '" aria-expanded="' + n.open + '" aria-controls="' + id + '">' +
+          '<iconify-icon icon="lucide:chevron-down" width="12" class="chev text-zinc-500"></iconify-icon><iconify-icon icon="' + (n.open ? 'lucide:folder-open' : 'lucide:folder') + '" width="14" class="text-zinc-500"></iconify-icon>' + n.name + '</button>' +
+          '<ul id="' + id + '" role="group" class="relative"' + (n.open ? '' : ' hidden') + '><span class="absolute top-0 bottom-0 w-px bg-white/[.07]" style="left:' + (18 + depth * 12) + 'px" aria-hidden="true"></span>' + treeHTML(n.kids, depth + 1) + '</ul></li>';
+      }
+      var name = n.name || n.path.split('/').pop();
+      var sel = n.path === current;
+      return '<li role="none"><button role="treeitem" aria-selected="' + sel + '" ' + (n.path ? 'data-file="' + n.path + '"' : 'disabled') + ' class="tree-row w-full h-7 flex items-center gap-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-100 disabled:hover:bg-transparent disabled:text-zinc-500 transition" style="padding-left:' + (30 + depth * 12) + 'px"><iconify-icon icon="' + iconFor(name) + '" width="13"></iconify-icon><span class="truncate">' + name + '</span>' +
+        (n.path === 'src/components/HabitGrid.tsx' ? '<span class="ml-auto mr-3 text-[10px] text-amber-400">M</span>' : '') + '</button></li>';
+    }).join('');
+  }
+  function renderTree() { $('tree').innerHTML = treeHTML(TREE, 0); }
+  $('tree').addEventListener('click', function (e) {
+    var dir = e.target.closest('[data-dir]');
+    if (dir) {
+      var open = dir.getAttribute('aria-expanded') !== 'true';
+      dir.setAttribute('aria-expanded', open);
+      dir.parentNode.setAttribute('aria-expanded', open);
+      dir.querySelectorAll('iconify-icon')[1].setAttribute('icon', open ? 'lucide:folder-open' : 'lucide:folder');
+      $(dir.dataset.dir).hidden = !open;
+      return;
+    }
+    var f = e.target.closest('[data-file]');
+    if (f) { current = f.dataset.file; showCode(); }
+  });
+
+  var TOKEN = /(\/\/.*)|("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)|\b(import|from|export|default|function|return|const|let|type|for|true|false|undefined|new)\b|\b(\d+(?:\.\d+)?)\b|(<\/?[A-Za-z][\w.]*|\/>)|\b([A-Z][A-Za-z0-9]*)\b/g;
+  var CLS = ['', 'c-com', 'c-str', 'c-key', 'c-num', 'c-tag', 'c-typ'];
+  function hl(line) {
+    var out = '', last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(line))) {
+      var k = 1; while (!m[k]) k++;
+      out += esc(line.slice(last, m.index)) + '<span class="' + CLS[k] + '">' + esc(m[0]) + '</span>';
+      last = TOKEN.lastIndex;
+    }
+    return out + esc(line.slice(last));
+  }
+  function showCode() {
+    var lines = FILES[current], marks = addedLines[current] || [];
+    $('code').innerHTML = lines.map(function (l, i) {
+      return '<div class="code-line"' + (marks.indexOf(i) > -1 ? ' data-mark="add"' : '') + '><span class="ln select-none pr-4 text-right text-zinc-600 tabular-nums">' + (i + 1) + '</span><span class="pr-4 whitespace-pre">' + (hl(l) || ' ') + '</span></div>';
+    }).join('');
+    var parts = current.split('/'), name = parts.pop();
+    $('code-name').textContent = name;
+    $('code-path').textContent = parts.length ? parts.join('/') + '/' : '';
+    $('code-icon').setAttribute('icon', iconFor(name));
+    renderTree();
+  }
+
+  /* ---------- Terminal ---------- */
+  var TERM_FAIL = [
+    ['p', '$ pnpm build'], ['d', '> tidepool@0.3.0 build'], ['d', '> tsc -b && vite build'],
+    ['', 'vite v6.0.3 building for production...'], ['ok', '✓ 412 modules transformed.'],
+    ['d', 'dist/index.html                  0.46 kB │ gzip:  0.30 kB'],
+    ['d', 'dist/assets/index-Cq8Lw1.css    11.82 kB │ gzip:  3.04 kB'],
+    ['d', 'dist/assets/index-B7dQe2.js    148.27 kB │ gzip: 47.91 kB'],
+    ['ok', '✓ built in 1.84s'], ['', ''],
+    ['p', '$ pnpm test --run'],
+    ['ok', ' ✓ tests/useHabits.test.ts (5 tests) 41ms'],
+    ['ok', ' ✓ tests/ProgressRing.test.tsx (3 tests) 58ms'],
+    ['err', ' ❯ tests/HabitGrid.test.tsx (8 tests | 1 failed | 1 skipped) 212ms'],
+    ['err', '   × counts a streak across the week boundary'],
+    ['', ''], ['', ' Test Files  1 failed | 2 passed (3)'], ['', '      Tests  1 failed | 14 passed | 1 skipped (16)']
+  ];
+  var TERM_PASS = TERM_FAIL.slice(0, 13).concat([
+    ['ok', ' ✓ tests/HabitGrid.test.tsx (8 tests | 1 skipped) 198ms'],
+    ['', ''], ['ok', ' Test Files  3 passed (3)'], ['ok', '      Tests  15 passed | 1 skipped (16)']
+  ]);
+  var TERM_CLS = { p: 'text-zinc-100', d: 'text-zinc-500', ok: 'text-emerald-400', err: 'text-red-400', '': 'text-zinc-300' };
+  var termTimer = null, termRunning = false;
+  function termLine(l) {
+    var html = l[0] === 'p' ? '<span class="text-accent">❯</span>' + esc(l[1].slice(1)) : esc(l[1]);
+    return '<span class="' + TERM_CLS[l[0]] + '">' + html + '</span>\n';
+  }
+  function termLines() { return fixed ? TERM_PASS : TERM_FAIL; }
+  function renderTerm(n) {
+    var lines = termLines().slice(0, n);
+    $('term').innerHTML = lines.map(termLine).join('') + '<span class="blockcur" aria-hidden="true"></span>';
+    $('term').scrollTop = $('term').scrollHeight;
+  }
+  function runBuild(done) {
+    clearTimeout(termTimer);
+    termRunning = true;
+    $('run').disabled = true; $('run-icon').setAttribute('icon', 'lucide:loader-circle'); $('run-icon').classList.add('spin');
+    $('term-status').textContent = 'running…';
+    var lines = termLines(), n = 0, t0 = Date.now();
+    (function step() {
+      renderTerm(++n);
+      if (n < lines.length) termTimer = setTimeout(step, wait(lines[n - 1][0] === 'p' ? 420 : 110 + Math.random() * 140));
+      else {
+        termRunning = false;
+        $('run').disabled = false; $('run-icon').setAttribute('icon', 'lucide:play'); $('run-icon').classList.remove('spin');
+        $('term-status').textContent = (fixed ? 'exited 0 · ' : 'exited 1 · ') + ((Date.now() - t0) / 1000).toFixed(1) + 's';
+        done && done();
+      }
+    })();
+  }
+  $('run').addEventListener('click', function () { selectTab('terminal'); runBuild(); });
+  $('term-clear').addEventListener('click', function () { clearTimeout(termTimer); $('term').innerHTML = '<span class="blockcur" aria-hidden="true"></span>'; $('term-status').textContent = 'cleared'; });
+  $('term-copy').addEventListener('click', function () { copyText($('term').textContent, this); });
+
+  /* ---------- Tests ---------- */
+  var fixed = false;
+  var SUITES = [
+    { name: 'HabitGrid', file: 'tests/HabitGrid.test.tsx', open: true, tests: [
+      ['renders seven day columns per habit', 'pass', 18], ['toggles a cell on click', 'pass', 24],
+      ['persists toggles to local storage', 'pass', 31], ['shows today in the progress ring', 'pass', 15],
+      ['counts a streak across the week boundary', 'fail', 9], ['keeps focus on the cell after toggling', 'pass', 27],
+      ['renders the empty state', 'skip', 0], ['announces streak changes politely', 'pass', 12] ] },
+    { name: 'useHabits', file: 'tests/useHabits.test.ts', open: false, tests: [
+      ['seeds four habits on first run', 'pass', 6], ['toggles one day without touching others', 'pass', 8],
+      ['counts done habits for today', 'pass', 5], ['reads saved state on mount', 'pass', 11], ['ignores corrupted storage', 'pass', 11] ] },
+    { name: 'ProgressRing', file: 'tests/ProgressRing.test.tsx', open: false, tests: [
+      ['renders an accessible label', 'pass', 14], ['clamps values above max', 'pass', 19], ['scales with the size prop', 'pass', 25] ] }
+  ];
+  var T_ICON = { pass: ['lucide:circle-check', 'text-emerald-400'], fail: ['lucide:circle-x', 'text-red-400'], skip: ['lucide:circle', 'text-amber-400'] };
+  function status(t) { return t[1] === 'fail' && fixed ? 'pass' : t[1]; }
+  function renderTests() {
+    var all = [].concat.apply([], SUITES.map(function (s) { return s.tests; }));
+    var c = { pass: 0, fail: 0, skip: 0 };
+    all.forEach(function (t) { c[status(t)]++; });
+    var total = all.length, pct = Math.round(c.pass / total * 100);
+    function badge(k, label, cls) { return '<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium ring-1 ' + cls + '"><iconify-icon icon="' + T_ICON[k][0] + '" width="12"></iconify-icon>' + c[k] + ' ' + label + '</span>'; }
+    var html = '<div class="rounded-xl ring-1 ring-white/[.08] bg-surface p-4">' +
+      '<div class="flex items-center gap-2 flex-wrap">' + badge('pass', 'passed', 'bg-emerald-500/10 text-emerald-300 ring-emerald-400/20') + badge('fail', 'failed', 'bg-red-500/10 text-red-300 ring-red-400/20') + badge('skip', 'skipped', 'bg-amber-500/10 text-amber-300 ring-amber-400/20') +
+      '<span class="ml-auto font-mono text-[12px] tabular-nums text-zinc-400">' + (fixed ? '2.29s' : '2.41s') + '</span></div>' +
+      '<div class="mt-3 flex h-1.5 rounded-full overflow-hidden bg-white/5" aria-hidden="true"><span class="bg-emerald-500" style="width:' + (c.pass / total * 100) + '%"></span><span class="bg-red-500" style="width:' + (c.fail / total * 100) + '%"></span><span class="bg-amber-400" style="width:' + (c.skip / total * 100) + '%"></span></div>' +
+      '<div class="mt-2 flex justify-between text-[11.5px] text-zinc-500 tabular-nums"><span>' + c.pass + '/' + total + ' tests passed</span><span>' + pct + '%</span></div></div>';
+    html += SUITES.map(function (s, si) {
+      var failed = s.tests.some(function (t) { return status(t) === 'fail'; });
+      return '<div class="mt-3 rounded-xl ring-1 ring-white/[.08] bg-surface overflow-hidden">' +
+        '<button class="w-full h-10 flex items-center gap-2 px-3 text-left text-[13px] hover:bg-white/[.03] transition" aria-expanded="' + s.open + '" aria-controls="suite-' + si + '" data-suite="' + si + '">' +
+          '<iconify-icon icon="lucide:chevron-down" width="14" class="chev text-zinc-500"></iconify-icon><iconify-icon icon="' + T_ICON[failed ? 'fail' : 'pass'][0] + '" width="14" class="' + T_ICON[failed ? 'fail' : 'pass'][1] + '"></iconify-icon>' +
+          '<span class="font-medium">' + s.name + '</span><span class="font-mono text-[11px] text-zinc-500 truncate">' + s.file + '</span><span class="ml-auto font-mono text-[11px] text-zinc-500 tabular-nums">' + s.tests.length + ' tests</span></button>' +
+        '<ul id="suite-' + si + '" class="border-t hair divide-y divide-white/[.05]"' + (s.open ? '' : ' hidden') + '>' +
+          s.tests.map(function (t) {
+            var st = status(t), ic = T_ICON[st];
+            var row = '<li class="flex items-center gap-2 h-9 px-3 pl-9 text-[12.5px] ' + (st === 'skip' ? 'text-zinc-500' : 'text-zinc-300') + '"><iconify-icon icon="' + ic[0] + '" width="13" class="' + ic[1] + '"></iconify-icon><span class="truncate">' + t[0] + '</span><span class="ml-auto font-mono text-[11px] tabular-nums text-zinc-500">' + (st === 'skip' ? 'skipped' : t[2] + 'ms') + '</span></li>';
+            if (st === 'fail') row += '<li class="px-3 pl-9 pb-3 pt-1"><div class="rounded-lg bg-red-500/[.08] ring-1 ring-red-400/20 p-3 font-mono text-[11.5px] leading-[1.7] overflow-x-auto">' +
+              '<p class="text-red-300 font-sans text-[12.5px] font-medium">AssertionError: expected 2 to be 9</p>' +
+              '<p class="mt-1"><span class="text-emerald-400">- Expected  9</span><br><span class="text-red-400">+ Received  2</span></p>' +
+              '<p class="mt-1.5 text-red-300/70 whitespace-pre">  at streakFor (src/components/HabitGrid.tsx:39:11)\n  at tests/HabitGrid.test.tsx:67:24\n  at runTest (node_modules/vitest/dist/runner.js:1102:9)</p></div></li>';
+            return row;
+          }).join('') + '</ul></div>';
+    }).join('');
+    $('tests').innerHTML = html;
+    $('tests-badge').hidden = c.fail === 0;
+    $('tests-badge').textContent = c.fail;
+  }
+  $('tests').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-suite]');
+    if (!b) return;
+    var s = SUITES[+b.dataset.suite]; s.open = !s.open;
+    b.setAttribute('aria-expanded', s.open);
+    $('suite-' + b.dataset.suite).hidden = !s.open;
+  });
+
+  /* ---------- Tabs ---------- */
+  var TABS = ['preview', 'code', 'terminal', 'tests'];
+  function selectTab(name, focus) {
+    TABS.forEach(function (t) {
+      var on = t === name, tab = $('tab-' + t);
+      tab.setAttribute('aria-selected', on); tab.tabIndex = on ? 0 : -1;
+      $('panel-' + t).hidden = !on;
+      if (on && focus) tab.focus();
+    });
+    if (window.innerWidth < 768) setView('artifact');
+  }
+  TABS.forEach(function (t, i) {
+    var tab = $('tab-' + t);
+    tab.addEventListener('click', function () { selectTab(t); });
+    tab.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) { e.preventDefault(); selectTab(TABS[(i + d + TABS.length) % TABS.length], true); }
+    });
+  });
+
+  /* ---------- Preview chrome ---------- */
+  function reload(note) {
+    var f = $('frame'), ic = $('reload-icon');
+    f.style.opacity = '.35'; ic.classList.add('spin');
+    setTimeout(function () { renderApp(); f.style.opacity = ''; ic.classList.remove('spin'); log('log', note || '[vite] page reload src/components/HabitGrid.tsx'); }, wait(450));
+  }
+  $('reload').addEventListener('click', function () { reload(); });
+  function setPick(on) { $('pick').setAttribute('aria-pressed', on); $('frame').classList.toggle('picking', on); }
+  $('pick').addEventListener('click', function () { setPick(this.getAttribute('aria-pressed') !== 'true'); });
+  $('maximize').addEventListener('click', function () {
+    var on = $('ws').classList.toggle('max');
+    this.setAttribute('aria-pressed', on);
+    this.querySelector('iconify-icon').setAttribute('icon', on ? 'lucide:minimize-2' : 'lucide:maximize-2');
+    this.setAttribute('aria-label', on ? 'Restore chat' : 'Maximize artifact');
+  });
+
+  /* ---------- Artifact header actions ---------- */
+  $('copy-code').addEventListener('click', function () { copyText(FILES[current].join('\n'), this); });
+  $('download').addEventListener('click', function () {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([FILES[current].join('\n')], { type: 'text/plain' }));
+    a.download = current.split('/').pop(); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+  $('share').addEventListener('click', function () { copyText('https://forge.dev/s/tidepool-' + $('ver').textContent, this); toast('Share link copied'); });
+  var updatedAt = Date.now() - 60000;
+  function tickUpdated() {
+    var m = Math.floor((Date.now() - updatedAt) / 60000);
+    $('updated').textContent = m < 1 ? 'Updated just now' : 'Updated ' + m + ' minute' + (m === 1 ? '' : 's') + ' ago';
+  }
+  setInterval(tickUpdated, 15000);
+  function bumpVersion() {
+    updatedAt = Date.now(); tickUpdated();
+    $('ver').textContent = 'v' + (parseInt($('ver').textContent.slice(1), 10) + 1);
+  }
+
+  $('restore').addEventListener('click', function () {
+    var b = this; b.textContent = 'Restored'; b.disabled = true;
+    toast('Restored files to checkpoint v2');
+    setTimeout(function () { b.textContent = 'Restore checkpoint'; b.disabled = false; }, 1800);
+  });
+
+  /* ---------- Chat ---------- */
+  var thread = $('thread'), input = $('input'), sendBtn = $('send');
+  var streaming = false, chatTimers = [], caretEl = null;
+  function later(fn, ms) { chatTimers.push(setTimeout(fn, wait(ms))); }
+  function nearBottom() { return thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80; }
+  function stick() { thread.scrollTop = thread.scrollHeight; }
+  function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 160) + 'px'; }
+  input.addEventListener('input', function () { autosize(); if (!streaming) sendBtn.disabled = !input.value.trim(); });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!streaming) submit(); }
+    else if (e.key === 'Escape' && streaming) stop();
+  });
+  $('composer').addEventListener('submit', function (e) { e.preventDefault(); streaming ? stop() : submit(); });
+  thread.addEventListener('click', function (e) {
+    var s = e.target.closest('.sugg');
+    if (s && !streaming) { input.value = s.textContent; submit(); }
+  });
+
+  function setStreaming(on) {
+    streaming = on;
+    $('send-icon').setAttribute('icon', on ? 'lucide:square' : 'lucide:arrow-up');
+    sendBtn.setAttribute('aria-label', on ? 'Stop generating' : 'Send message');
+    sendBtn.disabled = on ? false : !input.value.trim();
+    sendBtn.classList.toggle('bg-white', on);
+  }
+
+  function toolLine(name, label) {
+    return '<div class="tool flex items-center gap-2 text-[12.5px]"><iconify-icon icon="lucide:loader-circle" width="13" class="spin text-sky-400"></iconify-icon><span class="font-mono text-zinc-300">' + name + '</span><span class="text-zinc-600">·</span><span class="shimmer">' + label + '</span></div>';
+  }
+  function finishTool(el, result) {
+    el.innerHTML = '<iconify-icon icon="lucide:circle-check" width="13" class="text-emerald-400"></iconify-icon><span class="font-mono text-zinc-300">' + el.querySelector('.font-mono').textContent + '</span><span class="text-zinc-600">·</span><span class="text-zinc-500">' + result + '</span>';
+  }
+
+  var THEMES = [['#7c3aed', 'violet'], ['#e11d48', 'rose'], ['#0d9488', 'teal']], themeIdx = 0;
+  var REPLIES = [
+    { match: /fix|test|fail|bug|week/i,
+      tools: [['edit_file', 'Patching HabitGrid.tsx…', 'HabitGrid.tsx +3 −2'], ['run_tests', 'Running 16 tests…', '15 passed, 1 skipped']],
+      text: 'Fixed. streakFor() now converts getDay() to an ISO weekday, so Monday follows Sunday instead of resetting the count. The suite is green and the change is highlighted in Code.',
+      after: function () {
+        fixed = true;
+        FILES['src/components/HabitGrid.tsx'].splice(36, 3,
+          '  // ISO weekday: Monday is 0, Sunday is 6',
+          '  const start = (today.getDay() + 6) % 7;',
+          '  let streak = 0;',
+          '  for (let i = start; i >= 0 && days[i]; i--) streak++;');
+        addedLines['src/components/HabitGrid.tsx'] = [36, 37, 39];
+        current = 'src/components/HabitGrid.tsx';
+        showCode(); renderTests(); bumpVersion();
+        $('task-tests').innerHTML = 'Ran <code class="font-mono text-[11.5px]">pnpm test</code><span class="text-zinc-500">·</span><span class="text-emerald-400">15 passed</span><span class="text-zinc-500">1 skipped</span>';
+        renderTerm(TERM_PASS.length); $('term-status').textContent = 'exited 0 · 3.9s';
+        selectTab('tests');
+      } },
+    { match: /theme|color|colour|violet|dark|style|round/i,
+      tools: [['edit_file', 'Updating theme tokens…', 'tailwind.config.ts +2 −2']],
+      text: function () { return 'Switched the accent to ' + THEMES[themeIdx][1] + '. The ring, cells and today marker all read from one CSS variable, so nothing else needed to change. Reloading the preview now.'; },
+      before: function () { themeIdx = (themeIdx) % THEMES.length; },
+      after: function () {
+        document.documentElement.style.setProperty('--app', THEMES[themeIdx][0]);
+        themeIdx = (themeIdx + 1) % THEMES.length;
+        bumpVersion(); selectTab('preview'); reload('[vite] hmr update /src/index.css');
+      } },
+    { match: /.*/,
+      tools: [['run_command', 'pnpm build…', 'built in 1.84s']],
+      text: 'Built a production bundle: 148 kB of JavaScript, 47.9 kB gzipped. Output is streaming in Terminal. Tell me what to change next and I will patch it in place.',
+      after: function () { selectTab('terminal'); runBuild(); } }
+  ];
+
+  function addUser(text) {
+    thread.insertAdjacentHTML('beforeend', '<div class="flex justify-end rise"><p class="max-w-[85%] rounded-2xl rounded-br-md bg-raised ring-1 ring-white/[.06] px-3.5 py-2.5 text-zinc-100 whitespace-pre-wrap">' + esc(text) + '</p></div>');
+  }
+
+  function submit() {
+    var text = input.value.trim();
+    if (!text) return;
+    var sugg = $('suggestions'); if (sugg) sugg.remove();
+    addUser(text);
+    input.value = ''; autosize();
+    setStreaming(true);
+    var r = REPLIES.filter(function (x) { return x.match.test(text); })[0];
+    r.before && r.before();
+    var wrap = document.createElement('div');
+    wrap.className = 'space-y-2.5 rise';
+    thread.appendChild(wrap); stick();
+    var ti = 0;
+    (function nextTool() {
+      if (ti >= r.tools.length) return streamText();
+      var t = r.tools[ti++];
+      wrap.insertAdjacentHTML('beforeend', toolLine(t[0], t[1]));
+      var el = wrap.lastElementChild; stick();
+      later(function () { finishTool(el, t[2]); nextTool(); }, 1100);
+    })();
+    function streamText() {
+      var p = document.createElement('p');
+      p.className = 'text-zinc-300 caret';
+      wrap.appendChild(p); caretEl = p;
+      var words = (typeof r.text === 'function' ? r.text() : r.text).split(' '), n = 0;
+      (function tick() {
+        var stuck = nearBottom();
+        p.textContent = words.slice(0, ++n).join(' ');
+        if (stuck) stick();
+        if (n < words.length) later(tick, 30 + Math.random() * 45);
+        else { p.classList.remove('caret'); caretEl = null; setStreaming(false); r.after && r.after(); }
+      })();
+    }
+  }
+
+  function stop() {
+    chatTimers.forEach(clearTimeout); chatTimers = [];
+    thread.querySelectorAll('.tool .spin').forEach(function (s) {
+      var row = s.parentNode;
+      s.setAttribute('icon', 'lucide:ban'); s.classList.remove('spin', 'text-sky-400'); s.classList.add('text-orange-400');
+      var lab = row.querySelector('.shimmer'); lab.classList.remove('shimmer'); lab.classList.add('text-zinc-500'); lab.textContent = 'Stopped';
+    });
+    if (caretEl) { caretEl.classList.remove('caret'); caretEl.insertAdjacentHTML('beforeend', ' <span class="text-[12px] text-zinc-500">(stopped)</span>'); caretEl = null; }
+    setStreaming(false);
+  }
+
+  /* ---------- Mobile view toggle ---------- */
+  function setView(v) {
+    $('ws').dataset.view = v;
+    document.querySelectorAll('.view-btn').forEach(function (b) {
+      var on = b.dataset.view === v;
+      b.setAttribute('aria-pressed', on);
+      b.className = 'view-btn h-7 px-3 rounded-md text-[12.5px] font-medium transition ' + (on ? 'bg-white text-black' : 'text-zinc-400 hover:text-white');
+    });
+  }
+  document.querySelectorAll('.view-btn').forEach(function (b) { b.addEventListener('click', function () { setView(b.dataset.view); }); });
+
+  /* ---------- Resizable divider ---------- */
+  var divider = $('divider'), chatW = 384;
+  function setChatW(w) {
+    chatW = Math.max(300, Math.min(560, w));
+    document.documentElement.style.setProperty('--chat-w', chatW + 'px');
+    divider.setAttribute('aria-valuenow', chatW);
+  }
+  divider.addEventListener('pointerdown', function (e) {
+    divider.setPointerCapture(e.pointerId);
+    var x0 = e.clientX, w0 = chatW;
+    function move(ev) { setChatW(w0 + ev.clientX - x0); }
+    function up() { divider.removeEventListener('pointermove', move); divider.removeEventListener('pointerup', up); document.body.style.cursor = ''; }
+    divider.addEventListener('pointermove', move); divider.addEventListener('pointerup', up);
+    document.body.style.cursor = 'col-resize';
+  });
+  divider.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') setChatW(chatW - 16);
+    if (e.key === 'ArrowRight') setChatW(chatW + 16);
+  });
+
+  /* ---------- Disclosures ---------- */
+  document.querySelectorAll('[data-disclosure]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      b.setAttribute('aria-expanded', open);
+      $(b.getAttribute('aria-controls')).hidden = !open;
+    });
+  });
+
+  /* ---------- Init ---------- */
+  renderApp();
+  [['log', '[vite] connected.'], ['info', 'HabitGrid mounted · 4 habits, 28 cells'], ['warn', 'Row keys fall back to the index; pass habit.id for stable keys.']].forEach(function (l) { log(l[0], l[1]); });
+  showCode();
+  renderTerm(TERM_FAIL.length);
+  renderTests();
+  setView('chat');
+  stick();
+})();
+</script>
+</body>
+</html>

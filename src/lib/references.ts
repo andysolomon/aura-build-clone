@@ -1,6 +1,6 @@
 import { TEMPLATES, fetchTemplateHtml, findTemplate, templateThumbUrl } from "../data/templates";
 import type { ReferenceInput } from "../../shared/protocol";
-import { componentHtmlUrl, componentThumbUrl, loadJson, type ComponentEntry } from "./content";
+import { componentHtmlUrl, componentThumbUrl, loadComponents, type ComponentEntry } from "./content";
 import { findSkill } from "./skills";
 
 // Composer references are strings: a bare template slug, or "component:<slug>".
@@ -33,7 +33,7 @@ export function componentItems(components: ComponentEntry[]): ReferenceItem[] {
 export async function resolveReference(ref: string): Promise<ReferenceInput> {
   if (ref.startsWith("component:")) {
     const slug = ref.slice("component:".length);
-    const index = await loadJson<ComponentEntry[]>("/components/index.json");
+    const index = await loadComponents();
     const title = index.find((c) => c.slug === slug)?.title ?? slug;
     const res = await fetch(componentHtmlUrl(slug));
     return { title: `${title} (component)`, html: res.ok ? (await res.text()).slice(0, MAX_REFERENCE_CHARS) : "" };

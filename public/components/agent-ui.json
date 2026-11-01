@@ -1,0 +1,156 @@
+[
+  {
+    "slug": "agent-chat-thread",
+    "title": "Streaming Chat Thread",
+    "description": "Research-assistant thread with attachments, collapsible reasoning, code blocks, message actions, a branch picker, scroll-to-latest and a send/stop composer.",
+    "category": "Agent",
+    "group": "Chat",
+    "parts": ["Conversation", "Message", "Actions", "Branching", "Suggestions", "Composer", "Scroll to latest"],
+    "tier": "free",
+    "tags": ["agent", "chat", "streaming", "light", "assistant"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-app-shell",
+    "title": "Agent App Shell",
+    "description": "Full-screen copilot app with a thread-list sidebar, model palette, empty-state suggestions and generative-UI tool results rendered as cards.",
+    "category": "Agent",
+    "group": "Chat",
+    "parts": ["Thread list", "Model selector", "Empty state", "Generative UI", "Composer"],
+    "tier": "pro",
+    "tags": ["agent", "app", "sidebar", "dark", "generative ui"],
+    "background": "dark"
+  },
+  {
+    "slug": "agent-chat-widget",
+    "title": "Floating Support Copilot",
+    "description": "Embeddable support assistant: launcher bubble, cited answers, quick actions, human handoff and a feedback bar over a docs page.",
+    "category": "Agent",
+    "group": "Chat",
+    "parts": ["Launcher", "Citations", "Sources", "Handoff", "Feedback"],
+    "tier": "free",
+    "tags": ["agent", "widget", "support", "light", "copilot"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-prompt-composer",
+    "title": "Agent Prompt Composer",
+    "description": "Composer variants with attachment tiles, @-mentions and slash commands, a searchable model palette, context-usage ring, dictation and submit states.",
+    "category": "Agent",
+    "group": "Chat",
+    "parts": ["Prompt input", "Attachments", "Mentions", "Slash commands", "Model selector", "Context", "Speech input"],
+    "tier": "free",
+    "tags": ["agent", "input", "composer", "light", "forms"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-reasoning-chain",
+    "title": "Reasoning & Chain of Thought",
+    "description": "Reasoning that opens while thinking and settles to “Thought for 6 seconds”, a chain-of-thought with search steps, and an agent run log with a thinking bar.",
+    "category": "Agent",
+    "group": "Reasoning & tools",
+    "parts": ["Reasoning", "Chain of thought", "Steps", "Thinking bar", "Shimmer"],
+    "tier": "free",
+    "tags": ["agent", "reasoning", "thinking", "light", "animation"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-tool-calls",
+    "title": "Tool Call Lifecycle",
+    "description": "One tool in every state from pending to denied, plus a live run with grouped tools, inline approval and a generative-UI result card.",
+    "category": "Agent",
+    "group": "Reasoning & tools",
+    "parts": ["Tool", "Tool states", "Tool group", "Approval", "Generative UI"],
+    "tier": "pro",
+    "tags": ["agent", "tools", "json", "light", "status"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-sources-citations",
+    "title": "Sources & Inline Citations",
+    "description": "Answer-engine result with source cards, inline citation pills that open a hover carousel, a sources disclosure and streamed follow-ups.",
+    "category": "Agent",
+    "group": "Reasoning & tools",
+    "parts": ["Sources", "Inline citation", "Source chips", "Related questions"],
+    "tier": "free",
+    "tags": ["agent", "search", "citations", "light", "editorial"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-loaders-shimmer",
+    "title": "Agent Loading States",
+    "description": "Specimen sheet of loaders for agent UIs: spinners, dots, wave, terminal cursor, text shimmer, thinking bar and skeleton messages in three sizes.",
+    "category": "Agent",
+    "group": "Reasoning & tools",
+    "parts": ["Loader", "Shimmer", "Thinking bar", "Skeleton"],
+    "tier": "free",
+    "tags": ["agent", "loader", "animation", "light", "css"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-human-in-the-loop",
+    "title": "Approvals & Questions",
+    "description": "Human-in-the-loop patterns: tool confirmations with outcomes, elicitation and option-list questions, checkpoints, system messages and feedback.",
+    "category": "Agent",
+    "group": "Human in the loop",
+    "parts": ["Confirmation", "Question", "Option list", "Checkpoint", "System message", "Feedback"],
+    "tier": "free",
+    "tags": ["agent", "approval", "forms", "light", "safety"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-plan-queue",
+    "title": "Plan, Queue & Tasks",
+    "description": "Coding-agent plan card that builds step by step, a queue of messages and todos, and task disclosures with file chips and diff stats.",
+    "category": "Agent",
+    "group": "Human in the loop",
+    "parts": ["Plan", "Queue", "Todos", "Task"],
+    "tier": "pro",
+    "tags": ["agent", "plan", "tasks", "light", "coding"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-artifact-workspace",
+    "title": "Chat + Artifact Workspace",
+    "description": "IDE-style split view: agent chat on the left, an artifact panel with web preview, code and file tree, streaming terminal and test results.",
+    "category": "Agent",
+    "group": "Workspace",
+    "parts": ["Artifact", "Web preview", "Code block", "File tree", "Terminal", "Test results", "Checkpoint"],
+    "tier": "pro",
+    "tags": ["agent", "ide", "code", "dark", "workspace"],
+    "background": "dark"
+  },
+  {
+    "slug": "agent-run-inspector",
+    "title": "Agent Run Inspector",
+    "description": "Agent definition with tools and output schema, a run-trace waterfall with selectable spans, token and cost stats, and a context-window meter.",
+    "category": "Agent",
+    "group": "Workspace",
+    "parts": ["Agent", "Schema display", "Trace", "Context"],
+    "tier": "pro",
+    "tags": ["agent", "observability", "dashboard", "light", "data"],
+    "background": "light"
+  },
+  {
+    "slug": "agent-voice-mode",
+    "title": "Voice Agent Persona",
+    "description": "Animated persona orb with idle, listening, thinking, speaking and asleep states, live transcript with spoken-word highlight, and mic and voice selectors.",
+    "category": "Agent",
+    "group": "Voice & workflow",
+    "parts": ["Persona", "Speech input", "Transcription", "Audio player", "Voice selector"],
+    "tier": "pro",
+    "tags": ["agent", "voice", "orb", "dark", "animation"],
+    "background": "dark"
+  },
+  {
+    "slug": "agent-workflow-canvas",
+    "title": "Agent Workflow Canvas",
+    "description": "Node-graph editor for an agent workflow: draggable nodes, bezier edges with an animated active path, zoom controls, node toolbar and inspector.",
+    "category": "Agent",
+    "group": "Voice & workflow",
+    "parts": ["Canvas", "Node", "Edge", "Controls", "Toolbar", "Panel"],
+    "tier": "pro",
+    "tags": ["agent", "workflow", "canvas", "dark", "nodes"],
+    "background": "dark"
+  }
+]

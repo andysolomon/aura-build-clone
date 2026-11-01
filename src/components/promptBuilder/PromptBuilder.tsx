@@ -3,6 +3,9 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   ACCENT_COLORS,
+  AGENT_PARTS,
+  AGENT_RUNS,
+  AGENT_SURFACES,
   ANIMATION_TYPES,
   BACKGROUND_COLORS,
   BODY_SIZES,
@@ -35,6 +38,8 @@ import { TEMPLATES, findTemplate, templateThumbUrl } from "../../data/templates"
 import { cx } from "../../lib/util";
 import { BuilderPreview } from "./BuilderPreview";
 import {
+  AgentPartGlyph,
+  AgentSurfaceGlyph,
   AnimationGlyph,
   EasingGlyph,
   FontGlyph,
@@ -50,7 +55,7 @@ import {
   TileGroup,
 } from "./tiles";
 
-type SectionId = "source" | "layout" | "framing" | "style" | "typography" | "animation";
+type SectionId = "source" | "layout" | "agent" | "framing" | "style" | "typography" | "animation";
 
 /** Fonts offered for headings and body text when no typeface family is picked. */
 const DEFAULT_FONTS = ["Inter", "Geist", "Manrope", "Playfair Display", "Instrument Serif", "IBM Plex Serif", "Nunito", "Varela Round", "JetBrains Mono", "Geist Mono", "Space Mono", "Rajdhani", "VT323", "Kanit", "DotGothic16", "Source Code Pro"];
@@ -233,6 +238,7 @@ export function PromptBuilder({ onClose, onApply }: Props) {
   const counts: Record<SectionId, number> = {
     source: (templateSlug ? 1 : 0) + (html.trim() ? 1 : 0),
     layout: [s.layoutType, s.layoutConfig].filter(Boolean).length,
+    agent: [s.agentSurface, s.agentRun].filter(Boolean).length + s.agentParts.length,
     framing: s.framing ? 1 : 0,
     style: [s.visualStyle, s.theme, s.accent, s.background, s.border, s.shadow].filter(Boolean).length,
     typography: [s.typeface, s.headingFont, s.bodyFont, s.headingSize, s.subheadingSize, s.bodySize, s.weight, s.spacing].filter(Boolean).length,
@@ -255,7 +261,7 @@ export function PromptBuilder({ onClose, onApply }: Props) {
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
           <div>
             <h2 className="text-[15px] font-semibold tracking-tight">Prompt Builder</h2>
-            <p className="text-[11.5px] text-muted">Pick layout, style, type and motion. Each choice becomes a precise instruction.</p>
+            <p className="text-[11.5px] text-muted">Pick layout, agent UI, style, type and motion. Each choice becomes a precise instruction.</p>
           </div>
           <div className="flex items-center gap-1.5">
             <button type="button" onClick={reset} className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] text-muted hover:bg-subtle hover:text-fg">
@@ -315,6 +321,37 @@ export function PromptBuilder({ onClose, onApply }: Props) {
                 {LAYOUT_CONFIGS[s.platform].map((c) => (
                   <Tile key={c} label={c} selected={s.layoutConfig === c} onClick={() => pick("layoutConfig", c)}>
                     <span className="block h-[34px] w-[56px]"><LayoutConfigGlyph name={c} /></span>
+                  </Tile>
+                ))}
+              </TileGroup>
+            </Section>
+
+            <Section id="agent" title="Agent UI" count={counts.agent} open={openSection === "agent"} onToggle={toggleSection}>
+              <p className="mb-3 text-[11.5px] leading-relaxed text-muted">Build a working agent interface instead of a marketing page: pick a surface, the parts each reply shows, and how the scripted run plays.</p>
+              <TileGroup label="Surface">
+                {Object.keys(AGENT_SURFACES).map((name) => (
+                  <Tile key={name} label={name} title={`${name}: ${AGENT_SURFACES[name]}`} selected={s.agentSurface === name} onClick={() => pick("agentSurface", name)}>
+                    <AgentSurfaceGlyph name={name} />
+                  </Tile>
+                ))}
+              </TileGroup>
+              <TileGroup label="Message Parts" hint="Select multiple">
+                {Object.keys(AGENT_PARTS).map((part) => (
+                  <Tile
+                    key={part}
+                    label={part}
+                    title={`${part}: ${AGENT_PARTS[part]}`}
+                    selected={s.agentParts.includes(part)}
+                    onClick={() => setS((prev) => ({ ...prev, agentParts: prev.agentParts.includes(part) ? prev.agentParts.filter((x) => x !== part) : [...prev.agentParts, part] }))}
+                  >
+                    <AgentPartGlyph name={part} />
+                  </Tile>
+                ))}
+              </TileGroup>
+              <TileGroup label="Run">
+                {Object.keys(AGENT_RUNS).map((run) => (
+                  <Tile key={run} label={run} title={`${run}: ${AGENT_RUNS[run]}`} selected={s.agentRun === run} onClick={() => pick("agentRun", run)}>
+                    <AgentPartGlyph name={run} />
                   </Tile>
                 ))}
               </TileGroup>

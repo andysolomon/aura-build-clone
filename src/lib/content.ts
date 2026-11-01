@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
 // Markdown content shipped with the app: Learn docs and agent skills (content/*), plus the
-// JSON indexes for the Components and Assets libraries (public/*/index.json).
+// JSON indexes for the Components and Assets libraries (public/*/index.json, plus the Agent UI
+// kit's public/components/agent-ui.json).
 
 type Frontmatter = Record<string, string | number | string[]>;
 
@@ -45,6 +46,12 @@ export interface ComponentEntry {
   background: "light" | "dark" | "transparent";
 }
 
+/** Agent UI kit entries (public/components/agent-ui.json) carry their kit group and the parts they cover. */
+export interface AgentComponentEntry extends ComponentEntry {
+  group: string;
+  parts: string[];
+}
+
 export interface AssetEntry {
   slug: string;
   title: string;
@@ -74,6 +81,26 @@ export function useJson<T>(url: string, fallback: T): T {
       alive = false;
     };
   }, [url]);
+  return data;
+}
+
+export const AGENT_UI_INDEX = "/components/agent-ui.json";
+
+/** The full components library: the main index plus the Agent UI kit, which keeps its own index. */
+export async function loadComponents(): Promise<ComponentEntry[]> {
+  const [main, agent] = await Promise.all([loadJson<ComponentEntry[]>("/components/index.json"), loadJson<AgentComponentEntry[]>(AGENT_UI_INDEX)]);
+  return [...main, ...agent];
+}
+
+export function useComponents(): ComponentEntry[] {
+  const [data, setData] = useState<ComponentEntry[]>([]);
+  useEffect(() => {
+    let alive = true;
+    void loadComponents().then((d) => alive && setData(d));
+    return () => {
+      alive = false;
+    };
+  }, []);
   return data;
 }
 

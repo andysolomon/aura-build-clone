@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reasoning &amp; Chain of Thought - Agent UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+        }
+      }
+    }
+  };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root { --accent: #7c3aed; --accent-soft: #f3eefe; --fg: #18181b; --muted: #71717a; --faint: #a1a1aa; --border: #e4e4e7; }
+  body { background: #fafafa; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  iconify-icon { display: inline-block; flex-shrink: 0; }
+  .grid-bg { background-image: radial-gradient(rgba(24,24,27,.07) 1px, transparent 1px); background-size: 22px 22px; -webkit-mask-image: linear-gradient(#000, transparent 75%); mask-image: linear-gradient(#000, transparent 75%); }
+  .card { box-shadow: 0 1px 2px rgba(24,24,27,.04), 0 12px 32px -18px rgba(24,24,27,.14); }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  .caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.14em; background: currentColor; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rise { animation: rise .28s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+  .pulse-ring { position: relative; }
+  .pulse-ring::after { content: ""; position: absolute; inset: -3px; border-radius: 9999px; border: 1.5px solid var(--accent); opacity: .5; animation: ring 1.6s ease-out infinite; }
+  @keyframes ring { from { transform: scale(.85); opacity: .55; } to { transform: scale(1.35); opacity: 0; } }
+  .collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s cubic-bezier(.2,.8,.2,1); }
+  .collapse.open { grid-template-rows: 1fr; }
+  .collapse > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s .3s; }
+  .collapse.open > div { visibility: visible; transition: visibility 0s; }
+  [aria-expanded] .chev { transition: transform .2s ease; }
+  [aria-expanded="false"] .chev-flip { transform: rotate(180deg); }
+  [aria-expanded="true"] .chev-down { transform: rotate(180deg); }
+  .step[data-state="pending"] .step-label { color: var(--faint); }
+  .step[data-state="pending"] .step-icon { color: #d4d4d8; background: #fff; box-shadow: inset 0 0 0 1px #e4e4e7; }
+  .step[data-state="done"] .step-label { color: var(--muted); }
+  .step[data-state="done"] .step-icon { color: #71717a; background: #f4f4f5; box-shadow: inset 0 0 0 1px #e4e4e7; }
+  .step[data-state="active"] .step-label { color: var(--fg); }
+  .step[data-state="active"] .step-icon { color: #fff; background: var(--accent); }
+  .log-line.is-past { color: var(--muted); }
+  .log-line.is-past::before { background: #d4d4d8; }
+  .log-line::before { content: ""; position: absolute; left: -21px; top: 9px; width: 7px; height: 7px; border-radius: 9999px; background: var(--accent); box-shadow: 0 0 0 3px #fff; }
+  .log-line.is-final::before { background: #059669; }
+  .log-line.is-warn::before { background: #d97706; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer { animation: none; background: none; color: var(--fg); }
+    .rise, .pulse-ring::after, .caret { animation: none; }
+    .collapse, .collapse > div, [aria-expanded] .chev { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans min-h-screen relative overflow-x-hidden">
+  <div class="grid-bg absolute inset-x-0 top-0 h-[420px] pointer-events-none" aria-hidden="true"></div>
+
+  <header class="relative max-w-[1180px] mx-auto px-5 sm:px-8 pt-7 sm:pt-8 pb-5 flex flex-col md:flex-row md:items-end justify-between gap-5">
+    <div class="min-w-0">
+      <div class="inline-flex items-center gap-2 rounded-full bg-white ring-1 ring-zinc-200 px-2.5 py-1 text-[12px] font-medium text-zinc-600">
+        <span class="w-1.5 h-1.5 rounded-full" style="background: var(--accent)"></span>Agent UI <span class="text-zinc-300">/</span> Reasoning
+      </div>
+      <h1 class="mt-2.5 text-[27px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-tight">Reasoning &amp; chain of thought</h1>
+      <p class="mt-1.5 text-[14.5px] text-zinc-500 max-w-[560px]">Three ways to show an agent thinking: a thought that folds itself away, a chain of steps with evidence, and a live run log.</p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <div class="h-9 inline-flex items-center gap-2 rounded-full bg-white ring-1 ring-zinc-200 pl-2.5 pr-3 text-[12.5px] text-zinc-500" aria-live="off">
+        <span id="clockDot" class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+        <span class="font-mono tabular-nums text-zinc-800" id="clock">00:00.0</span>
+      </div>
+      <button id="skipAll" type="button" class="h-9 inline-flex items-center gap-1.5 rounded-full bg-white ring-1 ring-zinc-200 px-3.5 text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:ring-zinc-300 active:scale-[.98] transition disabled:opacity-50 disabled:pointer-events-none">
+        <iconify-icon icon="lucide:skip-forward" width="14"></iconify-icon>Skip to end
+      </button>
+      <button id="replay" type="button" class="h-9 inline-flex items-center gap-1.5 rounded-full px-4 text-[13px] font-medium text-white shadow-[0_6px_16px_-8px_rgba(124,58,237,.9)] hover:brightness-110 active:scale-[.98] transition" style="background: var(--accent)">
+        <iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon>Replay
+      </button>
+    </div>
+  </header>
+
+  <main class="relative max-w-[1180px] mx-auto px-5 sm:px-8 pb-16 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] gap-5 items-start">
+    <div class="flex flex-col gap-5 min-w-0">
+
+      <!-- A: reasoning disclosure -->
+      <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0" aria-labelledby="aTitle">
+        <div class="flex items-center gap-2.5 px-4 sm:px-5 h-12 border-b border-zinc-100">
+          <span class="font-mono text-[11px] w-5 h-5 grid place-items-center rounded-md bg-zinc-100 text-zinc-500">A</span>
+          <h2 id="aTitle" class="text-[13.5px] font-medium">Reasoning disclosure</h2>
+          <span class="hidden sm:inline text-[12px] text-zinc-400 truncate">opens while thinking, folds when done</span>
+          <span id="aBadge" class="ml-auto"></span>
+        </div>
+        <div class="p-4 sm:p-5 space-y-4">
+          <div class="flex justify-end">
+            <p class="max-w-[85%] rounded-2xl bg-zinc-100 px-3.5 py-2 text-[14px] leading-relaxed">Why did checkout conversion dip last Tuesday?</p>
+          </div>
+          <div class="flex gap-3">
+            <span class="w-7 h-7 shrink-0 rounded-full grid place-items-center text-white bg-gradient-to-br from-violet-500 to-fuchsia-500" aria-hidden="true"><iconify-icon icon="lucide:sparkles" width="14"></iconify-icon></span>
+            <div class="min-w-0 flex-1 pt-0.5">
+              <button id="aTrig" type="button" aria-expanded="true" aria-controls="aPanel" data-toggle class="group inline-flex items-center gap-2 h-7 -ml-1 px-1 rounded-md text-[13.5px] text-zinc-500 hover:text-zinc-900 transition">
+                <iconify-icon icon="lucide:brain" width="16"></iconify-icon>
+                <span id="aLabel" class="shimmer font-medium">Thinking…</span>
+                <span id="aSecs" class="font-mono tabular-nums text-[12px] text-zinc-400">0s</span>
+                <iconify-icon icon="lucide:chevron-down" width="15" class="chev chev-down text-zinc-400 group-hover:text-zinc-700"></iconify-icon>
+              </button>
+              <div id="aPanel" class="collapse open">
+                <div>
+                  <div id="aBody" class="mt-2 border-l-2 border-zinc-200 pl-3.5 space-y-2 text-[13px] leading-relaxed text-zinc-500"></div>
+                </div>
+              </div>
+              <div id="aAnswer" class="text-[14.5px] leading-relaxed text-zinc-800 empty:hidden mt-3"></div>
+              <div id="aActions" class="hidden mt-2.5 items-center gap-0.5 text-zinc-400">
+                <button type="button" class="copy w-7 h-7 grid place-items-center rounded-md hover:bg-zinc-100 hover:text-zinc-800 transition" aria-label="Copy answer"><iconify-icon icon="lucide:copy" width="14"></iconify-icon></button>
+                <button type="button" data-replay-a class="w-7 h-7 grid place-items-center rounded-md hover:bg-zinc-100 hover:text-zinc-800 transition" aria-label="Regenerate this answer"><iconify-icon icon="lucide:refresh-cw" width="14"></iconify-icon></button>
+                <span class="ml-2 text-[12px] font-mono tabular-nums text-zinc-400">412 tokens · 1,906 reasoning</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- C: agent run log + thinking bar -->
+      <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0" aria-labelledby="cTitle">
+        <div class="flex items-center gap-2.5 px-4 sm:px-5 h-12 border-b border-zinc-100">
+          <span class="font-mono text-[11px] w-5 h-5 grid place-items-center rounded-md bg-zinc-100 text-zinc-500">C</span>
+          <h2 id="cTitle" class="text-[13.5px] font-medium">Agent run log</h2>
+          <span class="hidden sm:inline text-[12px] text-zinc-400 truncate">lines land one at a time</span>
+          <span id="cBadge" class="ml-auto"></span>
+        </div>
+        <div class="p-4 sm:p-5">
+          <button id="logTrig" type="button" aria-expanded="true" aria-controls="logPanel" data-toggle class="group inline-flex items-center gap-2 h-7 -ml-1 px-1 rounded-md text-[13.5px] font-medium text-zinc-800 hover:text-zinc-950">
+            <iconify-icon icon="lucide:list-checks" width="16" class="text-zinc-500"></iconify-icon>
+            Agent run: Audit pricing page
+            <iconify-icon icon="lucide:chevron-up" width="15" class="chev chev-flip text-zinc-400 group-hover:text-zinc-700"></iconify-icon>
+          </button>
+          <div id="logPanel" class="collapse open">
+            <div>
+              <ol id="log" class="ml-[9px] mt-2.5 border-l border-zinc-200 pl-[17px] space-y-2 text-[13.5px] leading-6" role="log" aria-live="polite"></ol>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-dashed border-zinc-200">
+            <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-zinc-400 mb-2">Thinking bar</p>
+            <div id="bar" class="flex items-center gap-3 rounded-xl bg-zinc-50 ring-1 ring-zinc-200/80 pl-3.5 pr-3 min-h-[44px]">
+              <span id="barIcon" class="w-5 h-5 grid place-items-center rounded-full pulse-ring" style="color: var(--accent)"><iconify-icon icon="lucide:sparkle" width="15"></iconify-icon></span>
+              <button id="barTrig" type="button" aria-expanded="false" aria-controls="barPanel" data-toggle class="group min-w-0 inline-flex items-center gap-1 text-[13.5px] font-medium">
+                <span id="barLabel" class="shimmer truncate">Deep reasoning in progress</span>
+                <iconify-icon icon="lucide:chevron-right" width="15" class="chev text-zinc-400 group-hover:text-zinc-700 group-aria-expanded:rotate-90"></iconify-icon>
+              </button>
+              <span id="barSecs" class="font-mono tabular-nums text-[12px] text-zinc-400">0s</span>
+              <button id="skipThinking" type="button" class="ml-auto shrink-0 text-[12.5px] text-zinc-500 underline decoration-dotted decoration-zinc-400 underline-offset-4 hover:text-zinc-900 hover:decoration-zinc-700 transition">Skip thinking</button>
+            </div>
+            <div id="barPanel" class="collapse">
+              <div>
+                <ul id="barList" class="mt-2 space-y-1.5 px-1 text-[12.5px] text-zinc-500"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- B: chain of thought -->
+    <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0" aria-labelledby="bTitle">
+      <div class="flex items-center gap-2.5 px-4 sm:px-5 h-12 border-b border-zinc-100">
+        <span class="font-mono text-[11px] w-5 h-5 grid place-items-center rounded-md bg-zinc-100 text-zinc-500">B</span>
+        <h2 id="bTitle" class="text-[13.5px] font-medium">Chain of thought</h2>
+        <span class="hidden sm:inline text-[12px] text-zinc-400 truncate">steps with evidence</span>
+        <span id="bBadge" class="ml-auto"></span>
+      </div>
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="flex justify-end">
+          <p class="max-w-[88%] rounded-2xl bg-zinc-100 px-3.5 py-2 text-[14px] leading-relaxed">4 days in Kyoto in early April: blossoms, fewer crowds?</p>
+        </div>
+        <div class="rounded-xl ring-1 ring-zinc-200 bg-white">
+          <button id="cotTrig" type="button" aria-expanded="true" aria-controls="cotPanel" data-toggle class="group w-full flex items-center gap-2 px-3.5 h-10 text-[13.5px] text-zinc-600 hover:text-zinc-900 rounded-xl">
+            <iconify-icon icon="lucide:brain-circuit" width="16"></iconify-icon>
+            <span id="cotTitle" class="font-medium">Chain of thought</span>
+            <span id="cotCount" class="ml-auto font-mono tabular-nums text-[12px] text-zinc-400">0 / 5</span>
+            <iconify-icon icon="lucide:chevron-up" width="15" class="chev chev-flip text-zinc-400 group-hover:text-zinc-700"></iconify-icon>
+          </button>
+          <div id="cotPanel" class="collapse open">
+            <div>
+              <ol id="steps" class="px-3.5 pb-1 pt-1" aria-live="polite"></ol>
+            </div>
+          </div>
+        </div>
+        <p id="bAnswer" class="hidden text-[14px] leading-relaxed text-zinc-700"></p>
+      </div>
+    </section>
+  </main>
+
+<div hidden aria-hidden="true">
+  <iconify-icon icon="lucide:search"></iconify-icon><iconify-icon icon="lucide:image"></iconify-icon><iconify-icon icon="lucide:scale"></iconify-icon>
+  <iconify-icon icon="lucide:route"></iconify-icon><iconify-icon icon="lucide:bed-double"></iconify-icon><iconify-icon icon="lucide:loader-circle"></iconify-icon>
+  <iconify-icon icon="lucide:circle-check"></iconify-icon><iconify-icon icon="lucide:check"></iconify-icon><iconify-icon icon="lucide:file-code-2"></iconify-icon>
+  <iconify-icon icon="lucide:triangle-alert"></iconify-icon><iconify-icon icon="lucide:dot"></iconify-icon>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var run = 0, barRun = 0, clockStart = 0, clockTimer = null;
+
+  /* ---------- content ---------- */
+  var THOUGHT = [
+    'The dip is Tuesday only, so a weekly pattern is unlikely. Release 2.4.1 went out Monday at 23:40 and touched the address form, so that is the first suspect.',
+    'Sessions held steady while conversion fell from 3.8% to 2.9%. That reads as friction, not demand. Mobile Safari accounts for most of the gap.',
+    'The new postcode field validates on blur. On iOS the keyboard Done key does not blur the input, so the Pay button would stay disabled. That fits a mobile-only, Safari-only drop.'
+  ];
+  var ANSWER = [
+    ['Most likely the 2.4.1 address form. On iOS Safari the postcode field never validates, so '],
+    ['Pay stays disabled', 'b'],
+    [' for about a third of mobile shoppers. Reverting the blur handler should win back roughly 0.8 points.']
+  ];
+  var STEPS = [
+    { icon: 'lucide:search', pending: 'Search bloom forecasts and crowd reports', active: 'Searching bloom forecasts and crowd reports…', done: 'Searched bloom forecasts and crowd reports', extra: 'chips' },
+    { icon: 'lucide:image', pending: 'Find a bloom map for the eastern hills', active: 'Looking for a bloom map of the eastern hills…', done: 'Found a bloom map for the Philosopher’s Path', extra: 'image' },
+    { icon: 'lucide:scale', pending: 'Compare neighborhoods as a base', active: 'Comparing three neighborhoods as a base…', done: 'Compared three neighborhoods as a base', extra: 'compare' },
+    { icon: 'lucide:route', pending: 'Draft a day-by-day route', active: 'Drafting a day-by-day route around sunrise starts…', done: 'Drafted a 4-day route with sunrise starts', extra: 'days' },
+    { icon: 'lucide:bed-double', pending: 'Check ryokan availability near Okazaki', active: 'Checking ryokan availability near Okazaki…', done: 'Found 3 ryokan with rooms on Apr 3–7', extra: null }
+  ];
+  var DOMAINS = [['J', 'jnto.go.jp', 'bg-rose-500'], ['K', 'kyoto.travel', 'bg-amber-500'], ['S', 'sakura-map.jp', 'bg-pink-500'], ['T', 'tripnotes.io', 'bg-sky-600']];
+  var AREAS = [
+    { name: 'Higashiyama', sub: 'Walk to 6 bloom spots', crowd: 88, price: '¥24k' },
+    { name: 'Okazaki', sub: 'Canal path, 2 bus lines', crowd: 52, price: '¥17k', pick: true },
+    { name: 'Demachiyanagi', sub: 'Eizan + Keihan lines', crowd: 34, price: '¥14k' }
+  ];
+  var DAYS = ['Day 1 · Philosopher’s Path 6:30', 'Day 2 · Okazaki canal', 'Day 3 · Daigo-ji', 'Day 4 · Nara by 8:00'];
+  var LOG = [
+    { text: 'Opening /pricing on staging', t: '0.3s' },
+    { text: 'Captured screenshots at 375, 768 and 1440 px', t: '1.1s' },
+    { text: 'Read', file: 'PricingTable.tsx', tail: 'and 2 locale files', t: '1.6s' },
+    { text: 'Found 4 plan cards, 2 with mismatched annual prices', t: '2.4s' },
+    { text: 'Checking contrast on call-to-action buttons', t: '3.0s' },
+    { text: '“Start trial” fails AA at 3.1 : 1 on the Team card', t: '3.6s', warn: true },
+    { text: 'Audit complete: 3 issues, 1 critical. Report drafted.', t: '4.2s', final: true }
+  ];
+  var BAR_NOTES = ['Weighing a price-copy fix against a layout change', 'Estimating impact of the contrast fix on trial starts', 'Ranking 3 fixes by effort and revenue risk'];
+
+  /* ---------- helpers ---------- */
+  var BADGES = {
+    running: ['bg-sky-50 text-sky-700 ring-sky-600/15', 'lucide:loader-circle', true],
+    done: ['bg-emerald-50 text-emerald-700 ring-emerald-600/15', 'lucide:circle-check', false],
+    pending: ['bg-zinc-100 text-zinc-600 ring-zinc-500/15', 'lucide:circle', false]
+  };
+  function setBadge(el, kind, text) {
+    var b = BADGES[kind];
+    el.className = 'ml-auto shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium ring-1 ' + b[0];
+    el.innerHTML = '<iconify-icon icon="' + b[1] + '" width="12"' + (b[2] ? ' class="spin"' : '') + '></iconify-icon><span class="tabular-nums">' + text + '</span>';
+  }
+  function setOpen(btn, open) {
+    btn.setAttribute('aria-expanded', String(open));
+    $(btn.getAttribute('aria-controls')).classList.toggle('open', open);
+  }
+  function words(text) { return text.match(/\s+|\S+\s*/g) || []; }
+  async function stream(el, parts, delay, id, token) {
+    var caret = document.createElement('span');
+    caret.className = 'caret';
+    el.appendChild(caret);
+    for (var i = 0; i < parts.length; i++) {
+      var node = document.createElement(parts[i][1] === 'b' ? 'strong' : 'span');
+      if (parts[i][1] === 'b') node.className = 'font-semibold text-zinc-950';
+      el.insertBefore(node, caret);
+      var w = words(parts[i][0]);
+      for (var j = 0; j < w.length; j++) {
+        if (id !== token()) return false;
+        node.textContent += w[j];
+        await wait(delay);
+      }
+    }
+    caret.remove();
+    return true;
+  }
+  var current = function () { return run; };
+
+  /* ---------- clock ---------- */
+  function fmt(ms) { var s = ms / 1000; var m = Math.floor(s / 60); return String(m).padStart(2, '0') + ':' + (s % 60).toFixed(1).padStart(4, '0'); }
+  function startClock() {
+    clearInterval(clockTimer);
+    clockStart = performance.now();
+    $('clockDot').className = 'w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse';
+    clockTimer = setInterval(function () { $('clock').textContent = fmt(performance.now() - clockStart); }, 100);
+    $('skipAll').disabled = false;
+  }
+  function stopClock() {
+    clearInterval(clockTimer);
+    $('clock').textContent = fmt(performance.now() - clockStart);
+    $('clockDot').className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+    $('skipAll').disabled = true;
+  }
+
+  /* ---------- A: reasoning ---------- */
+  var aTick = null;
+  function resetA() {
+    clearInterval(aTick);
+    setBadge($('aBadge'), 'running', 'Thinking');
+    $('aLabel').textContent = 'Thinking…';
+    $('aLabel').className = 'shimmer font-medium';
+    $('aSecs').textContent = '0s';
+    $('aSecs').classList.remove('hidden');
+    $('aBody').innerHTML = '';
+    $('aAnswer').innerHTML = '';
+    $('aActions').classList.add('hidden');
+    $('aActions').classList.remove('flex');
+    setOpen($('aTrig'), true);
+  }
+  function settleA(secs) {
+    clearInterval(aTick);
+    $('aLabel').textContent = 'Thought for ' + secs + ' seconds';
+    $('aLabel').className = 'font-medium';
+    $('aSecs').classList.add('hidden');
+    setOpen($('aTrig'), false);
+  }
+  function doneA() {
+    setBadge($('aBadge'), 'done', 'Answered');
+    $('aActions').classList.remove('hidden');
+    $('aActions').classList.add('flex');
+  }
+  async function playA(id) {
+    resetA();
+    var t0 = performance.now();
+    aTick = setInterval(function () { $('aSecs').textContent = Math.floor((performance.now() - t0) / 1000) + 's'; }, 250);
+    for (var i = 0; i < THOUGHT.length; i++) {
+      var p = document.createElement('p');
+      $('aBody').appendChild(p);
+      if (!(await stream(p, [[THOUGHT[i]]], 56, id, current))) return;
+      await wait(260);
+    }
+    if (id !== run) return;
+    settleA(Math.max(1, Math.round((performance.now() - t0) / 1000)));
+    await wait(420);
+    if (id !== run) return;
+    if (!(await stream($('aAnswer'), ANSWER, 34, id, current))) return;
+    doneA();
+  }
+  function finishA() {
+    resetA();
+    $('aBody').innerHTML = THOUGHT.map(function (t) { return '<p>' + t + '</p>'; }).join('');
+    $('aAnswer').innerHTML = ANSWER.map(function (p) { return p[1] ? '<strong class="font-semibold text-zinc-950">' + p[0] + '</strong>' : p[0]; }).join('');
+    settleA(6);
+    doneA();
+  }
+
+  /* ---------- B: chain of thought ---------- */
+  function extraHTML(kind) {
+    if (kind === 'chips') return '<div class="flex flex-wrap gap-1.5" data-chips></div>';
+    if (kind === 'image') return (
+      '<figure class="rise">' +
+        '<div class="rounded-xl overflow-hidden ring-1 ring-zinc-200 bg-[#fdf1f4]">' + sceneSVG() + '</div>' +
+        '<figcaption class="mt-1.5 text-[12px] text-zinc-400">Philosopher’s Path: forecast peak bloom Apr 2–6, quietest before 8 am.</figcaption>' +
+      '</figure>');
+    if (kind === 'compare') return (
+      '<div class="rounded-xl ring-1 ring-zinc-200 overflow-hidden text-[12.5px]" data-compare>' +
+        '<div class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto] gap-3 px-3 h-7 items-center bg-zinc-50 text-[11px] font-mono uppercase tracking-[0.06em] text-zinc-400"><span>Base</span><span>Crowds</span><span>From</span></div>' +
+      '</div>');
+    if (kind === 'days') return '<div class="flex flex-wrap gap-1.5" data-days></div>';
+    return '';
+  }
+  function compareRow(a) {
+    return '<div class="rise grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto] gap-3 px-3 py-1.5 items-center border-t border-zinc-100 ' + (a.pick ? 'bg-violet-50/60' : '') + '">' +
+      '<div class="min-w-0 flex items-baseline gap-2"><span class="font-medium text-zinc-800 shrink-0">' + a.name + '</span><span class="text-[11.5px] text-zinc-400 truncate">' + a.sub + '</span></div>' +
+      '<div class="h-1.5 rounded-full bg-zinc-100 overflow-hidden"><div class="h-full rounded-full ' + (a.crowd > 70 ? 'bg-rose-400' : a.crowd > 45 ? 'bg-amber-400' : 'bg-emerald-400') + '" style="width:' + a.crowd + '%"></div></div>' +
+      '<span class="font-mono tabular-nums ' + (a.pick ? 'text-violet-700 font-medium' : 'text-zinc-600') + '">' + a.price + '</span></div>';
+  }
+  function sceneSVG() {
+    var trees = [[18, 70, 1.1], [62, 64, .9], [104, 76, 1.2], [148, 70, .8], [300, 70, .85], [338, 64, 1], [384, 74, 1.15], [430, 66, .95], [466, 78, 1.1]];
+    return '<svg viewBox="0 0 480 150" preserveAspectRatio="xMidYMid slice" class="block w-full h-[112px]" role="img" aria-label="Illustration of a canal path lined with cherry trees at dawn">' +
+      '<defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe3ee"/><stop offset=".65" stop-color="#fff3e8"/><stop offset="1" stop-color="#f4efe4"/></linearGradient>' +
+      '<linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe2ec"/><stop offset="1" stop-color="#93bfd6"/></linearGradient>' +
+      '<radialGradient id="bloomG" cx=".4" cy=".35"><stop offset="0" stop-color="#ffe1ec"/><stop offset="1" stop-color="#f29bbd"/></radialGradient>' +
+      '<symbol id="tree" viewBox="0 0 40 60" overflow="visible"><path d="M19 58 L21 58 L22 30 L18 30Z" fill="#8a6a58"/><circle cx="20" cy="22" r="15" fill="url(#bloomG)"/><circle cx="8" cy="30" r="10" fill="url(#bloomG)"/><circle cx="32" cy="30" r="11" fill="url(#bloomG)"/><circle cx="20" cy="34" r="9" fill="#f6b3cc"/></symbol></defs>' +
+      '<rect width="480" height="150" fill="url(#skyG)"/>' +
+      '<circle cx="392" cy="40" r="15" fill="#ffd7b5"/><circle cx="392" cy="40" r="26" fill="#ffd7b5" opacity=".25"/>' +
+      '<path d="M0 72 Q70 40 150 62 T300 54 T480 64 V150 H0Z" fill="#dde6d4"/>' +
+      '<path d="M0 90 Q120 70 240 86 T480 82 V150 H0Z" fill="#c9d8c1"/>' +
+      '<path d="M40 150 L222 96 L236 96 L128 150Z" fill="#ece3d3"/>' +
+      '<path d="M150 150 L238 96 L258 96 L262 150Z" fill="url(#waterG)"/>' +
+      '<path d="M262 150 L258 96 L266 96 L300 150Z" fill="#d8ccb8"/>' +
+      trees.map(function (t) { return '<use href="#tree" x="' + t[0] + '" y="' + (t[1] - 10) + '" width="' + (40 * t[2]) + '" height="' + (60 * t[2]) + '"/>'; }).join('') +
+      '<g fill="#f29bbd" opacity=".8"><circle cx="200" cy="128" r="1.6"/><circle cx="216" cy="138" r="1.3"/><circle cx="244" cy="120" r="1.5"/><circle cx="276" cy="134" r="1.4"/></g>' +
+      '</svg>';
+  }
+  function renderSteps() {
+    $('steps').innerHTML = STEPS.map(function (s, i) {
+      return '<li class="step flex gap-3" data-state="pending" data-i="' + i + '">' +
+        '<div class="flex flex-col items-center">' +
+          '<span class="step-icon w-6 h-6 rounded-full grid place-items-center transition-colors"><iconify-icon icon="' + s.icon + '" width="13"></iconify-icon></span>' +
+          (i < STEPS.length - 1 ? '<span class="w-px flex-1 bg-zinc-200 my-1"></span>' : '') +
+        '</div>' +
+        '<div class="min-w-0 flex-1 ' + (i < STEPS.length - 1 ? 'pb-3.5' : 'pb-3') + '">' +
+          '<p class="step-label text-[13.5px] leading-6 transition-colors">' + s.pending + '</p>' +
+          '<div class="step-extra empty:hidden mt-2"></div>' +
+        '</div></li>';
+    }).join('');
+  }
+  function stepEl(i) { return $('steps').children[i]; }
+  function setStep(i, state) {
+    var li = stepEl(i), s = STEPS[i], label = li.querySelector('.step-label'), icon = li.querySelector('.step-icon');
+    li.dataset.state = state;
+    label.textContent = s[state];
+    label.classList.toggle('shimmer', state === 'active');
+    icon.classList.toggle('pulse-ring', state === 'active');
+    var extra = li.querySelector('.step-extra');
+    if (state !== 'pending' && !extra.dataset.ready && s.extra && (s.extra !== 'days' || state === 'done')) {
+      extra.innerHTML = extraHTML(s.extra);
+      extra.dataset.ready = '1';
+    }
+    var doneCount = $('steps').querySelectorAll('[data-state="done"]').length;
+    $('cotCount').textContent = doneCount + ' / ' + STEPS.length;
+  }
+  function fillChips(i, n, animate) {
+    var box = stepEl(i).querySelector('[data-chips]');
+    for (var k = box.children.length; k < n; k++) {
+      var d = DOMAINS[k];
+      box.insertAdjacentHTML('beforeend', '<a href="#" class="' + (animate ? 'rise ' : '') + 'inline-flex items-center gap-1.5 rounded-full bg-zinc-50 ring-1 ring-zinc-200 pl-1 pr-2.5 h-6 text-[12px] text-zinc-600 hover:bg-white hover:ring-zinc-300 hover:text-zinc-900 transition">' +
+        '<span class="w-4 h-4 rounded-full grid place-items-center text-[9px] font-semibold text-white ' + d[2] + '">' + d[0] + '</span>' + d[1] + '</a>');
+    }
+  }
+  function fillCompare(i, n) {
+    var box = stepEl(i).querySelector('[data-compare]');
+    for (var k = box.children.length - 1; k < n; k++) box.insertAdjacentHTML('beforeend', compareRow(AREAS[k]));
+  }
+  function fillDays(i) {
+    stepEl(i).querySelector('[data-days]').innerHTML = DAYS.map(function (d) {
+      return '<span class="inline-flex items-center gap-1 rounded-md bg-violet-50 text-violet-800 ring-1 ring-violet-600/10 px-2 h-6 text-[12px]">' + d + '</span>';
+    }).join('');
+  }
+  function resetB() {
+    renderSteps();
+    setBadge($('bBadge'), 'running', 'Step 1 of 5');
+    $('cotTitle').textContent = 'Chain of thought';
+    $('cotTitle').className = 'font-medium shimmer';
+    $('bAnswer').classList.add('hidden');
+    setOpen($('cotTrig'), true);
+  }
+  function doneB() {
+    $('cotTitle').textContent = 'Reasoned in 5 steps';
+    $('cotTitle').className = 'font-medium';
+    setBadge($('bBadge'), 'done', 'Completed');
+    $('bAnswer').innerHTML = 'Base yourself in <strong class="font-semibold text-zinc-900">Okazaki</strong>: canal-side blossoms, half the crowds of Higashiyama and a ¥7k nightly saving. Start each day before 7 am and save Nara for Day 4.';
+    $('bAnswer').classList.remove('hidden');
+  }
+  async function playB(id, instant) {
+    resetB();
+    var pace = function (ms, i) { return i < instant ? 0 : ms; };
+    for (var i = 0; i < STEPS.length; i++) {
+      if (id !== run) return;
+      setBadge($('bBadge'), 'running', 'Step ' + (i + 1) + ' of 5');
+      setStep(i, 'active');
+      if (STEPS[i].extra === 'chips') {
+        for (var c = 1; c <= DOMAINS.length; c++) { if (pace(1, i)) await wait(260); if (id !== run) return; fillChips(i, c, i >= instant); }
+      } else if (STEPS[i].extra === 'compare') {
+        for (var r = 1; r <= AREAS.length; r++) { if (pace(1, i)) await wait(380); if (id !== run) return; fillCompare(i, r); }
+      }
+      var hold = i === 3 ? 3800 : i === 4 ? 1900 : 700;
+      if (pace(1, i)) await wait(hold);
+      if (id !== run) return;
+      setStep(i, 'done');
+      if (STEPS[i].extra === 'days') fillDays(i);
+    }
+    doneB();
+  }
+  function finishB() {
+    resetB();
+    STEPS.forEach(function (s, i) {
+      setStep(i, 'done');
+      if (s.extra === 'chips') fillChips(i, DOMAINS.length, false);
+      if (s.extra === 'compare') fillCompare(i, AREAS.length);
+      if (s.extra === 'days') fillDays(i);
+    });
+    doneB();
+  }
+
+  /* ---------- C: run log + thinking bar ---------- */
+  function logLine(l, animate) {
+    var li = document.createElement('li');
+    li.className = 'log-line relative flex items-start gap-3 ' + (animate ? 'rise ' : '') + (l.final ? 'is-final font-medium text-zinc-950' : l.warn ? 'is-warn text-zinc-800' : 'text-zinc-800');
+    var body = l.file
+      ? l.text + ' <span class="inline-flex items-center gap-1 align-middle rounded-md bg-zinc-100 ring-1 ring-zinc-200 px-1.5 h-[22px] font-mono text-[11.5px] text-zinc-700"><iconify-icon icon="lucide:file-code-2" width="12" class="text-sky-600"></iconify-icon>' + l.file + '</span> ' + l.tail
+      : l.text;
+    if (l.warn) body = '<iconify-icon icon="lucide:triangle-alert" width="14" class="text-amber-600 align-[-2px] mr-1"></iconify-icon>' + body;
+    if (l.final) body = '<iconify-icon icon="lucide:circle-check" width="15" class="text-emerald-600 align-[-3px] mr-1"></iconify-icon>' + body;
+    li.innerHTML = '<span class="min-w-0 flex-1">' + body + '</span><span class="shrink-0 pt-px font-mono tabular-nums text-[11.5px] text-zinc-400">' + l.t + '</span>';
+    return li;
+  }
+  function addLog(i, animate, live) {
+    var log = $('log');
+    Array.prototype.forEach.call(log.children, function (c) { c.classList.add('is-past'); c.querySelector('.flex-1').classList.remove('shimmer'); });
+    var li = logLine(LOG[i], animate);
+    if (live && !LOG[i].final) li.querySelector('.flex-1').classList.add('shimmer');
+    log.appendChild(li);
+  }
+  function resetC() {
+    $('log').innerHTML = '';
+    setBadge($('cBadge'), 'running', 'Running');
+    setOpen($('logTrig'), true);
+  }
+  function doneC() { setBadge($('cBadge'), 'done', 'Completed'); }
+  async function playC(id, instant) {
+    resetC();
+    for (var i = 0; i < LOG.length; i++) {
+      if (i >= instant) await wait(i === 0 ? 300 : 820);
+      if (id !== run) return;
+      addLog(i, i >= instant, i === instant - 1 || i >= instant);
+    }
+    doneC();
+  }
+  function finishC() {
+    resetC();
+    LOG.forEach(function (_, i) { addLog(i, false, false); });
+    doneC();
+  }
+
+  var barTick = null;
+  function resetBar() {
+    clearInterval(barTick);
+    $('barLabel').textContent = 'Deep reasoning in progress';
+    $('barLabel').className = 'shimmer truncate';
+    $('barIcon').className = 'w-5 h-5 grid place-items-center rounded-full pulse-ring';
+    $('barIcon').style.color = 'var(--accent)';
+    $('barIcon').innerHTML = '<iconify-icon icon="lucide:sparkle" width="15"></iconify-icon>';
+    $('barSecs').textContent = '0s';
+    $('skipThinking').classList.remove('hidden');
+    $('barList').innerHTML = BAR_NOTES.map(function (n, i) {
+      return '<li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-zinc-300"></span>' + n + '</li>';
+    }).join('');
+  }
+  function finishBar(secs) {
+    clearInterval(barTick);
+    $('barLabel').textContent = 'Reasoned for ' + secs + 's · 3 fixes ranked';
+    $('barLabel').className = 'truncate text-zinc-700';
+    $('barIcon').className = 'w-5 h-5 grid place-items-center rounded-full text-emerald-600';
+    $('barIcon').style.color = '';
+    $('barIcon').innerHTML = '<iconify-icon icon="lucide:circle-check" width="16"></iconify-icon>';
+    $('barSecs').textContent = '';
+    $('skipThinking').classList.add('hidden');
+  }
+  async function playBar(id, ms) {
+    resetBar();
+    var t0 = performance.now();
+    barTick = setInterval(function () { $('barSecs').textContent = Math.floor((performance.now() - t0) / 1000) + 's'; }, 250);
+    await wait(ms);
+    if (id !== barRun) return;
+    finishBar(Math.round((performance.now() - t0) / 1000));
+  }
+
+  /* ---------- orchestration ---------- */
+  function replay(fromLoad) {
+    var id = ++run, bid = ++barRun;
+    startClock();
+    Promise.all([
+      playA(id),
+      playB(id, fromLoad ? 3 : 0),
+      playC(id, fromLoad ? 5 : 0),
+      playBar(bid, 9200)
+    ]).then(function () { if (id === run) stopClock(); });
+  }
+  function skipAll() {
+    run++; barRun++;
+    finishA(); finishB(); finishC();
+    if (!$('skipThinking').classList.contains('hidden')) finishBar(9);
+    stopClock();
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-toggle]');
+    if (t) setOpen(t, t.getAttribute('aria-expanded') !== 'true');
+    if (e.target.closest('a[href="#"]')) e.preventDefault();
+    var copy = e.target.closest('.copy');
+    if (copy) {
+      navigator.clipboard && navigator.clipboard.writeText($('aAnswer').textContent).catch(function () {});
+      copy.innerHTML = '<iconify-icon icon="lucide:check" width="14" class="text-emerald-600"></iconify-icon>';
+      setTimeout(function () { copy.innerHTML = '<iconify-icon icon="lucide:copy" width="14"></iconify-icon>'; }, 1200);
+    }
+    if (e.target.closest('[data-replay-a]')) { var id = ++run; startClock(); playA(id).then(function () { if (id === run) stopClock(); }); finishB(); finishC(); }
+  });
+  $('replay').addEventListener('click', function () { replay(false); });
+  $('skipAll').addEventListener('click', skipAll);
+  $('skipThinking').addEventListener('click', function () {
+    barRun++;
+    finishBar(Math.max(1, parseInt($('barSecs').textContent, 10) || 1));
+    $('barTrig').focus();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('skipAll').disabled) skipAll(); });
+
+  replay(true);
+})();
+</script>
+</body>
+</html>

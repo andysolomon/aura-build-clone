@@ -41,7 +41,43 @@ export const LAYOUT_CONFIG_DESCRIPTIONS: Record<string, string> = {
   Alert: "attention-grabbing notification element",
 };
 
-const CLAY_SHADOW = "shadow-[0_50px_100px_-20px_rgba(50,50,93,0.25),0_30px_60px_-30px_rgba(0,0,0,0.3),inset_0_-2px_6px_0_rgba(10,37,64,0.35)]";
+// Agent interfaces: a surface plus the message parts it shows, from the anatomy shared by the
+// agent UI libraries studied for the Agent UI kit (see docs/reverse-engineering.md).
+export const AGENT_SURFACES: Record<string, string> = {
+  "Chat Thread": "centered conversation with streaming replies, message actions and a composer",
+  "App Shell": "thread-list sidebar, a header with a model menu, the thread and a composer",
+  "Copilot Sidebar": "assistant panel docked beside the product UI, answering about the current screen",
+  "Chat + Artifact": "chat on the left and an artifact panel on the right with Preview, Code and Terminal tabs",
+  "Floating Widget": "launcher bubble that opens a compact chat panel over the page",
+  "Voice Agent": "animated persona orb with listening, thinking and speaking states and a live transcript",
+  "Workflow Canvas": "node graph of agent steps with bezier edges, an animated active path and an inspector",
+  "Agent Console": "agent definition card, a run-trace waterfall, and token and cost stats",
+};
+
+export const AGENT_PARTS: Record<string, string> = {
+  Reasoning: "collapsible reasoning that shimmers “Thinking…” while it streams and settles to “Thought for 6s”",
+  "Tool Calls": "collapsible tool cards with a mono name, a status pill (pending, running, completed, error) and JSON parameters and result",
+  Approvals: "an inline approve or deny confirmation before sensitive tool calls, resolving to approved or denied",
+  "Generative UI": "tool results rendered as rich cards (charts, tables, status trackers) instead of raw JSON",
+  Sources: "inline citation pills with hover cards and a “Used 4 sources” disclosure",
+  Plan: "a plan card with a step checklist that ticks off as the agent works",
+  "Task Queue": "queued messages and todos with send-now and remove actions",
+  Attachments: "file and image attachment tiles in the composer and on user messages",
+  Suggestions: "suggestion pills in the empty state and as follow-ups",
+  Branching: "regenerate creates a new branch with a ‹ 2 / 2 › picker",
+  "Model Picker": "a searchable model selector grouped by provider",
+  "Context Meter": "a context-window ring with a token and cost breakdown on hover",
+  Checkpoints: "restore-checkpoint separators between turns",
+  Feedback: "thumbs up and down plus a “Was this helpful?” bar",
+};
+
+export const AGENT_RUNS: Record<string, string> = {
+  "Scripted on Send": "sending a message plays a scripted run with streaming text and a working stop button",
+  "Autoplay Demo": "a scripted run plays on load and loops like a product demo",
+  "Static Snapshot": "a finished run shown as a static snapshot",
+};
+
+const CLAY_SHADOW ="shadow-[0_50px_100px_-20px_rgba(50,50,93,0.25),0_30px_60px_-30px_rgba(0,0,0,0.3),inset_0_-2px_6px_0_rgba(10,37,64,0.35)]";
 
 export const FRAMINGS: Record<Platform, string[]> = {
   Web: ["Full Screen", "Card", "Browser", "Mac App", "Clay Web"],
@@ -218,6 +254,17 @@ export const PROMPT_LIBRARY: { group: string; items: string[] }[] = [
     ],
   },
   {
+    group: "Agents",
+    items: [
+      "Make this a working AI agent interface with a scripted run, not a page about one",
+      "Add an interactive AI chat demo to the hero that streams replies and shows tool calls",
+      "Show every tool call as a collapsible card with a status pill and JSON parameters and result",
+      "Ask for approval before any destructive tool call, then show the approved or denied outcome",
+      "Cite sources inline with hover cards and end answers with a “Used N sources” list",
+      "Pre-render one complete exchange so the first view is never an empty chat",
+    ],
+  },
+  {
     group: "Polish",
     items: [
       "Give every button layered hover, pressed, focus-visible and loading states",
@@ -232,6 +279,9 @@ export interface BuilderState {
   platform: Platform;
   layoutType: string | null;
   layoutConfig: string | null;
+  agentSurface: string | null;
+  agentParts: string[];
+  agentRun: string | null;
   framing: string | null;
   visualStyle: string | null;
   theme: (typeof THEMES)[number] | null;
@@ -260,6 +310,9 @@ export const EMPTY_STATE: BuilderState = {
   platform: "Web",
   layoutType: null,
   layoutConfig: null,
+  agentSurface: null,
+  agentParts: [],
+  agentRun: null,
   framing: null,
   visualStyle: null,
   theme: null,
@@ -296,6 +349,9 @@ export function selectionLines(s: BuilderState): string[] {
   const dark = s.theme === "Dark Mode";
   if (s.layoutType) lines.push(`Create a ${s.layoutType.toLowerCase()} layout`);
   if (s.layoutConfig) lines.push(`Layout Configuration: ${s.layoutConfig} (${LAYOUT_CONFIG_DESCRIPTIONS[s.layoutConfig]})`);
+  if (s.agentSurface) lines.push(`Build a working agent interface: ${s.agentSurface} (${AGENT_SURFACES[s.agentSurface]})`);
+  for (const part of s.agentParts) lines.push(`Agent part: ${part} (${AGENT_PARTS[part]})`);
+  if (s.agentRun) lines.push(`Agent run: ${s.agentRun} (${AGENT_RUNS[s.agentRun]})`);
   if (s.framing) lines.push(`Framing: ${s.framing} (${FRAMING_DESCRIPTIONS[s.framing]})`);
   if (s.visualStyle) lines.push(`Apply a ${s.visualStyle.toLowerCase()} visual style`);
   if (s.theme) lines.push(`Use ${s.theme.toLowerCase()} colors`);
