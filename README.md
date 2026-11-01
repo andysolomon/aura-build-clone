@@ -29,7 +29,7 @@ and is not affiliated with Aura.
   - Desktop, tablet and mobile previews, plus undo and redo
   - **Export:** download HTML, copy the code, or open it in a new tab
   - **Publish:** serves the page at `/s/:slug`; re-publishing updates the same link
-- **Templates:** eight original templates with browse, search and filters, a detail preview, and Remix.
+- **Templates:** sixteen original templates with browse, search and filters, a detail preview, and Remix.
 - **Components** (`/components`): original HTML/Tailwind components (heroes, buttons, cards, pricing,
   forms and more), each with a preview (white or black backdrop, device sizes), code view, copy,
   download, Remix, and "Use in prompt" as an `@` reference.
@@ -100,7 +100,7 @@ server/providers/  One adapter per provider (claude-code, codex, cursor, opencod
 shared/         Types shared by client and server: models, design systems, SSE protocol, project schema
 src/pages/      Marketing pages: home, templates, pricing, design systems, projects
 src/editor/     Editor: chat, preview frame and Design-mode bridge, inspector, code view, header
-public/templates/  Original template HTML and thumbnails
+public/templates/  Original template HTML and thumbnails (re-render with `npm run thumbs`)
 public/components/ Component library: HTML, thumbnails and index.json
 public/assets/     Generated SVG assets (scripts/generate-assets.ts) and index.json
 content/           Markdown for Learn docs and agent skills

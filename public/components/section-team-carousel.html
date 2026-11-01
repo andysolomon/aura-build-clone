@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kestrel - 3D coverflow team carousel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] },
+    colors: { mint: '#7ce8c4' } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #0a0b0d; -webkit-font-smoothing: antialiased; }
+  .sky { background: radial-gradient(60% 50% at 50% 62%, rgba(124,232,196,.09), transparent 70%), radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.5), transparent), radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.4), transparent), radial-gradient(1px 1px at 64% 32%, rgba(255,255,255,.25), transparent), radial-gradient(1px 1px at 30% 8%, rgba(255,255,255,.3), transparent), radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,.3), transparent), radial-gradient(1px 1px at 6% 48%, rgba(255,255,255,.25), transparent); }
+  .stage { position: relative; height: 470px; perspective: 1500px; perspective-origin: 50% 40%; touch-action: pan-y; cursor: grab; outline: none; }
+  .stage.dragging { cursor: grabbing; }
+  .stage:focus-visible .is-active { box-shadow: 0 0 0 2px #7ce8c4, 0 30px 80px -30px rgba(124,232,196,.45); }
+  .slide { position: absolute; left: 50%; top: 50%; width: min(300px, 76vw); padding: 10px; border-radius: 26px; background: linear-gradient(180deg, #17191d, #111316); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07), 0 30px 60px -30px rgba(0,0,0,.8); transform-style: preserve-3d; transition: transform .75s cubic-bezier(.2,.8,.2,1), opacity .5s ease, box-shadow .4s ease; will-change: transform; user-select: none; }
+  .stage.dragging .slide { transition: none; }
+  .slide::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: #0a0b0d; opacity: var(--shade, 0); transition: opacity .6s ease; pointer-events: none; }
+  .slide.is-active { box-shadow: inset 0 0 0 1px rgba(124,232,196,.28), 0 30px 80px -30px rgba(124,232,196,.4); }
+  .slide .bio { transition: opacity .5s ease; }
+  .slide:not(.is-active) .bio { opacity: .55; }
+  /* CSS portraits */
+  .pt { position: relative; aspect-ratio: 25 / 21; overflow: hidden; border-radius: 18px; background: radial-gradient(120% 95% at 50% 0%, var(--b1), var(--b2)); }
+  .pt::before { content: ""; position: absolute; left: 50%; top: 10%; width: 70%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.2), rgba(255,255,255,0) 66%); }
+  .pt::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 70%, rgba(0,0,0,.28)), repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px); pointer-events: none; }
+  .pt i { position: absolute; left: 50%; display: block; transform: translateX(-50%); }
+  .neck { top: 50%; width: 13%; height: 20%; border-radius: 0 0 40% 40%; background: linear-gradient(color-mix(in srgb, var(--skin) 62%, #000), var(--skin) 60%); }
+  .neck::before { content: ""; position: absolute; left: 50%; top: -64%; width: 232%; height: 48%; transform: translateX(-50%); background: radial-gradient(ellipse 12% 50% at 10% 50%, color-mix(in srgb, var(--skin) 85%, #000) 95%, transparent 100%), radial-gradient(ellipse 12% 50% at 90% 50%, color-mix(in srgb, var(--skin) 85%, #000) 95%, transparent 100%); }
+  .hb.long ~ .neck::before, .hb.bob ~ .neck::before { display: none; }
+  .body { top: 63%; width: 78%; height: 42%; border-radius: 48% 48% 0 0 / 70% 70% 0 0; background: linear-gradient(165deg, color-mix(in srgb, var(--top) 82%, #fff), var(--top) 45%, color-mix(in srgb, var(--top) 72%, #000)); }
+  .body::before { content: ""; position: absolute; left: 50%; top: 0; width: 18%; height: 18%; transform: translateX(-50%); border-radius: 0 0 50% 50%; background: color-mix(in srgb, var(--skin) 88%, #000); }
+  .body.v::before { width: 20%; height: 34%; border-radius: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .body.tn::before { width: 19%; height: 22%; top: -8%; border-radius: 30% 30% 20% 20%; background: linear-gradient(color-mix(in srgb, var(--top) 70%, #000), var(--top)); }
+  .head { top: 21%; width: 26%; height: 37%; border-radius: 48% 48% 46% 46% / 50% 50% 50% 50%; background: radial-gradient(85% 75% at 36% 30%, color-mix(in srgb, var(--skin) 80%, #fff), var(--skin) 52%, color-mix(in srgb, var(--skin) 78%, #000)); box-shadow: 0 6px 14px -6px rgba(0,0,0,.35); }
+  .hb, .hf, .beard { background: linear-gradient(170deg, color-mix(in srgb, var(--hair) 78%, #fff), var(--hair) 40%); }
+  .hf.short { top: 18.5%; width: 28.5%; height: 16%; border-radius: 50% 50% 18% 30% / 90% 90% 18% 30%; }
+  .hf.crop { top: 19.5%; width: 27.5%; height: 12%; border-radius: 50% 50% 22% 22% / 100% 100% 20% 20%; }
+  .hf.buzz { top: 20.2%; width: 26.6%; height: 10%; border-radius: 50% 50% 20% 20% / 100% 100% 18% 18%; opacity: .9; }
+  .hf.fringe { top: 18.5%; width: 28.5%; height: 15%; border-radius: 50% 50% 12% 60% / 90% 90% 12% 60%; }
+  .hf.swept { top: 18.5%; width: 29%; height: 14%; border-radius: 60% 50% 50% 10% / 100% 90% 40% 10%; }
+  .hb.bob { top: 18%; width: 36%; height: 42%; border-radius: 48% 48% 26% 26% / 46% 46% 22% 22%; }
+  .hb.long { top: 18%; width: 37%; height: 60%; border-radius: 48% 48% 16% 16% / 32% 32% 10% 10%; }
+  .hb.puff { top: 6%; width: 22%; height: 22%; border-radius: 50%; }
+  .hb.curls { top: 12%; width: 40%; height: 30%; background: radial-gradient(circle at 18% 62%, var(--hair) 24%, transparent 25%), radial-gradient(circle at 34% 34%, var(--hair) 26%, transparent 27%), radial-gradient(circle at 56% 26%, var(--hair) 27%, transparent 28%), radial-gradient(circle at 78% 42%, var(--hair) 25%, transparent 26%), radial-gradient(circle at 86% 68%, var(--hair) 20%, transparent 21%); }
+  .beard { top: 44%; width: 25%; height: 15.5%; border-radius: 18% 18% 50% 50% / 20% 20% 80% 80%; clip-path: polygon(0 0, 14% 0, 22% 34%, 78% 34%, 86% 0, 100% 0, 100% 100%, 0 100%); }
+  .gl { top: 36%; width: 23%; height: 7%; }
+  .gl::before, .gl::after { content: ""; position: absolute; top: 0; width: 40%; height: 100%; border: 2px solid rgba(15,15,18,.85); border-radius: 40%; }
+  .gl::before { left: 2%; } .gl::after { right: 2%; }
+  .badge { position: absolute; left: 10px; bottom: 10px; z-index: 2; padding: 4px 10px; border-radius: 99px; background: rgba(0,0,0,.35); backdrop-filter: blur(8px); font: 10.5px "JetBrains Mono", monospace; color: rgba(255,255,255,.8); }
+  .info { padding: 16px 12px 12px; }
+  .nm { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .nm h3 { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+  .nm span { font: 11px "JetBrains Mono", monospace; color: rgba(255,255,255,.3); }
+  .role { margin-top: 2px; font-size: 12.5px; color: #7ce8c4; }
+  .bio { margin-top: 10px; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.55); }
+  .dot { width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,.18); transition: width .4s cubic-bezier(.2,.8,.2,1), background .3s; }
+  .dot[aria-current="true"] { width: 26px; background: #7ce8c4; }
+  .dot:hover { background: rgba(255,255,255,.4); }
+  .dot[aria-current="true"]:hover { background: #7ce8c4; }
+  button:focus-visible, a:focus-visible { outline: 2px solid #7ce8c4; outline-offset: 3px; }
+  .dotbtn:focus-visible { outline-offset: 2px; border-radius: 999px; }
+  @media (max-width: 639px) { .stage { height: 440px; } }
+  @media (prefers-reduced-motion: reduce) { .slide, .slide::after, .dot { transition-duration: .01ms !important; } }
+</style>
+</head>
+<body class="font-sans text-white">
+<section aria-labelledby="team-title" class="relative overflow-hidden py-12 sm:py-14">
+  <div class="sky pointer-events-none absolute inset-0" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-6xl px-5 sm:px-8">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="inline-flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-[.18em] text-mint"><iconify-icon icon="lucide:satellite" width="14" aria-hidden="true"></iconify-icon>The Kestrel crew</p>
+        <h2 id="team-title" class="mt-4 text-[34px] font-semibold leading-[1.05] tracking-[-0.045em] sm:text-[46px]">The people keeping<br><span class="text-white/40">watch from orbit.</span></h2>
+      </div>
+      <div class="flex items-end gap-6">
+        <p class="hidden max-w-[260px] text-[13.5px] leading-relaxed text-white/50 lg:block">Eight scientists, pilots and engineers across five countries, building the early warning network for wildfires.</p>
+        <div class="flex gap-2">
+          <button id="prev" type="button" class="grid h-11 w-11 place-items-center rounded-full bg-white/[.04] text-white/80 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white" aria-label="Previous team member"><iconify-icon icon="lucide:arrow-left" width="18" aria-hidden="true"></iconify-icon></button>
+          <button id="next" type="button" class="grid h-11 w-11 place-items-center rounded-full bg-white text-[#0a0b0d] transition hover:bg-mint" aria-label="Next team member"><iconify-icon icon="lucide:arrow-right" width="18" aria-hidden="true"></iconify-icon></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="stage" class="stage mt-6" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Kestrel team members. Use left and right arrow keys to browse.">
+    <article class="slide" data-i="0" role="group" aria-roledescription="slide" aria-label="1 of 8">
+      <div class="pt" style="--b1:#41557a;--b2:#151b2a;--skin:#7a4a2e;--hair:#17100d;--top:#e9dfcb">
+        <i class="hb puff"></i><i class="neck"></i><i class="body v"></i><i class="head"></i><i class="hf crop"></i>
+        <span class="badge">Lisbon · UTC+0</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Amara Okonjo</h3><span>01</span></div>
+      <p class="role">Co-founder &amp; CEO</p>
+      <p class="bio">Flew thermal payloads for nine years before deciding wildfire alerts should arrive in minutes, not hours.</p></div>
+    </article>
+    <article class="slide" data-i="1" role="group" aria-roledescription="slide" aria-label="2 of 8">
+      <div class="pt" style="--b1:#5a4a3c;--b2:#1f1914;--skin:#d6a47f;--hair:#2a1c13;--top:#2f4858">
+        <i class="neck"></i><i class="body"></i><i class="head"></i><i class="beard"></i><i class="hf short"></i><i class="gl"></i>
+        <span class="badge">Madrid · UTC+1</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Tomás Reyes</h3><span>02</span></div>
+      <p class="role">Co-founder &amp; CTO</p>
+      <p class="bio">Wrote the detection model that runs on four watts in orbit. Still answers every pager alert himself.</p></div>
+    </article>
+    <article class="slide" data-i="2" role="group" aria-roledescription="slide" aria-label="3 of 8">
+      <div class="pt" style="--b1:#2f6360;--b2:#0f2321;--skin:#efcfb0;--hair:#15100e;--top:#d4573a">
+        <i class="hb bob"></i><i class="neck"></i><i class="body tn"></i><i class="head"></i><i class="hf fringe"></i>
+        <span class="badge">Osaka · UTC+9</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Hana Sato</h3><span>03</span></div>
+      <p class="role">Head of Orbital Operations</p>
+      <p class="bio">Keeps six satellites pointed the right way. Former air traffic controller, unflappable by contract.</p></div>
+    </article>
+    <article class="slide" data-i="3" role="group" aria-roledescription="slide" aria-label="4 of 8">
+      <div class="pt" style="--b1:#5e4266;--b2:#1f1623;--skin:#5e3824;--hair:#0f0a08;--top:#a9c7b7">
+        <i class="neck"></i><i class="body"></i><i class="head"></i><i class="beard"></i><i class="hf buzz"></i>
+        <span class="badge">Lagos · UTC+1</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Idris Bello</h3><span>04</span></div>
+      <p class="role">Lead ML Engineer</p>
+      <p class="bio">Taught our models the difference between a grass fire and a hot parking lot. Ships on Fridays, fearlessly.</p></div>
+    </article>
+    <article class="slide" data-i="4" role="group" aria-roledescription="slide" aria-label="5 of 8">
+      <div class="pt" style="--b1:#6e5c3a;--b2:#241e12;--skin:#f1d3bd;--hair:#d9b37a;--top:#1f2a3c">
+        <i class="hb long"></i><i class="neck"></i><i class="body v"></i><i class="head"></i><i class="hf swept"></i>
+        <span class="badge">Bergen · UTC+1</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Freya Halvorsen</h3><span>05</span></div>
+      <p class="role">Design Lead</p>
+      <p class="bio">Designs the alert screens fire crews read at 3 a.m. Believes every pixel should earn its brightness.</p></div>
+    </article>
+    <article class="slide" data-i="5" role="group" aria-roledescription="slide" aria-label="6 of 8">
+      <div class="pt" style="--b1:#3b5674;--b2:#121c28;--skin:#b98263;--hair:#251c17;--top:#e0b458">
+        <i class="hb curls"></i><i class="neck"></i><i class="body"></i><i class="head"></i><i class="hf crop"></i><i class="gl"></i>
+        <span class="badge">Marseille · UTC+1</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Malik Haddad</h3><span>06</span></div>
+      <p class="role">Field Partnerships</p>
+      <p class="bio">Spends summers on fire lines with 31 partner agencies, turning their feedback into next quarter's roadmap.</p></div>
+    </article>
+    <article class="slide" data-i="6" role="group" aria-roledescription="slide" aria-label="7 of 8">
+      <div class="pt" style="--b1:#663f3f;--b2:#221414;--skin:#a26b48;--hair:#1a1210;--top:#f0ece4">
+        <i class="hb long"></i><i class="neck"></i><i class="body tn"></i><i class="head"></i><i class="hf short"></i><i class="gl"></i>
+        <span class="badge">Bengaluru · UTC+5:30</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Priya Raman</h3><span>07</span></div>
+      <p class="role">Thermal Imaging Scientist</p>
+      <p class="bio">Calibrates sensors to a tenth of a degree. Her spectral filter cut our false alarms by 64 percent.</p></div>
+    </article>
+    <article class="slide" data-i="7" role="group" aria-roledescription="slide" aria-label="8 of 8">
+      <div class="pt" style="--b1:#365442;--b2:#12201a;--skin:#e8bd9b;--hair:#9a5531;--top:#33415c">
+        <i class="neck"></i><i class="body"></i><i class="head"></i><i class="hf swept"></i>
+        <span class="badge">Denver · UTC−7</span>
+      </div>
+      <div class="info"><div class="nm"><h3>Jonah Whitfield</h3><span>08</span></div>
+      <p class="role">Founding Engineer, Ground</p>
+      <p class="bio">Built the ground stations from a garage in Colorado. Can solder, weld and debug a Kubernetes cluster.</p></div>
+    </article>
+  </div>
+
+  <div class="relative mx-auto mt-4 flex max-w-6xl flex-col items-center gap-4 px-5 sm:flex-row sm:justify-between sm:px-8">
+    <p class="order-2 font-mono text-[11.5px] text-white/35 sm:order-1"><span id="count" class="text-white/80">01</span> / 08</p>
+    <div id="dots" class="order-1 flex items-center gap-1 sm:order-2" aria-label="Choose a team member"></div>
+    <p class="order-3 hidden items-center gap-2 text-[12px] text-white/35 sm:flex"><iconify-icon icon="lucide:hand" width="14" aria-hidden="true"></iconify-icon>Drag, swipe or use arrow keys</p>
+  </div>
+  <p id="live" class="sr-only" aria-live="polite"></p>
+</section>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(stage.querySelectorAll('.slide'));
+  var n = slides.length, cur = 0, dots = document.getElementById('dots');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  slides.forEach(function (s, i) {
+    var name = s.querySelector('h3').textContent;
+    s.setAttribute('aria-label', name + ', ' + (i + 1) + ' of ' + n);
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'dotbtn grid h-6 place-items-center px-1';
+    b.setAttribute('aria-label', 'Show ' + name);
+    b.innerHTML = '<span class="dot block"></span>';
+    b.addEventListener('click', function () { go(i); });
+    dots.appendChild(b);
+  });
+  var dotBtns = Array.prototype.slice.call(dots.children);
+
+  function offset(i) { var d = ((i - cur) % n + n) % n; return d > n / 2 ? d - n : d; }
+  function render(shift) {
+    shift = shift || 0;
+    var w = stage.clientWidth, cw = slides[0].offsetWidth;
+    var near = Math.min(cw * 0.8, w * 0.27), far = near * 0.62, max = w < 640 ? 1 : 2;
+    slides.forEach(function (s, i) {
+      var d = offset(i) - shift, a = Math.abs(d), sg = d < 0 ? -1 : 1;
+      var x = a <= 1 ? d * near : sg * (near + (a - 1) * far);
+      var ry = sg * Math.min(a, 1) * 32, z = -Math.min(a, 3) * 150;
+      s.style.transform = 'translate(-50%,-50%) translate3d(' + x.toFixed(1) + 'px,0,' + z.toFixed(1) + 'px) rotateY(' + ry.toFixed(2) + 'deg)';
+      s.style.opacity = a > max + 0.5 ? 0 : 1;
+      s.style.zIndex = String(20 - Math.round(a * 2));
+      s.style.setProperty('--shade', Math.min(a * 0.38, 0.85).toFixed(2));
+      s.style.pointerEvents = a > max + 0.5 ? 'none' : '';
+    });
+  }
+  function go(i, announce) {
+    cur = ((i % n) + n) % n;
+    slides.forEach(function (s, k) {
+      var on = k === cur;
+      s.classList.toggle('is-active', on);
+      s.setAttribute('aria-hidden', on ? 'false' : 'true');
+    });
+    dotBtns.forEach(function (b, k) { if (k === cur) b.firstChild.setAttribute('aria-current', 'true'); else b.firstChild.removeAttribute('aria-current'); b.setAttribute('aria-pressed', k === cur ? 'true' : 'false'); });
+    document.getElementById('count').textContent = (cur < 9 ? '0' : '') + (cur + 1);
+    if (announce !== false) {
+      var s = slides[cur];
+      document.getElementById('live').textContent = s.querySelector('h3').textContent + ', ' + s.querySelector('.role').textContent + '. ' + (cur + 1) + ' of ' + n + '.';
+    }
+    render();
+  }
+
+  document.getElementById('prev').addEventListener('click', function () { go(cur - 1); });
+  document.getElementById('next').addEventListener('click', function () { go(cur + 1); });
+  stage.addEventListener('keydown', function (e) {
+    var map = { ArrowLeft: cur - 1, ArrowRight: cur + 1, Home: 0, End: n - 1 };
+    if (e.key in map) { e.preventDefault(); go(map[e.key]); }
+  });
+
+  // Drag and swipe with live follow, then snap
+  var startX = null, shift = 0, moved = false;
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0) return;
+    startX = e.clientX; shift = 0; moved = false;
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (startX === null) return;
+    var dx = e.clientX - startX;
+    if (!moved && Math.abs(dx) > 6) { moved = true; stage.classList.add('dragging'); }
+    if (!moved) return;
+    var step = Math.min(slides[0].offsetWidth * 0.8, stage.clientWidth * 0.27);
+    shift = Math.max(-1.5, Math.min(1.5, -dx / step));
+    render(shift);
+  });
+  window.addEventListener('pointerup', function (e) {
+    if (startX === null) return;
+    stage.classList.remove('dragging');
+    if (moved) {
+      var steps = Math.abs(shift) > 0.18 ? (shift > 0 ? Math.max(1, Math.round(shift)) : Math.min(-1, Math.round(shift))) : 0;
+      go(cur + steps);
+    } else {
+      var hit = e.target.closest && e.target.closest('.slide');
+      if (hit && stage.contains(hit) && +hit.dataset.i !== cur) go(+hit.dataset.i);
+    }
+    startX = null;
+  });
+  window.addEventListener('pointercancel', function () { if (startX !== null) { stage.classList.remove('dragging'); startX = null; render(); } });
+  stage.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  window.addEventListener('resize', function () { render(); });
+
+  if (reduce) stage.style.perspective = '2400px';
+  go(0, false);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { render(); });
+})();
+</script>
+</body>
+</html>

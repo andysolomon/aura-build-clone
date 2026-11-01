@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Commonhouse — Flexible workspaces in Harborview</title>
+ <meta name="description" content="Hot desks, private studios and team suites across six Harborview buildings. Month-to-month memberships, all-in pricing, keys in 48 hours.">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+ <script src="https://cdn.tailwindcss.com"></script>
+ <script>
+  tailwind.config = {
+   theme: { extend: {
+    fontFamily: { sans: ['"Schibsted Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['Newsreader', 'Georgia', 'serif'] },
+    colors: { concrete: { DEFAULT: '#ebe6dd', 50: '#f8f5f0', 100: '#f3efe8', 200: '#e1dace' }, terra: { DEFAULT: '#c2582f', light: '#e3895f', deep: '#9c431f' }, olive: { DEFAULT: '#5d6935', light: '#8f9b5e', deep: '#3b4322' }, ink: '#25211d', sand: '#ecd5b0' },
+    boxShadow: { card: '0 1px 0 rgba(255,255,255,.8) inset, 0 24px 48px -28px rgba(70,45,20,.38)' }
+   } }
+  }
+ </script>
+ <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+ <style>
+  :focus-visible { outline: 2px solid #c2582f; outline-offset: 3px; border-radius: 8px; }
+  .eyebrow { font-size: .875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .18em; color: #c2582f; }
+  .h2 { margin-top: .75rem; font-size: 3rem; font-weight: 700; line-height: 1; letter-spacing: -.04em; }
+  @media (min-width: 768px) { .h2 { font-size: 3.75rem; } }
+  .acc { font-family: Newsreader, Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.02em; line-height: 0; }
+  .card { border-radius: 1.5rem; border: 1px solid rgba(37,33,29,.1); background: #f8f5f0; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 24px 48px -28px rgba(70,45,20,.38); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; font-weight: 600; transition: background .2s, border-color .2s, transform .2s; }
+  .btn-t { background: #c2582f; color: #fff; } .btn-t:hover { background: #9c431f; }
+  .btn-o { border: 1px solid rgba(37,33,29,.15); } .btn-o:hover { border-color: rgba(37,33,29,.45); }
+  .ticks li { display: flex; gap: .75rem; align-items: baseline; margin-top: .6rem; }
+  .ticks li::before { content: ''; flex: none; width: .35rem; height: .65rem; border: solid #ecd5b0; border-width: 0 2px 2px 0; transform: translateY(-.15rem) rotate(45deg); }
+  .amen h3 { margin-top: 1rem; font-size: 1.125rem; font-weight: 700; } .amen p { margin-top: .25rem; font-size: 15px; opacity: .65; } .amen iconify-icon { font-size: 1.875rem; color: #c2582f; }
+  .faq details { padding: 1.25rem 0; border-top: 1px solid rgba(37,33,29,.1); }
+  .faq summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: 1.5rem; font-size: 1.125rem; font-weight: 600; list-style: none; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: '+'; font-size: 1.75rem; font-weight: 400; line-height: 1; color: #c2582f; transition: transform .3s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq p { margin-top: .75rem; max-width: 42rem; color: rgba(37,33,29,.65); }
+  footer li { margin-top: .5rem; } footer a:hover { color: #fff; }
+  .iso-grid { background-image: repeating-linear-gradient(30deg, rgba(37,33,29,.055) 0 1px, transparent 1px 34px), repeating-linear-gradient(150deg, rgba(37,33,29,.055) 0 1px, transparent 1px 34px); -webkit-mask-image: radial-gradient(ellipse 60% 70% at 68% 50%, #000 25%, transparent 72%); mask-image: radial-gradient(ellipse 60% 70% at 68% 50%, #000 25%, transparent 72%); }
+  .drawer { transition: transform 1.1s cubic-bezier(.7,0,.2,1); }
+  .drawer.out { transform: translate(var(--dx), var(--dy)); }
+  @keyframes breathe { 50% { opacity: .7; } }
+  .glow { animation: breathe 5s ease-in-out infinite; }
+  @keyframes enter { from { opacity: 0; transform: translateY(18px); } }
+  .enter { animation: enter .9s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes ping { from { transform: scale(1); opacity: .55; } to { transform: scale(2.4); opacity: 0; } }
+  .pin { cursor: pointer; } .pin:focus { outline: none; }
+  .pin .dot, .pin .ring { transform-box: fill-box; transform-origin: center; transition: transform .3s; }
+  .pin.on .dot, .pin:hover .dot { transform: scale(1.18); } .pin.on .ring { animation: ping 1.8s ease-out infinite; }
+  .pin:focus-visible .dot { stroke: #25211d; stroke-width: 4; }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 9px; background: linear-gradient(90deg, #ecd5b0 var(--p,50%), rgba(255,255,255,.16) var(--p,50%)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #f8f5f0; border: 6px solid #c2582f; box-shadow: 0 4px 12px rgba(0,0,0,.3); cursor: grab; }
+  .chip { cursor: pointer; border-radius: .75rem; border: 1px solid rgba(37,33,29,.15); background: #fff; padding: .6rem .5rem; text-align: center; font-size: .875rem; font-weight: 600; transition: .2s; }
+  .chip:hover { border-color: rgba(37,33,29,.45); } .chip:has(:checked) { background: #c2582f; border-color: #c2582f; color: #fff; } .chip:has(:focus-visible) { outline: 2px solid #c2582f; outline-offset: 2px; }
+  .field { margin-top: .5rem; width: 100%; border-radius: .75rem; border: 1px solid rgba(37,33,29,.15); background: #fff; padding: .75rem 1rem; }
+  .field[aria-invalid=true] { border-color: #9c431f; }
+  .swap { animation: enter .5s cubic-bezier(.2,.8,.2,1) both; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } .reveal { opacity: 1; transform: none; } }
+ </style>
+</head>
+<body class="bg-concrete font-sans text-ink antialiased selection:bg-terra selection:text-white">
+ <svg width="0" height="0" class="absolute" aria-hidden="true"><defs><radialGradient id="gl"><stop offset="0" stop-color="#ffd793" stop-opacity=".85"/><stop offset="1" stop-color="#ffd793" stop-opacity="0"/></radialGradient><linearGradient id="gls" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a8" stop-opacity=".55"/><stop offset="1" stop-color="#fff4dc" stop-opacity=".12"/></linearGradient><symbol id="logo" viewBox="0 0 24 24"><path d="M12 2l9 5-9 5-9-5z" fill="#ecd5b0"/><path d="M3 7l9 5v10l-9-5z" fill="#c2582f"/><path d="M21 7v10l-9 5V12z" fill="#7d8a4c"/></symbol></defs></svg>
+ <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-white">Skip to content</a>
+
+ <header class="sticky top-0 z-50 border-b border-ink/10 bg-concrete/85 backdrop-blur-xl">
+  <nav class="mx-auto flex max-w-[1360px] items-center justify-between px-5 py-4 md:px-8" aria-label="Primary">
+   <a href="#" class="flex items-center gap-2.5 text-[21px] font-bold tracking-tight"><svg width="28" height="28" aria-hidden="true"><use href="#logo"/></svg>commonhouse</a>
+   <ul class="hidden items-center gap-8 text-[15px] text-ink/75 lg:flex">
+    <li><a href="#spaces" class="hover:text-ink">Spaces</a></li><li><a href="#locations" class="hover:text-ink">Locations</a></li><li><a href="#pricing" class="hover:text-ink">Pricing</a></li><li><a href="#amenities" class="hover:text-ink">Amenities</a></li><li><a href="#faq" class="hover:text-ink">FAQ</a></li>
+   </ul>
+   <div class="flex items-center gap-2">
+    <a href="#" class="hidden px-3 py-2 text-[15px] font-medium sm:block">Member login</a>
+    <a href="#tour" class="btn hidden bg-ink px-5 py-2.5 text-[15px] text-concrete-50 hover:bg-terra sm:inline-flex">Book a tour</a>
+    <button id="menuBtn" class="grid h-11 w-11 place-items-center rounded-full border border-ink/15 lg:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon></button>
+   </div>
+  </nav>
+  <div id="mobileMenu" class="hidden border-t border-ink/10 px-5 pb-6 lg:hidden">
+   <ul class="divide-y divide-ink/10 text-lg font-medium"><li><a href="#spaces" class="block py-3">Spaces</a></li><li><a href="#locations" class="block py-3">Locations</a></li><li><a href="#pricing" class="block py-3">Pricing</a></li><li><a href="#amenities" class="block py-3">Amenities</a></li><li><a href="#faq" class="block py-3">FAQ</a></li></ul>
+   <a href="#tour" class="btn btn-t mt-4 w-full py-3">Book a tour</a>
+  </div>
+ </header>
+
+ <main id="main">
+  <!-- Hero -->
+  <section class="relative isolate overflow-hidden">
+   <div aria-hidden="true" class="iso-grid absolute inset-0 -z-10"></div>
+   <div aria-hidden="true" class="absolute right-[-12%] top-[2%] -z-10 h-[820px] w-[820px] rounded-full bg-[radial-gradient(closest-side,rgba(236,190,140,.5),rgba(236,190,140,0))]"></div>
+   <div class="mx-auto grid max-w-[1360px] items-center gap-6 px-5 pb-14 pt-10 md:px-8 lg:min-h-[790px] lg:grid-cols-[minmax(0,.84fr)_minmax(0,1.16fr)] lg:pb-4 lg:pt-4">
+    <div class="relative z-10">
+     <a href="#locations" class="enter inline-flex items-center gap-2 rounded-full border border-ink/10 bg-concrete-50/80 py-1.5 pl-1.5 pr-3.5 text-[13px] font-medium shadow-card hover:border-terra/40"><span class="rounded-full bg-terra px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">New</span>Foundry Yard opens in the Canal District<iconify-icon icon="lucide:arrow-right" class="text-terra"></iconify-icon></a>
+     <h1 class="enter mt-7 text-[3.3rem] font-bold leading-[0.98] tracking-[-0.045em] sm:text-7xl xl:text-[4.65rem]" style="animation-delay:.06s">Workspace that <span class="acc text-terra">bends</span> around your team.</h1>
+     <p class="enter mt-7 max-w-[30rem] text-lg leading-relaxed text-ink/70" style="animation-delay:.12s">Hot desks, private studios and whole floors across six buildings in Harborview. Month-to-month terms, all-in pricing, and keys within 48 hours of saying yes.</p>
+     <div class="enter mt-9 flex flex-wrap gap-3" style="animation-delay:.18s">
+      <a href="#tour" class="btn btn-t px-6 py-3.5 shadow-[0_14px_30px_-12px_rgba(194,88,47,.7)]"><iconify-icon icon="lucide:calendar-check" class="text-lg"></iconify-icon>Book a free tour</a>
+      <a href="#locations" class="btn btn-o bg-concrete-50/70 px-6 py-3.5">Find a location<iconify-icon icon="lucide:map-pin"></iconify-icon></a>
+     </div>
+     <dl class="enter mt-12 grid max-w-md grid-cols-3 divide-x divide-ink/10 border-y border-ink/10 py-5" style="animation-delay:.24s">
+      <div class="pr-4"><dt class="text-[13px] text-ink/55">Buildings</dt><dd class="mt-1 text-3xl font-bold tracking-tight">6</dd></div>
+      <div class="px-4"><dt class="text-[13px] text-ink/55">Members</dt><dd class="mt-1 text-3xl font-bold tracking-tight">2,400</dd></div>
+      <div class="pl-4"><dt class="text-[13px] text-ink/55">Day pass</dt><dd class="mt-1 text-3xl font-bold tracking-tight">$29</dd></div>
+     </dl>
+     <p class="enter mt-5 flex items-center gap-2.5 text-sm text-ink/65" style="animation-delay:.3s"><span class="relative flex h-2.5 w-2.5"><span class="absolute inset-0 animate-ping rounded-full bg-olive-light"></span><span class="relative h-2.5 w-2.5 rounded-full bg-olive"></span></span><b class="font-semibold text-ink">61 desks free</b> right now across Harborview</p>
+    </div>
+    <div class="enter relative" style="animation-delay:.1s">
+     <svg id="bldg" class="mx-auto block h-auto max-h-[760px] w-full" role="img" aria-label="Isometric cutaway of the Foundry Yard building: café, hot desks, private studios, lounge and roof terrace, with one floor slid out"></svg>
+     <div id="floors" class="mt-3 flex flex-wrap justify-center gap-2 lg:mt-0" role="group" aria-label="Explore the floors of Foundry Yard"></div>
+    </div>
+   </div>
+  </section>
+
+  <!-- Social proof -->
+  <section class="border-y border-ink/10 bg-concrete-100/60" aria-label="Member companies">
+   <div class="mx-auto flex max-w-[1360px] flex-col items-center gap-6 px-5 py-9 md:px-8 lg:flex-row lg:gap-12">
+    <p class="shrink-0 text-sm text-ink/60 lg:max-w-[13rem]">Home base for <b class="text-ink">380 teams</b>, from two-person studios to 60-seat scale-ups.</p>
+    <div class="flex flex-1 flex-wrap items-center justify-center gap-x-11 gap-y-4 text-[22px] text-ink/45 lg:justify-between">
+     <span class="font-bold tracking-tight">Saltmarsh<span class="text-terra/70">.</span></span><span class="font-serif italic">Parcel &amp; Pine</span><span class="text-base font-semibold tracking-[0.32em]">TESSELLATE</span><span class="font-semibold tracking-tight">fieldnote</span><span class="flex items-center gap-1.5 font-bold"><span class="h-4 w-4 rounded-full border-[3px] border-current"></span>Okapi</span><span class="font-medium tracking-tight">Brightwork&nbsp;Co</span>
+    </div>
+   </div>
+  </section>
+
+  <!-- Spaces -->
+  <section id="spaces" class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+   <div class="reveal flex flex-wrap items-end justify-between gap-6">
+    <div><p class="eyebrow">Spaces</p><h2 class="h2">Pick a desk. <span class="acc text-olive">Or</span> a whole floor.</h2></div>
+    <p class="max-w-sm text-ink/65">Start with one seat and grow into a studio without changing buildings, contracts or Wi-Fi passwords.</p>
+   </div>
+   <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <article class="card reveal flex flex-col p-6"><svg class="mini h-44 w-full" data-scene="hot" aria-hidden="true"></svg><h3 class="mt-4 text-xl font-bold">Hot desk</h3><p class="mt-1.5 text-[15px] text-ink/65">Any open seat in any building, 8am–8pm. Lockers on request.</p><p class="mt-auto pt-6 text-sm text-ink/55">from <b class="text-2xl tracking-tight text-ink">$290</b>/mo</p></article>
+    <article class="card reveal flex flex-col p-6"><svg class="mini h-44 w-full" data-scene="desk" aria-hidden="true"></svg><h3 class="mt-4 text-xl font-bold">Dedicated desk</h3><p class="mt-1.5 text-[15px] text-ink/65">Your desk, your monitor, a locking pedestal. 24/7 access.</p><p class="mt-auto pt-6 text-sm text-ink/55">from <b class="text-2xl tracking-tight text-ink">$460</b>/mo</p></article>
+    <article class="card reveal flex flex-col p-6"><svg class="mini h-44 w-full" data-scene="studio" aria-hidden="true"></svg><h3 class="mt-4 text-xl font-bold">Private studio</h3><p class="mt-1.5 text-[15px] text-ink/65">Lockable glass-front studios for 2–8 people, furnished or bare.</p><p class="mt-auto pt-6 text-sm text-ink/55">from <b class="text-2xl tracking-tight text-ink">$1,220</b>/mo</p></article>
+    <article class="card reveal flex flex-col !bg-ink p-6 text-concrete-50"><svg class="mini h-44 w-full" data-scene="suite" aria-hidden="true"></svg><h3 class="mt-4 text-xl font-bold">Team suite</h3><p class="mt-1.5 text-[15px] text-concrete-50/65">A self-contained floor with your own kitchen and boardroom. 16–60 seats.</p><p class="mt-auto pt-6 text-sm text-concrete-50/55">from <b class="text-2xl tracking-tight text-sand">$540</b>/person</p></article>
+   </div>
+  </section>
+
+  <!-- Locations -->
+  <section id="locations" class="mx-auto max-w-[1360px] px-5 pb-24 md:px-8">
+   <div class="reveal flex flex-wrap items-end justify-between gap-6">
+    <div><p class="eyebrow">Locations</p><h2 class="h2">Six buildings, <span class="acc text-terra">one</span> key card.</h2></div>
+    <p class="max-w-sm text-ink/65">Every membership opens every door. Tap a pin to see what’s free today.</p>
+   </div>
+   <div class="reveal mt-12 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+    <div class="card flex flex-col overflow-hidden !bg-[#e6e0d5]">
+     <div class="relative aspect-[640/470] lg:aspect-auto lg:flex-1">
+      <svg viewBox="0 0 640 470" preserveAspectRatio="xMidYMid meet" class="absolute inset-0 h-full w-full" role="group" aria-label="Map of Harborview with Commonhouse locations">
+       <defs><pattern id="mg" width="34" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(-9)"><path d="M34 0H0V34" fill="none" stroke="#f3eee6" stroke-width="3"/></pattern></defs>
+       <rect x="-200" y="-300" width="1040" height="1070" fill="url(#mg)"/>
+       <g fill="#c9cfa3"><path d="M60 300l130-22 30 96-128 26z"/><path d="M405 40l92-12 10 64-90 14z"/><path d="M228 400l70-10 6 44-70 12z"/></g>
+       <path d="M700 300C620 350 560 380 530 520V760H760V300z" fill="#bcc7bf"/>
+       <path id="river" d="M-80 240C80 220 140 300 245 272S390 160 470 205 575 330 720 312" fill="none" stroke="#bcc7bf" stroke-width="40" stroke-linecap="round"/>
+       <g fill="none" stroke="#f8f5f0"><path d="M-80 188L720 88" stroke-width="8"/><path d="M169 -300L370 760" stroke-width="8"/><path d="M-280 757L880 -296" stroke-width="6"/><path d="M-80 402L720 334" stroke-width="6"/></g>
+       <path d="M-80 66Q330 120 720 30" fill="none" stroke="#8d8377" stroke-width="3" stroke-dasharray="10 6"/>
+       <text font-family="Newsreader" font-style="italic" font-size="15" fill="#7f8f86"><textPath href="#river" startOffset="22%">River Ash</textPath></text>
+       <g font-size="10.5" font-weight="600" letter-spacing="2.2" fill="#9a8f80"><text x="96" y="122">OLD MILL</text><text x="424" y="170">NORTHGATE</text><text x="290" y="202" text-anchor="end">CANAL DISTRICT</text><text x="104" y="386">LINDEN PARK</text><text x="470" y="430">WATERFRONT</text><text x="420" y="456">SOUTHBANK</text></g>
+       <g transform="translate(596 44)" fill="#7a6f62"><circle r="15" fill="#f3eee6"/><path d="M0-10l5 12-5-3-5 3z"/></g>
+       <g transform="translate(28 446)" fill="#7a6f62" font-size="10"><path d="M0 0h64M0-4v8M64-4v8" stroke="#7a6f62" stroke-width="2"/><text x="72" y="4">500 m</text></g>
+       <g id="pins"></g>
+      </svg>
+     </div>
+     <div id="locTabs" class="flex gap-2 overflow-x-auto border-t border-ink/10 bg-concrete-50/70 p-3" role="tablist" aria-label="Locations"></div>
+    </div>
+    <article id="locCard" class="card flex flex-col overflow-hidden" aria-live="polite"></article>
+   </div>
+  </section>
+
+  <!-- Memberships + calculator -->
+  <section id="pricing" class="bg-olive-deep text-concrete-50">
+   <div class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+    <div class="reveal max-w-3xl"><p class="eyebrow !text-sand">Memberships</p><h2 class="h2">What would Commonhouse cost <span class="acc text-sand">your</span> team?</h2><p class="mt-5 max-w-xl text-concrete-50/70">All-in monthly pricing: rent, fibre, cleaning, coffee, printing and events. No service charges, no broker fees.</p></div>
+    <div class="reveal mt-12 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+     <div class="flex flex-col rounded-3xl border border-white/10 bg-white/[0.04] p-7 md:p-9">
+      <div class="flex items-baseline justify-between gap-4"><label for="team" class="text-lg font-semibold">Team size</label><output id="teamOut" for="team" class="whitespace-nowrap text-2xl font-bold text-sand"></output></div>
+      <input id="team" type="range" min="1" max="40" value="6" class="mt-5">
+      <div class="mt-2 flex justify-between text-xs text-concrete-50/45"><span>Just me</span><span>40 people</span></div>
+      <div class="mt-10 flex items-baseline justify-between gap-4"><label for="hours" class="text-lg font-semibold">Meeting room hours / month</label><output id="hoursOut" for="hours" class="whitespace-nowrap text-2xl font-bold text-sand"></output></div>
+      <input id="hours" type="range" min="0" max="80" step="2" value="20" class="mt-5">
+      <div class="mt-2 flex justify-between text-xs text-concrete-50/45"><span>None</span><span>80 hrs</span></div>
+      <label class="mt-10 flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4"><span><b class="block font-semibold">Business address &amp; mail handling</b><span class="text-sm text-concrete-50/55">Registered address, parcels signed for, scanned post</span></span><input id="addr" type="checkbox" class="peer sr-only"><span class="relative h-7 w-12 shrink-0 rounded-full bg-white/15 transition after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-concrete-50 after:transition peer-checked:bg-terra peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-sand"></span></label>
+      <div class="mt-auto pt-10"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-concrete-50/45">Every plan includes</p><ul class="ticks mt-2 grid grid-cols-2 gap-x-4 text-sm text-concrete-50/75 sm:grid-cols-3"><li>Fibre internet</li><li>Café drinks</li><li>Daily cleaning</li><li>200 prints / mo</li><li>Member events</li><li>All utilities</li></ul></div>
+     </div>
+     <div class="flex flex-col rounded-3xl bg-concrete-50 p-7 text-ink md:p-9" aria-live="polite">
+      <p class="text-sm font-semibold uppercase tracking-[0.16em] text-ink/50">Recommended plan</p>
+      <p id="planName" class="mt-2 text-3xl font-bold tracking-tight"></p>
+      <p id="planWhy" class="mt-1 text-ink/60"></p>
+      <p class="mt-8 flex items-end gap-2"><span id="price" class="text-7xl font-bold leading-none tracking-[-0.05em]">$0</span><span class="pb-2 text-ink/55">/ month</span></p>
+      <p id="perHead" class="mt-2 text-sm text-ink/60"></p>
+      <dl id="breakdown" class="mt-8 space-y-2.5 border-t border-ink/10 pt-6 text-[15px]"></dl>
+      <a href="#tour" class="btn btn-t mt-8 px-6 py-3.5 sm:self-start">Tour with this quote<iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+     </div>
+    </div>
+    <div id="tiers" class="mt-4 grid gap-4 md:grid-cols-3"></div>
+   </div>
+  </section>
+
+  <!-- Amenities -->
+  <section id="amenities" class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+   <div class="reveal"><p class="eyebrow">Amenities</p><h2 class="h2">The boring stuff, <span class="acc text-olive">handled.</span></h2></div>
+   <div class="amen mt-12 grid gap-4 md:grid-cols-4">
+    <div class="reveal relative overflow-hidden rounded-3xl bg-terra p-8 text-white md:col-span-2 md:row-span-2">
+     <iconify-icon icon="lucide:coffee" class="!text-4xl !text-white"></iconify-icon>
+     <h3 class="!mt-6 max-w-sm !text-4xl leading-[1.02] tracking-tight">Coffee that’s worth leaving the house for.</h3>
+     <p class="mt-4 max-w-sm !text-base">Every building has a staffed café bar pulling single-origin espresso from Kiln &amp; Crow, our neighbours on Kiln Street. Members drink free, all day.</p>
+     <p class="mt-10 text-sm font-medium opacity-80">Oat milk free · Pastries from 7:30 · Kombucha on tap</p>
+     <svg class="absolute -bottom-10 -right-6 h-56 w-56 opacity-20" aria-hidden="true"><use href="#logo"/></svg>
+    </div>
+    <div class="card reveal p-6"><iconify-icon icon="lucide:wifi"></iconify-icon><h3>1 Gbps symmetric fibre</h3><p>Dual providers, private VLANs for studios.</p></div>
+    <div class="card reveal p-6"><iconify-icon icon="lucide:phone-call"></iconify-icon><h3>Phone booths everywhere</h3><p>One for every eight desks. Acoustic, ventilated.</p></div>
+    <div class="card reveal p-6"><iconify-icon icon="lucide:bike"></iconify-icon><h3>Bike room &amp; showers</h3><p>Secure racks, towels and a drying room.</p></div>
+    <div class="card reveal p-6"><iconify-icon icon="lucide:dog"></iconify-icon><h3>Dog-friendly floors</h3><p>Water bowls and a biscuit jar at reception.</p></div>
+    <div class="reveal flex flex-wrap items-center justify-between gap-6 rounded-3xl bg-olive p-6 text-concrete-50 md:col-span-2"><div><iconify-icon icon="lucide:sun" class="!text-sand"></iconify-icon><h3>Four roof terraces</h3><p class="max-w-xs">Planted, heated and wired for laptops. Bookable for evening events.</p></div><p class="text-6xl font-bold tracking-tight text-sand">12,800<span class="block text-sm font-medium tracking-normal text-concrete-50/60">sq ft of outdoor space</span></p></div>
+    <div class="card reveal p-6"><iconify-icon icon="lucide:key-round"></iconify-icon><h3>24/7 phone-key entry</h3><p>Guests get a QR invite in one tap.</p></div>
+    <div class="card reveal p-6"><iconify-icon icon="lucide:presentation"></iconify-icon><h3>Rooms by the half hour</h3><p>42 meeting rooms with displays and whiteboards.</p></div>
+   </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="mx-auto max-w-[1360px] px-5 pb-24 md:px-8" aria-labelledby="tHead">
+   <h2 id="tHead" class="h2 reveal">Members, <span class="acc text-terra">in their words.</span></h2>
+   <div class="mt-12 grid gap-4 lg:grid-cols-3">
+    <figure class="card reveal flex flex-col p-8 lg:col-span-2">
+     <blockquote class="font-serif text-3xl italic leading-[1.2] md:text-4xl">“We went from four people on a hot desk to a 22-seat suite in fourteen months, and never once had to move buildings or renegotiate a lease. That flexibility is the whole reason we’re still here.”</blockquote>
+     <dl class="mt-10 grid grid-cols-3 gap-4 border-y border-ink/10 py-5"><div><dt class="text-xs text-ink/50">Team size</dt><dd class="mt-1 text-2xl font-bold tracking-tight">4 → 22</dd></div><div><dt class="text-xs text-ink/50">Time to grow</dt><dd class="mt-1 text-2xl font-bold tracking-tight">14 mo</dd></div><div><dt class="text-xs text-ink/50">Office moves</dt><dd class="mt-1 text-2xl font-bold tracking-tight">0</dd></div></dl>
+     <figcaption class="mt-auto flex items-center gap-4 pt-8"><span class="grid h-12 w-12 place-items-center rounded-full bg-terra font-bold text-white">PR</span><span><b class="block">Priya Raman</b><span class="text-sm text-ink/55">Co-founder, Saltmarsh Labs · Foundry Yard since 2024</span></span></figcaption>
+    </figure>
+    <div class="grid gap-4">
+     <figure class="card reveal p-7"><p class="tracking-[0.2em] text-terra" aria-label="Rated 5 out of 5">★★★★★</p><blockquote class="mt-3 text-[17px] leading-relaxed">“The front desk knows my clients by name. For an architecture practice of three, that’s worth more than any lobby.”</blockquote><figcaption class="mt-6 flex items-center gap-3 text-sm"><span class="grid h-10 w-10 place-items-center rounded-full bg-olive font-bold text-white">OA</span><span><b class="block">Owen Achterberg</b><span class="text-ink/55">Principal, Tessellate · Mill &amp; Main</span></span></figcaption></figure>
+     <figure class="card reveal p-7"><p class="tracking-[0.2em] text-terra" aria-label="Rated 5 out of 5">★★★★★</p><blockquote class="mt-3 text-[17px] leading-relaxed">“Our hybrid team picks whichever building is closest that day. One invoice, zero arguments about the office.”</blockquote><figcaption class="mt-6 flex items-center gap-3 text-sm"><span class="grid h-10 w-10 place-items-center rounded-full bg-sand font-bold">DW</span><span><b class="block">Dana Whitlock</b><span class="text-ink/55">Head of People, Parcel &amp; Pine · 34 members</span></span></figcaption></figure>
+    </div>
+   </div>
+  </section>
+
+  <!-- Tour CTA -->
+  <section id="tour" class="px-5 pb-24 md:px-8">
+   <div class="reveal relative mx-auto grid max-w-[1360px] gap-10 overflow-hidden rounded-[2rem] bg-ink p-5 pt-10 text-concrete-50 sm:p-8 md:p-14 lg:grid-cols-2">
+    <div aria-hidden="true" class="iso-grid absolute inset-0 opacity-60 invert"></div>
+    <div class="relative flex flex-col px-3 sm:px-0">
+     <p class="eyebrow !text-sand">Book a tour</p>
+     <h2 class="h2">Come see it <span class="acc text-terra-light">in person.</span></h2>
+     <p class="mt-5 max-w-md text-concrete-50/70">Twenty minutes with a community manager, a coffee on us, and a free day pass to try your favourite desk before you decide.</p>
+     <p class="mt-6 text-concrete-50/60">Tours run weekdays 9am–5pm. Rather talk? Call (555) 014-2290.</p>
+     <figure class="mt-10 flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 lg:mt-auto"><span class="relative grid h-12 w-12 shrink-0 place-items-center rounded-full bg-sand text-sm font-bold text-ink">IC<span class="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-ink bg-olive-light"></span></span><div><blockquote class="text-[15px] leading-relaxed text-concrete-50/85">“I’ll show you the quiet floors, the loud floors, and where the good light is at 4pm.”</blockquote><figcaption class="mt-2 text-sm text-concrete-50/50">Inés Calloway · Community lead, Foundry Yard</figcaption></div></figure>
+    </div>
+    <div class="relative rounded-3xl bg-concrete-50 p-5 text-ink sm:p-6 md:p-8">
+     <form id="tourForm" novalidate>
+      <label for="tLoc" class="text-sm font-semibold">Location</label>
+      <select id="tLoc" class="field"></select>
+      <fieldset class="mt-5"><legend class="text-sm font-semibold">Day</legend><div id="tDays" class="mt-2 grid grid-cols-5 gap-2"></div></fieldset>
+      <fieldset class="mt-5"><legend class="text-sm font-semibold">Time</legend><div id="tTimes" class="mt-2 grid grid-cols-3 gap-2"></div></fieldset>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+       <div><label for="tName" class="text-sm font-semibold">Name</label><input id="tName" required autocomplete="name" class="field" placeholder="Alex Moreno" aria-describedby="tErr"></div>
+       <div><label for="tEmail" class="text-sm font-semibold">Work email</label><input id="tEmail" type="email" required autocomplete="email" class="field" placeholder="alex@studio.co" aria-describedby="tErr"></div>
+      </div>
+      <p id="tErr" class="mt-3 hidden text-sm font-medium text-terra-deep" role="alert"></p>
+      <button class="btn btn-t mt-6 w-full py-3.5">Confirm my tour<iconify-icon icon="lucide:arrow-right"></iconify-icon></button>
+     </form>
+     <div id="tourDone" class="hidden py-6 text-center" tabindex="-1">
+      <span class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-olive text-3xl text-white"><iconify-icon icon="lucide:check"></iconify-icon></span>
+      <h3 class="mt-5 text-2xl font-bold">You’re on the list.</h3>
+      <p id="tourMsg" class="mx-auto mt-2 max-w-sm text-ink/65"></p>
+      <button id="tourAgain" class="mt-6 text-sm font-semibold text-terra underline underline-offset-4">Book another tour</button>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="mx-auto grid max-w-[1360px] gap-10 px-5 pb-24 md:px-8 lg:grid-cols-3">
+   <div class="reveal"><h2 class="h2 !mt-0 !text-5xl">Questions, <span class="acc text-olive">answered.</span></h2><p class="mt-4 text-ink/60">Can’t find it? Email <a href="#" class="font-medium text-terra underline underline-offset-4">hello@commonhouse.work</a>.</p></div>
+   <div class="faq reveal border-b border-ink/10 lg:col-span-2">
+    <details open><summary>Is there a minimum term?</summary><p>No. Every membership is month-to-month with 30 days’ notice. Suites for 16+ can lock a 12-month rate for 8% off, but it’s never required.</p></details>
+    <details><summary>Can I work from any building?</summary><p>Yes. Roam members use any open desk at all six buildings. Anchor and Studio members have a home base but can drop into any other location, any day.</p></details>
+    <details><summary>What’s actually included in the price?</summary><p>Rent, utilities, fibre, daily cleaning, café drinks, 200 printed pages a month, your meeting-room allowance, member events and a staffed front desk. Extra meeting hours are billed at cost, and that’s it.</p></details>
+    <details><summary>How quickly can my team move in?</summary><p>Hot desks are same-day. Dedicated desks take 24 hours, and furnished studios are usually ready within 48 hours of signing. Suites need two to four weeks for branding and IT.</p></details>
+    <details><summary>Do you offer day passes?</summary><p>Yes: $29 for a day or $250 for a 10-pack that never expires. Day passes include coffee and one hour in a meeting room.</p></details>
+   </div>
+  </section>
+ </main>
+
+ <footer class="bg-ink text-sm text-concrete-50/65">
+  <div class="mx-auto grid max-w-[1360px] gap-10 px-5 py-16 md:grid-cols-6 md:px-8">
+   <div class="md:col-span-2"><p class="flex items-center gap-2.5 text-xl font-bold text-concrete-50"><svg width="26" height="26" aria-hidden="true"><use href="#logo"/></svg>commonhouse</p><p class="mt-4 max-w-xs">Flexible workspace for teams of one to sixty, in six restored and purpose-built buildings across Harborview.</p></div>
+   <nav aria-label="Locations"><h3 class="font-semibold text-concrete-50">Locations</h3><ul class="mt-4"><li><a href="#locations">Foundry Yard</a></li><li><a href="#locations">The Linden</a></li><li><a href="#locations">Pier Nine</a></li><li><a href="#locations">Mill &amp; Main</a></li><li><a href="#locations">Northgate Works</a></li></ul></nav>
+   <nav aria-label="Memberships"><h3 class="font-semibold text-concrete-50">Memberships</h3><ul class="mt-4"><li><a href="#pricing">Roam</a></li><li><a href="#pricing">Anchor</a></li><li><a href="#pricing">Studios &amp; suites</a></li><li><a href="#faq">Day passes</a></li></ul></nav>
+   <nav aria-label="Company"><h3 class="font-semibold text-concrete-50">Company</h3><ul class="mt-4"><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Landlords</a></li><li><a href="#">Press</a></li></ul></nav>
+   <div><h3 class="font-semibold text-concrete-50">Visit</h3><p class="mt-4 leading-relaxed">14 Kiln Street<br>Harborview, HV 20418<br><a href="#">(555) 014-2290</a></p></div>
+  </div>
+  <div class="mx-auto flex max-w-[1360px] flex-wrap justify-between gap-4 border-t border-white/10 px-5 py-6 text-xs text-concrete-50/45 md:px-8"><span>© 2026 Commonhouse Workspaces Ltd.</span><span class="flex gap-5"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Accessibility</a></span></div>
+ </footer>
+
+ <script>
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Mobile menu
+  const menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
+  menuBtn.addEventListener('click', () => { const open = menu.classList.toggle('hidden') === false; menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); menuBtn.firstElementChild.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu'); });
+  $$('#mobileMenu a').forEach((a) => a.addEventListener('click', () => menuBtn.click()));
+
+  // ---------- Isometric engine: world units (x right-down, y left-down, z up) to SVG ----------
+  const U = 24, C = U * 0.866, S = U / 2, q = (v) => Math.round(v * 10) / 10; let B;
+  const el = (t, o) => '<' + t + Object.entries(o).map(([k, v]) => ` ${k}="${typeof v === 'number' ? q(v) : v}"`).join('') + '/>';
+  const sx = (x, y) => (x - y) * C, sy = (x, y, z) => (x + y) * S - z * U;
+  const grow = (a, c) => { B = [Math.min(B[0], a), Math.min(B[1], c), Math.max(B[2], a), Math.max(B[3], c)]; };
+  const pt = (x, y, z) => { const a = sx(x, y), c = sy(x, y, z); grow(a, c); return q(a) + ',' + q(c); };
+  const pg = (ps, f, e = '') => `<polygon points="${ps.map((p) => pt(...p)).join(' ')}" fill="${f}"${e}/>`;
+  const box = (x, y, z, w, d, h, m) => pg([[x, y, z + h],[x + w, y, z + h],[x + w, y + d, z + h],[x, y + d, z + h]], m[0]) + pg([[x, y + d, z],[x + w, y + d, z],[x + w, y + d, z + h],[x, y + d, z + h]], m[1]) + pg([[x + w, y, z],[x + w, y + d, z],[x + w, y + d, z + h],[x + w, y, z + h]], m[2]);
+  const pX = (x, a, b, z1, z2, f, e) => pg([[x, a, z1],[x, b, z1],[x, b, z2],[x, a, z2]], f, e);
+  const pY = (y, a, b, z1, z2, f, e) => pg([[a, y, z1],[b, y, z1],[b, y, z2],[a, y, z2]], f, e);
+  const flat = (x, y, z, w, d, f) => pg([[x, y, z],[x + w, y, z],[x + w, y + d, z],[x, y + d, z]], f);
+  const seg = (pairs, st, w = 1) => `<path d="${pairs.map(([a, b]) => 'M' + pt(...a) + 'L' + pt(...b)).join('')}" stroke="${st}" stroke-width="${w}"/>`;
+  const M = { con: ['#f0eae0', '#ddd4c6', '#c3b8a8'], plinth: ['#e3dccf', '#cec5b6', '#b6ab9a'], terra: ['#d8754c', '#c25b34', '#a4482a'], olive: ['#94a062', '#737f45', '#5c6736'], sand: ['#f2ddb9', '#dfc59b', '#c8ac82'], white: ['#fdfaf5', '#ebe4d8', '#d6cdbf'], ink: ['#4d453d', '#3a332d', '#2b2622'], wood: ['#dcb07a', '#c6965d', '#ab7d48'], steel: ['#d3d1cc', '#b0aea9', '#94928d'] };
+  const PO = '#2b2622', GL = ' stroke="rgba(255,255,255,.85)"', GLASS = 'rgba(255,255,255,.2)';
+  const SH = ['#c25b34', '#737f45', '#2f2a25', '#e3c79c', '#f7f3ec', '#8a9aa3'], SK = ['#e9c6a2', '#c58d64', '#8a5a3c', '#f2d6bc', '#6e4630'];
+  const glow = (x, y, z, r) => el('ellipse', { class: 'glow', cx: sx(x, y), cy: sy(x, y, z), rx: r * C * 1.414, ry: r * S * 1.414, fill: 'url(#gl)', style: `animation-delay:-${q((x + y) % 5)}s` });
+  const man = (x, y, z, i, seat) => { const a = sx(x, y), c = sy(x, y, z + (seat ? 0.38 : 0)), l = seat ? 0 : 14.4; grow(a, c - l - 24);
+   return (l ? el('rect', { x: a - 3.5, y: c - l, width: 7, height: l, rx: 2, fill: '#3a332d' }) : '') + el('rect', { x: a - 4.8, y: c - l - 14.4, width: 9.6, height: 16.4, rx: 4.2, fill: SH[i % 6] }) + el('circle', { cx: a, cy: c - l - 18, r: 4.1, fill: SK[(i * 3 + 1) % 5] }); };
+  const plant = (x, y, z, s = 1) => { const a = sx(x + 0.25, y + 0.25), c = sy(x + 0.25, y + 0.25, z + 0.45); grow(a, c - s * U); return box(x, y, z, 0.5,0.5,0.45, M.terra) + el('circle', { cx: a, cy: c - 9.6 * s, r: 11 * s, fill: '#76844a' }) + el('circle', { cx: a - 3, cy: c - 13 * s, r: 6 * s, fill: '#9aa866' }); };
+  const tree = (x, y, h, r) => { const a = sx(x, y), c = sy(x, y, 0), t = c - h * U; grow(a - r * U, t - r * U); return el('ellipse', { cx: a, cy: c, rx: r * C * 1.3, ry: r * S * 1.3, fill: 'rgba(70,55,35,.15)' }) + el('rect', { x: a - 2, y: c - h * U * 0.7, width: 4, height: h * U * 0.7, fill: '#7a6650' }) + el('circle', { cx: a, cy: t, r: r * U, fill: '#6f7d42' }) + el('circle', { cx: a - r * 7, cy: t - r * 7.7, r: r * 13, fill: '#8f9c5c' }); };
+  const desk = (x, y, z, w, d, m = M.white, h = 0.72) => seg([[x, y],[x + w, y],[x, y + d],[x + w, y + d]].map(([a, b]) => [[a + (a > x ? -0.06 : 0.06), b + (b > y ? -0.06 : 0.06), z],[a + (a > x ? -0.06 : 0.06), b + (b > y ? -0.06 : 0.06), z + h]]), '#3a332d', 1.6) + box(x, y, z + h - 0.07, w, d, 0.07, m);
+  const lap = (x, y, z, front) => box(x, y, z, 0.42,0.3,0.03, M.steel) + (front ? pY(y, x, x + 0.42, z, z + 0.28, '#f6ead2') : pY(y + 0.3, x, x + 0.42, z, z + 0.28, '#3a332d'));
+  // A desk with people behind it (drawn first) and in front of it (drawn last); along x or y.
+  const bench = (x, y, z, w, d, back, front, m) => back.map((p, i) => man(p, y - 0.3, z, i + 1,1)).join('') + desk(x, y, z, w, d, m) + back.map((p) => lap(p - 0.21, y + 0.12, z + 0.72)).join('') + front.map((p) => lap(p - 0.21, y + d - 0.42, z + 0.72,1)).join('') + front.map((p, i) => man(p, y + d + 0.3, z, i + 3,1)).join('');
+  const benchY = (x, y, z, w, d, back, front, m) => back.map((p, i) => man(x - 0.3, p, z, i + 2,1)).join('') + desk(x, y, z, w, d, m) + front.map((p, i) => man(x + w + 0.3, p, z, i + 4,1)).join('');
+  const sofa = (x, y, z, w, d, m) => box(x, y, z, w, 0.3,0.78, m) + box(x, y + 0.3, z, w, d - 0.3,0.42, m);
+  const booth = (x, y, z, m) => box(x, y, z, 1.1,1.1,2.2, m) + pY(y + 1.1, x + 0.2, x + 0.9, z + 0.2, z + 2, 'rgba(255,240,210,.5)', GL);
+  const draw = (items) => items.sort((a, b) => a[0] - b[0]).map((i) => i[1]).join(''); // painter's order by depth key
+  const finish = (svg, html, p) => { svg.setAttribute('viewBox', [B[0] - p, B[1] - p, B[2] - B[0] + 2 * p, B[3] - B[1] + 2 * p].map(q).join(' ')); svg.innerHTML = html; };
+
+  // ---------- Hero building: four floors that slide out like drawers, plus a roof terrace ----------
+  const W = 12, D = 8, F = 3, T = 0.35, PULL = 3.6;
+  const FLOORS = [['01', 'Café & lobby', 'Open to all'],['02', 'Hot desks', '22 free'],['03', 'Private studios', '3 free'],['04', 'Lounge & kitchen', 'Thu socials'],['R', 'Roof terrace', 'Till 10pm']];
+  const TONE = ['#efe4d1', '#ead2a4', '#f1e5cc', '#e9cb9c', '#d9b787'];
+  const GLOWS = [[[3,6],[6.9,6.75],[9.4,6.75],[10.5,2.5]],[[4.1,6.6],[9.9,2.4],[9.9,4.6]],[[10.6,1.3],[10.6,4],[10.5,6.8],[4,6.8]],[[3.4,6.4],[9.9,5.8],[9.5,2]]];
+  const ROOMS = [
+   (z) => [[7.7, man(2.7,5.15, z, 1)],[9, box(1.2,5.6, z, 3.6,0.8,0.95, M.terra) + box(1.12,5.52, z + 0.95,3.76,0.96,0.07, M.white) + box(1.5,5.72, z + 1.02,0.55,0.45,0.45, M.steel) + box(3.9,5.75, z + 1.02,0.5,0.4,0.3, M.wood)],
+    [10.6, man(3.6,7, z, 2)],[9.6, man(2.2,7.4, z, 4)],[13.4, man(6.9,5.9, z, 0,1) + desk(6.4,6.3, z, 1,0.9, M.wood) + man(6.9,7.55, z, 5,1)],[15.9, man(9.4,5.9, z, 3,1) + desk(8.9,6.3, z, 1,0.9, M.wood) + man(9.4,7.55, z, 1,1)],
+    [18.4, plant(11.1,7, z, 1.3)],[12.6, box(10.5,1, z, 0.7,2.8,0.45, M.wood) + man(10.85,1.7, z, 2,1) + man(10.85,2.9, z, 4,1)],[12.9, man(9,3.8, z, 0)],[13.1, plant(9.6,0.4, z, 1.1)]],
+   (z) => [[10.9, bench(1.6,6, z, 5,1.2,[2.5,4.1,5.7],[3.3,4.9], M.white)],[13.4, benchY(9.3,0.8, z, 1.2,5.4,[1.8,3.4,5],[2.6,4.2], M.white)],[15.5, booth(7.4,6.4, z, M.olive)],[18.2, plant(11.1,6.9, z, 1.2)],[7.6, plant(0.5,7, z, 1.1)],[12.3, man(11.2,6.2, z, 5)]],
+   (z) => { const h = z + F - T; return [[1, flat(8.8,0.2, z + 0.01,3,2.3, '#d98b66') + flat(8.8,2.9, z + 0.01,3,2.3, '#a3ad74') + flat(8.8,5.6, z + 0.01,3,2.2, '#efd3a6')],
+    [9.9, pX(8.6,0,2.7, z, h, GLASS, GL)],[10.75, man(9.75,1.05, z, 2,1)],[11.95, desk(10.2,0.6, z, 1.4,0.9, M.wood)],[11.85, plant(11.2,0.25, z, 1)],
+    [13, pY(2.7,8.6, W, z, h, GLASS, GL)],[12.65, pX(8.6,2.7,5.4, z, h, GLASS, GL)],[13.45, man(9.75,3.75, z, 0,1)],[14.65, desk(10.2,3.3, z, 1.4,0.9)],[15, man(10.6,4.6, z, 3)],
+    [15.7, pY(5.4,8.6, W, z, h, GLASS, GL)],[15.3, pX(8.6,5.4, D, z, h, GLASS, GL)],[17.4, man(9.9,5.9, z, 4,1) + man(10.9,5.9, z, 1,1) + desk(9.6,6.2, z, 1.8,1.2) + man(9.9,7.75, z, 5,1) + man(10.9,7.75, z, 0,1)],
+    [8.6, booth(1,6.4, z, M.terra)],[11.6, sofa(4.2,6, z, 1.8,0.8, M.sand) + man(4.7,6.45, z, 2,1)],[13.7, plant(6.6,6.9, z, 1.1)]]; },
+   (z) => [[6.7, box(0.3,4.8, z, 0.45,2.8,2.1, M.wood) + [0.5,1,1.5].map((h) => pX(0.75,5,7.4, z + h, z + h + 0.06, '#8e6a3e')).join('') + [5.2,5.9,6.6].map((b, i) => pX(0.76, b, b + 0.45, z + 1.06, z + 1.44, SH[i])).join('')],
+    [1, flat(1.6,5.7, z + 0.01,4.2,2.1, '#d98b66')],[9.4, sofa(1.8,5.5, z, 3.2,0.9, M.olive) + man(2.6,6, z, 4,1) + man(3.9,6, z, 2,1)],[11.5, box(2.6,6.9, z, 1.6,0.6,0.38, M.wood)],[13.3, box(5.2,6.4, z, 0.6,0.6,0.38, M.sand) + man(5.5,6.7, z, 0,1)],
+    [11, box(9,0.6, z, 1,2.8,0.95, M.white) + box(9,0.6, z + 0.95,1,2.8,0.06, M.ink) + man(10.5,1.6, z, 3)],[16.3, benchY(9.3,4.2, z, 1.3,3.2,[4.8,6,7.1],[4.8,6], M.wood)],[8.4, man(7.2,1, z, 1)],[18.2, plant(11.2,7.1, z, 1.2)]]
+  ];
+  function floor(k, pulled) {
+   const z0 = k * F, z = z0 + T, top = z0 + F, mul = (ys, from) => seg(ys.map((y) => [[W, y, from],[W, y, top]]), 'rgba(255,255,255,.8)');
+   let s = box(0,0, z0, W, D, T, [TONE[k], PO, M.con[2]]) + box(0,0, z, 0.3, D, F - T, [PO, PO, '#efe8dc']) + box(0.3,0, z, W - 0.3,0.3, F - T, [PO, '#f4eee4', PO]);
+   s += GLOWS[k].map(([x, y]) => glow(x, y, z, 1.7)).join('') + draw(ROOMS[k](z));
+   s += k ? box(W - 0.25,0, z, 0.25, D, 0.8,[M.con[0], PO, M.con[2]]) + pX(W, 0, D, z + 0.8, top, 'url(#gls)', GL) + mul([1.6,3.2,4.8,6.4], z + 0.8)
+      : pX(W, 0, D, z, top, 'url(#gls)', GL) + mul([2,6], z) + pX(W, 3.3,4.7, z, z + 2.1, 'rgba(58,51,45,.55)') + box(W, 3,2.45,0.9,2,0.12, M.terra);
+   return `<g class="drawer${pulled ? ' out' : ''}" data-k="${k}">${s + box(W - 0.3, D - 0.3, z, 0.3,0.3, F - T, [PO, PO, M.con[2]])}</g>`;
+  }
+  function roof() {
+   const z = 4 * F + T, umb = (x, y, dark, light) => { const a = sx(x, y), c = sy(x, y, z + 2.1), r = 1.25 * C * 1.414; grow(a, c - 20); return seg([[[x, y, z],[x, y, z + 2.1]]], '#4d453d', 2) + el('ellipse', { cx: a, cy: c + 4, rx: r, ry: 1.25 * S * 1.414, fill: dark }) + `<path d="M${q(a - r)} ${q(c + 4)}L${q(a)} ${q(c - 14)}L${q(a + r)} ${q(c + 4)}Z" fill="${light}"/>`; };
+   let s = box(0,0, z - T, W, D, T, [TONE[4], PO, M.con[2]]) + seg([1,2,3,4,5,6,7].map((y) => [[0.3, y, z],[W - 0.3, y, z]]), 'rgba(120,85,45,.18)') + box(0,0, z, 0.25, D, 0.9, M.con) + box(0.25,0, z, W - 0.25,0.25,0.9, M.con);
+   let pergola = [[5.2,0.8],[9.6,0.8],[5.2,3.8]].map(([x, y]) => box(x, y, z, 0.16,0.16,2.3, M.olive)).join('') + [6.3,7.1,7.9].map((x, i) => man(x, 1.35, z, i, 1)).join('') + desk(6,1.7, z, 2.6,1.1, M.wood) + [6.7,7.7].map((x, i) => man(x, 3.15, z, i + 3,1)).join('') + box(9.6,3.8, z, 0.16,0.16,2.3, M.olive);
+   for (let x = 5.2; x <= 9.7; x += 0.55) pergola += box(x, 0.6, z + 2.3,0.12,3.6,0.12, M.olive);
+   pergola += box(5.1,0.7, z + 2.42,4.75,0.14,0.12, M.olive) + box(5.1,3.75, z + 2.42,4.75,0.14,0.12, M.olive);
+   const planter = box(0.6,7, z, 4.2,0.7,0.55, M.terra) + [1,1.7,2.4,3.1,3.8,4.4].map((x, i) => el('circle', { cx: sx(x, 7.35), cy: sy(x, 7.35, z + 0.55) - 7, r: i % 2 ? 11 : 13, fill: i % 2 ? '#8f9c5c' : '#6f7d42' })).join('');
+   s += draw([[3, box(0.3,0.3, z, 2.8,2.4,2.4, M.con) + pY(2.7,1,1.9, z, z + 1.9, '#4d453d') + flat(0.55,0.55, z + 2.41,2.3,1.9, '#a3ad74') + [[1,1],[1.9,1.5],[1.3,2]].map(([x, y]) => el('circle', { cx: sx(x, y), cy: sy(x, y, z + 2.5), r: 6, fill: '#7d8a4c' })).join('')],
+    [9.7, pergola],[15.6, box(9,5.4, z, 0.7,1.6,0.35, M.sand) + box(10.3,5.4, z, 0.7,1.6,0.35, M.sand) + man(9.35,6.3, z, 4,1) + umb(10,5.8, '#a4482a', '#d8754c')],
+    [12.4, man(5.6,6.2, z, 5) + man(6.5,6.5, z, 1) + umb(6.1,5.7, '#c8ac82', '#f2ddb9')],[10.5, planter]]);
+   s += `<path d="M${pt(9.7,3.9, z + 2.3)}Q${pt(11,6, z + 1.2)} ${pt(11.6,7.6, z + 1.6)}" fill="none" stroke="#ffcf6e" stroke-width="4" stroke-linecap="round" stroke-dasharray="0.1 9"/>`;
+  s += box(11.5,7.5, z, 0.12,0.12,1.6, M.ink) + box(W - 0.25,0, z, 0.25, D, 0.9,[M.con[0], PO, M.con[2]]) + pY(D, 0, W - 0.25, z, z + 1, 'rgba(255,255,255,.28)', GL);
+   return s + `<text transform="matrix(.866 -.5 0 1 ${q(sx(W, D - 1))} ${q(sy(W, D - 1, z + 0.24))})" font-size="12.5" font-weight="800" letter-spacing="3" fill="#c2582f">COMMONHOUSE</text>`;
+  }
+  function buildHero(active) {
+   B = [1e9,1e9,-1e9,-1e9];
+   let s = box(-1.6,-1.6,-0.7, W + 6.1, D + 5.6,0.7, M.plinth) + flat(-1.2,9,0.01,7.4,2.6, '#c3c995') + flat(7.6,9.2,0.01,8.4,2.4, '#c3c995') + flat(W, 3.3,0.01,4.4,1.4, '#efe9de');
+   s += pg([[W, 0,0.01],[W + 2.6,0.9,0.01],[W + 2.6, D + 0.9,0.01],[W, D, 0.01]], 'rgba(80,55,30,.08)') + tree(13.6,-0.9,2.4,0.8);
+   for (let k = 0; k < 4; k++) s += (k ? pY(D, 0, PULL + 0.3, k * F, k * F + F, '#4a4239') : '') + floor(k, k === active); // dark cavity revealed when a floor slides out
+   s += roof() + draw([[14.2, tree(3.2,11,2.3,0.85)],[18.1, tree(6.8,11.3,2.6,0.95)],[20.1, tree(9.8,10.3,2.7,0.95)],[26, tree(15.2,10.8,2.3,0.8)],[16, man(6.9,9.1,0,0) + man(7.6,9.5,0,3)],
+    [19.4, man(13.8,5.6,0,2)],[21.3, man(15,6.3,0,5)],[15, box(12.9,5.8,0,0.5,1.6,0.45, M.wood)],[22.1, seg([[[13.4,8.7,0],[13.4,8.7,2.5]]], '#4d453d', 2) + el('circle', { cx: sx(13.4,8.7), cy: sy(13.4,8.7,2.55), r: 4, fill: '#ffcf6e' })]]);
+   const svg = $('#bldg'); finish(svg, s, 8);
+   svg.style.setProperty('--dx', q(PULL * C) + 'px'); svg.style.setProperty('--dy', q(PULL * S) + 'px');
+  }
+  let floorIdx = 2, auto;
+  buildHero(floorIdx);
+  const fWrap = $('#floors'), bsvg = $('#bldg'), lg = matchMedia('(min-width: 1024px)');
+  fWrap.innerHTML = FLOORS.map(([n, name, note], k) => `<button type="button" data-k="${k}" class="fbtn flex items-center gap-2 whitespace-nowrap rounded-full border border-ink/10 bg-concrete-50/90 py-1 pl-1 pr-3 text-[13px] font-semibold shadow-card backdrop-blur transition hover:border-terra/50 lg:absolute lg:-translate-x-full lg:-translate-y-1/2"><span class="num grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-[11px] font-bold">${n}</span>${name}<span class="note hidden font-medium opacity-80">· ${note}</span></button>`).join('');
+  function placePills() { // anchor each pill to its floor's left corner
+   if (!lg.matches) return;
+   const m = bsvg.getScreenCTM(), r = fWrap.parentElement.getBoundingClientRect();
+   $$('.fbtn').forEach((b) => { const p = new DOMPoint(sx(0, D) - 4, sy(0, D, +b.dataset.k * F + 1.75)).matrixTransform(m); b.style.left = q(p.x - r.left) + 'px'; b.style.top = q(p.y - r.top) + 'px'; });
+  }
+  function setFloor(k) {
+   floorIdx = k;
+   $$('#bldg .drawer').forEach((g) => g.classList.toggle('out', +g.dataset.k === k && k > 0)); // the ground floor stays put
+   $$('.fbtn').forEach((b) => { const on = +b.dataset.k === k; b.setAttribute('aria-pressed', on); b.classList.toggle('!bg-ink', on); b.classList.toggle('text-concrete-50', on); b.classList.toggle('!border-ink', on); b.querySelector('.num').className = 'num grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-[11px] font-bold ' + (on ? 'bg-terra text-white' : 'bg-ink/[0.07]'); b.querySelector('.note').classList.toggle('hidden', !on); });
+  }
+  setFloor(floorIdx); placePills();
+  addEventListener('resize', placePills); document.fonts.ready.then(placePills);
+  fWrap.addEventListener('click', (e) => { const b = e.target.closest('.fbtn'); if (b) { clearInterval(auto); setFloor(+b.dataset.k); } });
+  if (!reduce) auto = setInterval(() => setFloor(floorIdx >= 3 ? 1 : floorIdx + 1), 5200);
+
+  // ---------- Mini scenes for the space types ----------
+  const tile = (w, d, m, wall) => box(0,0,-0.25, w, d, 0.25, m) + (wall ? box(0,0,0,0.2, d, 2.4, M.con) + box(0.2,0,0, w - 0.2,0.2,2.4, M.con) : '');
+  const scenes = {
+   hot: () => tile(5,4,[TONE[1], M.con[1], M.con[2]]) + glow(2.5,2,0,2) + bench(0.6,1.4,0,3.8,1.1,[1.3,2.5,3.7],[1.9,3.1], M.white) + plant(4.2,3.2,0,1.1),
+   desk: () => tile(4,4,[TONE[3], M.con[1], M.con[2]],1) + pY(0.21,1,2.2,1.1,1.9, '#c2582f') + glow(2,2,0,1.6) + man(1.9,1.15,0,1,1) + desk(0.9,1.5,0,2.2,1.1, M.wood) + box(1.5,1.6,0.72,0.9,0.12,0.55, M.ink) + box(2.65,1.6,0.72,0.35,0.35,0.05, M.sand) + box(0.95,2,0,0.5,0.55,0.6, M.white) + plant(3.2,0.4,0,1.2),
+   studio: () => tile(5,4,[TONE[2], M.con[1], M.con[2]],1) + flat(0.6,0.6,0.01,3.8,2.4, '#a3ad74') + glow(2.5,1.8,0,1.8) + man(1.3,0.75,0,0,1) + man(3.3,0.75,0,3,1) + desk(0.7,1.1,0,3.6,0.9) + lap(1.1,1.2,0.72) + lap(3.1,1.2,0.72) + man(2.4,2.7,0,5) + pY(3.4,0.2,5,0,2.4, 'rgba(255,255,255,.28)', GL) + pY(3.4,2,2.9,0,2.1, 'rgba(255,255,255,.3)', GL),
+   suite: () => tile(6,4.4, M.ink) + flat(0.5,0.5,0.01,5,3.4, '#5d6935') + glow(3,2.2,0,2.4) + [1.4,2.6,3.8].map((x, i) => man(x, 0.95,0, i, 1)).join('') + desk(0.9,1.3,0,3.6,1.3, M.wood) + [1.9,3.3].map((x, i) => man(x, 2.95,0, i + 3,1)).join('') + sofa(4.6,0.6,0,1,2.6, M.sand) + plant(5.2,3.5,0,1.2)
+  };
+  $$('.mini').forEach((svg) => { B = [1e9,1e9,-1e9,-1e9]; finish(svg, scenes[svg.dataset.scene](), 6); });
+
+  // ---------- Location picker ----------
+  const LOCS = [
+   { name: 'Foundry Yard', hood: 'Canal District', addr: '14 Kiln Street', x: 318, y: 196, free: 46, total: 320, studios: 3, rooms: 12, transit: '2 min walk to Canal Street station', amen: ['Roof terrace', 'Event hall', 'Bike room', 'Dog-friendly'], art: { body: '#a9553a', trim: '#e9d6bb', floors: 3, cols: 6, roof: 'saw', win: 'grid', sky: '#f2cfa6', chimney: 1 } },
+   { name: 'The Linden', hood: 'Linden Park', addr: '220 Linden Avenue', x: 150, y: 318, free: 12, total: 140, studios: 1, rooms: 6, transit: 'Faces the park · tram 4 stops at the door', amen: ['Park-view balconies', 'Wellness room', 'Showers'], art: { body: '#efe5d3', trim: '#5d6935', floors: 5, cols: 5, win: 'band', sky: '#d9dcc4', balcony: 1 } },
+   { name: 'Pier Nine', hood: 'Waterfront', addr: '9 Wharf Road', x: 520, y: 372, free: 0, total: 96, studios: 0, rooms: 5, transit: 'Ferry terminal 300 m · harbour views', amen: ['Waterside deck', 'Kayak storage', 'Podcast studio'], art: { body: '#cf9e6c', trim: '#f5ecdd', floors: 2, cols: 7, win: 'fin', sky: '#f6d7b3', water: 1 } },
+   { name: 'Mill & Main', hood: 'Old Mill', addr: '61 Main Street', x: 132, y: 150, free: 9, total: 88, studios: 2, rooms: 4, transit: 'Main Street bus corridor · 6 min to rail', amen: ['Library room', 'Courtyard', 'Showers'], art: { body: '#c06a45', trim: '#f4e9d8', floors: 4, cols: 4, roof: 'gable', win: 'arch', sky: '#efc7a3' } },
+   { name: 'Northgate Works', hood: 'Northgate', addr: '3 Signal Lane', x: 470, y: 108, free: 31, total: 260, studios: 4, rooms: 11, transit: 'Directly above Northgate interchange', amen: ['Roof terrace', 'Gym & showers', 'Event hall', 'Parking'], art: { body: '#cfc6b8', trim: '#25211d', floors: 7, cols: 5, roof: 'step', win: 'grid', sky: '#dfd6c6' } },
+   { name: 'Ashby Hall', hood: 'Southbank', addr: '40 Tanner Row', x: 352, y: 418, soon: 1, transit: 'Opening March 2027 · founding rates available', amen: ['220 desks', 'Rooftop bar', 'Crèche'], art: { body: '#ddd3c4', trim: '#a2968a', floors: 4, cols: 5, win: 'grid', sky: '#e8dccb', crane: 1 } }
+  ];
+  function facade(a) { // a street-view illustration of each building
+   const G = 196, cw = 34, fh = a.floors > 5 ? 22 : 30, bw = a.cols * cw + 26, bh = a.floors * fh + 18, bx = 200 - bw / 2, by = G - bh, R = (x, y, w, h, f, e = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"${e}/>`;
+   let s = R(0,0,400,240, '#efe6d9') + R(0,0,400,150, a.sky, ' opacity=".75"') + '<circle cx="318" cy="64" r="30" fill="#f7e6c8"/>' + `<path d="M0 ${G}V132h34v-22h30v40h26v-30h22v76zM300 ${G}v-58h26v-26h34v44h40v40z" opacity=".06"/>`;
+   if (a.crane) s += `<path d="M300 ${G}V36M300 40H140M300 40l-40 18M300 40l40-12v10M190 40v34" stroke="#c2582f" stroke-width="3" fill="none"/>` + R(183,74,14,10, '#25211d');
+   if (a.chimney) s += R(bx + bw - 34, by - 66,18,70, a.body) + R(bx + bw - 37, by - 70,24,8, '#3a332d');
+   if (a.roof === 'gable') s += `<path d="M${bx - 6} ${by + 2}L200 ${by - 52}L${bx + bw + 6} ${by + 2}z" fill="#7d4a35"/>`;
+   if (a.roof === 'saw') for (let i = 0, tw = bw / 4; i < 4; i++) s += `<path d="M${bx + i * tw} ${by}l${tw} -30v30z" fill="#4d453d"/><path d="M${bx + (i + 1) * tw - 6} ${by - 24}v24h6v-30z" fill="#f6d58f"/>`;
+   if (a.roof === 'step') s += R(bx + 26, by - 26, bw - 52,28, '#bdb3a4') + R(bx + 40, by - 18, bw - 80,10, '#f6d58f');
+   s += R(bx, by, bw, bh, a.body) + R(bx - 4, by - 4, bw + 8,7, a.trim);
+   for (let f = 0; f < a.floors; f++) for (let c = 0; c < a.cols; c++) {
+    const x = bx + 18 + c * cw, y = by + 12 + f * fh, w = cw - 10, h = fh - 11, lit = (f * 7 + c * 3) % 5 < 2, col = lit ? '#f6d58f' : '#5b524a';
+    if (a.win === 'arch') s += `<path d="M${x} ${y + h}V${y + w / 2}a${w / 2} ${w / 2} 0 0 1 ${w} 0V${y + h}z" fill="${col}" stroke="${a.trim}" stroke-width="2.5"/>`;
+    else if (a.win === 'band') s += (c ? '' : R(bx + 8, y, bw - 16, h, '#5b524a') + R(bx + 8, y + h, bw - 16,4, a.trim)) + (lit ? R(x, y, w, h, '#f6d58f') : '');
+    else if (a.win === 'fin') s += R(x - 5, y - 4, cw, h + 8, lit ? '#f8dc9c' : '#e9d9bd') + R(x + w - 3, y - 4,6, h + 8, '#8b5e36');
+    else s += R(x, y, w, h, col) + `<path d="M${x + w / 2} ${y}v${h}M${x} ${y + h / 2}h${w}" stroke="${a.body}" stroke-width="1.5"/>`;
+   }
+   if (a.balcony) for (let f = 1; f < a.floors; f++) s += R(bx - 8, by + f * fh + 6, bw + 16,4, a.trim);
+   s += R(184, G - 30,32,30, '#3a332d') + R(178, G - 36,44,6, '#c2582f');
+   s += a.water ? R(0, G, 400,44, '#b5c2ba') + `<path d="M20 ${G + 16}h40M120 ${G + 26}h60M250 ${G + 14}h50M330 ${G + 30}h40" stroke="#e8eee9" stroke-width="2"/>` : R(0, G, 400,12, '#e7e0d4') + R(0, G + 12,400,32, '#cbc2b5') + `<path d="M0 ${G + 28}h400" stroke="#f4efe6" stroke-width="2" stroke-dasharray="16 12"/>`;
+   [[44,0.9],[356,1.1]].forEach(([x, k]) => (s += R(x - 2, G - 34 * k, 4,34 * k, '#7a6650') + `<circle cx="${x}" cy="${G - 40 * k}" r="${20 * k}" fill="#6f7d42"/><circle cx="${x - 6}" cy="${G - 46 * k}" r="${10 * k}" fill="#8f9c5c"/>`));
+   [[96,0],[112,2],[292,1]].forEach(([x, i]) => (s += R(x - 4, G - 4,8,10, '#3a332d', ' rx="3"') + R(x - 5, G - 17,10,15, SH[i], ' rx="4"') + `<circle cx="${x}" cy="${G - 21}" r="4" fill="#d9a983"/>`));
+   return `<svg viewBox="0 0 400 240" class="block h-full w-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${s}</svg>`;
+  }
+  const pins = $('#pins'), tabs = $('#locTabs'), card = $('#locCard');
+  pins.innerHTML = LOCS.map((l, i) => { const c = l.soon ? '#5d6935' : '#c2582f'; return `<g class="pin" data-i="${i}" transform="translate(${l.x} ${l.y})" tabindex="0" role="button" aria-label="${l.name}, ${l.hood}${l.soon ? ', opening soon' : ''}"><circle class="ring" r="15" fill="${c}" opacity=".5"/><circle class="dot" r="15" fill="${l.soon ? '#f8f5f0' : c}" stroke="${l.soon ? c : '#f8f5f0'}" stroke-width="3"${l.soon ? ' stroke-dasharray="4 3"' : ''}/><text y="4.5" text-anchor="middle" font-size="12" font-weight="800" fill="${l.soon ? c : '#fff'}">${l.soon ? '+' : i + 1}</text><text y="33" text-anchor="middle" font-size="11.5" font-weight="700" fill="#25211d" paint-order="stroke" stroke="#e6e0d5" stroke-width="4">${l.name}</text></g>`; }).join('');
+  tabs.innerHTML = LOCS.map((l, i) => `<button type="button" role="tab" data-i="${i}">${l.name}</button>`).join('');
+  const stat = (n, label) => `<div class="rounded-2xl bg-concrete-100 p-3"><p class="text-2xl font-bold">${n}</p><p class="text-xs text-ink/55">${label}</p></div>`;
+  function setLoc(i) {
+   const l = LOCS[i], pct = l.soon ? 0 : Math.round((1 - l.free / l.total) * 100);
+   $$('.pin').forEach((p) => { const on = +p.dataset.i === i; p.classList.toggle('on', on); p.querySelector('.ring').style.opacity = on ? '' : 0; p.setAttribute('aria-pressed', on); });
+   $$('#locTabs button').forEach((b) => { const on = +b.dataset.i === i; b.setAttribute('aria-selected', on); b.className = 'shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition ' + (on ? 'border-ink bg-ink text-concrete-50' : 'border-ink/10 hover:border-ink/40'); });
+   const badge = l.soon ? ['bg-olive text-white', 'Opening March 2027'] : l.free ? ['bg-concrete-50/90', '● Desks free today'] : ['bg-ink text-concrete-50', 'Waitlist only'];
+   card.innerHTML = `<div class="swap relative h-56 overflow-hidden sm:h-64">${facade(l.art)}<span class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold ${badge[0]}">${badge[1]}</span></div>
+    <div class="swap flex flex-1 flex-col p-6 md:p-7"><p class="eyebrow">${l.hood}</p><h3 class="mt-1 text-3xl font-bold tracking-tight">${l.name}</h3><p class="mt-1 text-ink/60">${l.addr}, Harborview</p>
+    ${l.soon ? '<p class="mt-6 rounded-2xl bg-olive/10 p-4 text-[15px] text-olive-deep">Founding members lock in 15% off for life. Hard-hat tours run on the first Friday of each month.</p>' : `<div class="mt-6 grid grid-cols-3 gap-3 text-center">${stat(l.free, 'desks free')}${stat(l.studios, 'studios open')}${stat(l.rooms, 'meeting rooms')}</div>
+    <div class="mt-5"><div class="flex justify-between text-xs text-ink/55"><span>Occupancy today</span><span>${pct}%</span></div><div class="mt-1.5 h-2 overflow-hidden rounded-full bg-concrete-200"><div class="h-full rounded-full ${pct > 95 ? 'bg-ink' : 'bg-olive'}" style="width:${pct}%"></div></div></div>`}
+    <ul class="mt-5 flex flex-wrap gap-2">${l.amen.map((a) => `<li class="rounded-full border border-ink/10 px-3 py-1 text-[13px]">${a}</li>`).join('')}</ul>
+    <p class="mt-5 flex items-center gap-2 text-sm text-ink/60"><iconify-icon icon="lucide:train-front" class="text-olive"></iconify-icon>${l.transit}</p>
+    <div class="mt-auto flex flex-wrap gap-2 pt-6"><a href="#tour" data-tour="${i}" class="btn btn-t px-5 py-2.5 text-sm">${l.soon ? 'Join the founding list' : 'Book a tour here'}<iconify-icon icon="lucide:arrow-right"></iconify-icon></a><a href="#" class="btn btn-o px-5 py-2.5 text-sm">Directions</a></div></div>`;
+  }
+  pins.addEventListener('click', (e) => { const p = e.target.closest('.pin'); if (p) setLoc(+p.dataset.i); });
+  pins.addEventListener('keydown', (e) => { const p = e.target.closest('.pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setLoc(+p.dataset.i); } });
+  tabs.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setLoc(+b.dataset.i); });
+  card.addEventListener('click', (e) => { const a = e.target.closest('[data-tour]'); if (a && !LOCS[+a.dataset.tour].soon) $('#tLoc').value = a.dataset.tour; });
+  setLoc(0);
+
+  // ---------- Membership calculator ----------
+  const PLANS = { // name, $/seat, meeting hrs included per seat, $/extra hr, card title, card blurb, perks
+   roam: ['Roam · hot desks', 290,2,38, 'Roam', 'Hot desks at every building', ['8am–8pm, all six locations', 'Café, events, printing']],
+   anchor: ['Anchor · dedicated desks', 460,4,32, 'Anchor', 'Your own dedicated desk', ['24/7 access, locking pedestal', '27" monitor & ergonomic chair']],
+   studio: ['Private studio', 610,6,26, 'Studio & Suite', 'Lockable rooms and whole floors', ['Studios for 2–15, suites for 16+', 'Your logo on the door']],
+   suite: ['Team suite', 540,6,24] };
+  $('#tiers').innerHTML = ['roam', 'anchor', 'studio'].map((k) => { const [, seat, incl, , title, sub, perks] = PLANS[k]; return `<div class="tier rounded-3xl border border-white/10 p-7 transition" data-plan="${k}"><div class="flex items-center justify-between"><h3 class="text-xl font-bold">${title}</h3><span class="badge hidden rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-ink">Recommended</span></div><p class="mt-1 text-sm opacity-60">${sub}</p><p class="mt-6 text-4xl font-bold tracking-tight">$${seat}<span class="text-base font-normal opacity-55"> /person</span></p><ul class="ticks mt-4 text-[15px] opacity-80"><li>${perks[0]}</li><li>${incl} meeting hours / person</li><li>${perks[1]}</li></ul></div>`; }).join('');
+  const team = $('#team'), hours = $('#hours'), addr = $('#addr'), money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  const WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  let shown = 0, raf;
+  function calc() {
+   const n = +team.value, h = +hours.value;
+   let key = n >= 16 ? 'suite' : n >= 5 ? 'studio' : n >= 2 ? 'anchor' : 'roam';
+   if (key === 'roam' && h > 4) key = 'anchor'; else if (key === 'anchor' && h / n > 7) key = 'studio'; // heavy meeting use earns a bigger allowance
+   const [name, seat, incl, extra] = PLANS[key], disc = n >= 25 ? 0.1 : n >= 10 ? 0.05 : 0, seats = n * seat, inc = n * incl, over = Math.max(0, h - inc) * extra, total = seats * (1 - disc) + over + (addr.checked ? 45 : 0), who = WORDS[n] || n;
+   $('#teamOut').textContent = n + (n === 1 ? ' person' : ' people'); $('#hoursOut').textContent = h + ' hrs';
+   [team, hours].forEach((r) => r.style.setProperty('--p', ((r.value - r.min) / (r.max - r.min)) * 100 + '%'));
+   $('#planName').textContent = name;
+   $('#planWhy').textContent = { roam: 'Flexible seats at all six buildings, ideal for a solo member.', anchor: `Dedicated desks for ${who} with 24/7 access.`, studio: `A lockable studio for ${who} with ${inc} meeting hours included.`, suite: `A self-contained floor for ${n}, with its own kitchen and boardroom.` }[key];
+   $('#perHead').textContent = `${money(total / n)} per person · cancel with 30 days’ notice`;
+   $('#breakdown').innerHTML = [[`${n} × ${money(seat)} seats`, money(seats)],[`${inc} meeting hours included`, '$0'],[`${Math.max(0, h - inc)} extra hours × ${money(extra)}`, money(over)], disc && [`Team discount (${disc * 100}%)`, '−' + money(seats * disc)], addr.checked && ['Business address & mail', '$45']].filter(Boolean).map(([a, b]) => `<div class="flex justify-between gap-4"><dt class="text-ink/60">${a}</dt><dd class="font-semibold">${b}</dd></div>`).join('');
+   $$('.tier').forEach((t) => { const on = t.dataset.plan === (key === 'suite' ? 'studio' : key); t.classList.toggle('bg-white/[0.07]', on); t.classList.toggle('!border-sand', on); t.querySelector('.badge').classList.toggle('hidden', !on); });
+   cancelAnimationFrame(raf); const from = shown, t0 = performance.now();
+   const step = (t) => { const k = reduce ? 1 : Math.min(1, (t - t0) / 450); shown = from + (total - from) * (1 - (1 - k) ** 3); $('#price').textContent = money(shown); if (k < 1) raf = requestAnimationFrame(step); };
+   raf = requestAnimationFrame(step);
+  }
+  [team, hours, addr].forEach((x) => x.addEventListener('input', calc)); calc();
+
+  // ---------- Tour booking ----------
+  const tLoc = $('#tLoc'), form = $('#tourForm'), done = $('#tourDone');
+  tLoc.innerHTML = LOCS.filter((l) => !l.soon).map((l, i) => `<option value="${i}">${l.name} — ${l.hood}</option>`).join('');
+  const days = []; for (const d = new Date(); days.length < 5;) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) days.push(new Date(d)); }
+  $('#tDays').innerHTML = days.map((d, i) => `<label class="chip"><input type="radio" name="day" value="${d.toDateString()}" class="sr-only"${i ? '' : ' checked'}><span class="block text-[11px] font-medium uppercase opacity-70">${d.toLocaleDateString('en-US', { weekday: 'short' })}</span>${d.getDate()}</label>`).join('');
+  $('#tTimes').innerHTML = ['9:00 am', '10:30 am', '12:00 pm', '2:00 pm', '3:30 pm', '4:30 pm'].map((t, i) => `<label class="chip"><input type="radio" name="time" value="${t}" class="sr-only"${i === 1 ? ' checked' : ''}>${t}</label>`).join('');
+  form.addEventListener('submit', (e) => {
+   e.preventDefault();
+   const name = $('#tName'), email = $('#tEmail'), err = $('#tErr'), bad = name.value.trim().length < 2 ? name : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()) ? email : null;
+   [name, email].forEach((f) => f.setAttribute('aria-invalid', f === bad));
+   err.textContent = bad === name ? 'Please tell us your name.' : bad ? 'That email doesn’t look quite right.' : ''; err.classList.toggle('hidden', !bad);
+   if (bad) return bad.focus();
+   const fd = new FormData(form), d = new Date(fd.get('day'));
+   $('#tourMsg').textContent = `${name.value.trim().split(' ')[0]}, we’ll meet you at ${LOCS[+tLoc.value].name} on ${d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at ${fd.get('time')}. A calendar invite is on its way to ${email.value.trim()}.`;
+   form.classList.add('hidden'); done.classList.remove('hidden'); done.focus();
+  });
+  $('#tourAgain').addEventListener('click', () => { form.reset(); form.classList.remove('hidden'); done.classList.add('hidden'); });
+
+  // Scroll reveal (below-the-fold content only)
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  $$('.reveal').forEach((x) => io.observe(x));
+ </script>
+</body>
+</html>

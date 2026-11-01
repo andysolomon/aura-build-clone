@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Switchback — Guided small-group expeditions</title>
+<meta name="description" content="Small-group treks and alpine traverses across four mountain ranges, led by certified guides. Eight hikers max, everything up the mountain included.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+ tailwind.config = {
+  theme: { extend: {
+   fontFamily: { display: ['Archivo', 'ui-sans-serif', 'system-ui', 'sans-serif'], sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+   colors: { forest: { DEFAULT: '#14271d', deep: '#0c1912', soft: '#2c4637' }, ochre: { DEFAULT: '#c98a2e', lite: '#e6b45e', deep: '#99661f' }, bone: { DEFAULT: '#efe7d7', dim: '#e4d9c3', warm: '#f6f1e6' }, rust: '#a4532c' },
+   boxShadow: { card: '0 24px 48px -30px rgba(12,25,18,.6)', glow: '0 0 0 1px rgba(239,231,215,.1), 0 40px 80px -30px rgba(0,0,0,.75)' }
+  } }
+ }
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+ .cond { font-stretch: 66%; } .semi { font-stretch: 84%; } .xwide { font-stretch: 125%; }
+ .cd { font-family: Archivo, sans-serif; font-stretch: 66%; font-weight: 700; text-transform: uppercase; line-height: .95; }
+ .kick { display: block; font: 700 11px/1 Archivo, sans-serif; font-stretch: 125%; letter-spacing: .26em; text-transform: uppercase; color: #99661f; }
+ .dark .kick { color: #e6b45e; }
+ .h2 { margin-top: 1rem; font: 800 3rem/.9 Archivo, sans-serif; font-stretch: 66%; text-transform: uppercase; }
+ @media (min-width: 768px) { .h2 { font-size: 4.5rem; } }
+ .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 9999px; padding: .95rem 1.7rem; font-size: 15px; font-weight: 500; transition: background .2s, border-color .2s, color .2s; }
+ .btn-o { background: #c98a2e; color: #0c1912; } .btn-o:hover { background: #e6b45e; }
+ .btn-g { border: 1px solid rgba(239,231,215,.3); } .btn-g:hover { border-color: #efe7d7; }
+ .cap { font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: rgba(20,39,29,.6); }
+ .fld { margin-top: .5rem; width: 100%; border-radius: .75rem; border: 1px solid rgba(20,39,29,.2); background: #efe7d7; padding: .75rem 1rem; font-size: 15px; }
+ .fld:focus { outline: none; border-color: #14271d; box-shadow: 0 0 0 3px rgba(201,138,46,.35); }
+ .ticks li { display: flex; gap: .85rem; } .ticks li::before { content: ""; flex: none; width: 6px; height: 11px; margin: 5px 4px 0; border: solid #c98a2e; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+ :focus-visible { outline: 2px solid #e6b45e; outline-offset: 3px; border-radius: 4px; }
+ @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+ .rise { animation: rise 1s cubic-bezier(.16,1,.3,1) both; }
+ @keyframes draw { to { stroke-dashoffset: 0; } }
+ .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.5s .25s cubic-bezier(.45,0,.2,1) forwards; }
+ @keyframes ping { from { transform: scale(.6); opacity: .9; } to { transform: scale(2.4); opacity: 0; } }
+ .ping { transform-box: fill-box; transform-origin: center; animation: ping 2.4s ease-out infinite; }
+ .lbl { font: 700 11px Archivo, sans-serif; font-stretch: 125%; letter-spacing: .2em; fill: #efe7d7; }
+ .sub { font: 400 12px Outfit, sans-serif; fill: #e6b45e; }
+ html.js .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
+ html.js .reveal.in { opacity: 1; transform: none; }
+ .chip { border: 1px solid rgba(20,39,29,.18); border-radius: 9999px; padding: .5rem 1rem; font-size: 14px; transition: all .2s; }
+ .chip:hover { border-color: #14271d; }
+ .chip[aria-pressed="true"], .seg[aria-pressed="true"] { background: #14271d; border-color: #14271d; color: #efe7d7; }
+ .day[aria-selected="true"] { background: rgba(230,180,94,.12); border-color: rgba(230,180,94,.55); }
+ .day[aria-selected="true"] .dn { color: #e6b45e; }
+ .trip { animation: rise .55s cubic-bezier(.16,1,.3,1) both; }
+ details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; font-size: 18px; font-weight: 500; }
+ summary::-webkit-details-marker { display: none; }
+ summary::after { content: "+"; font-size: 26px; font-weight: 300; transition: transform .3s; }
+ details[open] summary::after { transform: rotate(45deg); }
+ details p { margin-top: .75rem; max-width: 42rem; color: rgba(20,39,29,.7); }
+ @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  html.js .reveal { opacity: 1; transform: none; }
+ }
+</style>
+</head>
+<body class="bg-bone font-sans text-forest antialiased selection:bg-ochre/30">
+<a href="#main" class="sr-only z-[60] rounded bg-ochre px-4 py-2 text-forest-deep focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+
+<!-- Nav -->
+<header id="nav" class="fixed inset-x-0 top-0 z-50 transition duration-500">
+ <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 text-bone md:px-10" aria-label="Primary">
+  <a href="#top" class="flex items-center gap-3" aria-label="Switchback, home">
+   <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#c98a2e"/><path d="M8 25.5 22.5 21 9.5 16 23.5 11 13 6.5" fill="none" stroke="#0c1912" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+   <span class="font-display xwide text-sm font-extrabold tracking-[.2em]">SWITCHBACK</span>
+  </a>
+  <ul class="hidden items-center gap-9 text-sm text-bone/80 lg:flex">
+   <li><a href="#trips" class="hover:text-ochre-lite">Trips</a></li><li><a href="#itinerary" class="hover:text-ochre-lite">Itinerary</a></li><li><a href="#guides" class="hover:text-ochre-lite">Guides</a></li><li><a href="#pricing" class="hover:text-ochre-lite">Pricing</a></li><li><a href="#faq" class="hover:text-ochre-lite">FAQ</a></li>
+  </ul>
+  <div class="flex items-center gap-2">
+   <a href="#book" class="btn btn-o hidden !py-2.5 !text-sm sm:inline-flex">Hold a spot <iconify-icon icon="lucide:arrow-up-right"></iconify-icon></a>
+   <button id="menuBtn" class="grid h-11 w-11 place-items-center rounded-full border border-bone/25 text-xl lg:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><iconify-icon icon="lucide:menu"></iconify-icon></button>
+  </div>
+ </nav>
+ <div id="mobileMenu" class="hidden border-t border-bone/10 px-5 pb-6 lg:hidden">
+  <ul class="cd grid gap-1 pt-3 text-4xl text-bone"><li><a href="#trips" class="block py-2">Trips</a></li><li><a href="#itinerary" class="block py-2">Itinerary</a></li><li><a href="#guides" class="block py-2">Guides</a></li><li><a href="#pricing" class="block py-2">Pricing</a></li><li><a href="#faq" class="block py-2">FAQ</a></li></ul>
+  <a href="#book" class="btn btn-o mt-4 w-full">Hold a spot <iconify-icon icon="lucide:arrow-up-right"></iconify-icon></a>
+ </div>
+</header>
+
+<main id="main">
+ <!-- Hero -->
+ <section id="top" class="dark relative isolate overflow-hidden bg-forest-deep text-bone md:h-screen md:min-h-[820px] md:max-h-[1000px]" aria-labelledby="hero-title">
+  <svg id="scene" class="absolute bottom-0 right-0 -z-10 h-[470px] w-[210%] [mask-image:linear-gradient(transparent,#000_22%)] sm:w-full md:inset-0 md:h-full md:[mask-image:none]" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+   <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1912"/><stop offset=".26" stop-color="#172f23"/><stop offset=".4" stop-color="#3a4a39"/><stop offset=".5" stop-color="#8f7445"/><stop offset=".58" stop-color="#d49f55"/><stop offset=".7" stop-color="#efc988"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#f6dca2" stop-opacity=".6"/><stop offset=".35" stop-color="#e9b666" stop-opacity=".22"/><stop offset="1" stop-color="#e9b666" stop-opacity="0"/></radialGradient>
+    <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2ad62" stop-opacity="0"/><stop offset="1" stop-color="#e2ad62" stop-opacity=".38"/></linearGradient>
+    <linearGradient id="haze2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c98a2e" stop-opacity="0"/><stop offset="1" stop-color="#9a7a45" stop-opacity=".3"/></linearGradient>
+    <linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0c1912" stop-opacity=".82"/><stop offset=".36" stop-color="#0c1912" stop-opacity=".5"/><stop offset=".6" stop-color="#0c1912" stop-opacity="0"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset=".72" stop-color="#0c1912" stop-opacity="0"/><stop offset="1" stop-color="#0c1912" stop-opacity=".9"/></linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .94 0 0 0 0 .9 0 0 0 0 .82 0 0 0 .11 0"/></filter>
+        <mask id="tm" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900"><path d="M884 652l78-36-60-32 76-36-52-34 62-36-44-30 54-38-30-32 40-74" class="draw" pathLength="1" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></mask>
+   </defs>
+   <rect width="1440" height="900" fill="url(#sky)"/>
+   <g data-s=".42" data-m="-6" fill="none" stroke="#f3d9a0">
+    <circle cx="1215" cy="392" r="380" fill="url(#glow)" stroke="none"/>
+    <circle cx="1215" cy="392" r="86" opacity=".2"/><circle cx="1215" cy="392" r="138" opacity=".13"/><circle cx="1215" cy="392" r="196" opacity=".08"/><circle cx="1215" cy="392" r="262" opacity=".05"/>
+    <circle cx="1215" cy="392" r="48" fill="#f7e2b0" stroke="none"/>
+   </g>
+   <g id="heroTopo" fill="none" stroke="#efe7d7" data-s=".3" data-m="-4"></g>
+   <g data-s=".34" data-m="-10"><path d="M-60 520l41-4 34-18 35-11 40-17 29 1 33 20 31 14 27-5 31-22 36-5 29-20 24-13 31 13 30 9 44-1 35 19 38-9 29-25 30-24 33-2 25 29 35 12 30-2 30-4 29-12 34-11 37-38 30-14 30-10 28 8 26 24 26 18 32-28 21-24 33-13 34-5 21 12 27 3 25 20 27 10 26-25 31-28 25 5 28-7 21 5 25 19 23 10 21 6 26 4 33 9 29-6 32-27L1500 900H-60Z" fill="#7b7050"/><rect y="400" width="1440" height="200" fill="url(#haze)"/></g>
+   <g data-s=".26" data-m="-16"><path d="M-60 600l47-40 36-22 49 21 58 1 35 4 43-6 35 14 37 13 39-18 27-31 41 7 33-13 37 35 33 18 37-13 33 0 33-29 39-30 32 13 26-4 38 3 31-3 29 29 32 11 22-1 25 1 36-39 27-21 38 18 34 0 32 2 26 20 39-34 37-36 34-3 30 3 30 8 34 28 28 1 38 13 51-33 47-7 37 15 35-5L1500 900H-60Z" fill="#55603f"/><rect y="500" width="1440" height="160" fill="url(#haze2)"/></g>
+   <g data-s=".18" data-m="-24">
+    <path d="M-60 660l22 4 30 12 25 4 29 7 27-19 33-16 19-14 25-13 18 8 13 5 16 9 17 3 18 1 20 6 22-8 26-4 21-5 20-10 14-2 17 1 22-5 18-8 25-9 23-7 17 9 19 7 16 12 16 11 22-10 23-7 18 1 19-3 13-9 18-8 16-14 21-9 12-9 14-10 18-14 18-7 15-5 18-2 11-9 13-11 8-20 13-16 17-15 15-12 7-4 10-4 8-7 11-9 8-12 14-13 12-8 10-13 12-4 14-4 11-6 10-9 11-14 6-19 6-13 10-13 9 6 9 7 9 2 8 2 8 7 6 8 6 11 5 9 6-3 8-2 7 2 10 0 8-3 8-6 7-5 6-3 6 11 11 16 11 10 10 7 12 18 17 12 13 9 10 7 12 7 10 9 11 8 11 9 14 2 11 3 16 7 15 5 13 4 9 2 11-2 14-1 12-7 13-5 15-2 13-4 10 1 8 0 10 7 10 5 12 2 12 1 9 1 9-2L1500 900H-60Z" fill="#34473a"/>
+    <path d="M930 380l12-4 14-4 11-6 10-9 11-14 6-19 6-13 10-13 9 6 9 7 9 2 8 2 8 7 6 8 6 11 5 9 6-3 8-2 7 2 10 0 8-3 8-6 7-5 6-3 6 11 11 16 11 10 10 7-5 20 0 15-16-20-11-22-5 6-9-17-2 18-14 1-7 8-10 15-8-5-8-23-6 8-2 7-10-6-1-18-7 5-9-4-7-32-15 4-7-17-13 38-3 2-5 36-9 5-14-2-13-1-6 10-19 14Z" fill="#dccfb4" opacity=".9"/>
+    <path d="M884 652l78-36-60-32 76-36-52-34 62-36-44-30 54-38-30-32 40-74" fill="none" stroke="#f0bf68" stroke-width="2.4" stroke-dasharray="5 6" stroke-linecap="round" stroke-linejoin="round" mask="url(#tm)"/>
+    <circle cx="944" cy="448" r="11" fill="#f0bf68" class="ping" opacity=".7"/><circle cx="944" cy="448" r="4.5" fill="#f0bf68" stroke="#14271d" stroke-width="2"/>
+    <path d="M1009 301v-22l13 5-13 5" fill="#f0bf68" stroke="#f0bf68" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M1016 296l34-34h156M936 442l-30-28H792" fill="none" stroke="#efe7d7" stroke-opacity=".5"/>
+    <text class="lbl" x="1056" y="252">CORVANE PEAK</text><text class="sub" x="1056" y="280">3,412 m · summit day</text>
+    <text class="lbl" x="792" y="404">HIGH CAMP</text><text class="sub" x="792" y="432">2,870 m · night 4</text>
+   </g>
+   <g data-s=".1" data-m="-34"><path d="M-60 720l73-15 60-4 50-10 57-11 43 5 51 10 38 5 48 5 47-22 53-1 44-17 36-5 43 12 58 4 39 12 40 12 37-6 32 2 49-15 42-13 48-1 46 13 34 20 42 12 43-2 43 7 53-23 41-32 34-8 39 7 35 5 42 24 28-2 28 6 32-12 32-2L1500 900H-60Z" fill="#20362a"/></g>
+   <g data-s=".04" data-m="-46"><path d="M-60 800l70 9 52 6 70-10 88-30 41 24 54 22 63 2 62-18 52 1 44-9 57-2 67-10 51 9 54 24 59 1 76-7 57 1 69 18 68-29 56-20 60 26 50 11 44-1 56-18 42 4 33 5 28-13 37-6L1500 900H-60ZM-37 755l9 24-4 0 12 30-34 0 12-30-4 0zM116 764l9 22-4 0 11 27-32 0 11-27-4 0zM194 741l9 22-4 0 11 27-32 0 11-27-4 0zM243 749l8 20-4 0 10 25-28 0 10-25-4 0zM286 776l7 18-3 0 8 21-24 0 8-21-3 0zM364 776l9 24-4 0 12 29-34 0 12-29-4 0zM402 789l6 15-3 0 8 18-22 0 8-18-3 0zM440 771l7 18-3 0 9 22-26 0 9-22-3 0zM526 765l7 18-3 0 9 22-26 0 9-22-3 0zM564 750l9 23-4 0 12 29-34 0 12-29-4 0zM717 770l6 15-3 0 8 18-22 0 8-18-3 0zM844 785l7 17-3 0 8 21-24 0 8-21-3 0zM997 793l7 16-3 0 8 20-24 0 8-20-3 0zM1080 754l10 27-5 0 14 33-38 0 14-33-5 0zM1196 774l6 15-3 0 8 19-22 0 8-19-3 0zM1245 781l7 18-3 0 9 23-26 0 9-23-3 0zM1279 766l10 27-5 0 14 32-38 0 14-32-5 0zM1357 764l8 19-4 0 10 24-28 0 10-24-4 0zM1436 759l10 25-5 0 13 31-36 0 13-31-5 0z" fill="#0f1f17"/></g>
+   <rect width="1440" height="900" fill="url(#shade)"/><rect width="1440" height="900" fill="url(#floor)"/>
+   <rect width="1440" height="900" filter="url(#grain)" opacity=".7"/>
+  </svg>
+
+  <div class="relative mx-auto flex h-full max-w-7xl flex-col px-5 pb-8 pt-32 md:px-10 md:pt-[148px]">
+   <p class="rise flex items-center gap-3 font-display xwide text-[11px] font-semibold uppercase tracking-[.2em] text-ochre-lite sm:tracking-[.26em]"><span class="h-px w-10 bg-ochre-lite"></span>Guided expeditions · Since 2011</p>
+   <h1 id="hero-title" class="rise mt-6 font-display cond text-[4.6rem] font-extrabold uppercase leading-[.84] sm:text-[6.6rem] lg:text-[8.75rem]" style="animation-delay:.08s">Earn every<br><span class="text-ochre-lite">ridgeline.</span></h1>
+   <p class="rise mt-7 max-w-[29rem] text-[17px] leading-relaxed text-bone/80" style="animation-delay:.16s">Small-group treks and alpine traverses led by certified mountain guides. Eight hikers at most, every permit handled, and a hot dinner at the top of every switchback.</p>
+   <div class="rise mt-8 flex flex-wrap gap-3" style="animation-delay:.24s">
+    <a href="#trips" class="btn btn-o group">Find your trip <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-1"></iconify-icon></a>
+    <a href="#itinerary" class="btn btn-g backdrop-blur-sm"><iconify-icon icon="lucide:route"></iconify-icon>See a 7-day route</a>
+   </div>
+   <div class="rise mt-8 flex items-center gap-4" style="animation-delay:.32s">
+    <div class="flex -space-x-2 text-[11px] font-semibold text-forest-deep [&>span]:h-10 [&>span]:w-10" aria-hidden="true"><span class="grid place-items-center rounded-full bg-ochre ring-2 ring-forest-deep">PN</span><span class="grid place-items-center rounded-full bg-[#8a9a74] ring-2 ring-forest-deep">DW</span><span class="grid place-items-center rounded-full bg-bone-dim ring-2 ring-forest-deep">SI</span><span class="grid place-items-center rounded-full bg-rust text-bone ring-2 ring-forest-deep">MR</span></div>
+    <p class="text-sm leading-tight text-bone/70"><span class="font-medium text-bone"><span class="text-ochre-lite">★★★★★</span> 4.9</span> from 2,140 trip reviews<br>Hikers from 38 countries</p>
+   </div>
+
+   <aside class="rise absolute bottom-[128px] right-10 hidden w-[312px] rounded-2xl border border-bone/15 bg-forest-deep/65 p-5 shadow-glow backdrop-blur-md lg:block" style="animation-delay:.5s" aria-label="Next departure">
+    <div class="flex items-center justify-between text-[11px]"><span class="font-display xwide font-bold uppercase tracking-[.2em] text-ochre-lite">2027 season</span><span class="flex items-center gap-1.5 text-bone/60"><span class="h-1.5 w-1.5 animate-pulse rounded-full bg-[#9fd38f]"></span>Live availability</span></div>
+    <p class="cd mt-3 text-[34px] leading-none">Kestrel Traverse</p>
+    <p class="mt-1.5 text-[13px] text-bone/65">7 days · 68 km · huts and one high camp</p>
+    <svg viewBox="0 0 270 50" class="mt-3 w-full" aria-hidden="true"><path id="spark" fill="#e6b45e" fill-opacity=".16" stroke="#e6b45e" stroke-width="1.6"/></svg>
+    <div class="mt-3 flex items-end justify-between text-[15px]"><p><span class="block text-[11px] uppercase tracking-[.16em] text-bone/50">Departs</span>Jun 12, 2027</p><p class="text-right"><span class="block text-[11px] uppercase tracking-[.16em] text-bone/50">From</span>$2,450</p></div>
+    <div class="mt-4 h-1.5 rounded-full bg-bone/10"><div class="h-full w-[62%] rounded-full bg-ochre"></div></div>
+    <p class="mt-2 text-[12px] text-bone/60">5 of 8 spots taken · early-bird $200 off to Dec 15</p>
+   </aside>
+
+   <div class="h-72 md:hidden" aria-hidden="true"></div>
+   <dl class="rise grid grid-cols-2 gap-x-6 gap-y-5 border-t border-bone/15 pt-5 text-[13px] text-bone/60 md:mt-auto md:grid-cols-4" style="animation-delay:.4s">
+    <div class="flex flex-col-reverse"><dt>hikers per group, max</dt><dd class="cd text-3xl text-bone">8</dd></div>
+    <div class="flex flex-col-reverse"><dt>guide-to-hiker ratio</dt><dd class="cd text-3xl text-bone">1 : 4</dd></div>
+    <div class="flex flex-col-reverse"><dt>routes in four ranges</dt><dd class="cd text-3xl text-bone">41</dd></div>
+    <div class="flex flex-col-reverse"><dt>say they’d go again</dt><dd class="cd text-3xl text-bone">97%</dd></div>
+   </dl>
+  </div>
+ </section>
+
+ <!-- Press -->
+ <section class="border-b border-forest/10" aria-label="Featured in">
+  <div class="mx-auto flex max-w-7xl flex-col gap-7 px-5 py-11 md:px-10 lg:flex-row lg:items-center lg:justify-between">
+   <p class="max-w-[15rem] text-sm leading-snug text-forest/60">Written up by the people who cover the outdoors for a living</p>
+   <ul class="flex flex-wrap items-center gap-x-10 gap-y-5 text-forest/75">
+    <li class="font-display xwide text-[16px] font-black tracking-[.06em]">TRAILHEAD<sup class="ml-1 text-[8px] tracking-[.2em]">QTRLY</sup></li>
+    <li class="text-[25px] font-light tracking-tight">outbound<span class="text-ochre">.</span></li>
+    <li class="font-display cond text-[19px] font-bold uppercase tracking-[.24em]">The Alpine Ledger</li>
+    <li class="flex items-center gap-2 font-display semi text-[19px] font-semibold"><svg viewBox="0 0 20 22" class="h-5 w-5" aria-hidden="true" fill="currentColor"><ellipse cx="10" cy="19" rx="9" ry="3"/><ellipse cx="10" cy="13" rx="6.5" ry="2.6"/><ellipse cx="10" cy="8" rx="4.5" ry="2.2"/><ellipse cx="10" cy="3.5" rx="2.6" ry="1.8"/></svg>Cairn &amp; Compass</li>
+    <li class="font-display cond text-[24px] font-black uppercase">Field<span class="text-ochre">/</span>Notes</li>
+   </ul>
+  </div>
+ </section>
+
+ <!-- Trip finder -->
+ <section id="trips" class="bg-bone-dim/60" aria-labelledby="trips-title">
+  <div class="mx-auto max-w-7xl px-5 py-24 md:px-10">
+   <div class="reveal flex flex-wrap items-end justify-between gap-6">
+    <div><span class="kick">01 — Trip finder</span><h2 id="trips-title" class="h2">Find your route.</h2></div>
+    <p class="max-w-sm text-[16px] text-forest/70">Filter by range, grade and length. Cards update as you go, with live spots left on the next departure.</p>
+   </div>
+   <div class="reveal mt-10 grid gap-5 rounded-2xl bg-bone p-5 ring-1 ring-forest/10 lg:grid-cols-[1.6fr_1fr_1fr] lg:gap-8 lg:p-6">
+    <fieldset><legend class="cap mb-3">Region</legend><div class="flex flex-wrap gap-2" data-f="region"><button class="chip" data-v="all" aria-pressed="true">All ranges</button><button class="chip" data-v="kestrel" aria-pressed="false">Kestrel Range</button><button class="chip" data-v="ocaso" aria-pressed="false">Sierra Ocaso</button><button class="chip" data-v="halvard" aria-pressed="false">Halvard Fjells</button><button class="chip" data-v="tamsin" aria-pressed="false">Tamsin Highlands</button></div></fieldset>
+    <fieldset><legend class="cap mb-3">Difficulty</legend><div class="flex flex-wrap gap-2" data-f="diff"><button class="chip" data-v="all" aria-pressed="true">Any</button><button class="chip" data-v="0" aria-pressed="false">Moderate</button><button class="chip" data-v="1" aria-pressed="false">Challenging</button><button class="chip" data-v="2" aria-pressed="false">Strenuous</button></div></fieldset>
+    <fieldset><legend class="cap mb-3">Duration</legend><div class="flex flex-wrap gap-2" data-f="dur"><button class="chip" data-v="all" aria-pressed="true">Any</button><button class="chip" data-v="s" aria-pressed="false">≤ 5 days</button><button class="chip" data-v="m" aria-pressed="false">6–8 days</button><button class="chip" data-v="l" aria-pressed="false">9+ days</button></div></fieldset>
+   </div>
+   <div class="mt-6 flex items-center justify-between text-sm"><p id="count" class="text-forest/70" aria-live="polite"></p><button class="reset inline-flex items-center gap-1.5 font-medium underline-offset-4 hover:underline"><iconify-icon icon="lucide:rotate-ccw"></iconify-icon>Reset</button></div>
+   <div id="tripGrid" class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+   <div id="empty" class="mt-5 hidden flex-col items-center rounded-2xl border-2 border-dashed border-forest/20 px-6 py-16 text-center">
+    <span class="grid h-14 w-14 place-items-center rounded-full bg-forest text-2xl text-ochre-lite"><iconify-icon icon="lucide:search-x"></iconify-icon></span>
+    <p class="cd mt-5 text-3xl">No routes match that combination</p>
+    <p class="mt-2 max-w-md text-forest/65">Try another range or a longer window, or let a planner build a private trip that fits exactly.</p>
+    <div class="mt-6 flex flex-wrap justify-center gap-3"><button class="reset btn bg-forest !py-3 text-bone">Reset filters</button><a href="#book" class="btn !py-3 ring-1 ring-forest/30">Ask a planner</a></div>
+   </div>
+  </div>
+ </section>
+
+ <!-- Itinerary -->
+ <section id="itinerary" class="dark bg-forest text-bone" aria-labelledby="itin-title">
+  <div class="mx-auto max-w-7xl px-5 py-24 md:px-10">
+   <div class="reveal flex flex-wrap items-end justify-between gap-8">
+    <div><span class="kick">02 — Day by day</span><h2 id="itin-title" class="h2">The Kestrel Traverse.</h2></div>
+    <dl class="grid grid-cols-2 gap-x-10 gap-y-4 text-[12px] uppercase tracking-[.16em] text-bone/50 sm:grid-cols-4">
+     <div><dt>Duration</dt><dd class="cd text-3xl normal-case text-bone">7 days</dd></div><div><dt>Distance</dt><dd class="cd text-3xl normal-case text-bone">68 km</dd></div><div><dt>Ascent</dt><dd class="cd text-3xl normal-case text-bone">+4,210 m</dd></div><div><dt>High point</dt><dd class="cd text-3xl normal-case text-bone">3,412 m</dd></div>
+    </dl>
+   </div>
+   <div class="reveal mt-12 rounded-3xl bg-forest-deep/70 p-4 ring-1 ring-bone/10 md:p-8">
+    <div id="profWrap" class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0"><svg id="profile" viewBox="0 0 1000 250" class="w-full min-w-[720px]" role="img" aria-label="Elevation profile of the Kestrel Traverse. The marker shows the overnight stop for the selected day.">
+     <defs>
+      <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe7d7" stop-opacity=".16"/><stop offset="1" stop-color="#efe7d7" stop-opacity="0"/></linearGradient>
+      <linearGradient id="areaHi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6b45e" stop-opacity=".55"/><stop offset="1" stop-color="#e6b45e" stop-opacity=".02"/></linearGradient>
+      <clipPath id="dayClip"><rect id="clipRect" height="250" width="0"/></clipPath>
+      <path id="pArea"/><path id="pLine"/>
+     </defs>
+     <g id="grid" font-family="Outfit" font-size="11" fill="#efe7d7" fill-opacity=".45"></g>
+     <use href="#pArea" fill="url(#area)"/>
+     <use href="#pLine" fill="none" stroke="#efe7d7" stroke-opacity=".55" stroke-width="1.6"/>
+     <g clip-path="url(#dayClip)"><use href="#pArea" fill="url(#areaHi)"/><use href="#pLine" fill="none" stroke="#e6b45e" stroke-width="3" stroke-linejoin="round"/></g>
+     <g id="hits"></g>
+     <g id="marker" pointer-events="none">
+      <line id="mLine" y2="100" stroke="#e6b45e" stroke-dasharray="3 4"/>
+      <circle r="15" fill="#e6b45e" opacity=".25" class="ping"/><circle r="7" fill="#e6b45e" stroke="#0c1912" stroke-width="3"/>
+      <g id="mTag"><rect id="mPill" y="-50" height="30" rx="15" fill="#efe7d7"/><text id="mText" y="-30" text-anchor="middle" font-family="Outfit" font-size="12.5" font-weight="500" fill="#0c1912"></text></g>
+     </g>
+    </svg></div>
+    <div class="mt-6 grid gap-6 lg:grid-cols-[290px_1fr] lg:gap-10">
+     <div id="dayTabs" role="tablist" aria-label="Itinerary days" class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 lg:flex-col lg:overflow-visible"></div>
+     <div id="dayPanel" role="tabpanel" tabindex="0" class="rounded-2xl bg-bone/[0.04] p-6 ring-1 ring-bone/10 md:p-8"></div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- Guides -->
+ <section id="guides" class="mx-auto max-w-7xl px-5 py-24 md:px-10" aria-labelledby="guides-title">
+  <div class="reveal grid gap-6 lg:grid-cols-2 lg:items-end">
+   <div><span class="kick">03 — Your guides</span><h2 id="guides-title" class="h2">They know the way down, too.</h2></div>
+   <p class="max-w-md text-[17px] leading-relaxed text-forest/70 lg:justify-self-end">Every lead holds a current alpine guide certification, a wilderness first responder ticket and at least six seasons in their home range.</p>
+  </div>
+  <div id="guideGrid" class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
+ </section>
+
+ <!-- Pricing -->
+ <section id="pricing" class="bg-bone-dim/60" aria-labelledby="price-title">
+  <div class="mx-auto max-w-7xl px-5 py-24 md:px-10">
+   <div class="reveal flex flex-wrap items-end justify-between gap-6">
+    <div><span class="kick">04 — Pricing</span><h2 id="price-title" class="h2 max-w-3xl">One price. Everything up the mountain.</h2></div>
+    <div class="inline-flex rounded-full bg-bone p-1 ring-1 ring-forest/15" role="group" aria-label="Departure type"><button class="seg rounded-full px-5 py-2.5 text-sm font-medium" data-mode="g" aria-pressed="true">Join a group</button><button class="seg rounded-full px-5 py-2.5 text-sm font-medium" data-mode="p" aria-pressed="false">Private party</button></div>
+   </div>
+   <div class="mt-12 grid gap-5 lg:grid-cols-3">
+    <article class="reveal flex flex-col rounded-3xl bg-bone p-8 ring-1 ring-forest/10">
+     <p class="text-[13px] text-forest/60">3 days · Moderate · Kestrel Range</p><h3 class="cd mt-2 text-4xl">Larch Hollow Weekender</h3>
+     <p class="mt-6 flex items-baseline gap-2 text-sm text-forest/60"><span class="price cd text-6xl font-extrabold text-forest" data-g="890" data-p="1190">$890</span>per person</p>
+     <ul class="ticks mt-7 space-y-3 text-[15px] text-forest/80"><li>Certified lead guide, 1:4 ratio</li><li>Two hut nights in four-bunk rooms</li><li>All meals from day-one lunch</li><li>Loaner poles, packs and rain shells</li><li>Shuttle from Alder Gate station</li></ul>
+     <a href="#book" data-trip="1" class="btn mt-8 ring-1 ring-forest/30 hover:bg-forest hover:text-bone lg:mt-auto">Hold a spot</a>
+    </article>
+    <article class="reveal relative flex flex-col rounded-3xl bg-forest p-8 text-bone shadow-card">
+     <span class="absolute right-6 top-6 rounded-full bg-ochre px-3 py-1 text-[12px] font-semibold text-forest-deep">Most booked</span>
+     <p class="text-[13px] text-bone/60">7 days · Challenging · Kestrel Range</p><h3 class="cd mt-2 text-4xl">Kestrel Traverse</h3>
+     <p class="mt-6 flex items-baseline gap-2 text-sm text-bone/60"><span class="price cd text-6xl font-extrabold text-ochre-lite" data-g="2450" data-p="3290">$2,450</span>per person</p>
+     <ul class="ticks mt-7 space-y-3 text-[15px] text-bone/85"><li>Two certified guides on every departure</li><li>Five hut nights plus a staffed high camp</li><li>All meals, trail snacks and hut fees</li><li>Crampons, harness, helmet and ice axe</li><li>Permits and daily luggage transfer</li><li>Summit-day photos from your guide</li></ul>
+     <a href="#book" data-trip="0" class="btn btn-o mt-8">Hold a spot</a>
+    </article>
+    <article class="reveal flex flex-col rounded-3xl bg-bone p-8 ring-1 ring-forest/10">
+     <p class="text-[13px] text-forest/60">10 days · Challenging · Halvard Fjells</p><h3 class="cd mt-2 text-4xl">Halvard Fjord Circuit</h3>
+     <p class="mt-6 flex items-baseline gap-2 text-sm text-forest/60"><span class="price cd text-6xl font-extrabold text-forest" data-g="4180" data-p="5560">$4,180</span>per person</p>
+     <ul class="ticks mt-7 space-y-3 text-[15px] text-forest/80"><li>Two guides plus a fjord skipper</li><li>Seven huts and two coastal lodges</li><li>All meals, with a smokehouse supper</li><li>Boat crossing of Skarn Fjord</li><li>Transfers from Varnes airport</li></ul>
+     <a href="#book" data-trip="5" class="btn mt-8 ring-1 ring-forest/30 hover:bg-forest hover:text-bone lg:mt-auto">Hold a spot</a>
+    </article>
+   </div>
+   <p class="mt-8 text-center text-sm text-forest/60"><span id="modeNote">Group departures, max eight hikers.</span> Not included: flights, travel insurance (required) and gratuities.</p>
+  </div>
+ </section>
+
+ <!-- Testimonials -->
+ <section class="bg-forest-deep text-bone" aria-labelledby="rev-title">
+  <div class="mx-auto grid max-w-7xl gap-5 px-5 py-24 md:px-10 lg:grid-cols-5">
+   <h2 id="rev-title" class="sr-only">What hikers say</h2>
+   <figure class="reveal flex flex-col justify-between rounded-3xl bg-forest p-8 ring-1 ring-bone/10 md:p-12 lg:col-span-3">
+    <iconify-icon icon="lucide:quote" class="text-4xl text-ochre-lite"></iconify-icon>
+    <blockquote class="mt-6 font-display semi text-3xl font-semibold leading-[1.15] md:text-[2.6rem]">I booked the Traverse to prove something to myself. I came home with six new friends and a summit photo I’ve had framed twice.</blockquote>
+    <figcaption class="mt-10 flex items-center gap-4"><span class="grid h-12 w-12 place-items-center rounded-full bg-ochre font-semibold text-forest-deep">PN</span><span><b class="block font-medium">Priya Natarajan</b><span class="text-sm text-bone/60">Kestrel Traverse · August 2026</span></span></figcaption>
+   </figure>
+   <div class="grid gap-5 lg:col-span-2">
+    <figure class="reveal rounded-3xl bg-bone/[0.05] p-7 ring-1 ring-bone/10"><p class="text-ochre-lite" role="img" aria-label="5 out of 5 stars">★★★★★</p><blockquote class="mt-3 text-[17px] leading-relaxed text-bone/85">“Tomás read the sky better than any app. We moved camp a day early and watched the storm from the dry side of the canyon.”</blockquote><figcaption class="mt-5 text-sm text-bone/55">Dale &amp; Rosa Whitfield · Ocaso Canyon Loop</figcaption></figure>
+    <figure class="reveal rounded-3xl bg-bone/[0.05] p-7 ring-1 ring-bone/10"><p class="text-ochre-lite" role="img" aria-label="5 out of 5 stars">★★★★★</p><blockquote class="mt-3 text-[17px] leading-relaxed text-bone/85">“My first trip longer than a day. Honest pace, absurdly good food, and nobody was ever left at the back.”</blockquote><figcaption class="mt-5 text-sm text-bone/55">Sam Ikeda · Larch Hollow Weekender</figcaption></figure>
+   </div>
+  </div>
+ </section>
+
+ <!-- FAQ -->
+ <section id="faq" class="border-t border-forest/10" aria-labelledby="faq-title">
+  <div class="mx-auto grid max-w-7xl gap-12 px-5 py-24 md:px-10 lg:grid-cols-[1fr_1.6fr]">
+   <div class="reveal"><span class="kick">05 — Questions</span><h2 id="faq-title" class="h2">Before you lace up.</h2><p class="mt-5 max-w-xs text-forest/65">A planner answers within a working day at <a href="#" class="font-medium text-forest underline underline-offset-4">trips@switchback.example</a>.</p></div>
+   <div class="reveal divide-y divide-forest/10 border-y border-forest/10 [&>details]:py-6">
+    <details open><summary>How fit do I need to be?</summary><p>If you can walk 15 km with 800 m of climbing and still enjoy dinner, you’re ready for Moderate. Challenging adds longer days and some scrambling; Strenuous means back-to-back nine-hour days at altitude.</p></details>
+    <details><summary>What gear do I need to bring?</summary><p>Broken-in boots, layers and a 30–40 L pack. Technical kit, tents, stoves and sleeping mats are provided, and you get a printable gear list the day you book.</p></details>
+    <details><summary>I’m travelling solo. Is that normal?</summary><p>Very. About 40% of our hikers come alone. Rooms are shared by default; a private room is $45 a night where huts allow it.</p></details>
+    <details><summary>What happens if the weather turns?</summary><p>Every itinerary has a planned bad-weather variant. Guides make the call on the day, and summit routes include a spare weather day.</p></details>
+    <details><summary>Can you cater for dietary needs?</summary><p>Yes: vegetarian, vegan, gluten-free and most allergies, as long as you tell us 30 days ahead so the huts can stock up.</p></details>
+   </div>
+  </div>
+ </section>
+
+ <!-- Book + CTA -->
+ <section id="book" class="dark relative isolate overflow-hidden bg-forest text-bone" aria-labelledby="book-title">
+  <svg class="absolute inset-0 -z-10 h-full w-full" viewBox="0 0 1440 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g id="ctaTopo" fill="none" stroke="#e6b45e"></g></svg>
+  <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 md:px-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+   <div class="reveal">
+    <span class="kick">06 — Hold a spot</span>
+    <h2 id="book-title" class="mt-5 font-display cond text-6xl font-extrabold uppercase leading-[.86] md:text-8xl">The mountain will wait. <span class="text-ochre-lite">The early-bird price won’t.</span></h2>
+    <p class="mt-6 max-w-md text-[17px] leading-relaxed text-bone/70">Hold places free for 72 hours while you check with your crew. No card until you confirm, and $200 off any 2027 departure booked by Dec 15.</p>
+    <ul class="ticks mt-8 space-y-3 text-[15px] text-bone/85"><li>Free cancellation up to 60 days out</li><li>A fitness call with your guide before you go</li><li>Audited safety plans on every route since 2011</li></ul>
+   </div>
+   <div class="reveal">
+    <form id="bookForm" class="rounded-3xl bg-bone-warm p-6 text-forest shadow-glow md:p-8" novalidate>
+    <div class="grid gap-5 sm:grid-cols-2">
+     <label class="sm:col-span-2"><span class="cap">Route</span><select id="bTrip" class="fld"></select></label>
+     <label><span class="cap">Departure</span><select id="bMonth" class="fld"><option>June 2027</option><option>July 2027</option><option selected>August 2027</option><option>September 2027</option></select></label>
+     <div><span class="cap" id="hLbl">Hikers</span><div class="fld flex items-center justify-between !px-2 !py-1.5" role="group" aria-labelledby="hLbl"><button type="button" id="hMinus" class="grid h-9 w-9 place-items-center rounded-lg text-lg hover:bg-forest/5 disabled:opacity-30" aria-label="Fewer hikers"><iconify-icon icon="lucide:minus"></iconify-icon></button><output id="hCount" class="font-display text-lg font-bold" aria-live="polite">2</output><button type="button" id="hPlus" class="grid h-9 w-9 place-items-center rounded-lg text-lg hover:bg-forest/5 disabled:opacity-30" aria-label="More hikers"><iconify-icon icon="lucide:plus"></iconify-icon></button></div></div>
+     <label><span class="cap">Name</span><input required name="name" autocomplete="name" class="fld" placeholder="Jordan Avery"></label>
+     <label><span class="cap">Email</span><input required type="email" name="email" autocomplete="email" class="fld" placeholder="you@example.com"></label>
+    </div>
+    <dl class="mt-6 space-y-2 rounded-2xl bg-forest p-5 text-sm text-bone/70">
+     <div class="flex justify-between"><dt id="sLine"></dt><dd id="sTotal" class="font-medium text-bone"></dd></div>
+     <div class="flex justify-between"><dt>Due today</dt><dd class="font-medium text-ochre-lite">$0</dd></div>
+     <div class="flex justify-between border-t border-bone/10 pt-2"><dt>Deposit on confirmation</dt><dd id="sDep" class="font-medium text-bone"></dd></div>
+    </dl>
+    <p id="bErr" class="mt-3 hidden text-sm text-rust" role="alert">Add your name and a valid email so we can send the hold.</p>
+    <button class="btn btn-o mt-5 w-full">Hold my places <iconify-icon icon="lucide:arrow-right"></iconify-icon></button>
+   </form>
+    <div id="bDone" class="hidden rounded-3xl bg-bone-warm p-8 text-forest shadow-glow md:p-10" role="status" tabindex="-1">
+     <span class="grid h-14 w-14 place-items-center rounded-full bg-ochre text-2xl text-forest-deep"><iconify-icon icon="lucide:check"></iconify-icon></span>
+     <p class="cd mt-6 text-5xl font-extrabold">Places held.</p>
+     <p id="doneText" class="mt-3 text-[16px] leading-relaxed text-forest/75"></p>
+     <p class="mt-6 inline-flex rounded-full bg-forest px-4 py-2 font-display xwide text-[12px] font-bold tracking-[.18em] text-ochre-lite">REF SB-27-0412</p>
+     <button id="bAgain" class="mt-8 block text-sm font-medium text-forest/70 underline underline-offset-4 hover:text-forest">Hold another trip</button>
+    </div>
+   </div>
+  </div>
+ </section>
+</main>
+
+<footer class="bg-forest-deep text-sm text-bone/65">
+ <div class="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:px-10 sm:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr] [&_h3]:text-[12px] [&_h3]:font-medium [&_h3]:uppercase [&_h3]:tracking-[.18em] [&_h3]:text-bone [&_li]:mt-2 [&_a:hover]:text-bone">
+  <div><p class="flex items-center gap-3 font-display xwide font-extrabold tracking-[.2em] text-bone"><svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#c98a2e"/><path d="M8 25.5 22.5 21 9.5 16 23.5 11 13 6.5" fill="none" stroke="#0c1912" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>SWITCHBACK</p><p class="mt-5 max-w-xs">Guided small-group expeditions across the Kestrel Range, Sierra Ocaso, Halvard Fjells and Tamsin Highlands.</p></div>
+  <div><h3>Trips</h3><ul class="mt-4"><li><a href="#trips">All routes</a></li><li><a href="#itinerary">Sample itinerary</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#book">Private trips</a></li></ul></div>
+  <div><h3>Company</h3><ul class="mt-4"><li><a href="#guides">Our guides</a></li><li><a href="#">Safety record</a></li><li><a href="#">Leave-no-trace pledge</a></li><li><a href="#">Careers</a></li></ul></div>
+ </div>
+ <div class="border-t border-bone/10"><div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 py-6 text-[12px] text-bone/45 sm:flex-row sm:items-center md:px-10"><p>© 2026 Switchback Expeditions Ltd. Licensed tour operator TO-48213.</p><div class="flex gap-5 text-base"><a href="#" aria-label="Instagram" class="hover:text-bone"><iconify-icon icon="lucide:instagram"></iconify-icon></a><a href="#" aria-label="YouTube" class="hover:text-bone"><iconify-icon icon="lucide:youtube"></iconify-icon></a><a href="#" aria-label="Email us" class="hover:text-bone"><iconify-icon icon="lucide:mail"></iconify-icon></a></div></div></div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches, fmt = (n) => '$' + n.toLocaleString('en-US');
+
+// Nav, mobile menu
+const nav = $('#nav'), menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
+const setMenu = (open) => { menu.classList.toggle('hidden', !open); menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); menuBtn.firstElementChild.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu'); onScroll(); };
+menuBtn.onclick = () => setMenu(menu.classList.contains('hidden'));
+$$('#mobileMenu a').forEach((a) => (a.onclick = () => setMenu(false)));
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.classList.contains('hidden')) { setMenu(false); menuBtn.focus(); } });
+
+// Topographic contours: marching squares over a smooth height field
+function topo(g, W, H, cell, levels, bumps) {
+ const cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 1, f = new Float32Array(cols * rows); let max = 0;
+ for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+  const x = i / (cols - 1), y = j / (rows - 1) * H / W;
+  let v = .07 * Math.sin(x * 11 + y * 4) * Math.cos(y * 13 - x * 3) + .03 * Math.sin(x * 29 + y * 21);
+  for (const [bx, by, r, a] of bumps) v += a * Math.exp(-((x - bx) ** 2 + (y - by * H / W) ** 2) / (r * r));
+  f[j * cols + i] = v; if (v > max) max = v;
+ }
+ const T = [[], [[3, 2]], [[2, 1]], [[3, 1]], [[0, 1]], [[3, 0], [2, 1]], [[0, 2]], [[3, 0]], [[3, 0]], [[0, 2]], [[0, 1], [3, 2]], [[0, 1]], [[3, 1]], [[2, 1]], [[3, 2]], []];
+ let thin = '', bold = '';
+ for (let L = 1; L <= levels; L++) {
+  const t = max * L / (levels + 1); let d = '';
+  for (let j = 0; j < rows - 1; j++) for (let i = 0; i < cols - 1; i++) {
+   const a = f[j * cols + i], b = f[j * cols + i + 1], c = f[(j + 1) * cols + i + 1], e = f[(j + 1) * cols + i];
+   const k = (a > t) * 8 + (b > t) * 4 + (c > t) * 2 + (e > t); if (!k || k === 15) continue;
+   const X = i * cell, Y = j * cell, P = (s) => s === 0 ? [X + (t - a) / (b - a) * cell, Y] : s === 1 ? [X + cell, Y + (t - b) / (c - b) * cell] : s === 2 ? [X + (t - e) / (c - e) * cell, Y + cell] : [X, Y + (t - a) / (e - a) * cell];
+   for (const [s1, s2] of T[k]) { const p = P(s1), q = P(s2); d += `M${p[0].toFixed(1)} ${p[1].toFixed(1)}L${q[0].toFixed(1)} ${q[1].toFixed(1)}`; }
+  }
+  if (L % 4) thin += d; else bold += d;
+ }
+ g.innerHTML = `<path d="${thin}" stroke-opacity=".08"/><path d="${bold}" stroke-opacity=".16" stroke-width="1.4"/>`;
+}
+topo($('#heroTopo'), 1440, 900, 12, 15, [[.82, .18, .26, 1], [.42, .08, .2, .75], [.12, .42, .24, .6], [.66, .55, .2, .5]]);
+topo($('#ctaTopo'), 1440, 760, 12, 14, [[.8, .4, .24, 1], [.25, .7, .26, .8], [.5, .1, .18, .5]]);
+
+// Hero parallax: scroll + pointer
+const layers = $$('#scene [data-s]'); let mx = 0, sy = 0, raf = 0;
+const paint = () => { raf = 0; layers.forEach((g) => g.setAttribute('transform', `translate(${(mx * g.dataset.m).toFixed(1)} ${(sy * g.dataset.s).toFixed(1)})`)); };
+const queue = () => { raf ||= requestAnimationFrame(paint); };
+function onScroll() { const solid = scrollY > 40 || !menu.classList.contains('hidden'); nav.classList.toggle('bg-forest-deep/95', solid); nav.classList.toggle('backdrop-blur', solid); if (!RM) { sy = Math.min(scrollY, 1000); queue(); } }
+addEventListener('scroll', onScroll, { passive: true }); onScroll();
+if (!RM && matchMedia('(pointer: fine)').matches) $('#top').addEventListener('pointermove', (e) => { mx = e.clientX / innerWidth - .5; queue(); });
+
+// Seeded mini landscapes for cards
+const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+const ridgeD = (r, base, amp, w, h, n) => { let d = `M0 ${h}`; for (let i = 0; i <= n; i++) d += `L${(i * w / n).toFixed(0)} ${(base - amp * Math.abs(Math.sin(i * .9 + r() * 2)) * (.45 + .55 * r())).toFixed(0)}`; return d + `L${w} ${h}Z`; };
+const REG = { kestrel: ['Kestrel Range', '#e9d3a0 #9aa57f #5d7353 #243a2b'], ocaso: ['Sierra Ocaso', '#f1c47f #cd8a55 #8f4e2e #4b291b'], halvard: ['Halvard Fjells', '#d8ded5 #98aca6 #5d7774 #263a39'], tamsin: ['Tamsin Highlands', '#e6d8b2 #aa9e6d #6f6f47 #373c28'] };
+function art(reg, seed, w = 320, h = 180) {
+ const c = REG[reg][1].split(' '), r = rng(seed * 977 + 13);
+ const sea = reg === 'halvard' ? `<rect y="${h * .82}" width="${w}" height="${h}" fill="#3c5958"/><path d="M40 ${h * .88}h60m70 ${h * .05}h80" stroke="#d8ded5" stroke-opacity=".5"/>` : '';
+ return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 h-full w-full" aria-hidden="true"><rect width="${w}" height="${h}" fill="${c[0]}"/><circle cx="${60 + r() * 200}" cy="${h * .3}" r="${h * .1}" fill="#fff6e2" opacity=".75"/><path d="${ridgeD(r, h * .5, h * .28, w, h, 14)}" fill="${c[1]}"/><path d="${ridgeD(r, h * .68, h * .26, w, h, 10)}" fill="${c[2]}"/><path d="${ridgeD(r, h * .9, h * .2, w, h, 7)}" fill="${c[3]}"/>${sea}</svg>`;
+}
+
+// Trip finder
+const DIFF = ['Moderate', 'Challenging', 'Strenuous'];
+const TRIPS = [
+ ['Kestrel Traverse', 'kestrel', 1, 7, 2450, 'Jun 12', 3, 'Hut-to-hut across the range, with a summit day on Corvane Peak.'],
+ ['Larch Hollow Weekender', 'kestrel', 0, 3, 890, 'May 29', 6, 'Two nights in a timber hut above the larch line. The ideal first trip.'],
+ ['Corvane Summit Push', 'kestrel', 2, 5, 2180, 'Jul 3', 2, 'Glacier skills, a high camp and a 3:30 a.m. start for the top.'],
+ ['Ocaso Canyon Loop', 'ocaso', 0, 5, 1640, 'Nov 21', 4, 'Slot canyons, warm rock and campfires under very big skies.'],
+ ['Red Mesa High Route', 'ocaso', 1, 8, 2760, 'Feb 6', 5, 'Mesa tops and old cattle trails, resupplied by mule train.'],
+ ['Halvard Fjord Circuit', 'halvard', 1, 10, 4180, 'Jun 26', 3, 'Huts, sea cliffs and a skippered crossing of Skarn Fjord.'],
+ ['Skerry Coast Huts', 'halvard', 0, 6, 2040, 'Aug 8', 7, 'Island-hopping hut walk with a sauna at every overnight.'],
+ ['Tamsin Bothy Trail', 'tamsin', 0, 4, 1120, 'Apr 17', 5, 'Heather moors, open bothies and a peat fire every night.'],
+ ['Tamsin Ridge Grand', 'tamsin', 2, 9, 3390, 'Jul 24', 1, 'Nine days, eleven summits and the finest ridge walk in the north.']
+].map(([n, r, d, days, p, next, left, b]) => ({ n, r, d, days, p, next, left, b }));
+const F = { region: 'all', diff: 'all', dur: 'all' };
+const durOk = (t) => F.dur === 'all' || (F.dur === 's' ? t.days <= 5 : F.dur === 'm' ? t.days >= 6 && t.days <= 8 : t.days >= 9);
+const bars = (d) => [0, 1, 2].map((i) => `<span class="w-1.5 rounded-sm ${i <= d ? 'bg-ochre-deep' : 'bg-forest/15'}" style="height:${6 + i * 4}px"></span>`).join('');
+function renderTrips() {
+ const list = TRIPS.filter((t) => (F.region === 'all' || t.r === F.region) && (F.diff === 'all' || t.d == F.diff) && durOk(t));
+ $('#count').textContent = `Showing ${list.length} of ${TRIPS.length} featured routes`;
+ $('#empty').classList.toggle('hidden', !!list.length); $('#empty').classList.toggle('flex', !list.length);
+ $('#tripGrid').innerHTML = list.map((t, i) => `<article class="trip group overflow-hidden rounded-2xl bg-bone ring-1 ring-forest/10 transition duration-300 hover:-translate-y-1 hover:shadow-card" style="animation-delay:${i * 50}ms">
+  <div class="relative aspect-[16/9]">${art(t.r, TRIPS.indexOf(t) + 1)}<span class="absolute left-3 top-3 rounded-full bg-bone/90 px-3 py-1 text-[12px] font-medium">${REG[t.r][0]}</span><span class="absolute right-3 top-3 rounded-full ${t.left <= 2 ? 'bg-rust' : 'bg-forest-deep/80'} px-3 py-1 text-[12px] font-medium text-bone">${t.left} ${t.left === 1 ? 'spot' : 'spots'} left</span></div>
+  <div class="p-5"><div class="flex items-start justify-between gap-4"><h3 class="cd text-[28px]">${t.n}</h3><p class="shrink-0 text-right"><span class="block text-[11px] uppercase tracking-[.14em] text-forest/50">from</span><span class="font-display text-xl font-bold">${fmt(t.p)}</span></p></div>
+  <p class="mt-2 text-sm leading-relaxed text-forest/65">${t.b}</p>
+  <div class="mt-4 flex items-center gap-4 border-t border-forest/10 pt-4 text-[13px] text-forest/75"><span class="flex items-center gap-1.5"><iconify-icon icon="lucide:calendar-days"></iconify-icon>${t.days} days</span><span class="flex items-end gap-2"><span class="flex items-end gap-[3px]" aria-hidden="true">${bars(t.d)}</span>${DIFF[t.d]}</span><span class="ml-auto font-medium">Next: ${t.next}</span></div></div></article>`).join('');
+}
+$$('[data-f]').forEach((grp) => grp.addEventListener('click', (e) => {
+ const b = e.target.closest('button'); if (!b) return;
+ $$('button', grp).forEach((x) => x.setAttribute('aria-pressed', x === b)); F[grp.dataset.f] = b.dataset.v; renderTrips();
+}));
+$$('.reset').forEach((b) => (b.onclick = () => { Object.keys(F).forEach((k) => (F[k] = 'all')); $$('[data-f] button').forEach((x) => x.setAttribute('aria-pressed', x.dataset.v === 'all')); renderTrips(); }));
+renderTrips();
+
+// Itinerary and elevation profile
+const DAYS = [
+ ['Alder Gate to Larch Hollow', 9, 720, 110, 1820, 1790, '4–5 h', 'Larch Hollow Hut', 'An easy start through alder and larch forest, lunch beside Tumble Falls and a first hut supper with the whole valley below.', 'Gear fitting · Tumble Falls swim · Hut-terrace sunset'],
+ ['Over Harrow Col', 11, 980, 550, 2480, 2220, '6–7 h', 'Tarn Basin Hut', 'The first proper climb, switchbacking to Harrow Col for a view of Corvane’s north face, then down to a basin of three glassy tarns.', 'First view of Corvane · Lunch on the col · Wood-fired sauna'],
+ ['Skills on the Sable Glacier', 7, 460, 220, 2560, 2460, '5 h', 'Glass Tarn Camp', 'A shorter day on the glacier tongue learning crampon technique, rope travel and self-arrest. Afternoon free to rest or fish.', 'Ice-axe clinic · Roped glacier walk · Hot showers'],
+ ['Up to High Camp', 6, 410, 0, 2870, 2870, '4 h', 'Corvane High Camp', 'A steady climb on the old miners’ path to high camp. Early dinner, a route briefing with your guides and lights out by eight.', 'Acclimatisation walk · Summit briefing · Stargazing'],
+ ['Summit day: Corvane Peak', 10, 600, 1170, 3412, 2300, '10–11 h', 'Wolfsbane Meadows', 'Headtorches on at 3:30 a.m. Roped up for the final snow ridge, on top for sunrise if the weather plays fair, then a long descent.', 'Sunrise on the summit · Fixed-line snow ridge · Celebration dinner'],
+ ['The Long Ridge', 13, 760, 1000, 2640, 2060, '7 h', 'Wolfsbane Hut', 'The most beautiful day on the route: a grassy ridge with drop-offs on both sides and the whole range laid out behind you.', '360° ridge views · Ibex country · Spare weather day'],
+ ['Down to Ferrow', 12, 280, 1160, 2100, 1180, '5–6 h', 'Ferrow village', 'Down through pine forest to Ferrow for a long lunch, certificates and a shuttle back to Alder Gate by 5 p.m.', 'Last swim at Ferrow Lake · Village lunch · Shuttle home']
+].map(([t, km, up, dn, hi, end, h, stay, tx, hl]) => ({ t, km, up, dn, hi, end, h, stay, tx, hl: hl.split(' · ') }));
+const PX = (km) => 10 + km / 68 * 920, PY = (m) => 222 - (m - 1000) / 2600 * 196, M = (n) => n.toLocaleString('en-US');
+const pts = [], ends = []; let cum = 0, el = 1180;
+DAYS.forEach((d, di) => {
+ const pk = d.hi === d.end ? .98 : .35 + (di % 3) * .12;
+ for (let s = 0; s <= 24; s++) {
+  const u = s / 24, wob = Math.sin(u * Math.PI) * 28 * Math.sin(u * 19 + di * 2);
+  const m = u < pk ? el + (d.hi - el) * (1 - Math.cos(u / pk * Math.PI)) / 2 : d.hi + (d.end - d.hi) * (1 - Math.cos((u - pk) / (1 - pk) * Math.PI)) / 2;
+  pts.push([PX(cum + u * d.km), PY(m + wob)]);
+ }
+ cum += d.km; el = d.end; ends.push(cum);
+});
+const lineD = 'M' + pts.map((p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L');
+$('#pLine').setAttribute('d', lineD); $('#pArea').setAttribute('d', lineD + `L${PX(68)} 222L${PX(0)} 222Z`);
+let gd = '', hits = '', s0 = 0;
+[1500, 2500, 3500].forEach((m) => (gd += `<line x1="10" x2="938" y1="${PY(m)}" y2="${PY(m)}" stroke="#efe7d7" stroke-opacity=".08"/><text x="1000" y="${PY(m) + 4}" text-anchor="end">${M(m)} m</text>`));
+ends.forEach((e, i) => {
+ if (i < 6) gd += `<line x1="${PX(e)}" x2="${PX(e)}" y1="20" y2="222" stroke="#efe7d7" stroke-opacity=".12" stroke-dasharray="2 4"/>`;
+ gd += `<text x="${PX((s0 + e) / 2)}" y="244" text-anchor="middle">Day ${i + 1}</text>`;
+ hits += `<rect x="${PX(s0)}" width="${PX(e) - PX(s0)}" height="250" fill="transparent" data-i="${i}" style="cursor:pointer"/>`; s0 = e;
+});
+$('#grid').innerHTML = gd; $('#hits').innerHTML = hits;
+const yAt = (x) => { for (let i = 1; i < pts.length; i++) if (pts[i][0] >= x) { const [a, b] = [pts[i - 1], pts[i]]; return a[1] + (b[1] - a[1]) * ((x - a[0]) / (b[0] - a[0] || 1)); } return pts.at(-1)[1]; };
+let curKm = 0, curDay = -1, tw = 0, tagW = 120;
+function place(km, di) {
+ const x = PX(km), y = yAt(x), from = PX(di ? ends[di - 1] : 0);
+ $('#marker').setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`); $('#mLine').setAttribute('y2', (222 - y).toFixed(1));
+ const hw = tagW / 2 + 14; $('#mTag').setAttribute('transform', `translate(${(Math.min(Math.max(x, hw), 1000 - hw) - x).toFixed(1)} 0)`);
+ $('#clipRect').setAttribute('x', from); $('#clipRect').setAttribute('width', Math.max(0, x - from));
+}
+const tabs = $('#dayTabs'), panel = $('#dayPanel');
+tabs.innerHTML = DAYS.map((d, i) => `<button role="tab" id="tab${i}" aria-controls="dayPanel" aria-selected="false" tabindex="-1" data-i="${i}" class="day shrink-0 rounded-xl border border-bone/10 px-4 py-3 text-left transition hover:border-bone/30"><span class="dn block font-display xwide text-[10px] font-bold uppercase tracking-[.2em] text-bone/50">Day ${i + 1} · ${d.km} km</span><span class="mt-1 block whitespace-nowrap text-[15px] font-medium lg:whitespace-normal">${d.t}</span></button>`).join('');
+function selectDay(i, focus) {
+ if (i === curDay) return; const d = DAYS[i], tab = $('#tab' + i);
+ $$('[role=tab]', tabs).forEach((b, j) => { b.setAttribute('aria-selected', j === i); b.tabIndex = j === i ? 0 : -1; });
+ panel.setAttribute('aria-labelledby', tab.id); if (focus) tab.focus();
+ if (curDay >= 0) tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+ $('#mText').textContent = `${d.stay} · ${M(d.end)} m`; tagW = $('#mText').getComputedTextLength(); $('#mPill').setAttribute('x', -tagW / 2 - 14); $('#mPill').setAttribute('width', tagW + 28);
+ const wrap = $('#profWrap'); if (wrap.scrollWidth > wrap.clientWidth) wrap.scrollTo({ left: PX(ends[i]) / 1000 * $('#profile').clientWidth - wrap.clientWidth / 2, behavior: RM || curDay < 0 ? 'auto' : 'smooth' });
+ const stat = (ic, k, v) => `<div class="rounded-xl bg-bone/[0.05] p-3"><dt class="flex items-center gap-1.5 text-[12px] uppercase tracking-[.14em] text-bone/50"><iconify-icon icon="lucide:${ic}"></iconify-icon>${k}</dt><dd class="mt-1 font-display text-xl font-bold">${v}</dd></div>`;
+ panel.innerHTML = `<div class="flex flex-wrap items-baseline justify-between gap-3"><h3 class="cd text-4xl md:text-5xl">${d.t}</h3><span class="text-sm text-bone/55">Day ${i + 1} of 7</span></div>
+  <dl class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">${stat('footprints', 'Distance', d.km + ' km') + stat('trending-up', 'Ascent', '+' + M(d.up) + ' m') + stat('trending-down', 'Descent', '−' + M(d.dn) + ' m') + stat('clock', 'Walking', d.h)}</dl>
+  <p class="mt-6 max-w-2xl text-[16px] leading-relaxed text-bone/75">${d.tx}</p>
+  <div class="mt-5 flex flex-wrap gap-2">${d.hl.map((h) => `<span class="rounded-full border border-bone/15 px-3 py-1.5 text-[13px] text-bone/80">${h}</span>`).join('')}</div>
+  <p class="mt-6 border-t border-bone/10 pt-5 text-sm text-bone/70"><iconify-icon icon="lucide:bed-double" class="mr-1.5 align-[-2px] text-ochre-lite"></iconify-icon>Overnight at <b class="font-medium text-bone">${d.stay}</b>, ${M(d.end)} m</p>`;
+ const a = curKm, b = ends[i], t0 = performance.now(), dur = RM || curDay < 0 ? 0 : 900; curDay = i; cancelAnimationFrame(tw);
+ const step = (now) => { const u = dur ? Math.min(1, (now - t0) / dur) : 1, e = u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2; curKm = a + (b - a) * e; place(curKm, i); if (u < 1) tw = requestAnimationFrame(step); };
+ step(t0);
+}
+tabs.onclick = (e) => { const b = e.target.closest('[role=tab]'); if (b) selectDay(+b.dataset.i); };
+tabs.onkeydown = (e) => { const n = { ArrowRight: curDay + 1, ArrowDown: curDay + 1, ArrowLeft: curDay + 6, ArrowUp: curDay + 6, Home: 0, End: 6 }[e.key]; if (n !== undefined) { e.preventDefault(); selectDay(n % 7, true); } };
+$('#hits').onclick = (e) => { const r = e.target.closest('[data-i]'); if (r) selectDay(+r.dataset.i); };
+selectDay(3);
+$('#spark').setAttribute('d', 'M' + pts.filter((_, i) => i % 3 === 0).map((p) => ((p[0] - 10) / 920 * 270).toFixed(1) + ' ' + (4 + (p[1] - 20) / 202 * 44).toFixed(1)).join('L') + 'L270 50L0 50Z');
+
+// Guides
+const GUIDES = [
+ ['Ruth Okafor', 'Lead alpine guide', 'kestrel', 12, 140, 'Alpine guide · Avalanche L2 · English, Yoruba', 'Has led more Corvane summits than anyone, and still stops for every marmot.'],
+ ['Tomás Arrieta', 'Canyon & desert lead', 'ocaso', 14, 186, 'Canyon guide · WFR · Spanish, English', 'Can name every cactus in the Ocaso and will, at length, around the fire.'],
+ ['Maren Lindqvist', 'Fjord & coast lead', 'halvard', 9, 97, 'Mountain leader · Sea kayak L3 · Swedish, English', 'Ex-hut warden who knows which huts bake cardamom buns on which days.'],
+ ['Callum Reid', 'Highlands lead', 'tamsin', 11, 128, 'Mountain leader · WFR · English, Gaelic', 'Carries a tiny stove so there’s proper tea on every single summit.']
+];
+$('#guideGrid').innerHTML = GUIDES.map(([n, role, r, yrs, trips, tags, q], k) => `<article class="reveal overflow-hidden rounded-2xl bg-bone-warm ring-1 ring-forest/10"><div class="relative h-36">${art(r, k + 20, 320, 150)}<span class="cd absolute -bottom-8 left-6 grid h-16 w-16 place-items-center rounded-full bg-forest text-2xl text-ochre-lite ring-4 ring-bone-warm">${n.split(' ').map((w) => w[0]).join('')}</span></div>
+ <div class="p-6 pt-12"><h3 class="cd text-3xl leading-none">${n}</h3><p class="mt-1.5 text-sm text-forest/60">${role} · ${REG[r][0]}</p>
+ <div class="mt-4 flex flex-wrap gap-1.5">${tags.split(' · ').map((t) => `<span class="rounded-full bg-forest/[0.07] px-2.5 py-1 text-[12px]">${t}</span>`).join('')}</div>
+ <p class="mt-4 text-sm leading-relaxed text-forest/70">${q}</p>
+ <div class="mt-5 grid grid-cols-2 border-t border-forest/10 pt-4 text-[13px] text-forest/60"><p><b class="block font-display text-xl text-forest">${yrs}</b>seasons</p><p><b class="block font-display text-xl text-forest">${trips}</b>trips led</p></div></div></article>`).join('');
+
+// Pricing toggle
+$$('.seg').forEach((b) => (b.onclick = () => {
+ $$('.seg').forEach((x) => x.setAttribute('aria-pressed', x === b));
+ $$('.price').forEach((p) => (p.textContent = fmt(+p.dataset[b.dataset.mode])));
+ $('#modeNote').textContent = b.dataset.mode === 'g' ? 'Group departures, max eight hikers.' : 'Private prices are per person for a party of four, on your dates.';
+}));
+
+// Booking
+const bTrip = $('#bTrip'); let hikers = 2;
+bTrip.innerHTML = TRIPS.map((t, i) => `<option value="${i}">${t.n} · ${t.days} days · ${fmt(t.p)}</option>`).join('');
+const sum = () => { const t = TRIPS[bTrip.value]; $('#hCount').textContent = hikers; $('#sLine').textContent = `${hikers} × ${fmt(t.p)}`; $('#sTotal').textContent = fmt(hikers * t.p); $('#sDep').textContent = fmt(hikers * 300); $('#hMinus').disabled = hikers <= 1; $('#hPlus').disabled = hikers >= 8; };
+bTrip.onchange = sum;
+$('#hMinus').onclick = () => { hikers--; sum(); }; $('#hPlus').onclick = () => { hikers++; sum(); };
+$$('a[data-trip]').forEach((a) => a.addEventListener('click', () => { bTrip.value = a.dataset.trip; sum(); }));
+sum();
+$('#bookForm').onsubmit = (e) => {
+ e.preventDefault(); const f = e.currentTarget;
+ if (!f.checkValidity()) { $('#bErr').classList.remove('hidden'); return; }
+ const until = new Date(Date.now() + 2592e5).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+ $('#doneText').textContent = `${hikers} ${hikers > 1 ? 'places' : 'place'} on the ${TRIPS[bTrip.value].n}, ${$('#bMonth').value}, held until ${until}. A confirmation link is on its way to ${f.email.value}.`;
+ f.classList.add('hidden'); $('#bDone').classList.remove('hidden'); $('#bDone').focus();
+};
+$('#bAgain').onclick = () => { $('#bDone').classList.add('hidden'); $('#bookForm').classList.remove('hidden'); $('#bErr').classList.add('hidden'); };
+
+// Scroll reveal
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+$$('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

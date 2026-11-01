@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glass Music Player Card - now playing, scrubber, equalizer and queue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .stage { background: #0b0a12; }
+    .blob { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .72; transition: background-color 1.2s ease; animation: drift 18s ease-in-out infinite alternate; }
+    .blob.b2 { animation-duration: 22s; animation-direction: alternate-reverse; }
+    .blob.b3 { animation-duration: 26s; }
+    @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.12); } 100% { transform: translate(-6%, 8%) scale(.94); } }
+    .glass { background: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.06)); -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px rgba(255,255,255,.14), 0 40px 80px -30px rgba(0,0,0,.6); }
+    .art { box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 24px 48px -18px rgba(0,0,0,.65); }
+    .art svg { transition: opacity .35s ease, transform .5s cubic-bezier(.2,.8,.2,1); }
+    .art.swap svg { opacity: 0; transform: scale(.96); }
+    .track { height: 6px; background: rgba(255,255,255,.2); }
+    .fill { background: #fff; width: var(--p, 0%); }
+    .knob { left: var(--p, 0%); transform: translate(-50%, -50%) scale(.6); opacity: 0; transition: transform .15s, opacity .15s; }
+    .seek:hover .knob, .seek:focus-visible .knob, .seek.dragging .knob { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .seek:focus-visible { outline: none; }
+    .seek:focus-visible .track { box-shadow: 0 0 0 2px rgba(0,0,0,.3), 0 0 0 4px rgba(255,255,255,.9); }
+    .eq { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+    .eq span { width: 3px; border-radius: 2px; background: currentColor; height: 30%; animation: eq .9s ease-in-out infinite alternate; }
+    .eq span:nth-child(2) { animation-duration: .6s; animation-delay: -.2s; }
+    .eq span:nth-child(3) { animation-duration: .75s; animation-delay: -.5s; }
+    .eq span:nth-child(4) { animation-duration: .55s; animation-delay: -.1s; }
+    .eq span:nth-child(5) { animation-duration: .8s; animation-delay: -.35s; }
+    @keyframes eq { 0% { height: 20%; } 100% { height: 100%; } }
+    .paused .eq span { animation-play-state: paused; opacity: .6; }
+    .ctl { transition: background-color .15s, color .15s, transform .15s; }
+    .ctl:hover { background: rgba(255,255,255,.12); }
+    .ctl:active { transform: scale(.92); }
+    .ctl[aria-pressed=true] { color: #fff; }
+    .ctl[aria-pressed=true]::after { content: ''; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 9999px; background: currentColor; }
+    .play { box-shadow: 0 10px 30px -8px rgba(0,0,0,.5), inset 0 -2px 0 rgba(0,0,0,.08); transition: transform .2s cubic-bezier(.3,1.5,.5,1); }
+    .play:hover { transform: scale(1.05); }
+    .play:active { transform: scale(.95); }
+    .heart[aria-pressed=true] { color: #ff6b8b; }
+    .heart svg { transition: fill .2s; }
+    .heart[aria-pressed=true] svg { fill: currentColor; animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
+    @keyframes pop { 50% { transform: scale(1.3); } }
+    .q-item[aria-current=true] { background: rgba(255,255,255,.14); }
+    button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      .blob, .eq span, .heart[aria-pressed=true] svg { animation: none; }
+      .eq span:nth-child(1) { height: 45%; } .eq span:nth-child(2) { height: 85%; } .eq span:nth-child(3) { height: 60%; } .eq span:nth-child(4) { height: 100%; } .eq span:nth-child(5) { height: 35%; }
+      .art svg, .blob { transition: none; }
+    }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-3 font-sans antialiased sm:p-8">
+  <main class="stage relative isolate grid w-full max-w-[1040px] place-items-center overflow-hidden rounded-[30px] px-3 py-8 ring-1 ring-white/10 sm:min-h-[680px] sm:px-8 sm:py-12">
+    <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+      <div class="blob b1 left-[6%] top-[4%] h-[46%] w-[42%]"></div>
+      <div class="blob b2 right-[4%] top-[18%] h-[52%] w-[40%]"></div>
+      <div class="blob b3 bottom-[-6%] left-[30%] h-[44%] w-[44%]"></div>
+      <div class="absolute inset-0 bg-black/25"></div>
+    </div>
+
+    <section id="player" class="glass w-full max-w-[780px] rounded-[30px] p-4 text-white sm:p-6" aria-label="Music player">
+      <div class="grid gap-5 sm:gap-7 md:grid-cols-[264px_1fr]">
+        <div id="art" class="art relative mx-auto aspect-square w-full max-w-[300px] overflow-hidden rounded-[22px] md:max-w-none"></div>
+
+        <div class="flex min-w-0 flex-col">
+          <div class="flex items-center justify-between gap-3">
+            <p class="inline-flex items-center gap-2.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-white/70">
+              <span class="eq text-[#a7f3d0]" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+              <span id="status">Now playing</span>
+            </p>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/75 ring-1 ring-inset ring-white/10"><iconify-icon icon="lucide:speaker" class="text-[12px]"></iconify-icon>Studio speakers</span>
+          </div>
+
+          <div class="mt-5 flex items-start justify-between gap-3 md:mt-auto">
+            <div class="min-w-0">
+              <h2 id="title" class="truncate text-[26px] font-bold leading-tight tracking-[-0.03em] sm:text-[30px]"></h2>
+              <p class="mt-1 truncate text-[14px] text-white/65"><span id="artist"></span> · <span id="album"></span></p>
+            </div>
+            <button type="button" id="like" class="heart ctl relative grid h-10 w-10 shrink-0 place-items-center rounded-full text-white/70" aria-pressed="false" aria-label="Save to library"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></button>
+          </div>
+
+          <div class="mt-5">
+            <div id="seek" class="seek relative cursor-pointer touch-none py-2.5" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0">
+              <div class="track relative overflow-hidden rounded-full"><div class="fill absolute inset-y-0 left-0 rounded-full"></div></div>
+              <span class="knob pointer-events-none absolute top-1/2 h-3.5 w-3.5 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,.4)]"></span>
+            </div>
+            <div class="flex justify-between text-[12px] font-medium tabular-nums text-white/60"><span id="cur">0:00</span><span id="rem">-0:00</span></div>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between">
+            <button type="button" id="shuffle" class="ctl relative grid h-10 w-10 place-items-center rounded-full text-white/55" aria-pressed="false" aria-label="Shuffle"><iconify-icon icon="lucide:shuffle" class="text-[18px]"></iconify-icon></button>
+            <button type="button" id="prev" class="ctl grid h-12 w-12 place-items-center rounded-full text-white" aria-label="Previous track"><iconify-icon icon="lucide:skip-back" class="text-[22px]"></iconify-icon></button>
+            <button type="button" id="play" class="play grid h-16 w-16 place-items-center rounded-full bg-white text-zinc-900" aria-label="Pause"><iconify-icon icon="lucide:pause" class="text-[26px]"></iconify-icon></button>
+            <button type="button" id="next" class="ctl grid h-12 w-12 place-items-center rounded-full text-white" aria-label="Next track"><iconify-icon icon="lucide:skip-forward" class="text-[22px]"></iconify-icon></button>
+            <button type="button" id="repeat" class="ctl relative grid h-10 w-10 place-items-center rounded-full text-white/55" aria-pressed="false" aria-label="Repeat track"><iconify-icon icon="lucide:repeat-1" class="text-[18px]"></iconify-icon></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 border-t border-white/10 pt-4">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/60">Up next</h3>
+          <span class="text-[12px] text-white/45">From “Late Shift Mix”</span>
+        </div>
+        <ol id="queue" class="mt-2 grid gap-1 sm:grid-cols-3"></ol>
+      </div>
+      <p id="live" class="sr-only" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var TRACKS = [
+        { t: 'Tidewater', a: 'Halden Rue', al: 'Slow Weather', d: 222, v: 0, c: ['#ff7a45', '#6d2a8c', '#ffd36e'] },
+        { t: 'Low Orbit', a: 'Mira Okafor', al: 'Field Recordings', d: 248, v: 1, c: ['#22b8cf', '#0f2a66', '#e6f7ff'] },
+        { t: 'Glass Hours', a: 'Sable Choir', al: 'Glass Hours', d: 196, v: 2, c: ['#c6f36d', '#1c6b4d', '#0c2a22'] },
+        { t: 'Paper Moon Drive', a: 'Juno Vale', al: 'Night Shift', d: 178, v: 3, c: ['#ff5fa2', '#35268a', '#ffc6de'] },
+        { t: 'Northern Static', a: 'Teo Lindqvist', al: 'Kites', d: 231, v: 1, c: ['#ffb547', '#a3322b', '#fff1d6'] }
+      ];
+      var $ = function (id) { return document.getElementById(id); };
+      var player = $('player'), seek = $('seek'), playBtn = $('play'), artEl = $('art'), live = $('live');
+      var blobs = document.querySelectorAll('.blob');
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var state = { i: 0, t: 84, playing: true, drag: false, liked: {} , last: 0 };
+
+      function art(tr, big) {
+        var c = tr.c, s = '<svg viewBox="0 0 100 100" class="h-full w-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g' + tr.t.length + (big ? 'b' : 's') + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></linearGradient></defs>';
+        var gid = 'url(#g' + tr.t.length + (big ? 'b' : 's') + ')';
+        if (tr.v === 0) {
+          s += '<rect width="100" height="100" fill="' + gid + '"/><circle cx="62" cy="40" r="22" fill="' + c[2] + '"/><rect y="58" width="100" height="42" fill="' + c[1] + '" fill-opacity=".6"/>';
+          for (var i = 0; i < 6; i++) { var y = 62 + i * 7; s += '<path d="M-5 ' + y + ' Q 12 ' + (y - 4) + ' 25 ' + y + ' T 55 ' + y + ' T 85 ' + y + ' T 115 ' + y + '" fill="none" stroke="#fff" stroke-opacity="' + (0.75 - i * 0.1) + '" stroke-width="1.6"/>'; }
+        } else if (tr.v === 1) {
+          s += '<rect width="100" height="100" fill="' + c[1] + '"/>';
+          for (var r = 9; r >= 0; r--) s += '<circle cx="34" cy="68" r="' + (8 + r * 9) + '" fill="' + [c[0], c[1], c[2]][r % 3] + '"/>';
+          s += '<circle cx="34" cy="68" r="4" fill="' + c[1] + '"/>';
+        } else if (tr.v === 2) {
+          s += '<rect width="100" height="100" fill="' + c[2] + '"/>';
+          var rot = [0, 90, 180, 270, 90, 0, 270, 180, 180, 270, 0, 90, 270, 180, 90, 0];
+          for (var k = 0; k < 16; k++) { var x = (k % 4) * 25, yy = Math.floor(k / 4) * 25; s += '<path transform="rotate(' + rot[k] + ' ' + (x + 12.5) + ' ' + (yy + 12.5) + ')" d="M' + x + ' ' + yy + ' h25 a25 25 0 0 1 -25 25z" fill="' + (k % 3 ? c[0] : c[1]) + '"/>'; }
+        } else {
+          s += '<rect width="100" height="100" fill="' + gid + '"/>';
+          for (var j = -2; j < 12; j++) s += '<path d="M' + (j * 12) + ' 0 l40 100 h6 l-40 -100z" fill="' + c[2] + '" fill-opacity=".22"/>';
+          s += '<circle cx="50" cy="56" r="26" fill="' + c[2] + '"/><path d="M24 56 a26 26 0 0 0 52 0z" fill="' + c[0] + '"/>';
+        }
+        if (big) s += '<text x="7" y="93" font-family="Plus Jakarta Sans, sans-serif" font-size="5" font-weight="700" letter-spacing=".6" fill="#fff" fill-opacity=".85">' + tr.al.toUpperCase() + '</text>';
+        return s + '</svg>';
+      }
+      function fmt(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+      function words(s) { s = Math.round(s); var m = Math.floor(s / 60), r = s % 60; return (m ? m + ' minute' + (m > 1 ? 's ' : ' ') : '') + r + ' second' + (r === 1 ? '' : 's'); }
+
+      function renderTrack(announce) {
+        var tr = TRACKS[state.i];
+        artEl.classList.add('swap');
+        setTimeout(function () { artEl.innerHTML = art(tr, true); artEl.setAttribute('aria-label', tr.al + ' cover art'); void artEl.offsetWidth; artEl.classList.remove('swap'); }, reduce || !artEl.firstChild ? 0 : 200);
+        $('title').textContent = tr.t; $('artist').textContent = tr.a; $('album').textContent = tr.al;
+        blobs[0].style.backgroundColor = tr.c[0]; blobs[1].style.backgroundColor = tr.c[1]; blobs[2].style.backgroundColor = tr.v === 2 ? tr.c[0] : tr.c[2];
+        seek.setAttribute('aria-valuemax', tr.d);
+        var liked = !!state.liked[state.i];
+        $('like').setAttribute('aria-pressed', String(liked));
+        $('like').setAttribute('aria-label', liked ? 'Remove from library' : 'Save to library');
+        var q = '';
+        for (var n = 1; n <= 3; n++) {
+          var k = (state.i + n) % TRACKS.length, x = TRACKS[k];
+          q += '<li><button type="button" class="q-item flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-white/10" data-i="' + k + '" aria-label="Play ' + x.t + ' by ' + x.a + '">' +
+            '<span class="h-10 w-10 shrink-0 overflow-hidden rounded-lg shadow-[0_4px_10px_-4px_rgba(0,0,0,.5)]">' + art(x, false) + '</span>' +
+            '<span class="min-w-0 flex-1"><span class="block truncate text-[13px] font-semibold">' + x.t + '</span><span class="block truncate text-[12px] text-white/55">' + x.a + '</span></span>' +
+            '<span class="text-[12px] tabular-nums text-white/45">' + fmt(x.d) + '</span></button></li>';
+        }
+        $('queue').innerHTML = q;
+        if (announce) live.textContent = 'Now playing ' + tr.t + ' by ' + tr.a;
+        renderTime();
+      }
+      function renderTime() {
+        var d = TRACKS[state.i].d, p = Math.min(100, state.t / d * 100);
+        seek.style.setProperty('--p', p + '%');
+        var sec = Math.floor(state.t);
+        if (sec !== state.last) {
+          state.last = sec;
+          $('cur').textContent = fmt(state.t); $('rem').textContent = '-' + fmt(d - state.t);
+          seek.setAttribute('aria-valuenow', sec);
+          seek.setAttribute('aria-valuetext', words(state.t) + ' of ' + words(d));
+        }
+      }
+      function setPlaying(on) {
+        state.playing = on;
+        player.classList.toggle('paused', !on);
+        playBtn.setAttribute('aria-label', on ? 'Pause' : 'Play');
+        playBtn.querySelector('iconify-icon').setAttribute('icon', on ? 'lucide:pause' : 'lucide:play');
+        $('status').textContent = on ? 'Now playing' : 'Paused';
+      }
+      function go(i, announce) { state.i = (i + TRACKS.length) % TRACKS.length; state.t = 0; state.last = -1; renderTrack(announce); }
+      function next(announce) {
+        if ($('shuffle').getAttribute('aria-pressed') === 'true') { var r; do { r = Math.floor(Math.random() * TRACKS.length); } while (r === state.i); go(r, announce); }
+        else go(state.i + 1, announce);
+      }
+
+      var prevTs = 0;
+      function loop(ts) {
+        var dt = prevTs ? Math.min(0.25, (ts - prevTs) / 1000) : 0; prevTs = ts;
+        if (state.playing && !state.drag) {
+          state.t += dt;
+          if (state.t >= TRACKS[state.i].d) { if ($('repeat').getAttribute('aria-pressed') === 'true') { state.t = 0; state.last = -1; } else next(true); }
+          renderTime();
+        }
+        requestAnimationFrame(loop);
+      }
+
+      function seekTo(clientX) {
+        var b = seek.getBoundingClientRect();
+        state.t = Math.min(1, Math.max(0, (clientX - b.left) / b.width)) * TRACKS[state.i].d; state.last = -1; renderTime();
+      }
+      seek.addEventListener('pointerdown', function (e) { state.drag = true; seek.classList.add('dragging'); seek.setPointerCapture(e.pointerId); seekTo(e.clientX); });
+      seek.addEventListener('pointermove', function (e) { if (state.drag) seekTo(e.clientX); });
+      ['pointerup', 'pointercancel'].forEach(function (t) { seek.addEventListener(t, function () { state.drag = false; seek.classList.remove('dragging'); }); });
+      seek.addEventListener('keydown', function (e) {
+        var d = TRACKS[state.i].d, step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5, PageUp: 30, PageDown: -30 }[e.key];
+        if (step !== undefined) state.t = Math.min(d - 0.5, Math.max(0, state.t + step));
+        else if (e.key === 'Home') state.t = 0;
+        else if (e.key === 'End') state.t = d - 1;
+        else return;
+        e.preventDefault(); state.last = -1; renderTime();
+      });
+
+      playBtn.addEventListener('click', function () { setPlaying(!state.playing); });
+      $('next').addEventListener('click', function () { next(true); });
+      $('prev').addEventListener('click', function () { if (state.t > 3) { state.t = 0; state.last = -1; renderTime(); } else go(state.i - 1, true); });
+      ['shuffle', 'repeat'].forEach(function (id) {
+        $(id).addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', String(on)); });
+      });
+      $('like').addEventListener('click', function () { state.liked[state.i] = !state.liked[state.i]; renderTrack(false); live.textContent = state.liked[state.i] ? 'Saved to library' : 'Removed from library'; });
+      $('queue').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-i]'); if (!b) return;
+        go(+b.dataset.i, true); setPlaying(true);
+        var first = $('queue').querySelector('button'); if (first) first.focus();
+      });
+
+      renderTrack(false); setPlaying(true); requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

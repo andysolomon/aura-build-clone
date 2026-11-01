@@ -11,6 +11,17 @@ export interface Release {
 /** Release history of this clone, newest first. */
 export const RELEASES: Release[] = [
   {
+    version: "0.7.0",
+    date: "2026-11-01",
+    title: "A bigger library",
+    summary: "Eight new landing page templates and 28 new components, all original and ready to remix, copy or @-reference.",
+    changes: [
+      { kind: "new", text: "Templates for team planning, edge deploys, skincare, a motion portfolio, guided treks, a seafood kitchen, coworking and a strength club." },
+      { kind: "new", text: "Components in every category, including a command palette, 3D team carousel, multi-step onboarding form, event ticket and usage-based pricing slider." },
+      { kind: "improved", text: "Longer pages can be @-referenced in full." },
+    ],
+  },
+  {
     version: "0.5.0",
     date: "2026-10-18",
     title: "Real screenshots and web access",

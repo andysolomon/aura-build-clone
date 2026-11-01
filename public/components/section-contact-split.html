@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verso Studio - Contact section with live office hours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'] },
+    colors: { ink: '#1a1915', paper: '#f4f1ea', clay: '#d9542b' } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f4f1ea; -webkit-font-smoothing: antialiased; }
+  .tile { background: #fbfaf6; border-radius: 20px; box-shadow: 0 0 0 1px rgba(26,25,21,.07), 0 1px 2px rgba(26,25,21,.04); }
+  .lbl { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 600; color: rgba(26,25,21,.72); }
+  .lbl i { font-style: normal; color: #d9542b; }
+  .field { width: 100%; height: 46px; border-radius: 12px; background: #fff; border: 1px solid rgba(26,25,21,.13); padding: 0 14px; font-size: 14.5px; color: #1a1915; transition: border-color .2s, box-shadow .2s; }
+  .field::placeholder { color: rgba(26,25,21,.32); }
+  .field:hover { border-color: rgba(26,25,21,.25); }
+  .field:focus { outline: none; border-color: #1a1915; box-shadow: 0 0 0 4px rgba(217,84,43,.14); }
+  .field[aria-invalid="true"] { border-color: #c8372a; box-shadow: 0 0 0 4px rgba(200,55,42,.09); }
+  textarea.field { height: auto; min-height: 112px; padding: 12px 14px; line-height: 1.55; resize: vertical; }
+  select.field { appearance: none; padding-right: 38px; cursor: pointer; }
+  .ok { position: absolute; right: 13px; top: 15px; color: #2f8a57; opacity: 0; transform: scale(.6); transition: opacity .2s, transform .25s cubic-bezier(.3,1.4,.5,1); pointer-events: none; }
+  .field[aria-invalid="false"] ~ .ok { opacity: 1; transform: none; }
+  .err { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-size: 12.5px; color: #b5321f; animation: errIn .25s ease both; }
+  .err:empty { display: none; }
+  @keyframes errIn { from { opacity: 0; transform: translateY(-3px); } }
+  .chip { position: relative; }
+  .chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .chip span { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 13px; border-radius: 999px; font-size: 13px; color: rgba(26,25,21,.75); background: #fff; box-shadow: inset 0 0 0 1px rgba(26,25,21,.13); transition: background .2s, color .2s, box-shadow .2s; }
+  .chip:hover span { box-shadow: inset 0 0 0 1px rgba(26,25,21,.3); }
+  .chip input:checked + span { background: #1a1915; color: #fff; box-shadow: none; }
+  .chip input:focus-visible + span { outline: 2px solid #d9542b; outline-offset: 2px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #d9542b; outline-offset: 3px; border-radius: 10px; }
+  .av { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 99px; font-size: 10px; font-weight: 700; color: #fff; box-shadow: 0 0 0 2px #fff; }
+  .soc { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; color: rgba(26,25,21,.75); }
+  .soc:hover { color: #d9542b; }
+  .soc iconify-icon { opacity: .4; transition: transform .2s, opacity .2s; }
+  .soc:hover iconify-icon { opacity: 1; transform: translate(2px, -2px); }
+  #hours li { display: flex; justify-content: space-between; gap: 12px; color: rgba(26,25,21,.55); }
+  #hours li[aria-current] { color: #1a1915; font-weight: 600; }
+  .ping { transform-box: fill-box; transform-origin: center; animation: ping 2.2s ease-out infinite; }
+  @keyframes ping { from { transform: scale(.5); opacity: .55; } to { transform: scale(2.4); opacity: 0; } }
+  .live::after { content: ""; position: absolute; inset: 0; border-radius: 999px; background: inherit; animation: halo 2s ease-out infinite; }
+  @keyframes halo { to { transform: scale(2.6); opacity: 0; } }
+  .spin { width: 16px; height: 16px; border-radius: 999px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .draw { stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .55s .2s cubic-bezier(.6,0,.2,1) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .pop { animation: pop .5s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } .ping, .live::after { display: none; } }
+</style>
+</head>
+<body class="font-sans text-ink">
+<section aria-labelledby="contact-title" class="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-[72px]">
+  <div class="grid gap-10 lg:grid-cols-[1fr_1.06fr] lg:gap-14">
+
+    <div class="flex flex-col">
+      <p class="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[.16em] text-clay"><span class="h-1.5 w-1.5 rounded-full bg-clay"></span>Contact</p>
+      <h2 id="contact-title" class="mt-4 text-[38px] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[52px]">Tell us what you're <span class="font-serif text-[1.12em] font-normal italic tracking-[-0.02em] text-clay">making</span>.</h2>
+      <p class="mt-4 max-w-md text-[15.5px] leading-relaxed text-ink/60">We partner with six founders a year on brand, web and product. Share a few details and a designer, not a sales rep, will reply within one business day.</p>
+
+      <div class="mt-8 grid gap-3 sm:grid-cols-2">
+        <div class="tile overflow-hidden">
+          <svg viewBox="0 0 300 118" font-family="Plus Jakarta Sans, sans-serif" preserveAspectRatio="xMidYMid slice" class="block h-[118px] w-full" role="img" aria-label="Map: the studio sits on Rua das Flores, two blocks from the river in Lisbon"><rect width="300" height="118" fill="#ebe5d8"/><g fill="#e3dccb"><rect x="72" y="30" width="56" height="30" rx="3" transform="rotate(-4 100 45)"/><rect x="0" y="40" width="44" height="24" rx="3"/><rect x="158" y="62" width="70" height="20" rx="3" transform="rotate(-4 190 72)"/><rect x="0" y="0" width="36" height="22" rx="3"/><rect x="100" y="0" width="44" height="16" rx="3"/></g><rect x="190" y="10" width="78" height="40" rx="8" fill="#d7dfc6"/><circle cx="214" cy="30" r="6" fill="#c8d4b4"/><circle cx="242" cy="24" r="8" fill="#c8d4b4"/><circle cx="252" cy="40" r="5" fill="#c8d4b4"/><path d="M0 98 C60 88 112 104 170 96 S258 82 300 90 V118 H0Z" fill="#c6d6d5"/><path d="M0 106 C70 98 120 112 180 104 S262 92 300 99" fill="none" stroke="#b7caca" stroke-width="1" stroke-dasharray="3 5"/><g fill="none" stroke="#fff" stroke-linecap="round"><path d="M-10 74 L310 52" stroke-width="8"/><path d="M38 -10 L66 92" stroke-width="5"/><path d="M150 -10 L136 90" stroke-width="5"/><path d="M232 52 L248 92" stroke-width="4"/><path d="M0 30 L150 20" stroke-width="3"/><path d="M86 6 L100 80" stroke-width="2.5"/><path d="M180 0 L186 56" stroke-width="2.5"/></g><path d="M-10 74 L310 52" stroke="rgba(26,25,21,.12)" stroke-width="1" stroke-dasharray="2 4"/><circle class="ping" cx="140" cy="58" r="12" fill="#d9542b"/><circle cx="140" cy="58" r="6.5" fill="#d9542b" stroke="#fff" stroke-width="2.5"/><g transform="translate(152 36)"><rect width="52" height="20" rx="10" fill="#1a1915"/><text x="26" y="13.6" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">Verso</text></g><text x="282" y="18" text-anchor="middle" font-size="9" font-weight="700" fill="rgba(26,25,21,.35)">N</text><path d="M282 22 l-3 8 h6z" fill="rgba(26,25,21,.3)"/></svg>
+          <div class="p-4">
+            <p class="text-[14px] font-semibold">Rua das Flores 28, 2º</p>
+            <p class="mt-0.5 text-[13px] text-ink/55">1200-195 Lisboa, Portugal</p>
+            <a href="#" class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink/80 transition hover:text-clay">Get directions <iconify-icon icon="lucide:arrow-up-right" width="14" aria-hidden="true"></iconify-icon></a>
+          </div>
+        </div>
+
+        <div class="tile flex flex-col p-4" aria-labelledby="hours-title">
+          <div class="flex items-center justify-between gap-2">
+            <h3 id="hours-title" class="text-[12px] font-semibold uppercase tracking-[.14em] text-ink/45">Studio hours</h3>
+            <span class="text-[11.5px] tabular-nums text-ink/45"><span id="local-time">--:--</span> Lisbon</span>
+          </div>
+          <p id="status" class="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-ink/[.05] px-2.5 py-1 text-[12.5px] font-semibold" aria-live="polite">
+            <span id="status-dot" class="relative h-2 w-2 rounded-full bg-ink/30"></span><span id="status-text">Checking hours</span>
+          </p>
+          <ul class="mt-3 space-y-1.5 text-[13px]" id="hours">
+            <li data-days="1,2,3,4" ><span>Mon to Thu</span><span class="tabular-nums">09:00 to 18:00</span></li>
+            <li data-days="5" ><span>Friday</span><span class="tabular-nums">09:00 to 16:00</span></li>
+            <li data-days="0,6" ><span>Weekend</span><span>Closed</span></li>
+          </ul>
+          <div class="mt-auto pt-4">
+            <div class="relative h-1.5 overflow-hidden rounded-full bg-ink/[.07]" aria-hidden="true"><span id="day-bar" class="absolute inset-y-0 left-0 w-0 rounded-full bg-clay transition-[width] duration-700"></span></div>
+            <p id="day-note" class="mt-2 text-[12px] text-ink/50">&nbsp;</p>
+          </div>
+        </div>
+
+        <div class="tile grid gap-px overflow-hidden bg-ink/[.07] sm:col-span-2 sm:grid-cols-[1.28fr_1fr]">
+          <div class="flex items-center gap-3 bg-[#fbfaf6] p-4">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-clay/10 text-clay"><iconify-icon icon="lucide:mail" width="17" aria-hidden="true"></iconify-icon></span>
+            <div class="min-w-0 flex-1"><p id="copy-note" class="text-[11.5px] text-ink/45 transition-colors" aria-live="polite">New projects</p><a href="mailto:hello@verso.studio" class="block truncate text-[14px] font-semibold hover:text-clay">hello@verso.studio</a></div>
+            <button id="copy" type="button" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink/55 ring-1 ring-ink/10 transition hover:bg-white hover:text-ink" aria-label="Copy email address" title="Copy email address"><iconify-icon icon="lucide:copy" width="14" aria-hidden="true"></iconify-icon></button>
+          </div>
+          <div class="flex items-center gap-3 bg-[#fbfaf6] p-4">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-ink/[.06] text-ink/70"><iconify-icon icon="lucide:phone" width="16" aria-hidden="true"></iconify-icon></span>
+            <div><p class="text-[11.5px] text-ink/45">Studio line</p><a href="tel:+351213040128" class="text-[14px] font-semibold hover:text-clay">+351 213 040 128</a></div>
+          </div>
+        </div>
+      </div>
+
+      <nav aria-label="Verso Studio elsewhere" class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
+        <span class="text-ink/40">Elsewhere</span>
+        <a href="#" class="soc">Instagram<iconify-icon icon="lucide:arrow-up-right" width="13" aria-hidden="true"></iconify-icon></a>
+        <a href="#" class="soc">LinkedIn<iconify-icon icon="lucide:arrow-up-right" width="13" aria-hidden="true"></iconify-icon></a>
+        <a href="#" class="soc">Vimeo<iconify-icon icon="lucide:arrow-up-right" width="13" aria-hidden="true"></iconify-icon></a>
+        <a href="#" class="soc">Newsletter<iconify-icon icon="lucide:arrow-up-right" width="13" aria-hidden="true"></iconify-icon></a>
+      </nav>
+    </div>
+
+    <div id="form-card" class="relative rounded-[28px] bg-white p-6 shadow-[0_1px_2px_rgba(26,25,21,.05),0_30px_60px_-30px_rgba(26,25,21,.28)] ring-1 ring-ink/[.06] sm:p-8">
+      <form id="contact-form" novalidate aria-labelledby="form-title">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 id="form-title" class="text-[21px] font-semibold tracking-[-0.025em]">Start a project</h3>
+            <p class="mt-1 text-[13px] text-ink/50">Required fields are marked <span class="text-clay">*</span></p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="flex -space-x-2" aria-hidden="true">
+              <span class="av" style="background:linear-gradient(135deg,#f2b38f,#d9542b)">ID</span>
+              <span class="av" style="background:linear-gradient(135deg,#a7b89a,#4d6b4f)">RK</span>
+              <span class="av" style="background:linear-gradient(135deg,#8d8a83,#2c2b27)">MA</span>
+            </div>
+            <p class="hidden text-[11.5px] leading-tight text-ink/50 sm:block">Typical reply<br><b class="font-semibold text-ink">under 3 hours</b></p>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="f-name" class="lbl">Full name <i>*</i></label>
+            <div class="relative"><input id="f-name" name="name" class="field" autocomplete="name" placeholder="Inês Duarte" aria-describedby="e-name" aria-required="true"><iconify-icon icon="lucide:check" width="16" class="ok" aria-hidden="true"></iconify-icon></div>
+            <p id="e-name" class="err"></p>
+          </div>
+          <div>
+            <label for="f-email" class="lbl">Work email <i>*</i></label>
+            <div class="relative"><input id="f-email" name="email" type="email" inputmode="email" class="field" autocomplete="email" placeholder="ines@northwind.co" aria-describedby="e-email" aria-required="true"><iconify-icon icon="lucide:check" width="16" class="ok" aria-hidden="true"></iconify-icon></div>
+            <p id="e-email" class="err"></p>
+          </div>
+          <div>
+            <label for="f-company" class="lbl">Company</label>
+            <input id="f-company" name="company" class="field" autocomplete="organization" placeholder="Northwind Coffee">
+          </div>
+          <div>
+            <label for="f-budget" class="lbl">Budget</label>
+            <div class="relative">
+              <select id="f-budget" name="budget" class="field">
+                <option>Not sure yet</option><option>Under €25k</option><option>€25k to €60k</option><option>€60k to €120k</option><option>€120k and up</option>
+              </select>
+              <iconify-icon icon="lucide:chevron-down" width="16" class="pointer-events-none absolute right-3.5 top-[15px] text-ink/40" aria-hidden="true"></iconify-icon>
+            </div>
+          </div>
+        </div>
+
+        <fieldset class="mt-5">
+          <legend class="lbl">What can we help with?</legend>
+          <div class="flex flex-wrap gap-2">
+            <label class="chip"><input type="checkbox" name="scope" value="Brand identity"><span>Brand identity</span></label>
+            <label class="chip"><input type="checkbox" name="scope" value="Website" checked><span>Website</span></label>
+            <label class="chip"><input type="checkbox" name="scope" value="Product design"><span>Product design</span></label>
+            <label class="chip"><input type="checkbox" name="scope" value="Something else"><span>Something else</span></label>
+          </div>
+        </fieldset>
+
+        <div class="mt-5">
+          <div class="flex items-baseline justify-between"><label for="f-message" class="lbl">Project details <i>*</i></label><span id="count" class="text-[11.5px] tabular-nums text-ink/40">0 / 1000</span></div>
+          <textarea id="f-message" name="message" rows="4" maxlength="1000" class="field" placeholder="We're relaunching our roastery in spring and need a site that sells subscriptions as well as it tells our story." aria-describedby="e-message count" aria-required="true"></textarea>
+          <p id="e-message" class="err"></p>
+        </div>
+
+        <button id="submit" type="submit" class="group mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-ink text-[14.5px] font-semibold text-white shadow-[0_8px_20px_-8px_rgba(26,25,21,.6)] transition hover:bg-[#2c2a24] disabled:cursor-wait disabled:opacity-80">
+          <span id="submit-label">Send message</span><iconify-icon id="submit-icon" icon="lucide:arrow-right" width="16" class="transition group-hover:translate-x-0.5" aria-hidden="true"></iconify-icon><span id="submit-spin" class="spin hidden" aria-hidden="true"></span>
+        </button>
+        <p class="mt-3 text-center text-[12px] text-ink/45">No newsletters unless you ask. We read every message ourselves.</p>
+      </form>
+
+      <div id="success" class="hidden h-full flex-col items-center justify-center py-10 text-center" role="status" aria-live="polite">
+        <span class="grid h-16 w-16 place-items-center rounded-full bg-[#e9f4ec] text-[#2f8a57]">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <h3 id="success-title" tabindex="-1" class="mt-5 text-[24px] font-semibold tracking-[-0.03em] outline-none">Message received, <span id="s-name">there</span>.</h3>
+        <p class="mt-2 max-w-xs text-[14px] leading-relaxed text-ink/55">Inês will reply to <b id="s-email" class="font-semibold text-ink"></b> within one business day, usually much sooner.</p>
+        <p class="mt-5 rounded-full bg-ink/[.05] px-3 py-1 font-mono text-[11.5px] text-ink/55">Reference <span id="s-ref" class="text-ink">VS-0000</span></p>
+        <button id="again" type="button" class="mt-7 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-ink/70 hover:text-clay"><iconify-icon icon="lucide:rotate-ccw" width="14" aria-hidden="true"></iconify-icon>Send another message</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+
+  // Office hours, evaluated in the studio's own time zone
+  var HOURS = { 1: [9, 18], 2: [9, 18], 3: [9, 18], 4: [9, 18], 5: [9, 16] }, DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Lisbon', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function updateHours() {
+    var p = {}; fmt.formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+    var day = DAYS.indexOf(p.weekday), h24 = +p.hour % 24, mins = h24 * 60 + +p.minute, t = HOURS[day];
+    var open = t && mins >= t[0] * 60 && mins < t[1] * 60, note = '';
+    $('local-time').textContent = pad(h24) + ':' + p.minute;
+    $('status-dot').className = 'relative h-2 w-2 rounded-full ' + (open ? 'live bg-[#2f9e5f]' : 'bg-[#c9a227]');
+    $('status-text').textContent = open ? 'Open now' : 'Closed right now';
+    $('day-bar').style.width = open ? ((mins - t[0] * 60) / ((t[1] - t[0]) * 60) * 100).toFixed(1) + '%' : t && mins >= t[1] * 60 ? '100%' : '0%';
+    if (open) { var left = t[1] * 60 - mins; note = 'Closes at ' + t[1] + ':00, in ' + (left >= 60 ? Math.floor(left / 60) + 'h ' : '') + (left % 60) + 'm'; }
+    else for (var d = 0; d < 8; d++) {
+      var k = (day + d) % 7, h = HOURS[k];
+      if (h && (d > 0 || mins < h[0] * 60)) { note = 'Opens ' + (d === 0 ? 'today' : d === 1 ? 'tomorrow' : DAYS[k]) + ' at ' + pad(h[0]) + ':00'; break; }
+    }
+    $('day-note').textContent = note;
+    document.querySelectorAll('#hours li').forEach(function (li) {
+      if (li.dataset.days.split(',').indexOf(String(day)) > -1) li.setAttribute('aria-current', 'date'); else li.removeAttribute('aria-current');
+    });
+  }
+  updateHours(); setInterval(updateHours, 30000);
+
+  // Copy email
+  var copy = $('copy'), cnote = $('copy-note'), timer;
+  function copied(on) {
+    cnote.textContent = on ? 'Copied to clipboard' : 'New projects';
+    cnote.classList.toggle('text-[#2f8a57]', on);
+    copy.firstChild.setAttribute('icon', on ? 'lucide:check' : 'lucide:copy');
+  }
+  copy.addEventListener('click', function () {
+    var done = function () { clearTimeout(timer); copied(true); timer = setTimeout(copied, 1800, false); };
+    if (navigator.clipboard) navigator.clipboard.writeText('hello@verso.studio').then(done, done); else done();
+  });
+
+  // Form validation and states
+  var form = $('contact-form'), card = $('form-card'), success = $('success'), count = $('count'), F = form.elements;
+  var rules = {
+    name: function (v) { return v.length >= 2 ? '' : v ? 'Please enter your full name.' : 'Tell us who we are talking to.'; },
+    email: function (v) { return !v ? 'We need an email to reply to.' : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'That email looks incomplete, check for typos.'; },
+    message: function (v) { return v.length >= 20 ? '' : v ? 'A little more detail helps, at least 20 characters.' : 'Tell us a bit about the project.'; }
+  }, names = Object.keys(rules);
+  function check(n) {
+    var msg = rules[n](F[n].value.trim());
+    F[n].setAttribute('aria-invalid', msg ? 'true' : 'false');
+    $('e-' + n).innerHTML = msg ? '<iconify-icon icon="lucide:circle-alert" width="14" aria-hidden="true"></iconify-icon><span>' + msg + '</span>' : '';
+    return !msg;
+  }
+  names.forEach(function (n) {
+    F[n].addEventListener('blur', function () { if (F[n].value.trim()) F[n].dataset.touched = '1'; if (F[n].dataset.touched) check(n); });
+    F[n].addEventListener('input', function () { if (F[n].dataset.touched) check(n); });
+  });
+  F.message.addEventListener('input', function () { count.textContent = F.message.value.length + ' / 1000'; });
+  function busy(b) {
+    $('submit').disabled = b; $('submit-label').textContent = b ? 'Sending' : 'Send message';
+    $('submit-icon').classList.toggle('hidden', b); $('submit-spin').classList.toggle('hidden', !b);
+  }
+  function view(done) {
+    form.hidden = done; success.classList.toggle('hidden', !done); success.classList.toggle('flex', done); success.classList.toggle('pop', done);
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = names.filter(function (n) { F[n].dataset.touched = '1'; return !check(n); });
+    if (bad.length) { F[bad[0]].focus(); return; }
+    busy(true);
+    setTimeout(function () {
+      card.style.minHeight = card.offsetHeight + 'px';
+      $('s-name').textContent = F.name.value.trim().split(/\s+/)[0];
+      $('s-email').textContent = F.email.value.trim();
+      $('s-ref').textContent = 'VS-' + String(Date.now()).slice(-6);
+      view(true); $('success-title').focus();
+    }, 1100);
+  });
+  $('again').addEventListener('click', function () {
+    form.reset(); count.textContent = '0 / 1000';
+    names.forEach(function (n) { F[n].removeAttribute('aria-invalid'); delete F[n].dataset.touched; $('e-' + n).innerHTML = ''; });
+    busy(false); view(false); card.style.minHeight = ''; F.name.focus();
+  });
+})();
+</script>
+</body>
+</html>

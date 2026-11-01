@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plotline - Multi-step onboarding form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] }, colors: { ink: '#16141f', plum: { 50: '#f6f3ff', 100: '#ece6ff', 500: '#6d4aff', 600: '#5b36f2' } } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    [hidden] { display: none !important; }
+    .shell { box-shadow: 0 0 0 1px rgb(22 20 31 / .08), 0 40px 80px -36px rgb(40 20 110 / .45); }
+    .preview { background: radial-gradient(90% 60% at 0% 0%, #fff, transparent 60%), radial-gradient(80% 70% at 100% 100%, #d9ccff, transparent 70%), linear-gradient(160deg, #f3efff, #e6defe); }
+    .h { font-size: 25px; font-weight: 600; line-height: 1.2; letter-spacing: -0.025em; outline: none; }
+    .sub { margin-top: 4px; font-size: 14px; color: #71717a; }
+    .lbl { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #3f3b4d; }
+    .inp { height: 44px; width: 100%; border-radius: 12px; border: 1px solid #e4e2ea; padding: 0 14px; font-size: 14.5px; transition: border-color .15s, box-shadow .15s; }
+    .inp::placeholder { color: #a6a2b4; }
+    .inp:focus { outline: none; border-color: #6d4aff; box-shadow: 0 0 0 4px rgb(109 74 255 / .14); }
+    .inp[aria-invalid="true"] { border-color: #e11d48; box-shadow: 0 0 0 3px rgb(225 29 72 / .1); }
+    .err { min-height: 18px; margin-top: 5px; display: flex; align-items: center; gap: 5px; font-size: 12px; color: #e11d48; }
+    .choice { position: relative; display: block; cursor: pointer; }
+    .choice input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+    .box { display: flex; align-items: center; gap: 8px; height: 100%; padding: 10px; border-radius: 14px; border: 1px solid #e4e2ea; font-size: 13px; font-weight: 500; transition: .15s; }
+    .box iconify-icon { font-size: 16px; color: #75708a; }
+    .role .box { gap: 12px; padding: 12px; font-size: 14px; }
+    .size .box { justify-content: center; height: 40px; padding: 0; font-size: 13.5px; }
+    .choice:hover .box { border-color: #cfc8e8; }
+    .choice input:checked + .box { border-color: #6d4aff; background: #f8f6ff; box-shadow: 0 0 0 3px rgb(109 74 255 / .13); }
+    .choice input:checked + .box iconify-icon { color: #6d4aff; }
+    .choice input:focus-visible + .box { outline: 2px solid #6d4aff; outline-offset: 2px; }
+    .bad .box { border-color: #fda4af; }
+    .ic { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: #f4f2f8; }
+    .choice input:checked + .box .ic { background: #6d4aff; }
+    .choice input:checked + .box .ic iconify-icon { color: #fff; }
+    .seg { height: 4px; border-radius: 99px; background: #ece9f3; overflow: hidden; }
+    .seg i { display: block; height: 100%; background: linear-gradient(90deg, #8b6cff, #6d4aff); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.3,.7,.2,1); }
+    .seg.on i { transform: none; }
+    .nav { display: flex; align-items: center; gap: 8px; border-radius: 8px; padding: 5px 8px; font-size: 12px; color: #4b4660; }
+    .nav iconify-icon, .pill iconify-icon { color: inherit; font-size: 13px; }
+    #pvGoals:empty::before, #pvGoals:empty::after { content: ""; display: block; width: 64px; height: 8px; margin: 9px 8px; border-radius: 4px; background: #f1f1f4; }
+    #pvGoals:empty::after { width: 46px; }
+    .av { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; border: 1px dashed #d4d4d8; font-size: 13px; font-weight: 600; color: #a1a1aa; }
+    .av.on { border: 0; color: #fff; background: linear-gradient(135deg, #6d4aff, #d946ef); }
+    .chip, .pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 99px; padding: 2px 8px; background: #f4f4f5; color: #a1a1aa; }
+    .chip.on, .pill { background: #ece6ff; color: #5b36f2; }
+    .pill { padding: 4px 10px; font-size: 12.5px; font-weight: 500; }
+    .row { display: flex; align-items: flex-start; gap: 16px; padding: 16px; }
+    .row dt { width: 88px; flex-shrink: 0; color: #71717a; }
+    .edit { border-radius: 4px; font-size: 13px; font-weight: 600; color: #5b36f2; }
+    .edit:hover { text-decoration: underline; }
+    .step-in { animation: stepIn .45s cubic-bezier(.2,.8,.2,1); }
+    @keyframes stepIn { from { opacity: 0; transform: translateX(14px); } }
+    .spinner { width: 16px; height: 16px; border-radius: 99px; border: 2px solid rgb(255 255 255 / .35); border-top-color: #fff; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    button:focus-visible, a:focus-visible { outline: 2px solid #6d4aff; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .step-in { animation: none; } .seg i, .box { transition: none; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-4 font-sans antialiased sm:p-8">
+  <section class="shell grid w-full max-w-[1000px] overflow-hidden rounded-[28px] bg-white text-ink md:grid-cols-[0.9fr_1.1fr]" aria-label="Create your Plotline workspace">
+    <!-- Live preview mirrors the answers as they are typed -->
+    <aside class="preview hidden flex-col justify-between gap-8 p-8 md:flex" aria-hidden="true">
+      <div class="flex items-center justify-between">
+      <span class="inline-flex items-center gap-2 text-[16px] font-semibold tracking-tight"><span class="grid h-8 w-8 place-items-center rounded-[10px] bg-ink text-[17px] text-white"><iconify-icon icon="lucide:git-commit-horizontal"></iconify-icon></span>Plotline</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-[11.5px] font-medium text-plum-600 ring-1 ring-plum-500/15"><i class="h-1.5 w-1.5 rounded-full bg-plum-500"></i>Live preview</span>
+      </div>
+      <div class="relative">
+      <div class="absolute inset-x-5 -bottom-3 top-3 rounded-2xl bg-white/50 ring-1 ring-ink/5"></div>
+      <div class="relative rounded-2xl bg-white p-3 shadow-xl shadow-plum-500/10 ring-1 ring-ink/5">
+        <div class="flex items-center gap-2.5 border-b border-zinc-100 px-1 pb-3"><span id="pvAv" class="av">?</span><div class="min-w-0 leading-tight"><p id="pvName" class="truncate text-[13px] font-semibold text-zinc-400">Your workspace</p><p id="pvUrl" class="truncate font-mono text-[10.5px] text-zinc-400">plotline.app/your-team</p></div><iconify-icon icon="lucide:chevrons-up-down" class="ml-auto text-zinc-300"></iconify-icon></div>
+        <div class="grid grid-cols-[118px_1fr] gap-3 pt-3">
+          <div class="border-r border-zinc-100 pr-2">
+            <div class="nav bg-plum-50 !text-plum-600"><iconify-icon icon="lucide:house"></iconify-icon>Home</div>
+            <div class="nav"><iconify-icon icon="lucide:inbox"></iconify-icon>Inbox</div>
+            <p class="px-2 pb-1 pt-3 text-[10px] font-medium uppercase tracking-wider text-zinc-400">Spaces</p>
+            <div id="pvGoals"></div>
+          </div>
+          <div class="py-1 pr-1">
+            <p id="pvHello" class="text-[15px] font-semibold tracking-tight">Good morning</p>
+            <p class="mt-1 flex flex-wrap gap-1.5 text-[10.5px]"><span id="pvRole" class="chip">Role</span><span id="pvSize" class="chip">Team size</span></p>
+            <div class="mt-4 space-y-2"><div class="h-2 rounded bg-zinc-100"></div><div class="h-2 w-4/5 rounded bg-zinc-100"></div><div class="h-2 w-3/5 rounded bg-zinc-100"></div></div>
+            <div class="mt-4 h-14 rounded-lg bg-gradient-to-br from-plum-50 to-plum-100"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <p class="flex items-center gap-2 text-[13px] text-zinc-600"><iconify-icon icon="lucide:sparkles" class="text-plum-500"></iconify-icon>Your workspace takes shape as you answer.</p>
+    </aside>
+
+    <div class="flex min-h-[620px] flex-col p-6 sm:p-9">
+      <form id="form" class="flex flex-1 flex-col" novalidate>
+    <div class="flex items-center justify-between text-[12.5px]"><span id="stepLabel" class="font-medium text-plum-600">Step 1 of 3</span><span class="text-zinc-400">About 2 minutes</span></div>
+    <div id="progress" class="mt-3 grid grid-cols-3 gap-2 text-[11.5px] font-medium" role="progressbar" aria-label="Onboarding progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-valuetext="Step 1 of 3: About you">
+      <div><div class="seg on"><i></i></div><p class="mt-1.5" data-seg>You</p></div>
+      <div><div class="seg"><i></i></div><p class="mt-1.5 text-zinc-400" data-seg>Workspace</p></div>
+      <div><div class="seg"><i></i></div><p class="mt-1.5 text-zinc-400" data-seg>Review</p></div>
+    </div>
+
+    <fieldset class="step mt-7" data-step="1">
+      <legend class="sr-only">Step 1: About you</legend>
+      <h2 class="h" tabindex="-1">Tell us about you</h2>
+      <p class="sub">We use this to tailor templates and your home screen.</p>
+      <div class="mt-6 grid gap-x-4 sm:grid-cols-2">
+        <div><label for="name" class="lbl">Full name</label><input id="name" class="inp" autocomplete="name" placeholder="Maya Okafor" aria-describedby="name-err"><p id="name-err" class="err"></p></div>
+        <div><label for="email" class="lbl">Work email</label><input id="email" type="email" class="inp" autocomplete="email" placeholder="maya@harborline.co" aria-describedby="email-err"><p id="email-err" class="err"></p></div>
+      </div>
+      <div id="roleGroup" class="mt-1" role="radiogroup" aria-labelledby="role-l" aria-describedby="role-err">
+        <p id="role-l" class="lbl">What best describes your role?</p>
+        <div class="grid grid-cols-2 gap-2.5">
+          <label class="choice role"><input type="radio" name="role" value="Product manager"><span class="box"><span class="ic"><iconify-icon icon="lucide:compass"></iconify-icon></span>Product manager</span></label>
+          <label class="choice role"><input type="radio" name="role" value="Engineer"><span class="box"><span class="ic"><iconify-icon icon="lucide:code-xml"></iconify-icon></span>Engineer</span></label>
+          <label class="choice role"><input type="radio" name="role" value="Designer"><span class="box"><span class="ic"><iconify-icon icon="lucide:pen-tool"></iconify-icon></span>Designer</span></label>
+          <label class="choice role"><input type="radio" name="role" value="Founder"><span class="box"><span class="ic"><iconify-icon icon="lucide:rocket"></iconify-icon></span>Founder</span></label>
+        </div>
+        <p id="role-err" class="err"></p>
+      </div>
+    </fieldset>
+
+    <fieldset class="step mt-7" data-step="2" hidden>
+      <legend class="sr-only">Step 2: Workspace</legend>
+      <h2 class="h" tabindex="-1">Set up your workspace</h2>
+      <p class="sub">You can rename it or add spaces any time.</p>
+      <div class="mt-6"><label for="ws" class="lbl">Workspace name</label><input id="ws" class="inp" placeholder="Harborline Product" autocomplete="organization" aria-describedby="ws-hint ws-err"><p id="ws-hint" class="mt-1.5 text-[12px] text-zinc-400">Your URL: <span id="slug" class="font-mono text-zinc-600">plotline.app/your-team</span></p><p id="ws-err" class="err !mt-0.5"></p></div>
+      <div id="sizeGroup" role="radiogroup" aria-labelledby="size-l" aria-describedby="size-err">
+        <p id="size-l" class="lbl">Team size</p>
+        <div class="grid grid-cols-4 gap-2">
+          <label class="choice size"><input type="radio" name="size" value="1-5"><span class="box">1&ndash;5</span></label>
+          <label class="choice size"><input type="radio" name="size" value="6-20"><span class="box">6&ndash;20</span></label>
+          <label class="choice size"><input type="radio" name="size" value="21-100"><span class="box">21&ndash;100</span></label>
+          <label class="choice size"><input type="radio" name="size" value="100+"><span class="box">100+</span></label>
+        </div>
+        <p id="size-err" class="err"></p>
+      </div>
+      <div id="goalGroup" class="mt-1" role="group" aria-labelledby="goal-l" aria-describedby="goal-err">
+        <p id="goal-l" class="lbl">What will you plan here? <span id="goalCount" class="font-normal text-zinc-400">Pick up to 3</span></p>
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <label class="choice"><input type="checkbox" name="goal" value="Roadmaps"><span class="box"><iconify-icon icon="lucide:map"></iconify-icon>Roadmaps</span></label>
+          <label class="choice"><input type="checkbox" name="goal" value="Sprints"><span class="box"><iconify-icon icon="lucide:timer"></iconify-icon>Sprints</span></label>
+          <label class="choice"><input type="checkbox" name="goal" value="Bug triage"><span class="box"><iconify-icon icon="lucide:bug"></iconify-icon>Bug triage</span></label>
+          <label class="choice"><input type="checkbox" name="goal" value="Specs"><span class="box"><iconify-icon icon="lucide:file-text"></iconify-icon>Specs</span></label>
+          <label class="choice"><input type="checkbox" name="goal" value="OKRs"><span class="box"><iconify-icon icon="lucide:target"></iconify-icon>OKRs</span></label>
+          <label class="choice"><input type="checkbox" name="goal" value="Feedback"><span class="box"><iconify-icon icon="lucide:message-square-heart"></iconify-icon>Feedback</span></label>
+        </div>
+        <p id="goal-err" class="err"></p>
+      </div>
+    </fieldset>
+
+    <fieldset class="step mt-7" data-step="3" hidden>
+      <legend class="sr-only">Step 3: Review</legend>
+      <h2 class="h" tabindex="-1">Review and create</h2>
+      <p class="sub">Check the details. Everything can be changed later in Settings.</p>
+      <dl class="mt-6 divide-y divide-zinc-100 rounded-2xl border border-zinc-200/80 text-[14px]">
+        <div class="row"><dt>You</dt><dd class="min-w-0 flex-1"><b id="rvName" class="block font-medium"></b><span id="rvEmail" class="block truncate text-zinc-500"></span><span id="rvRole" class="block text-zinc-500"></span></dd><button type="button" class="edit" data-edit="1" data-focus="name">Edit<span class="sr-only"> your details</span></button></div>
+        <div class="row"><dt>Workspace</dt><dd class="min-w-0 flex-1"><b id="rvWs" class="block font-medium"></b><span id="rvSlug" class="block font-mono text-[12.5px] text-zinc-500"></span><span id="rvSize" class="block text-zinc-500"></span></dd><button type="button" class="edit" data-edit="2" data-focus="ws">Edit<span class="sr-only"> workspace</span></button></div>
+        <div class="row"><dt>Planning</dt><dd id="rvGoals" class="flex min-w-0 flex-1 flex-wrap gap-1.5"></dd><button type="button" class="edit" data-edit="2" data-focus="goal">Edit<span class="sr-only"> planning goals</span></button></div>
+      </dl>
+    </fieldset>
+
+    <div class="mt-auto flex items-center justify-between gap-3 pt-6">
+      <button id="back" type="button" class="invisible inline-flex h-11 items-center gap-1.5 rounded-xl px-3 text-[14px] font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-ink"><iconify-icon icon="lucide:arrow-left"></iconify-icon>Back</button>
+      <button id="next" type="submit" class="inline-flex h-11 min-w-[148px] items-center justify-center gap-2 rounded-xl bg-ink px-5 text-[14.5px] font-semibold text-white transition hover:bg-[#2a2638] disabled:cursor-wait"><span>Continue</span><iconify-icon icon="lucide:arrow-right"></iconify-icon></button>
+    </div>
+      </form>
+
+      <div id="done" class="step-in flex flex-1 flex-col items-start justify-center" role="status" hidden>
+        <span class="grid h-16 w-16 place-items-center rounded-2xl bg-plum-500 text-[30px] text-white"><iconify-icon icon="lucide:check"></iconify-icon></span>
+        <h2 class="h mt-7 !text-[28px]" tabindex="-1">Welcome aboard, <span id="dFirst"></span>.</h2>
+        <p class="mt-2 max-w-sm text-[15px] leading-relaxed text-zinc-500"><b id="dWs" class="font-semibold text-ink"></b> is ready with spaces for <span id="dGoals"></span>. We sent a sign-in link to <span id="dEmail" class="text-ink"></span>.</p>
+        <div class="mt-7 flex flex-wrap gap-2.5">
+          <a href="#" class="inline-flex h-11 items-center gap-2 rounded-xl bg-ink px-5 text-[14.5px] font-semibold text-white transition hover:bg-[#2a2638]">Open workspace<iconify-icon icon="lucide:arrow-up-right"></iconify-icon></a>
+          <a href="#" class="inline-flex h-11 items-center gap-2 rounded-xl px-4 text-[14.5px] font-medium ring-1 ring-inset ring-zinc-200 transition hover:bg-zinc-50"><iconify-icon icon="lucide:user-plus"></iconify-icon>Invite teammates</a>
+        </div>
+        <button id="restart" type="button" class="mt-6 inline-flex items-center gap-1.5 rounded text-[13px] font-medium text-zinc-500 hover:text-ink"><iconify-icon icon="lucide:rotate-ccw"></iconify-icon>Start over</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var $ = function (s) { return document.querySelector(s); };
+      var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+      var form = $('#form'), step = 1, touched = {}, GROUPS = { role: 1, size: 1, goal: 1 };
+      var STEPS = [0, ['name', 'email', 'role'], ['ws', 'size', 'goal'], []], LABELS = [0, 'About you', 'Workspace', 'Review'];
+      var val = function (id) { return $('#' + id).value.trim(); };
+      var pick = function (n) { var el = $('input[name=' + n + ']:checked'); return el ? el.value : ''; };
+      var goals = function () { return $$('input[name=goal]:checked'); };
+      var first = function () { return val('name').split(/\s+/)[0]; };
+      var slug = function () { return 'plotline.app/' + (val('ws').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'your-team'); };
+      var field = function (k) { return $(GROUPS[k] ? 'input[name=' + k + ']' : '#' + k); };
+      var put = function (id, text, on) { var el = $('#' + id); el.textContent = text; if (on !== undefined) el.classList.toggle('on', !!on); };
+      // Copies the icon and label of each selected goal card into a list.
+      var chips = function (id, cls) { var box = $('#' + id); box.innerHTML = ''; goals().forEach(function (g) { var el = document.createElement('span'); el.className = cls; el.innerHTML = g.nextElementSibling.innerHTML; box.appendChild(el); }); };
+      var short = function (v, what) { return !v ? 'Enter ' + what : v.length < 2 ? 'That looks a little short' : ''; };
+      var rules = {
+        name: function () { return short(val('name'), 'your name'); },
+        email: function () { var v = val('email'); return !v ? 'Enter your work email' : /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v) ? '' : 'Use a valid email, like you@company.com'; },
+        role: function () { return pick('role') ? '' : 'Choose the role closest to yours'; },
+        ws: function () { return short(val('ws'), 'a workspace name'); },
+        size: function () { return pick('size') ? '' : 'Select a team size'; },
+        goal: function () { return goals().length ? '' : 'Pick at least one thing to plan'; }
+      };
+
+      function check(k) {
+        var msg = rules[k](), p = $('#' + k + '-err');
+        p.innerHTML = msg ? '<iconify-icon icon="lucide:circle-alert"></iconify-icon><span></span>' : '';
+        if (msg) p.lastChild.textContent = msg;
+        if (GROUPS[k]) $('#' + k + 'Group').classList.toggle('bad', !!msg); else $('#' + k).setAttribute('aria-invalid', String(!!msg));
+        return !msg;
+      }
+
+      function show(n, focusKey) {
+        step = n;
+        $$('.step').forEach(function (s) { var on = +s.dataset.step === n; s.hidden = !on; if (on) { s.classList.remove('step-in'); void s.offsetWidth; s.classList.add('step-in'); } });
+        $$('.seg').forEach(function (b, i) { b.classList.toggle('on', i < n); });
+        $$('[data-seg]').forEach(function (p, i) { p.classList.toggle('text-zinc-400', i >= n); });
+        put('stepLabel', 'Step ' + n + ' of 3');
+        var pg = $('#progress'); pg.setAttribute('aria-valuenow', n); pg.setAttribute('aria-valuetext', 'Step ' + n + ' of 3: ' + LABELS[n]);
+        $('#back').classList.toggle('invisible', n === 1);
+        $('#next span').textContent = n === 3 ? 'Create workspace' : 'Continue';
+        if (n === 3) {
+          put('rvName', val('name')); put('rvEmail', val('email')); put('rvRole', pick('role'));
+          put('rvWs', val('ws')); put('rvSlug', slug()); put('rvSize', pick('size') + ' people'); chips('rvGoals', 'pill');
+        }
+        (focusKey ? field(focusKey) : $('.step[data-step="' + n + '"] h2')).focus();
+      }
+
+      function sync() {
+        var ws = val('ws'), role = pick('role'), size = pick('size');
+        put('pvHello', 'Good morning' + (first() ? ', ' + first() : ''));
+        put('pvAv', ws ? ws[0].toUpperCase() : '?', ws);
+        put('pvName', ws || 'Your workspace'); $('#pvName').classList.toggle('text-zinc-400', !ws);
+        put('pvUrl', slug()); put('slug', slug());
+        put('pvRole', role || 'Role', role); put('pvSize', size ? size + ' people' : 'Team size', size);
+        chips('pvGoals', 'nav');
+      }
+
+      form.addEventListener('input', function (e) { if (touched[e.target.id]) check(e.target.id); sync(); });
+      form.addEventListener('focusout', function (e) { var k = e.target.id; if (rules[k] && e.target.value.trim()) { touched[k] = 1; check(k); } });
+      form.addEventListener('change', function (e) {
+        var n = e.target.name, c = goals().length, cnt = $('#goalCount');
+        if (!GROUPS[n]) return;
+        if (n === 'goal') {
+          if (c > 3) e.target.checked = false;
+          cnt.textContent = c > 3 ? 'Up to 3 for now' : c ? c + ' of 3 selected' : 'Pick up to 3';
+          cnt.classList.toggle('text-rose-600', c > 3);
+        }
+        check(n); sync();
+      });
+      form.addEventListener('click', function (e) { var b = e.target.closest('[data-edit]'); if (b) show(+b.dataset.edit, b.dataset.focus); });
+      $('#back').addEventListener('click', function () { show(step - 1); });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var bad = STEPS[step].filter(function (k) { return !check(k); });
+        if (bad.length) return field(bad[0]).focus();
+        if (step < 3) return show(step + 1);
+        var btn = $('#next'), label = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span><span>Creating workspace</span>';
+        setTimeout(function () {
+          var gs = goals().map(function (g) { return g.value.toLowerCase(); });
+          put('dFirst', first()); put('dWs', val('ws')); put('dEmail', val('email'));
+          put('dGoals', gs.length > 1 ? gs.slice(0, -1).join(', ') + ' and ' + gs[gs.length - 1] : gs[0]);
+          btn.disabled = false; btn.innerHTML = label;
+          form.hidden = true; $('#done').hidden = false; $('#done h2').focus();
+        }, 1100);
+      });
+
+      $('#restart').addEventListener('click', function () {
+        form.reset(); touched = {};
+        $$('.err').forEach(function (p) { p.innerHTML = ''; });
+        $$('[aria-invalid]').forEach(function (el) { el.removeAttribute('aria-invalid'); });
+        $$('.bad').forEach(function (g) { g.classList.remove('bad'); });
+        put('goalCount', 'Pick up to 3');
+        $('#done').hidden = true; form.hidden = false;
+        sync(); show(1, 'name');
+      });
+    })();
+  </script>
+</body>
+</html>

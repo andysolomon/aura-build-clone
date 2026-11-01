@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fernpay - FAQ with category tabs and live search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+    colors: { fern: { DEFAULT: '#1f7a4d', dark: '#123d29', soft: '#e7f3ec' } } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f5f5f1; -webkit-font-smoothing: antialiased; }
+  .tab { display: inline-flex; height: 40px; flex-shrink: 0; align-items: center; gap: 8px; padding: 0 16px; border-radius: 99px; background: #fff; font-size: 13.5px; font-weight: 600; color: rgba(22,35,28,.7); box-shadow: 0 0 0 1px rgba(22,35,28,.07); transition: background .25s, color .25s, box-shadow .25s; }
+  .tab:hover { color: #16231c; }
+  .count { padding: 0 6px; border-radius: 99px; background: rgba(22,35,28,.06); font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .q { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; text-align: left; font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .at { padding: 0 56px 20px 20px; font-size: 14.5px; line-height: 1.625; color: rgba(22,35,28,.65); }
+  .suggest { padding: 6px 12px; border-radius: 99px; background: #fff; font-weight: 600; box-shadow: 0 0 0 1px rgba(22,35,28,.1); }
+  .suggest:hover { box-shadow: 0 0 0 1px #1f7a4d; }
+  [role="tab"][aria-selected="true"] { background: #16231c; color: #fff; box-shadow: 0 6px 16px -8px rgba(18,61,41,.7); }
+  [role="tab"][aria-selected="true"] .count { background: rgba(255,255,255,.16); color: #fff; }
+  .item { background: #fff; border-radius: 18px; box-shadow: 0 0 0 1px rgba(22,35,28,.07); transition: box-shadow .3s ease; }
+  .item:hover { box-shadow: 0 0 0 1px rgba(22,35,28,.14); }
+  .item.open { box-shadow: 0 0 0 1px rgba(31,122,77,.28), 0 18px 40px -24px rgba(18,61,41,.35); }
+  .a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .42s cubic-bezier(.2,.8,.2,1); }
+  .a > div { overflow: hidden; visibility: hidden; transition: visibility 0s .42s; }
+  .open .a { grid-template-rows: 1fr; }
+  .open .a > div { visibility: visible; transition-delay: 0s; }
+  .a p { opacity: 0; transform: translateY(-4px); transition: opacity .3s ease, transform .4s ease; }
+  .open .a p { opacity: 1; transform: none; transition-delay: .08s; }
+  .ico { position: relative; width: 28px; height: 28px; flex-shrink: 0; border-radius: 999px; background: #f0f1ed; transition: background .3s, transform .4s cubic-bezier(.2,.8,.2,1); }
+  .ico::before, .ico::after { content: ""; position: absolute; left: 50%; top: 50%; width: 11px; height: 1.6px; margin: -.8px 0 0 -5.5px; border-radius: 2px; background: #16231c; transition: transform .4s cubic-bezier(.2,.8,.2,1), background .3s; }
+  .ico::after { transform: rotate(90deg); }
+  .q:hover .ico { background: #e6e8e2; }
+  .open .ico { background: #1f7a4d; transform: rotate(180deg); }
+  .open .ico::before, .open .ico::after { background: #fff; }
+  .open .ico::after { transform: rotate(0deg); }
+  mark { background: #d9f99d; color: inherit; border-radius: 3px; padding: 0 1px; }
+  .search:focus-within { box-shadow: 0 0 0 1px #1f7a4d, 0 0 0 5px rgba(31,122,77,.14); }
+  button:focus-visible, a:focus-visible { outline: 2px solid #1f7a4d; outline-offset: 2px; }
+  .q:focus-visible { outline-offset: -2px; border-radius: 18px; }
+  .fade-in { animation: fade .35s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } }
+  .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { scrollbar-width: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+</style>
+</head>
+<body class="font-sans text-[#16231c]">
+<section aria-labelledby="faq-title" class="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-16">
+  <div class="grid grid-cols-1 gap-10 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-16">
+    <div class="lg:sticky lg:top-10 lg:self-start">
+      <p class="inline-flex items-center gap-2 rounded-full bg-fern-soft px-3 py-1 text-[12.5px] font-semibold text-fern"><iconify-icon icon="lucide:life-buoy" width="14" aria-hidden="true"></iconify-icon>Help center</p>
+      <h2 id="faq-title" class="mt-4 text-[38px] font-extrabold leading-[1.02] tracking-[-0.045em] sm:text-[46px]">Questions,<br>answered.</h2>
+      <p class="mt-4 text-[15px] leading-relaxed text-[#16231c]/60">Everything freelancers ask before switching their invoicing to Fernpay. Can't find it? Search, or ask a real person.</p>
+
+      <label for="faq-search" class="sr-only">Search frequently asked questions</label>
+      <div class="search mt-7 flex h-[52px] items-center gap-3 rounded-2xl bg-white px-4 ring-1 ring-[#16231c]/10 transition-shadow">
+        <iconify-icon icon="lucide:search" width="18" class="text-[#16231c]/40" aria-hidden="true"></iconify-icon>
+        <input id="faq-search" type="search" autocomplete="off" placeholder="Search fees, payouts, 2FA..." class="h-full min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-[#16231c]/35 [&::-webkit-search-cancel-button]:hidden" aria-controls="faq-panel" aria-describedby="search-hint">
+        <button id="search-clear" type="button" class="hidden h-7 w-7 place-items-center rounded-full text-[#16231c]/45 hover:bg-[#16231c]/5 hover:text-[#16231c]" aria-label="Clear search"><iconify-icon icon="lucide:x" width="15" aria-hidden="true"></iconify-icon></button>
+        <kbd id="kbd" class="hidden rounded-md border border-[#16231c]/10 bg-[#f5f5f1] px-1.5 py-0.5 font-sans text-[11px] font-semibold text-[#16231c]/45 sm:inline">/</kbd>
+      </div>
+      <p id="search-hint" class="mt-2 px-1 text-[12px] text-[#16231c]/45">Press Enter to open the top result.</p>
+
+      <div class="mt-8 overflow-hidden rounded-[22px] bg-fern-dark p-5 text-white">
+        <div class="flex items-center gap-3">
+          <div class="flex -space-x-2" aria-hidden="true">
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#f7c59f] to-[#e07a5f] text-[11px] font-bold ring-2 ring-fern-dark">NO</span>
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#b8e0c8] to-[#3f8f68] text-[11px] font-bold ring-2 ring-fern-dark">LV</span>
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#cdd5f7] to-[#6274c9] text-[11px] font-bold ring-2 ring-fern-dark">SA</span>
+          </div>
+          <p class="text-[12.5px] leading-tight text-white/65"><span class="inline-flex items-center gap-1.5 font-semibold text-white"><span class="h-1.5 w-1.5 rounded-full bg-[#86efac] shadow-[0_0_8px_#86efac]"></span>3 people online</span><br>Median reply in 4 minutes</p>
+        </div>
+        <p class="mt-4 text-[17px] font-bold tracking-[-0.02em]">Still have a question?</p>
+        <p class="mt-1 text-[13.5px] leading-relaxed text-white/60">Our support team are freelancers too. No bots, no ticket queues.</p>
+        <a href="#" class="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-[13.5px] font-bold text-fern-dark transition hover:bg-[#d9f99d]"><iconify-icon icon="lucide:message-circle" width="16" aria-hidden="true"></iconify-icon>Chat with us</a>
+      </div>
+    </div>
+
+    <div>
+      <div role="tablist" aria-label="Question categories" class="no-scrollbar -mx-5 flex gap-1.5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
+        <button role="tab" id="t-all" data-cat="all" aria-controls="faq-panel" class="tab">All <span class="count">12</span></button>
+        <button role="tab" id="t-start" data-cat="start" aria-controls="faq-panel" class="tab">Getting started <span class="count">3</span></button>
+        <button role="tab" id="t-billing" data-cat="billing" aria-controls="faq-panel" class="tab">Pricing <span class="count">3</span></button>
+        <button role="tab" id="t-payouts" data-cat="payouts" aria-controls="faq-panel" class="tab">Payouts <span class="count">3</span></button>
+        <button role="tab" id="t-security" data-cat="security" aria-controls="faq-panel" class="tab">Security <span class="count">3</span></button>
+      </div>
+
+      <div id="faq-panel" role="tabpanel" aria-labelledby="t-all" class="mt-5">
+        <p id="meta" class="mb-3 px-1 text-[12.5px] font-medium text-[#16231c]/45" aria-live="polite">Showing all 12 questions</p>
+        <div id="list" class="space-y-2">
+          <div class="item open" data-cat="start"><h3><button class="q"><span class="qt">How long does it take to set up an account?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">About eight minutes. You'll need a photo ID and your bank details. Most accounts are verified the same business day, and you can draft invoices while you wait.</p></div></div></div>
+          <div class="item" data-cat="start"><h3><button class="q"><span class="qt">Can I import clients and invoices from my old tool?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Yes. Upload a CSV or connect your previous tool and we'll map clients, line items and payment history. Imports of up to 5,000 invoices finish in under a minute.</p></div></div></div>
+          <div class="item" data-cat="start"><h3><button class="q"><span class="qt">Do my clients need an account to pay me?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">No. Each invoice links to a payment page with your logo, and clients can pay by card, bank transfer or wallet without signing up for anything.</p></div></div></div>
+          <div class="item" data-cat="billing"><h3><button class="q"><span class="qt">What does Fernpay cost?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Solo is free for up to $5,000 a month in payments. Studio is $18 a month for unlimited invoices, recurring billing and up to three teammates.</p></div></div></div>
+          <div class="item" data-cat="billing"><h3><button class="q"><span class="qt">Are there transaction fees?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Card payments are 2.6% plus 30¢. Bank transfers are a flat 50¢, capped at $5. Currency conversion uses the mid-market rate plus 0.4%, with no hidden markup.</p></div></div></div>
+          <div class="item" data-cat="billing"><h3><button class="q"><span class="qt">Can I change or cancel my plan anytime?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Anytime, from Settings, then Plan. Downgrades take effect at the end of your billing period and you keep read access to your full invoice history.</p></div></div></div>
+          <div class="item" data-cat="payouts"><h3><button class="q"><span class="qt">How quickly do I get paid?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Card payments reach your bank in two business days. Instant payout to an eligible debit card arrives in about 30 minutes for a 1% fee.</p></div></div></div>
+          <div class="item" data-cat="payouts"><h3><button class="q"><span class="qt">Which currencies can I invoice in?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Invoice in 46 currencies and get paid out in 12. Your client sees their own currency, and you see the converted payout before you hit send.</p></div></div></div>
+          <div class="item" data-cat="payouts"><h3><button class="q"><span class="qt">What happens when a client pays late?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Polite reminders go out on the schedule you choose. You can also add a late fee as a fixed amount or a monthly percentage, applied automatically.</p></div></div></div>
+          <div class="item" data-cat="security"><h3><button class="q"><span class="qt">How do you keep my financial data safe?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Everything is encrypted in transit and at rest with AES-256. We're audited every year by an independent firm and never sell or share your data with advertisers.</p></div></div></div>
+          <div class="item" data-cat="security"><h3><button class="q"><span class="qt">Do you support two-factor authentication (2FA)?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Yes, with authenticator apps, passkeys or hardware security keys. Studio admins can require 2FA for every teammate before they see a single invoice.</p></div></div></div>
+          <div class="item" data-cat="security"><h3><button class="q"><span class="qt">Who actually holds my money?</span><span class="ico"></span></button></h3><div class="a" role="region"><div><p class="at">Funds sit with our partner bank in segregated client accounts, separate from Fernpay's own money, and are paid out on the schedule you set.</p></div></div></div>
+        </div>
+
+        <div id="empty" hidden class="rounded-[22px] border border-dashed border-[#16231c]/15 bg-white/60 px-6 py-12 text-center">
+          <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white text-[#16231c]/50 shadow-[0_1px_2px_rgba(0,0,0,.05)] ring-1 ring-[#16231c]/[.07]"><iconify-icon icon="lucide:search-x" width="24" aria-hidden="true"></iconify-icon></span>
+          <p class="mt-4 text-[17px] font-bold tracking-[-0.02em]">No answers for "<span id="empty-q"></span>"</p>
+          <p class="mx-auto mt-1.5 max-w-sm text-[14px] leading-relaxed text-[#16231c]/55">Try a broader word, check another category, or ask the team directly. We usually reply in minutes.</p>
+          <div class="mt-5 flex flex-wrap items-center justify-center gap-2 text-[13px]">
+            <span class="text-[#16231c]/45">Try:</span>
+            <button type="button" class="suggest">fees</button>
+            <button type="button" class="suggest">payout</button>
+            <button type="button" class="suggest">import</button>
+          </div>
+          <button id="empty-clear" type="button" class="mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-bold text-fern hover:underline"><iconify-icon icon="lucide:rotate-ccw" width="14" aria-hidden="true"></iconify-icon>Clear search</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  var items = Array.prototype.slice.call(document.querySelectorAll('.item'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var input = document.getElementById('faq-search'), meta = document.getElementById('meta'), empty = document.getElementById('empty');
+  var panel = document.getElementById('faq-panel'), clearBtn = document.getElementById('search-clear'), kbd = document.getElementById('kbd');
+  var cat = 'all', NAMES = { all: 'all', start: 'Getting started', billing: 'Pricing', payouts: 'Payouts', security: 'Security' };
+
+  items.forEach(function (it, i) {
+    var q = it.querySelector('.q'), a = it.querySelector('.a');
+    q.id = 'faq-q' + i; a.id = 'faq-a' + i;
+    q.setAttribute('aria-controls', a.id); a.setAttribute('aria-labelledby', q.id); q.setAttribute('aria-expanded', it.classList.contains('open'));
+    it.dataset.q = it.querySelector('.qt').textContent; it.dataset.a = it.querySelector('.at').textContent;
+    q.addEventListener('click', function () { toggle(it); });
+    q.addEventListener('keydown', function (e) {
+      var vis = visible().map(function (v) { return v.querySelector('.q'); }), k = vis.indexOf(q);
+      var map = { ArrowDown: k + 1, ArrowUp: k - 1, Home: 0, End: vis.length - 1 };
+      if (e.key in map) { e.preventDefault(); vis[(map[e.key] + vis.length) % vis.length].focus(); }
+    });
+  });
+  function toggle(it, force) {
+    var open = force !== undefined ? force : !it.classList.contains('open');
+    items.forEach(function (o) { if (o !== it && open) setOpen(o, false); });
+    setOpen(it, open);
+  }
+  function setOpen(it, open) { it.classList.toggle('open', open); it.querySelector('.q').setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  function visible() { return items.filter(function (it) { return !it.hidden; }); }
+
+  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function mark(text, re) {
+    if (!re) return esc(text);
+    return text.split(re).map(function (part, i) { return i % 2 ? '<mark>' + esc(part) + '</mark>' : esc(part); }).join('');
+  }
+  function apply() {
+    var q = input.value.trim(), re = q ? new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'i') : null;
+    var counts = { all: 0, start: 0, billing: 0, payouts: 0, security: 0 }, shown = 0;
+    items.forEach(function (it) {
+      var hit = !re || re.test(it.dataset.q) || re.test(it.dataset.a);
+      if (hit) { counts.all++; counts[it.dataset.cat]++; }
+      var show = hit && (cat === 'all' || it.dataset.cat === cat);
+      it.hidden = !show;
+      if (show) { shown++; it.querySelector('.qt').innerHTML = mark(it.dataset.q, re); it.querySelector('.at').innerHTML = mark(it.dataset.a, re); }
+    });
+    tabs.forEach(function (t) { t.querySelector('.count').textContent = counts[t.dataset.cat]; });
+    var where = cat === 'all' ? '' : ' in ' + NAMES[cat];
+    meta.textContent = q ? (shown ? shown + (shown === 1 ? ' result' : ' results') + ' for "' + q + '"' + where : 'No results' + where + (counts.all ? ', ' + counts.all + ' in other categories' : '')) : 'Showing ' + (cat === 'all' ? 'all 12 questions' : shown + ' questions' + where);
+    var wasHidden = empty.hidden;
+    empty.hidden = shown > 0;
+    if (!shown) { document.getElementById('empty-q').textContent = q; if (wasHidden) { empty.classList.remove('fade-in'); void empty.offsetWidth; empty.classList.add('fade-in'); } }
+    clearBtn.classList.toggle('hidden', !q); clearBtn.classList.toggle('grid', !!q);
+    kbd.classList.toggle('sm:inline', !q);
+  }
+  function select(t, focus) {
+    cat = t.dataset.cat;
+    tabs.forEach(function (o) { var on = o === t; o.setAttribute('aria-selected', on ? 'true' : 'false'); o.tabIndex = on ? 0 : -1; });
+    panel.setAttribute('aria-labelledby', t.id);
+    if (focus) t.focus();
+    var list = t.parentNode, l = t.offsetLeft - list.offsetLeft, r = l + t.offsetWidth;
+    if (l < list.scrollLeft + 20) list.scrollLeft = l - 20; else if (r > list.scrollLeft + list.clientWidth - 20) list.scrollLeft = r - list.clientWidth + 20;
+    apply();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t); });
+    t.addEventListener('keydown', function (e) {
+      var map = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
+      if (e.key in map) { e.preventDefault(); select(tabs[(map[e.key] + tabs.length) % tabs.length], true); }
+    });
+  });
+
+  function clear() { input.value = ''; apply(); input.focus(); }
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); clear(); }
+    if (e.key === 'Enter') { e.preventDefault(); var v = visible()[0]; if (v) { toggle(v, true); v.querySelector('.q').focus(); } }
+  });
+  clearBtn.addEventListener('click', clear);
+  document.getElementById('empty-clear').addEventListener('click', clear);
+  document.querySelectorAll('.suggest').forEach(function (b) { b.addEventListener('click', function () { input.value = b.textContent; if (cat !== 'all') select(tabs[0]); else apply(); input.focus(); }); });
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (e.key === '/' && tag !== 'input' && tag !== 'textarea' && !e.target.isContentEditable) { e.preventDefault(); input.focus(); }
+  });
+  select(tabs[0]);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lowtide Studio - Contact form with floating labels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    [hidden] { display: none !important; }
+    .card { background: #0a1016; box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 40px 90px -40px rgb(8 47 73 / .7), 0 0 80px -30px rgb(45 212 191 / .18); }
+    .aside { background: radial-gradient(120% 70% at 0% 100%, rgb(45 212 191 / .16), transparent 60%), radial-gradient(80% 60% at 100% 0%, rgb(56 189 248 / .1), transparent 60%), #0d151c; }
+    .fl { position: relative; }
+    .fl input, .fl textarea { display: block; width: 100%; height: 56px; padding: 24px 14px 8px; border-radius: 12px; border: 1px solid rgb(255 255 255 / .1); background: rgb(255 255 255 / .03); color: #f1f5f9; font-size: 14.5px; transition: border-color .15s, box-shadow .15s, background .15s; }
+    .fl textarea { height: 124px; padding-top: 28px; resize: none; line-height: 1.5; }
+    .fl input:hover, .fl textarea:hover { border-color: rgb(255 255 255 / .18); }
+    .fl input:focus, .fl textarea:focus { outline: none; border-color: rgb(94 234 212 / .7); background: rgb(255 255 255 / .05); box-shadow: 0 0 0 4px rgb(45 212 191 / .12); }
+    .fl label { position: absolute; left: 15px; top: 18px; font-size: 14.5px; color: #7d8a99; pointer-events: none; transform-origin: left top; transition: transform .18s cubic-bezier(.2,.8,.2,1), color .18s; }
+    .fl :is(input, textarea):is(:focus, :not(:placeholder-shown)) + label { transform: translateY(-10px) scale(.78); }
+    .fl :is(input, textarea):focus + label { color: #5eead4; }
+    .fl [aria-invalid="true"] { border-color: rgb(251 113 133 / .8) !important; box-shadow: 0 0 0 3px rgb(244 63 94 / .12) !important; }
+    .fl [aria-invalid="true"] + label { color: #fda4af !important; }
+    .err { min-height: 16px; margin-top: 4px; display: flex; align-items: center; gap: 5px; font-size: 12px; color: #fda4af; }
+    .chip input { position: absolute; opacity: 0; pointer-events: none; }
+    .chip span { display: inline-flex; height: 34px; align-items: center; border-radius: 99px; padding: 0 14px; font-size: 13px; color: #b6c2cf; border: 1px solid rgb(255 255 255 / .1); cursor: pointer; transition: all .15s; }
+    .chip span:hover { border-color: rgb(255 255 255 / .22); color: #fff; }
+    .chip input:checked + span { background: #5eead4; border-color: #5eead4; color: #042f2e; font-weight: 600; }
+    .chip input:focus-visible + span { outline: 2px solid #5eead4; outline-offset: 2px; }
+    .bad .chip span { border-color: rgb(251 113 133 / .5); }
+    .drop { border: 1.5px dashed rgb(255 255 255 / .14); transition: border-color .15s, background .15s; }
+    .drop:hover, .drop.drag { border-color: rgb(94 234 212 / .6); background: rgb(45 212 191 / .06); }
+    #files:focus-visible + .drop { outline: 2px solid #5eead4; outline-offset: 2px; }
+    .file-in { animation: fileIn .3s cubic-bezier(.2,.8,.2,1); }
+    @keyframes fileIn { from { opacity: 0; transform: translateY(-4px); } }
+    .ring-pulse { animation: ring 2.2s ease-out infinite; }
+    @keyframes ring { from { transform: scale(.8); opacity: .7; } to { transform: scale(1.8); opacity: 0; } }
+    .spinner { width: 16px; height: 16px; border-radius: 99px; border: 2px solid rgb(4 47 46 / .3); border-top-color: #042f2e; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    a:focus-visible, button:focus-visible { outline: 2px solid #5eead4; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .fl label, .chip span, .drop { transition: none; } .file-in, .ring-pulse { animation: none; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-4 font-sans antialiased sm:p-8">
+  <section class="card grid w-full max-w-[1040px] overflow-hidden rounded-[28px] text-slate-200 md:grid-cols-[0.82fr_1.18fr]" aria-labelledby="ct-title">
+    <aside class="aside relative flex flex-col justify-between gap-10 overflow-hidden p-7 sm:p-9">
+      <svg class="pointer-events-none absolute inset-x-0 bottom-0 h-24 w-full text-teal-300" viewBox="0 0 400 160" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 70 C60 50 110 90 170 72 S280 40 400 66" stroke="currentColor" stroke-opacity=".28"/>
+        <path d="M0 92 C70 74 120 112 190 94 S300 64 400 90" stroke="currentColor" stroke-opacity=".2"/>
+        <path d="M0 114 C80 98 130 134 210 116 S320 88 400 112" stroke="currentColor" stroke-opacity=".14"/>
+        <path d="M0 136 C90 122 140 156 230 138 S340 112 400 134" stroke="currentColor" stroke-opacity=".08"/>
+      </svg>
+      <div class="relative">
+        <p class="inline-flex items-center gap-2 text-[14px] font-semibold tracking-tight text-white"><span class="grid h-7 w-7 place-items-center rounded-lg bg-teal-300 text-[15px] text-teal-950"><iconify-icon icon="lucide:waves"></iconify-icon></span>Lowtide Studio</p>
+        <h1 id="ct-title" class="mt-8 text-[30px] font-semibold leading-[1.08] tracking-[-0.035em] text-white sm:text-[34px]">Tell us what you&rsquo;re building.</h1>
+        <p class="mt-3 max-w-xs text-[14.5px] leading-relaxed text-slate-400">Brand, product and web for early teams. Share a few details and we&rsquo;ll reply with honest next steps, even if we&rsquo;re not the right fit.</p>
+        <ul class="mt-6 flex max-w-sm flex-wrap gap-1.5 text-[12px] text-slate-300" aria-label="Services">
+          <li class="rounded-full bg-white/[.05] px-2.5 py-1 ring-1 ring-white/10">Brand identity</li><li class="rounded-full bg-white/[.05] px-2.5 py-1 ring-1 ring-white/10">Product design</li><li class="rounded-full bg-white/[.05] px-2.5 py-1 ring-1 ring-white/10">Marketing sites</li><li class="rounded-full bg-white/[.05] px-2.5 py-1 ring-1 ring-white/10">Design systems</li>
+        </ul>
+      </div>
+      <ul class="relative space-y-3 text-[13.5px]">
+        <li><a href="#" class="group flex items-center gap-3 text-slate-300 transition hover:text-white"><span class="grid h-9 w-9 place-items-center rounded-xl bg-white/[.05] text-[16px] ring-1 ring-white/10"><iconify-icon icon="lucide:mail"></iconify-icon></span>hello@lowtide.studio</a></li>
+        <li><a href="#" class="group flex items-center gap-3 text-slate-300 transition hover:text-white"><span class="grid h-9 w-9 place-items-center rounded-xl bg-white/[.05] text-[16px] ring-1 ring-white/10"><iconify-icon icon="lucide:calendar-clock"></iconify-icon></span>Book a 20-minute intro call</a></li>
+        <li class="flex items-center gap-3 pt-3">
+          <span class="flex -space-x-2"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-amber-300 to-rose-500 text-[11px] font-semibold text-white ring-2 ring-[#0d151c]">IV</span><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-indigo-500 text-[11px] font-semibold text-white ring-2 ring-[#0d151c]">MB</span></span>
+          <span class="leading-tight text-slate-400"><span class="block font-medium text-slate-200">Ines and Marco reply</span>within one business day</span>
+        </li>
+      </ul>
+    </aside>
+
+    <div id="panel" class="p-6 sm:p-9">
+      <form id="form" novalidate>
+        <div class="flex items-center justify-between"><p class="text-[13px] font-medium text-slate-400">Project inquiry</p><p class="flex items-center gap-1.5 text-[12px] text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-teal-300"></span>Booking for March</p></div>
+        <div class="mt-4 grid gap-x-3 sm:grid-cols-2">
+          <div><div class="fl"><input id="name" placeholder=" " autocomplete="name" aria-describedby="name-err"><label for="name">Your name</label></div><p id="name-err" class="err"></p></div>
+          <div><div class="fl"><input id="email" type="email" placeholder=" " autocomplete="email" aria-describedby="email-err"><label for="email">Work email</label></div><p id="email-err" class="err"></p></div>
+        </div>
+        <div class="fl"><input id="company" placeholder=" " autocomplete="organization"><label for="company">Company or project <span class="text-slate-500">(optional)</span></label></div>
+
+        <fieldset id="budget" class="mt-4" aria-describedby="budget-err">
+          <legend class="text-[13px] font-medium text-slate-300">Estimated budget</legend>
+          <div class="mt-2.5 flex flex-wrap gap-2">
+            <label class="chip relative"><input type="radio" name="budget" value="Under $10k"><span>Under $10k</span></label>
+            <label class="chip relative"><input type="radio" name="budget" value="$10k to $25k"><span>$10k&ndash;25k</span></label>
+            <label class="chip relative"><input type="radio" name="budget" value="$25k to $50k"><span>$25k&ndash;50k</span></label>
+            <label class="chip relative"><input type="radio" name="budget" value="$50k+"><span>$50k+</span></label>
+            <label class="chip relative"><input type="radio" name="budget" value="Not sure yet"><span>Not sure yet</span></label>
+          </div>
+          <p id="budget-err" class="err"></p>
+        </fieldset>
+
+        <div class="mt-1">
+          <div class="fl"><textarea id="msg" placeholder=" " maxlength="600" aria-describedby="msg-count msg-err"></textarea><label for="msg">What are you working on?</label></div>
+          <div class="flex items-start justify-between gap-3"><p id="msg-err" class="err"></p><p id="msg-count" class="mt-1 shrink-0 font-mono text-[11.5px] text-slate-500"><span id="count">0</span> / 600</p></div>
+          <p id="msg-live" class="sr-only" aria-live="polite"></p>
+        </div>
+
+        <div class="mt-1">
+          <input id="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.fig,.zip,.key" class="sr-only" aria-describedby="files-hint files-err">
+          <label for="files" id="drop" class="drop flex cursor-pointer items-center gap-3.5 rounded-xl px-4 py-3.5">
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[.05] text-[18px] text-teal-300 ring-1 ring-white/10"><iconify-icon icon="lucide:paperclip"></iconify-icon></span>
+            <span class="min-w-0 text-[13.5px]"><span class="font-medium text-slate-200">Drop a brief or moodboard</span> <span class="text-slate-400">or <u class="decoration-teal-300/60 underline-offset-2">browse</u></span><span id="files-hint" class="block text-[12px] text-slate-500">PDF, Figma, images or ZIP, up to 10 MB each, 4 files max</span></span>
+          </label>
+          <ul id="fileList" class="mt-2 space-y-1.5" aria-label="Attached files"></ul>
+          <p id="files-err" class="err" aria-live="polite"></p>
+        </div>
+
+        <div class="mt-2 flex flex-col-reverse items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p class="flex items-center gap-1.5 text-[12px] text-slate-500"><iconify-icon icon="lucide:lock"></iconify-icon>We never share your details or add you to a list.</p>
+          <button id="send" type="submit" class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-teal-300 px-5 text-[14px] font-semibold text-teal-950 shadow-[0_10px_30px_-10px_rgb(45_212_191_/_.6)] transition hover:bg-teal-200 disabled:cursor-wait sm:w-auto"><span>Send inquiry</span><iconify-icon icon="lucide:send-horizontal"></iconify-icon></button>
+        </div>
+      </form>
+
+      <div id="done" class="flex h-full flex-col justify-center py-6" role="status" hidden>
+        <span class="relative grid h-14 w-14 place-items-center"><span class="ring-pulse absolute inset-0 rounded-full bg-teal-300/30"></span><span class="relative grid h-14 w-14 place-items-center rounded-full bg-teal-300 text-[26px] text-teal-950"><iconify-icon icon="lucide:check"></iconify-icon></span></span>
+        <h2 class="mt-7 text-[26px] font-semibold leading-tight tracking-[-0.03em] text-white outline-none" tabindex="-1">Thanks, <span id="dName"></span>. Your inquiry is in.</h2>
+        <p class="mt-2 max-w-md text-[14.5px] leading-relaxed text-slate-400">Ines will reply to <span id="dEmail" class="text-slate-200"></span> within one business day. Here is what happens next:</p>
+        <ol class="mt-6 space-y-3 text-[14px] text-slate-300">
+          <li class="flex items-center gap-3"><span class="grid h-7 w-7 place-items-center rounded-full bg-white/[.06] font-mono text-[12px] text-teal-300 ring-1 ring-white/10">1</span><span>We read your brief<span id="dFiles" class="text-slate-500"></span></span></li>
+          <li class="flex items-center gap-3"><span class="grid h-7 w-7 place-items-center rounded-full bg-white/[.06] font-mono text-[12px] text-teal-300 ring-1 ring-white/10">2</span>A 20-minute call to fill in the gaps</li>
+          <li class="flex items-center gap-3"><span class="grid h-7 w-7 place-items-center rounded-full bg-white/[.06] font-mono text-[12px] text-teal-300 ring-1 ring-white/10">3</span>A written proposal within a week</li>
+        </ol>
+        <button id="again" type="button" class="mt-8 inline-flex items-center gap-1.5 self-start rounded text-[13px] font-medium text-slate-400 transition hover:text-white"><iconify-icon icon="lucide:rotate-ccw"></iconify-icon>Send another inquiry</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var $ = function (s) { return document.querySelector(s); };
+      var form = $('#form'), MAX_FILES = 4, MAX_MB = 10, LIMIT = 600, files = [], touched = {};
+      var EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i, OK_EXT = /\.(pdf|png|jpe?g|fig|zip|key)$/i;
+
+      function setErr(id, msg) {
+        var p = $('#' + id + '-err');
+        p.innerHTML = msg ? '<iconify-icon icon="lucide:circle-alert"></iconify-icon><span></span>' : '';
+        if (msg) p.lastChild.textContent = msg;
+        if (id === 'budget') $('#budget').classList.toggle('bad', !!msg); else $('#' + id).setAttribute('aria-invalid', String(!!msg));
+        return !msg;
+      }
+      var rules = {
+        name: function () { var v = $('#name').value.trim(); return setErr('name', v.length > 1 ? '' : v ? 'That looks a little short' : 'Tell us your name'); },
+        email: function () { var v = $('#email').value.trim(); return setErr('email', !v ? 'We need an email to reply' : EMAIL.test(v) ? '' : 'Try a valid address, like you@company.com'); },
+        budget: function () { return setErr('budget', form.budget.value ? '' : 'Pick the closest range, or "Not sure yet"'); },
+        msg: function () { var n = $('#msg').value.trim().length; return setErr('msg', n >= 20 ? '' : n ? 'A little more detail helps (' + (20 - n) + ' more characters)' : 'Give us a sentence or two about the project'); }
+      };
+
+      ['name', 'email', 'msg'].forEach(function (id) {
+        var el = $('#' + id);
+        el.addEventListener('blur', function () { if (el.value.trim()) { touched[id] = true; rules[id](); } });
+        el.addEventListener('input', function () { if (touched[id]) rules[id](); });
+      });
+      form.addEventListener('change', function (e) { if (e.target.name === 'budget') rules.budget(); });
+
+      // Character counter: colors near the limit and announces milestones to screen readers.
+      var count = $('#count'), counter = $('#msg-count'), live = $('#msg-live'), lastMark = null;
+      $('#msg').addEventListener('input', function () {
+        var n = this.value.length, left = LIMIT - n;
+        count.textContent = n;
+        counter.className = 'mt-1 shrink-0 font-mono text-[11.5px] ' + (left <= 0 ? 'text-rose-300' : left <= 60 ? 'text-amber-300' : 'text-slate-500');
+        var mark = left <= 0 ? 0 : left <= 60 ? 60 : null;
+        if (mark !== lastMark) { live.textContent = mark === null ? '' : mark === 0 ? 'Character limit reached' : left + ' characters left'; lastMark = mark; }
+      });
+
+      // Files: drag and drop or browse, with type, size and count checks.
+      var drop = $('#drop'), input = $('#files'), list = $('#fileList');
+      var fmt = function (b) { return b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1) + ' MB'; };
+      var icon = function (n) { return /\.(png|jpe?g)$/i.test(n) ? 'lucide:image' : /\.zip$/i.test(n) ? 'lucide:file-archive' : /\.fig$/i.test(n) ? 'lucide:pen-tool' : 'lucide:file-text'; };
+      function add(incoming) {
+        var problems = [];
+        [].forEach.call(incoming, function (f) {
+          if (!OK_EXT.test(f.name)) problems.push(f.name + ' is not a supported file type');
+          else if (f.size > MAX_MB * 1048576) problems.push(f.name + ' is larger than ' + MAX_MB + ' MB');
+          else if (files.length >= MAX_FILES) problems.push('You can attach up to ' + MAX_FILES + ' files');
+          else if (!files.some(function (x) { return x.name === f.name && x.size === f.size; })) files.push(f);
+        });
+        $('#files-err').innerHTML = problems.length ? '<iconify-icon icon="lucide:circle-alert"></iconify-icon><span></span>' : '';
+        if (problems.length) $('#files-err').lastChild.textContent = problems[0] + (problems.length > 1 ? ' (and ' + (problems.length - 1) + ' more)' : '');
+        render();
+      }
+      function render() {
+        list.innerHTML = '';
+        files.forEach(function (f, i) {
+          var li = document.createElement('li');
+          li.className = 'file-in flex items-center gap-3 rounded-xl bg-white/[.04] py-2 pl-3 pr-1.5 text-[13px] ring-1 ring-white/[.07]';
+          li.innerHTML = '<iconify-icon class="shrink-0 text-[16px] text-teal-300"></iconify-icon><span class="min-w-0 flex-1 truncate text-slate-200"></span><span class="shrink-0 font-mono text-[11.5px] text-slate-500"></span><button type="button" class="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-white"><iconify-icon icon="lucide:x"></iconify-icon></button>';
+          li.firstChild.setAttribute('icon', icon(f.name));
+          li.children[1].textContent = f.name;
+          li.children[2].textContent = fmt(f.size);
+          var rm = li.lastChild;
+          rm.setAttribute('aria-label', 'Remove ' + f.name);
+          rm.addEventListener('click', function () {
+            files.splice(i, 1); render(); $('#files-err').innerHTML = '';
+            var next = list.querySelectorAll('button')[Math.min(i, files.length - 1)];
+            (next || input).focus();
+          });
+          list.appendChild(li);
+        });
+      }
+      input.addEventListener('change', function () { add(input.files); input.value = ''; });
+      ['dragenter', 'dragover'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('drag'); }); });
+      ['dragleave', 'drop'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('drag'); }); });
+      drop.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files.length) add(e.dataTransfer.files); });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var order = ['name', 'email', 'budget', 'msg'], bad = order.filter(function (k) { touched[k] = true; return !rules[k](); });
+        if (bad.length) { (bad[0] === 'budget' ? form.querySelector('input[name=budget]') : $('#' + bad[0])).focus(); return; }
+        var btn = $('#send'), label = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span><span>Sending</span>';
+        setTimeout(function () {
+          $('#dName').textContent = $('#name').value.trim().split(/\s+/)[0];
+          $('#dEmail').textContent = $('#email').value.trim();
+          $('#dFiles').textContent = files.length ? ' and ' + files.length + (files.length > 1 ? ' attachments' : ' attachment') : '';
+          btn.disabled = false; btn.innerHTML = label;
+          form.hidden = true; $('#done').hidden = false; $('#done h2').focus();
+        }, 1200);
+      });
+
+      $('#again').addEventListener('click', function () {
+        form.reset(); files = []; touched = {}; render(); lastMark = null;
+        count.textContent = '0'; counter.className = 'mt-1 shrink-0 font-mono text-[11.5px] text-slate-500';
+        ['name', 'email', 'budget', 'msg'].forEach(function (k) { setErr(k, ''); });
+        $('#files-err').innerHTML = '';
+        $('#done').hidden = true; form.hidden = false; $('#name').focus();
+      });
+    })();
+  </script>
+</body>
+</html>

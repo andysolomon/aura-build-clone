@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fernway - featured team plan with seat stepper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'] }, colors: { lime: { glow: '#c4f25c' } } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    @property --a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+    body { background: #07080b; }
+    .lines { background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 56px 56px;
+      -webkit-mask-image: radial-gradient(70% 60% at 70% 40%, #000, transparent 75%); mask-image: radial-gradient(70% 60% at 70% 40%, #000, transparent 75%); }
+    .beam { --a: 0deg; background: conic-gradient(from var(--a), rgba(255,255,255,.07) 0deg, rgba(255,255,255,.07) 150deg, #5eead4 210deg, #c4f25c 260deg, #fef08a 285deg, rgba(255,255,255,.07) 330deg); animation: turn 6s linear infinite; }
+    .beam.halo { filter: blur(28px); opacity: .45; }
+    @keyframes turn { to { --a: 360deg; } }
+    .card { background: radial-gradient(120% 60% at 50% 0%, rgba(196,242,92,.07), transparent 60%), #0b0c10; }
+    .grad-text { background: linear-gradient(90deg, #ecfccb, #c4f25c 40%, #5eead4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .cta { background: linear-gradient(180deg, #d4fa7a, #b2e43f); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -2px 0 rgba(60,90,0,.25), 0 12px 30px -12px rgba(196,242,92,.65); transition: filter .15s, transform .15s; }
+    .cta:hover { filter: brightness(1.05); }
+    .cta:active { transform: translateY(1px); }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+    .step { transition: background-color .15s, transform .1s; }
+    .step:active:not(:disabled) { transform: scale(.9); }
+    .av { box-shadow: 0 0 0 2px #0b0c10; }
+    .av.pop { animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
+    @keyframes pop { from { transform: scale(.3); opacity: 0; } }
+    .meter > span { transition: width .45s cubic-bezier(.2,.8,.2,1), background-color .3s; }
+    .bump { animation: bump .3s ease; }
+    @keyframes bump { 40% { transform: translateY(-2px); color: #c4f25c; } }
+    a:focus-visible, button:focus-visible { outline: 2px solid #c4f25c; outline-offset: 3px; }
+    input:focus-visible { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .beam { animation: none; --a: 200deg; }
+      .av.pop, .bump { animation: none; }
+      .meter > span { transition: none; }
+    }
+  </style>
+</head>
+<body class="font-sans text-zinc-300 antialiased">
+  <section class="relative overflow-hidden">
+    <div class="lines pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute right-[-10%] top-[10%] h-[520px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(94,234,212,.14),transparent)]" aria-hidden="true"></div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_460px] lg:gap-16 lg:py-12">
+      <div>
+        <p class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-3 py-1 text-[12px] font-medium text-lime-glow"><iconify-icon icon="lucide:users-round"></iconify-icon>Fernway for teams</p>
+        <h2 class="mt-5 text-[40px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:text-[54px]">One workspace,<br><span class="grad-text">priced per teammate.</span></h2>
+        <p class="mt-5 max-w-md text-[16px] leading-relaxed text-zinc-400">Docs, roadmaps and customer feedback in one place. Add seats as you hire, drop them when projects wrap, and we prorate the difference.</p>
+        <dl class="mt-8 grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-6">
+          <div><dt class="sr-only">Rating</dt><dd class="text-[24px] font-semibold tracking-tight text-white">4.9<span class="text-zinc-500">/5</span></dd><dd class="mt-1 text-[12px] text-zinc-500">from 2,300 reviews</dd></div>
+          <div><dt class="sr-only">Compliance</dt><dd class="text-[24px] font-semibold tracking-tight text-white">SOC 2</dd><dd class="mt-1 text-[12px] text-zinc-500">Type II audited</dd></div>
+          <div><dt class="sr-only">Uptime</dt><dd class="text-[24px] font-semibold tracking-tight text-white">99.98%</dd><dd class="mt-1 text-[12px] text-zinc-500">uptime this year</dd></div>
+        </dl>
+        <figure class="mt-8 flex max-w-md items-start gap-3 rounded-2xl border border-white/[.07] bg-white/[.02] p-4">
+          <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-amber-300 to-rose-400 text-[12px] font-bold text-zinc-900" aria-hidden="true">PR</span>
+          <div><blockquote class="text-[14px] leading-snug text-zinc-200">“We folded three tools into Fernway in a week, and our seat bill went down.”</blockquote><figcaption class="mt-1.5 text-[12px] text-zinc-500">Priya Raman, Head of Product at Lumen Freight</figcaption></div>
+        </figure>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-[460px]">
+        <div class="beam halo absolute -inset-3 rounded-[34px]" aria-hidden="true"></div>
+        <div class="beam relative rounded-[28px] p-px">
+          <article class="card relative rounded-[27px] p-5 sm:p-7" aria-labelledby="planName">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-lime-glow/10 text-lime-glow ring-1 ring-inset ring-lime-glow/25"><iconify-icon icon="lucide:layers-3" class="text-[19px]"></iconify-icon></span>
+                <div class="leading-tight"><h3 id="planName" class="text-[18px] font-semibold text-white">Team</h3><p class="text-[12px] text-zinc-500">3 to 250 seats</p></div>
+              </div>
+              <span class="rounded-full bg-lime-glow px-2.5 py-1 text-[11px] font-semibold text-zinc-900">Most popular</span>
+            </div>
+
+            <p class="mt-5 flex items-end gap-2"><span id="rate" class="text-[46px] font-semibold leading-none tracking-[-0.05em] text-white">$16</span><span id="rateWas" class="mb-1 hidden text-[16px] text-zinc-500 line-through">$16</span><span class="mb-1 text-[13px] leading-tight text-zinc-400">per seat / month<br><span class="text-zinc-500">billed annually</span></span></p>
+
+            <div class="mt-5 rounded-2xl border border-white/[.08] bg-white/[.025] p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div><label for="seats" class="text-[14px] font-medium text-white">Seats</label><p id="seatHint" class="text-[12px] text-zinc-500">Minimum 3<span class="hidden sm:inline">, prorated monthly</span></p></div>
+                <div class="flex items-center rounded-xl border border-white/10 bg-black/40 p-1">
+                  <button type="button" id="dec" class="step grid h-9 w-9 place-items-center rounded-lg text-zinc-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30" aria-label="Remove a seat" aria-controls="seats"><iconify-icon icon="lucide:minus" class="text-[16px]"></iconify-icon></button>
+                  <input id="seats" type="number" inputmode="numeric" min="3" max="250" value="12" aria-describedby="seatHint" class="w-12 bg-transparent text-center text-[18px] font-semibold tabular-nums text-white">
+                  <button type="button" id="inc" class="step grid h-9 w-9 place-items-center rounded-lg text-zinc-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30" aria-label="Add a seat" aria-controls="seats"><iconify-icon icon="lucide:plus" class="text-[16px]"></iconify-icon></button>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <div id="avatars" class="flex -space-x-1.5" aria-hidden="true"></div>
+                <p id="volText" class="text-right text-[12px] text-zinc-400"></p>
+              </div>
+              <div class="meter mt-3 h-1.5 overflow-hidden rounded-full bg-white/[.06]" aria-hidden="true"><span id="meter" class="block h-full rounded-full bg-gradient-to-r from-teal-300 to-lime-glow"></span></div>
+            </div>
+
+            <ul class="mt-5 grid gap-x-4 gap-y-2.5 text-[13px] text-zinc-300 sm:grid-cols-2">
+              <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-lime-glow"></iconify-icon>Unlimited docs</li>
+              <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-lime-glow"></iconify-icon>Free guest access</li>
+              <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-lime-glow"></iconify-icon>1-year version history</li>
+              <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-lime-glow"></iconify-icon>SAML SSO and SCIM</li>
+              <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-lime-glow"></iconify-icon>Admin roles, audit log</li>
+              <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-lime-glow"></iconify-icon>Priority support, 4h reply</li>
+            </ul>
+
+            <div class="mt-6 flex items-end justify-between border-t border-white/[.08] pt-5">
+              <div><p class="text-[13px] text-zinc-400">Total for <span id="seatWord">12 seats</span></p><p id="yearly" class="mt-0.5 text-[12px] text-zinc-500">$2,304 billed yearly</p></div>
+              <p class="text-right"><span id="total" class="inline-block text-[30px] font-semibold tracking-[-0.04em] text-white tabular-nums">$192</span><span class="text-[13px] text-zinc-500">/mo</span></p>
+            </div>
+
+            <a href="#" class="cta mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-semibold text-zinc-900">Start 14-day free trial<iconify-icon icon="lucide:arrow-right" class="text-[16px]"></iconify-icon></a>
+            <div class="mt-2.5 grid grid-cols-2 gap-2.5">
+              <a href="#" class="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-white/10 text-[13px] font-medium text-zinc-200 transition hover:border-white/20 hover:bg-white/[.04]"><iconify-icon icon="lucide:columns-3" class="text-[15px] text-zinc-400"></iconify-icon>Compare plans</a>
+              <a href="#" class="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-white/10 text-[13px] font-medium text-zinc-200 transition hover:border-white/20 hover:bg-white/[.04]"><iconify-icon icon="lucide:messages-square" class="text-[15px] text-zinc-400"></iconify-icon>Talk to sales</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+    <p id="live" class="sr-only" aria-live="polite"></p>
+  </section>
+
+  <script>
+    (function () {
+      var MIN = 3, MAX = 250, RATE = 16, VOL_RATE = 13, VOL_AT = 25;
+      var PEOPLE = [['MC', '#fde68a', '#f59e0b'], ['TA', '#a7f3d0', '#14b8a6'], ['IM', '#c7d2fe', '#6366f1'], ['KM', '#fecdd3', '#f43f5e'], ['AP', '#e9d5ff', '#a855f7'], ['RI', '#bae6fd', '#0ea5e9']];
+      var $ = function (id) { return document.getElementById(id); };
+      var input = $('seats'), dec = $('dec'), inc = $('inc'), totalEl = $('total'), live = $('live');
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var seats = 12, shown = 0, target = 0, prevAv = 0, liveT = 0;
+      function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+      function render(fromUser) {
+        var vol = seats >= VOL_AT, rate = vol ? VOL_RATE : RATE;
+        input.value = seats;
+        dec.disabled = seats <= MIN; inc.disabled = seats >= MAX;
+        $('rate').textContent = '$' + rate;
+        $('rateWas').classList.toggle('hidden', !vol);
+        target = seats * rate;
+        $('seatWord').textContent = seats + (seats === 1 ? ' seat' : ' seats');
+        $('yearly').textContent = money(target * 12) + ' billed yearly';
+        $('meter').style.width = Math.min(100, seats / VOL_AT * 100) + '%';
+        $('volText').innerHTML = vol
+          ? '<span class="flex items-center justify-end gap-1 font-medium text-lime-glow"><iconify-icon icon="lucide:badge-check"></iconify-icon>Volume rate on</span>Saving ' + money(seats * (RATE - VOL_RATE) * 12) + ' a year'
+          : 'Add <strong class="font-semibold text-white">' + (VOL_AT - seats) + '</strong> more for $' + VOL_RATE + '/seat';
+
+        var n = Math.min(seats, 5), html = '';
+        for (var i = 0; i < n; i++) {
+          var p = PEOPLE[i % PEOPLE.length];
+          html += '<span class="av grid h-8 w-8 place-items-center rounded-full text-[11px] font-bold text-zinc-900' + (fromUser && i >= prevAv ? ' pop' : '') + '" style="background:linear-gradient(135deg,' + p[1] + ',' + p[2] + ')">' + p[0] + '</span>';
+        }
+        if (seats > n) html += '<span class="av grid h-8 min-w-8 place-items-center rounded-full bg-zinc-800 px-2 text-[11px] font-semibold text-zinc-300">+' + (seats - n) + '</span>';
+        $('avatars').innerHTML = html; prevAv = n;
+
+        if (reduce || !fromUser) { shown = target; totalEl.textContent = money(shown); }
+        else { totalEl.classList.remove('bump'); void totalEl.offsetWidth; totalEl.classList.add('bump'); }
+        clearTimeout(liveT);
+        if (fromUser) liveT = setTimeout(function () { live.textContent = seats + ' seats, ' + money(target) + ' per month' + (vol ? ', volume rate applied' : ''); }, 400);
+      }
+      (function tick() {
+        if (shown !== target) { shown = Math.abs(target - shown) < 1 ? target : shown + (target - shown) * 0.25; totalEl.textContent = money(shown); }
+        requestAnimationFrame(tick);
+      })();
+
+      function set(n) { n = Math.max(MIN, Math.min(MAX, n)); if (n !== seats) { seats = n; render(true); } }
+
+      // Press and hold to keep stepping
+      [[dec, -1], [inc, 1]].forEach(function (pair) {
+        var btn = pair[0], d = pair[1], t1 = 0, t2 = 0;
+        function stop() { clearTimeout(t1); clearInterval(t2); }
+        btn.addEventListener('pointerdown', function (e) {
+          if (btn.disabled || e.button !== 0) return;
+          set(seats + d);
+          t1 = setTimeout(function () { t2 = setInterval(function () { set(seats + d); if (btn.disabled) stop(); }, 70); }, 420);
+        });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (t) { btn.addEventListener(t, stop); });
+        btn.addEventListener('click', function (e) { if (e.detail === 0) set(seats + d); });
+      });
+
+      input.addEventListener('input', function () { var v = parseInt(input.value, 10); if (v >= MIN && v <= MAX) { seats = v; render(true); input.value = v; } });
+      input.addEventListener('change', function () { var v = parseInt(input.value, 10); seats = isNaN(v) ? seats : Math.max(MIN, Math.min(MAX, v)); render(true); });
+      input.addEventListener('keydown', function (e) {
+        if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.shiftKey) { e.preventDefault(); set(seats + (e.key === 'ArrowUp' ? 5 : -5)); }
+        if (e.key === 'Enter') input.blur();
+      });
+
+      render(false);
+    })();
+  </script>
+</body>
+</html>

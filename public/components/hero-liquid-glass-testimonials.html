@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Murmur - Liquid glass hero with testimonial stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #05060d; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .85; will-change: transform; }
+  .b1 { width: 520px; height: 520px; right: 4%; top: 6%; background: radial-gradient(circle at 35% 35%, #6d5dfc, #3b2bd1 60%, transparent 72%); animation: d1 26s ease-in-out infinite alternate; }
+  .b2 { width: 440px; height: 440px; right: 30%; top: 46%; background: radial-gradient(circle at 50% 50%, #ff4fa3, #c0267a 55%, transparent 72%); animation: d2 31s ease-in-out infinite alternate; }
+  .b3 { width: 380px; height: 380px; right: -4%; top: 52%; background: radial-gradient(circle, #ffb547, #f06a2a 55%, transparent 72%); animation: d3 23s ease-in-out infinite alternate; }
+  .b4 { width: 460px; height: 460px; left: -10%; top: -12%; background: radial-gradient(circle, #19c6e6, #0b6f9c 55%, transparent 72%); opacity: .5; animation: d2 34s ease-in-out infinite alternate-reverse; }
+  @keyframes d1 { to { transform: translate3d(-120px, 90px, 0) scale(1.15); } }
+  @keyframes d2 { to { transform: translate3d(140px, -70px, 0) scale(.9); } }
+  @keyframes d3 { to { transform: translate3d(-90px, -120px, 0) scale(1.2); } }
+  .glass { position: relative; background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04)); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(255,255,255,.06), 0 30px 80px -30px rgba(0,0,0,.65); }
+  .glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; background: linear-gradient(140deg, rgba(255,255,255,.6), rgba(255,255,255,.06) 35%, rgba(255,255,255,.02) 65%, rgba(255,255,255,.32)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .sheen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(420px circle at var(--mx, 20%) var(--my, 0%), rgba(255,255,255,.2), transparent 45%); transition: opacity .3s; }
+  .orb { position: absolute; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.75), rgba(255,255,255,.12) 28%, rgba(255,255,255,.03) 60%, rgba(255,255,255,.18)); backdrop-filter: blur(6px) saturate(160%); -webkit-backdrop-filter: blur(6px) saturate(160%); box-shadow: inset -10px -14px 30px rgba(255,255,255,.12), inset 6px 8px 18px rgba(255,255,255,.25), 0 30px 60px -20px rgba(0,0,0,.5); animation: float 9s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-14px); } }
+  .ring { position: absolute; border-radius: 50%; background: conic-gradient(from 0deg, #ffd166, #ff4fa3, #6d5dfc, #19c6e6, #ffd166); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 26px), #000 calc(100% - 25px)); mask: radial-gradient(farthest-side, transparent calc(100% - 26px), #000 calc(100% - 25px)); animation: turn 40s linear infinite; }
+  .capsule { position: absolute; border-radius: 9999px; background: linear-gradient(90deg, #ffb547, #ff4fa3); transform: rotate(-24deg); box-shadow: inset 0 2px 6px rgba(255,255,255,.5); animation: float 11s ease-in-out infinite; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  .headline { background: linear-gradient(180deg, #fff 35%, rgba(255,255,255,.6)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+  .stack { position: relative; height: 330px; }
+  .tcard { position: absolute; inset: 0 0 auto; height: 300px; border-radius: 30px; padding: 28px; transform-origin: 50% 0;
+    transition: transform .8s cubic-bezier(.2,.8,.2,1), opacity .6s ease, filter .6s ease; }
+  .tcard.glass { backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%); background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.05) 60%, rgba(255,255,255,.1)); }
+  .tcard .body { transition: opacity .4s ease; }
+  .tcard[data-pos="0"] { transform: translateY(30px); z-index: 4; }
+  .tcard[data-pos="1"] { transform: translateY(12px) scale(.93); opacity: .75; z-index: 3; }
+  .tcard[data-pos="2"] { transform: translateY(-4px) scale(.86); opacity: .4; z-index: 2; }
+  .tcard[data-pos="3"], .tcard[data-pos="4"] { transform: translateY(-16px) scale(.8); opacity: 0; z-index: 1; }
+  .tcard:not([data-pos="0"]) .body { opacity: 0; }
+  .tcard.leaving { transform: translateY(90px) scale(1.03) !important; opacity: 0 !important; filter: blur(8px); z-index: 5 !important; }
+  .dot { position: relative; width: 22px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.2); overflow: hidden; transition: width .4s; }
+  .dot[aria-current="true"] { width: 44px; }
+  .dot span { position: absolute; inset: 0; width: 0; background: #fff; border-radius: inherit; }
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .orb, .ring, .capsule { animation: none; }
+    .tcard { transition-duration: .01s; }
+  }
+</style>
+</head>
+<body class="font-sans text-white min-h-screen relative overflow-x-hidden antialiased">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+    <svg class="absolute inset-0 w-full h-full opacity-[.09] mix-blend-overlay"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#grain)"/></svg>
+    <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05060d] to-transparent"></div>
+  </div>
+
+  <div class="relative overflow-x-clip">
+  <header class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 pt-5 flex items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-2.5 text-[19px] font-semibold tracking-tight" aria-label="Murmur home">
+      <span class="glass sheen w-9 h-9 rounded-xl grid place-items-center" aria-hidden="true"><svg viewBox="0 0 24 24" class="w-5 h-5"><path d="M3 12c2-5 4-5 6 0s4 5 6 0 4-5 6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+      Murmur
+    </a>
+    <nav aria-label="Main" class="glass hidden md:flex items-center gap-1 rounded-full p-1 text-[14px] text-white/75">
+      <a href="#" class="px-4 py-1.5 rounded-full hover:bg-white/10 hover:text-white transition">Product</a><a href="#" class="px-4 py-1.5 rounded-full hover:bg-white/10 hover:text-white transition">Customers</a><a href="#" class="px-4 py-1.5 rounded-full hover:bg-white/10 hover:text-white transition">Pricing</a><a href="#" class="px-4 py-1.5 rounded-full hover:bg-white/10 hover:text-white transition">Changelog</a>
+    </nav>
+    <div class="flex items-center gap-2 text-[14px]">
+      <a href="#" class="hidden sm:block px-3 py-2 text-white/75 hover:text-white transition">Sign in</a>
+      <a href="#" class="px-4 py-2 rounded-full bg-white text-[#0b0b14] font-semibold hover:bg-white/90 transition">Start free</a>
+    </div>
+  </header>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 grid lg:grid-cols-[1fr_480px] gap-14 lg:gap-12 items-center pt-14 lg:pt-24 pb-20">
+    <section class="text-center lg:text-left">
+      <div class="glass sheen inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] text-white/85">
+        <span class="text-amber-300" aria-hidden="true">★</span>
+        <span><b class="font-semibold">4.9</b> average from 2,300 remote teams</span>
+      </div>
+      <h1 class="headline mt-6 text-[46px] leading-[1.02] sm:text-[64px] lg:text-[72px] font-semibold tracking-[-0.04em]">Fewer meetings.<br>More momentum.</h1>
+      <p class="mt-6 max-w-[480px] mx-auto lg:mx-0 text-[17px] leading-relaxed text-white/65 font-light">Murmur swaps status calls for two-minute video updates, threaded decisions and docs that write their own summaries. Your team stays in sync across every time zone.</p>
+      <div class="mt-9 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+        <a href="#" class="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-white text-[#0b0b14] text-[15px] font-semibold shadow-[0_10px_40px_-10px_rgba(255,255,255,.5)] hover:bg-white/90 transition">Start free for 14 days<iconify-icon icon="lucide:arrow-right" width="16" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+        <a href="#" class="glass sheen inline-flex items-center gap-2.5 h-12 pl-2 pr-5 rounded-full text-[15px] font-medium hover:bg-white/10 transition"><span class="w-8 h-8 rounded-full bg-white/90 text-[#0b0b14] grid place-items-center"><iconify-icon icon="lucide:play" width="14"></iconify-icon></span>Watch the 90s tour</a>
+      </div>
+      <div class="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-3 text-white/40 text-[15px] font-semibold tracking-tight" aria-label="Customers">
+        <span>Kitestring</span><span class="italic font-light">oakline</span><span class="tracking-[.2em] text-[12px]">PENROSE</span><span>Fathom&amp;Co</span>
+      </div>
+    </section>
+
+    <section class="relative w-full max-w-[520px] mx-auto lg:max-w-none" aria-roledescription="carousel" aria-label="Customer testimonials" id="carousel">
+      <div class="ring w-[250px] h-[250px] -right-16 -top-16" aria-hidden="true"></div>
+      <div class="capsule w-44 h-[62px] -left-12 top-[230px]" aria-hidden="true"></div>
+      <div class="orb w-28 h-28 -left-10 -top-6 z-10" aria-hidden="true"></div>
+      <div class="orb hidden sm:block w-14 h-14 right-8 -bottom-1 z-10" style="animation-delay:-4s" aria-hidden="true"></div>
+      <div id="stack" class="stack" aria-live="off"></div>
+      <div class="glass mt-6 mx-auto lg:mx-0 w-fit rounded-full p-1.5 flex items-center gap-1">
+        <button id="prev" class="w-9 h-9 rounded-full grid place-items-center text-white/80 hover:bg-white/10 hover:text-white transition" aria-label="Previous testimonial"><iconify-icon icon="lucide:chevron-left" width="18"></iconify-icon></button>
+        <button id="play" class="w-9 h-9 rounded-full grid place-items-center bg-white/90 text-[#0b0b14] hover:bg-white transition" aria-label="Pause testimonials"><iconify-icon id="play-icon" icon="lucide:pause" width="16"></iconify-icon></button>
+        <button id="next" class="w-9 h-9 rounded-full grid place-items-center text-white/80 hover:bg-white/10 hover:text-white transition" aria-label="Next testimonial"><iconify-icon icon="lucide:chevron-right" width="18"></iconify-icon></button>
+        <div id="dots" class="flex items-center gap-1.5 px-3" role="group" aria-label="Choose testimonial"></div>
+      </div>
+    </section>
+  </main>
+  </div>
+
+<script>
+(function () {
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DUR = 6000;
+  var data = [
+    { q: 'We cancelled our Monday standup in week one. Updates take two minutes to record and people actually watch them.', n: 'Sana Mirza', r: 'Head of Product, Kitestring', m: '62% fewer status meetings', g: 'from-violet-100 to-fuchsia-300' },
+    { q: 'Our team spans nine time zones. For the first time nobody takes a 6am call just to stay in the loop.', n: 'Tomás Oyelaran', r: 'Engineering Manager, Oakline', m: 'Zero early-morning syncs', g: 'from-sky-100 to-cyan-300' },
+    { q: 'Decisions used to die in chat threads. Now they live next to the video that explained them, with the doc attached.', n: 'Lea Brandt', r: 'COO, Penrose Health', m: '3.4× faster sign-off', g: 'from-amber-100 to-orange-300' },
+    { q: 'I onboarded twelve designers in a month without one welcome call. The library of updates does the teaching.', n: 'Marcus Hale', r: 'Design Director, Fathom & Co', m: '12 hires, no onboarding calls', g: 'from-pink-100 to-rose-300' },
+    { q: 'The calm part of work came back. Fewer interruptions, better writing, and the meetings we keep finally matter.', n: 'Iris Navarro', r: 'Founder, Brightwater Studio', m: '+11 focus hours a week', g: 'from-emerald-100 to-teal-300' }
+  ];
+  var stack = document.getElementById('stack'), dotsEl = document.getElementById('dots');
+  var initials = function (n) { return n.split(' ').map(function (w) { return w[0]; }).join(''); };
+  stack.innerHTML = data.map(function (t, i) {
+    return '<figure class="tcard glass sheen" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + ' of ' + data.length + '"><div class="body h-full flex flex-col">' +
+      '<div class="flex items-center gap-3"><span class="w-11 h-11 rounded-full bg-gradient-to-br ' + t.g + ' grid place-items-center text-[14px] font-semibold text-black/70 ring-2 ring-white/30">' + initials(t.n) + '</span>' +
+      '<figcaption class="leading-tight"><span class="block text-[15px] font-semibold">' + t.n + '</span><span class="block text-[13px] text-white/55">' + t.r + '</span></figcaption>' +
+      '<iconify-icon icon="lucide:quote" width="30" class="ml-auto text-white/25" aria-hidden="true"></iconify-icon></div>' +
+      '<blockquote class="mt-5 text-[19px] sm:text-[21px] leading-[1.42] font-light text-white/90 tracking-[-0.01em]">“' + t.q + '”</blockquote>' +
+      '<div class="mt-auto flex items-center justify-between gap-3"><span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 ring-1 ring-white/15 px-3 py-1 text-[12.5px] font-medium"><iconify-icon icon="lucide:trending-up" width="13" class="text-emerald-300"></iconify-icon>' + t.m + '</span>' +
+      '<span class="text-amber-300 text-[13px] tracking-[2px]" aria-label="5 out of 5 stars">★★★★★</span></div></div></figure>';
+  }).join('');
+  dotsEl.innerHTML = data.map(function (t, i) { return '<button class="dot" aria-label="Show testimonial from ' + t.n + '"><span></span></button>'; }).join('');
+  var cards = [].slice.call(stack.children), dots = [].slice.call(dotsEl.children);
+  var cur = 0, playing = !reduce, hold = false, elapsed = 0, last = 0, raf = 0, busy = false;
+
+  function paint() {
+    cards.forEach(function (c, i) {
+      var pos = (i - cur + cards.length) % cards.length;
+      c.dataset.pos = pos; c.setAttribute('aria-hidden', String(pos !== 0));
+    });
+    dots.forEach(function (d, i) { d.setAttribute('aria-current', String(i === cur)); d.firstChild.style.width = i === cur ? (elapsed / DUR * 100) + '%' : '0'; });
+  }
+  function go(to) {
+    if (busy || to === cur) return;
+    var leaving = cards[cur];
+    busy = true; elapsed = 0;
+    leaving.classList.add('leaving');
+    cur = (to + cards.length) % cards.length; paint();
+    setTimeout(function () { leaving.classList.remove('leaving'); busy = false; }, reduce ? 0 : 520);
+  }
+  function loop(t) {
+    var dt = last ? t - last : 0; last = t;
+    if (playing && !hold) {
+      elapsed += dt;
+      dots[cur].firstChild.style.width = Math.min(100, elapsed / DUR * 100) + '%';
+      if (elapsed >= DUR) go(cur + 1);
+    }
+    raf = requestAnimationFrame(loop);
+  }
+  function setPlaying(p) {
+    playing = p;
+    var btn = document.getElementById('play');
+    btn.setAttribute('aria-label', p ? 'Pause testimonials' : 'Play testimonials');
+    document.getElementById('play-icon').setAttribute('icon', p ? 'lucide:pause' : 'lucide:play');
+    stack.setAttribute('aria-live', p ? 'off' : 'polite');
+  }
+
+  document.getElementById('play').addEventListener('click', function () { setPlaying(!playing); });
+  document.getElementById('next').addEventListener('click', function () { go(cur + 1); });
+  document.getElementById('prev').addEventListener('click', function () { go(cur - 1); });
+  dots.forEach(function (d, i) { d.addEventListener('click', function () { go(i); }); });
+  var region = document.getElementById('carousel');
+  stack.addEventListener('pointerenter', function () { hold = true; });
+  stack.addEventListener('pointerleave', function () { hold = false; });
+  region.addEventListener('focusin', function () { hold = true; });
+  region.addEventListener('focusout', function (e) { if (!region.contains(e.relatedTarget)) hold = false; });
+  region.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+  });
+  document.addEventListener('visibilitychange', function () {
+    cancelAnimationFrame(raf); last = 0;
+    if (!document.hidden) raf = requestAnimationFrame(loop);
+  });
+
+  // Specular highlight follows the pointer across glass surfaces
+  document.addEventListener('pointermove', function (e) {
+    document.querySelectorAll('.sheen').forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px'); el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  }, { passive: true });
+
+  setPlaying(playing); paint(); raf = requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

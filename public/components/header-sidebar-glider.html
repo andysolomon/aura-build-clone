@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidebar navigation with animated glider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f2f2ef; }
+  .sb { width: 264px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; background: #fbfbfa; border-right: 1px solid rgba(24,24,27,.07); transition: width .38s cubic-bezier(.2,.8,.2,1), box-shadow .3s; z-index: 30; }
+  .sb.mini { width: 76px; }
+  .sb .lbl { white-space: nowrap; transition: opacity .2s; }
+  .sb.mini .lbl { opacity: 0; pointer-events: none; }
+  .clip { overflow: hidden; }
+  .item { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; height: 38px; padding-left: 17px; border-radius: 10px; font-size: 14px; color: #52525b; outline: none; transition: color .2s; }
+  .item:hover, .item[aria-current="page"] { color: #18181b; }
+  .item iconify-icon { font-size: 18px; flex-shrink: 0; transition: color .2s; }
+  .item[aria-current="page"] iconify-icon { color: #4f46e5; }
+  .item:focus-visible { box-shadow: inset 0 0 0 2px rgba(79,70,229,.55); }
+  .glider, .hover-g { position: absolute; left: 12px; right: 12px; top: 0; height: 38px; border-radius: 10px; pointer-events: none; }
+  .glider { background: #fff; box-shadow: 0 0 0 1px rgba(24,24,27,.06), 0 1px 2px rgba(24,24,27,.06), 0 6px 16px -6px rgba(24,24,27,.16); transition: transform .55s cubic-bezier(.34,1.4,.64,1), opacity .2s; }
+  .glider::before { content: ""; position: absolute; left: -12px; top: 10px; width: 3px; height: 18px; border-radius: 0 3px 3px 0; background: #4f46e5; }
+  .hover-g { background: rgba(24,24,27,.04); opacity: 0; transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .2s; }
+  .grp { position: relative; height: 32px; display: flex; align-items: flex-end; padding: 0 17px 7px; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #a1a1aa; }
+  .sb.mini .grp::after { content: ""; position: absolute; left: 20px; width: 12px; bottom: 12px; height: 1px; background: #d4d4d8; }
+  .badge { margin-left: auto; margin-right: 10px; font: 500 11px/1 'Geist Mono', monospace; padding: 3px 6px; border-radius: 6px; background: #eef2ff; color: #4338ca; }
+  .sb.mini .badge { position: absolute; left: 30px; top: 7px; margin: 0; width: 8px; height: 8px; padding: 0; font-size: 0; border-radius: 9px; background: #4f46e5; box-shadow: 0 0 0 2px #fbfbfa; opacity: 1; }
+  .sb.mini .item:hover::after, .sb.mini .item:focus-visible::after { content: attr(data-label); position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); padding: 5px 9px; border-radius: 8px; background: #18181b; color: #fff; font-size: 12px; white-space: nowrap; box-shadow: 0 8px 20px -6px rgba(0,0,0,.35); }
+  .sb.mini .clip, .sb.mini nav { overflow: visible; }
+  .toggle { position: absolute; right: -13px; top: 26px; z-index: 5; width: 26px; height: 26px; border-radius: 9999px; display: grid; place-items: center; background: #fff; color: #52525b; box-shadow: 0 0 0 1px rgba(24,24,27,.1), 0 2px 6px -2px rgba(24,24,27,.2); transition: color .2s, transform .38s; }
+  .toggle:hover { color: #18181b; }
+  .sb.mini .toggle { transform: rotate(180deg); }
+  .menu { position: absolute; left: 12px; top: calc(100% + 6px); width: 240px; padding: 6px; border-radius: 14px; background: #fff; box-shadow: 0 0 0 1px rgba(24,24,27,.08), 0 20px 40px -12px rgba(24,24,27,.3); z-index: 40; }
+  .menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 9px; font-size: 13.5px; text-align: left; outline: none; }
+  .menu button:hover, .menu button:focus-visible { background: #f4f4f5; }
+  .tile { width: 32px; height: 32px; flex-shrink: 0; border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 2px 6px -2px rgba(24,24,27,.35); }
+  .menu .tile { width: 24px; height: 24px; font-size: 11px; border-radius: 7px; }
+  .seg { transition: width 1s cubic-bezier(.2,.8,.2,1); }
+  .usage-mini { display: none; }
+  .sb.mini .usage-full { display: none; }
+  .sb.mini .usage-mini { display: grid; }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid rgba(79,70,229,.6); outline-offset: 2px; }
+  .scrim { position: fixed; inset: 0; background: rgba(24,24,27,.25); z-index: 25; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  @media (max-width: 767px) {
+    .sb { position: fixed; left: 0; top: 0; }
+    .sb:not(.mini) { box-shadow: 0 30px 80px -10px rgba(24,24,27,.35); }
+    .sb:not(.mini) ~ .scrim { opacity: 1; pointer-events: auto; }
+    main { padding-left: 76px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sb, .glider, .hover-g, .seg, .toggle { transition: none; } }
+</style>
+</head>
+<body class="font-sans text-zinc-900 antialiased">
+<div class="flex min-h-screen">
+  <aside id="sb" class="sb" aria-label="Workspace sidebar">
+    <button id="toggle" class="toggle" aria-label="Collapse sidebar" aria-expanded="true" aria-controls="sb"><iconify-icon icon="lucide:chevron-left" width="15"></iconify-icon></button>
+
+    <div class="relative px-3 pt-3">
+      <button id="ws-btn" class="w-full flex items-center gap-2.5 p-[10px] rounded-xl hover:bg-zinc-900/[.04] transition text-left" aria-haspopup="menu" aria-expanded="false" aria-controls="ws-menu">
+        <span id="ws-tile" class="tile bg-gradient-to-br from-indigo-500 to-violet-500">N</span>
+        <span class="lbl min-w-0 leading-tight"><span id="ws-name" class="block text-[14px] font-semibold">Northfield</span><span id="ws-plan" class="block text-[12px] text-zinc-500">Pro plan · 14 seats</span></span>
+        <iconify-icon icon="lucide:chevrons-up-down" width="15" class="lbl ml-auto text-zinc-400"></iconify-icon>
+      </button>
+      <div id="ws-menu" class="menu" role="menu" aria-label="Switch workspace" hidden>
+        <p class="px-2 pt-1 pb-1.5 text-[11px] font-medium uppercase tracking-[.08em] text-zinc-400">Workspaces</p>
+        <div id="ws-list"></div>
+        <div class="h-px bg-zinc-100 my-1.5"></div>
+        <button role="menuitem" class="text-zinc-600"><span class="w-6 h-6 rounded-[7px] border border-dashed border-zinc-300 grid place-items-center"><iconify-icon icon="lucide:plus" width="13"></iconify-icon></span>Create workspace</button>
+      </div>
+    </div>
+
+
+    <nav id="nav" class="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 mt-2 pb-3" aria-label="Primary">
+      <span id="glider" class="glider" aria-hidden="true"></span><span id="hover-g" class="hover-g" aria-hidden="true"></span>
+      <p class="grp"><span class="lbl">Workspace</span></p>
+      <a href="#" class="item" data-label="Home" aria-current="page"><iconify-icon icon="lucide:house"></iconify-icon><span class="lbl">Home</span></a>
+      <a href="#" class="item" data-label="Inbox"><iconify-icon icon="lucide:inbox"></iconify-icon><span class="lbl">Inbox</span><span class="badge">4</span></a>
+      <a href="#" class="item" data-label="Projects"><iconify-icon icon="lucide:folder-kanban"></iconify-icon><span class="lbl">Projects</span></a>
+      <a href="#" class="item" data-label="Calendar"><iconify-icon icon="lucide:calendar-range"></iconify-icon><span class="lbl">Calendar</span></a>
+      <a href="#" class="item" data-label="Analytics"><iconify-icon icon="lucide:chart-spline"></iconify-icon><span class="lbl">Analytics</span></a>
+      <a href="#" class="item" data-label="Documents"><iconify-icon icon="lucide:file-text"></iconify-icon><span class="lbl">Documents</span></a>
+      <p class="grp mt-2"><span class="lbl">Favorites</span></p>
+      <a href="#" class="item" data-label="Q4 launch"><iconify-icon icon="lucide:rocket" class="text-violet-500"></iconify-icon><span class="lbl">Q4 launch</span></a>
+      <a href="#" class="item" data-label="Brand refresh"><iconify-icon icon="lucide:palette" class="text-amber-500"></iconify-icon><span class="lbl">Brand refresh</span></a>
+      <a href="#" class="item" data-label="Mobile app v3"><iconify-icon icon="lucide:smartphone" class="text-emerald-500"></iconify-icon><span class="lbl">Mobile app v3</span></a>
+    </nav>
+
+    <div class="px-3 pb-2">
+      <div class="usage-full rounded-xl bg-white p-3 ring-1 ring-zinc-900/[.06] shadow-[0_1px_2px_rgba(24,24,27,.04)]">
+        <div class="flex items-center justify-between text-[12.5px]"><span class="font-medium">Storage</span><span class="font-mono text-[11.5px] text-zinc-500">68.4 / 100 GB</span></div>
+        <div class="mt-2.5 flex h-1.5 gap-[3px] rounded-full overflow-hidden bg-zinc-100" role="meter" aria-label="Storage used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="68.4" aria-valuetext="68.4 of 100 gigabytes used">
+          <span class="seg h-full rounded-full bg-indigo-500" data-w="34%" style="width:0"></span><span class="seg h-full rounded-full bg-violet-400" data-w="23%" style="width:0"></span><span class="seg h-full rounded-full bg-amber-400" data-w="11.4%" style="width:0"></span>
+        </div>
+        <div class="mt-2 flex gap-3 text-[11px] text-zinc-500"><span class="flex items-center gap-1"><i class="w-1.5 h-1.5 rounded-full bg-indigo-500"></i>Files</span><span class="flex items-center gap-1"><i class="w-1.5 h-1.5 rounded-full bg-violet-400"></i>Media</span><span class="flex items-center gap-1"><i class="w-1.5 h-1.5 rounded-full bg-amber-400"></i>Backups</span></div>
+        <a href="#" class="mt-3 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-zinc-900 text-white text-[12.5px] font-medium hover:bg-zinc-800 transition"><iconify-icon icon="lucide:sparkles" width="13"></iconify-icon>Upgrade to Business</a>
+      </div>
+      <a href="#" class="usage-mini item !pl-0 justify-center" data-label="Storage 68% used" aria-label="Storage: 68.4 of 100 GB used">
+        <svg viewBox="0 0 36 36" class="w-9 h-9 -rotate-90" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="#e4e4e7" stroke-width="3.5"/><circle cx="18" cy="18" r="15" fill="none" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="64.4 94.2"/></svg>
+      </a>
+    </div>
+
+    <div class="clip border-t border-zinc-900/[.06] px-3 py-3 flex items-center gap-2.5">
+      <span class="ml-[6px] w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-rose-300 to-orange-400 grid place-items-center text-[12px] font-semibold text-white ring-2 ring-white shadow" aria-hidden="true">PN</span>
+      <span class="lbl min-w-0 leading-tight"><span class="block text-[13.5px] font-medium truncate">Priya Natarajan</span><span class="block text-[12px] text-zinc-500 truncate">priya@northfield.co</span></span>
+      <button class="lbl ml-auto w-8 h-8 rounded-lg grid place-items-center text-zinc-500 hover:bg-zinc-900/[.05] hover:text-zinc-900 transition" aria-label="Account settings"><iconify-icon icon="lucide:settings-2" width="16"></iconify-icon></button>
+    </div>
+  </aside>
+  <div id="scrim" class="scrim" aria-hidden="true"></div>
+
+  <main class="flex-1 min-w-0">
+    <header class="h-[60px] px-5 sm:px-8 flex items-center gap-3 border-b border-zinc-900/[.06] bg-[#f7f7f5]/80 backdrop-blur">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-[13.5px] text-zinc-500 min-w-0"><span id="crumb-ws" class="hidden sm:inline">Northfield</span><iconify-icon icon="lucide:chevron-right" width="14" class="hidden sm:inline text-zinc-300"></iconify-icon><span id="crumb" class="text-zinc-900 font-medium truncate" aria-current="page">Home</span></nav>
+      <div class="ml-auto flex items-center gap-2">
+        <a href="#" class="hidden sm:inline-flex h-8 items-center px-3 rounded-lg bg-white ring-1 ring-zinc-900/10 text-[13px] font-medium hover:bg-zinc-50 transition">Share</a>
+        <a href="#" class="inline-flex h-8 items-center gap-1.5 px-3 rounded-lg bg-indigo-600 text-white text-[13px] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-indigo-500 transition"><iconify-icon icon="lucide:plus" width="14"></iconify-icon><span class="hidden sm:inline">New</span></a>
+      </div>
+    </header>
+    <div class="px-5 sm:px-8 py-8 max-w-5xl">
+      <h1 id="title" class="text-[26px] sm:text-[30px] font-semibold tracking-[-0.03em]">Good morning, Priya</h1>
+      <p id="sub" class="mt-1 text-[14.5px] text-zinc-500">Here’s what moved across Northfield since yesterday.</p>
+      <div id="stats" class="mt-7 grid sm:grid-cols-3 gap-3"></div>
+      <div class="mt-3 rounded-2xl bg-white ring-1 ring-zinc-900/[.06]">
+        <div class="px-4 py-3 flex items-center justify-between text-[13px] border-b border-zinc-900/[.05]"><span class="font-medium">In progress</span><span class="text-zinc-400">Sorted by due date</span></div>
+        <ul id="rows" class="divide-y divide-zinc-900/[.05]"></ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var sb = $('sb'), nav = $('nav'), glider = $('glider'), hg = $('hover-g'), toggle = $('toggle');
+  var items = [].slice.call(nav.querySelectorAll('.item'));
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobile = matchMedia('(max-width: 767px)');
+  var G = 'bg-gradient-to-br ';
+  $('ws-list').innerHTML = [['Northfield', 'Pro plan · 14 seats', 'from-indigo-500 to-violet-500'], ['Saltmarsh Labs', 'Business · 48 seats', 'from-teal-400 to-emerald-600'], ['Kettle & Co', 'Free · 3 seats', 'from-amber-400 to-orange-600']].map(function (w, i) {
+    return '<button role="menuitemradio" aria-checked="' + !i + '" data-name="' + w[0] + '" data-plan="' + w[1] + '" data-g="' + w[2] + '"><span class="tile ' + G + w[2] + '">' + w[0][0] + '</span>' + w[0] + '<iconify-icon icon="lucide:check" width="15" class="ck ml-auto text-indigo-600' + (i ? ' invisible' : '') + '"></iconify-icon></button>';
+  }).join('');
+  $('stats').innerHTML = [['Active projects', '12', '+2', 'text-emerald-600', [40, 55, 45, 70, 60, 100], 'bg-indigo-'], ['Tasks closed this week', '148', '+18%', 'text-emerald-600', [30, 45, 60, 50, 80, 92], 'bg-violet-'], ['Due in 7 days', '7', '2 at risk', 'text-amber-600', [20, 70, 35, 90, 50, 30], 'bg-amber-']].map(function (c) {
+    return '<div class="rounded-2xl bg-white p-4 ring-1 ring-zinc-900/[.06]"><p class="text-[12.5px] text-zinc-500">' + c[0] + '</p><p class="mt-1 text-[26px] font-semibold tracking-tight">' + c[1] + ' <span class="text-[12px] font-medium tracking-normal ' + c[3] + '">' + c[2] + '</span></p><div class="mt-3 flex items-end gap-1 h-8" aria-hidden="true">' +
+      c[4].map(function (h, i) { return '<i class="flex-1 rounded-[3px] ' + c[5] + (i === 5 ? '500' : h > 60 ? '300' : '100') + '" style="height:' + h + '%"></i>'; }).join('') + '</div></div>';
+  }).join('');
+  $('rows').innerHTML = [['rocket', 'violet', 'Q4 launch: pricing page and onboarding emails', 64, 'Nov 14', 'from-sky-300 to-indigo-400'], ['palette', 'amber', 'Brand refresh: color tokens and type scale', 38, 'Nov 21', 'from-rose-300 to-orange-400'], ['smartphone', 'emerald', 'Mobile app v3: offline sync beta', 81, 'Dec 02', 'from-emerald-300 to-teal-500'], ['shield-check', 'sky', 'Security whitepaper for enterprise buyers', 22, 'Dec 09', 'from-amber-200 to-orange-400'], ['chart-spline', 'rose', 'Churn dashboard for customer success', 55, 'Dec 12', 'from-violet-300 to-fuchsia-400'], ['users', 'indigo', 'Hiring loop: two senior product designers', 47, 'Dec 18', 'from-sky-300 to-indigo-400']].map(function (r) {
+    return '<li class="px-4 py-3 flex items-center gap-3 text-[13.5px]"><iconify-icon icon="lucide:' + r[0] + '" class="text-' + r[1] + '-500" width="16"></iconify-icon><span class="flex-1 min-w-0 truncate">' + r[2] + '</span><span class="w-6 h-6 rounded-full ' + G + r[5] + '" aria-hidden="true"></span>' +
+      '<span class="hidden sm:block w-28 h-1.5 rounded-full bg-zinc-100" role="img" aria-label="' + r[3] + '% complete"><i class="block h-full rounded-full bg-' + r[1] + '-500" style="width:' + r[3] + '%"></i></span><span class="font-mono text-[12px] text-zinc-500 w-12 text-right">' + r[4] + '</span></li>';
+  }).join('');
+  var pages = {
+    'Home': ['Good morning, Priya', 'Here’s what moved across Northfield since yesterday.'],
+    'Inbox': ['Inbox', '4 unread mentions and 2 approvals waiting on you.'],
+    'Projects': ['Projects', '12 active projects across 4 teams.'],
+    'Calendar': ['Calendar', '7 deadlines and 3 design reviews this week.'],
+    'Analytics': ['Analytics', 'Throughput is up 18% over the last 30 days.'],
+    'Documents': ['Documents', '312 docs, 28 edited this week.'],
+    'Q4 launch': ['Q4 launch', 'Favorite project · 64% complete · ships Nov 14.'],
+    'Brand refresh': ['Brand refresh', 'Favorite project · 38% complete · 6 open tasks.'],
+    'Mobile app v3': ['Mobile app v3', 'Favorite project · 81% complete · beta on Dec 2.']
+  };
+
+  function move(el, target) { el.style.transform = 'translateY(' + target.offsetTop + 'px)'; }
+  function active() { return nav.querySelector('.item[aria-current="page"]'); }
+  function place() { move(glider, active()); }
+  function select(it) {
+    items.forEach(function (x) { x.removeAttribute('aria-current'); });
+    it.setAttribute('aria-current', 'page'); place();
+    var p = pages[it.dataset.label];
+    $('title').textContent = p[0]; $('sub').textContent = p[1]; $('crumb').textContent = it.dataset.label;
+    if (mobile.matches) setMini(true);
+  }
+  items.forEach(function (it, i) {
+    it.addEventListener('click', function (e) { e.preventDefault(); select(it); });
+    it.addEventListener('pointerenter', function () { move(hg, it); hg.style.opacity = 1; });
+    it.addEventListener('keydown', function (e) {
+      var vis = items, k = i, t;
+      if (e.key === 'ArrowDown') t = vis[(k + 1) % vis.length];
+      else if (e.key === 'ArrowUp') t = vis[(k - 1 + vis.length) % vis.length];
+      else if (e.key === 'Home') t = vis[0];
+      else if (e.key === 'End') t = vis[vis.length - 1];
+      if (t) { e.preventDefault(); t.focus(); }
+    });
+  });
+  nav.addEventListener('pointerleave', function () { hg.style.opacity = 0; });
+
+  function setMini(m) {
+    sb.classList.toggle('mini', m);
+    toggle.setAttribute('aria-expanded', String(!m));
+    toggle.setAttribute('aria-label', m ? 'Expand sidebar' : 'Collapse sidebar');
+    if (m) closeMenu(false);
+  }
+  toggle.addEventListener('click', function () { setMini(!sb.classList.contains('mini')); });
+  $('scrim').addEventListener('click', function () { setMini(true); });
+  function onMq() { setMini(mobile.matches); }
+  mobile.addEventListener ? mobile.addEventListener('change', onMq) : mobile.addListener(onMq);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (!menu.hidden) closeMenu(true);
+      else if (mobile.matches && !sb.classList.contains('mini')) { setMini(true); toggle.focus(); }
+    }
+  });
+
+  // Workspace switcher
+  var wsBtn = $('ws-btn'), menu = $('ws-menu'), opts = [].slice.call(menu.querySelectorAll('button'));
+  function openMenu() {
+    if (sb.classList.contains('mini')) setMini(false);
+    menu.hidden = false; wsBtn.setAttribute('aria-expanded', 'true');
+    (menu.querySelector('[aria-checked="true"]') || opts[0]).focus();
+  }
+  function closeMenu(focus) { menu.hidden = true; wsBtn.setAttribute('aria-expanded', 'false'); if (focus) wsBtn.focus(); }
+  wsBtn.addEventListener('click', function (e) { e.stopPropagation(); menu.hidden ? openMenu() : closeMenu(false); });
+  menu.addEventListener('keydown', function (e) {
+    var k = opts.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); opts[(k + 1) % opts.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); opts[(k - 1 + opts.length) % opts.length].focus(); }
+    if (e.key === 'Tab') closeMenu(false);
+  });
+  opts.forEach(function (o) {
+    o.addEventListener('click', function () {
+      if (o.dataset.name) {
+        opts.forEach(function (x) { if (x.dataset.name) { x.setAttribute('aria-checked', String(x === o)); x.querySelector('.ck').classList.toggle('invisible', x !== o); } });
+        $('ws-name').textContent = o.dataset.name; $('ws-plan').textContent = o.dataset.plan; $('crumb-ws').textContent = o.dataset.name;
+        $('ws-tile').textContent = o.dataset.name[0]; $('ws-tile').className = 'tile ' + G + o.dataset.g;
+      }
+      closeMenu(true);
+    });
+  });
+  document.addEventListener('click', function (e) { if (!menu.hidden && !menu.contains(e.target)) closeMenu(false); });
+
+  document.querySelectorAll('a[href="#"]:not(.item)').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  if (mobile.matches) setMini(true);
+  glider.style.transition = 'none'; place(); void glider.offsetWidth; glider.style.transition = '';
+  setTimeout(function () { document.querySelectorAll('.seg').forEach(function (s) { s.style.width = s.dataset.w; }); }, reduce ? 0 : 300);
+})();
+</script>
+</body>
+</html>

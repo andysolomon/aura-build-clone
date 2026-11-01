@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plotline - usage-based pricing with an events slider</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'] }, colors: { ink: '#16140f', paper: '#f6f4ef', signal: '#ff5b1f' } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { background: #f6f4ef; }
+    .dotgrid { background-image: radial-gradient(rgba(22,20,15,.09) 1px, transparent 1.2px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(#000, transparent 70%); mask-image: linear-gradient(#000, transparent 70%); }
+    .panel { box-shadow: 0 1px 2px rgba(22,20,15,.05), 0 18px 40px -24px rgba(22,20,15,.25); }
+    .range { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; }
+    .range::-webkit-slider-runnable-track { height: 8px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a4c, #ff5b1f) 0 / var(--p, 50%) 100% no-repeat, #e7e3da; }
+    .range::-moz-range-track { height: 8px; border-radius: 9999px; background: #e7e3da; }
+    .range::-moz-range-progress { height: 8px; border-radius: 9999px; background: linear-gradient(90deg, #ff8a4c, #ff5b1f); }
+    .range::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 9999px; background: #fff; border: 1px solid rgba(22,20,15,.12);
+      box-shadow: 0 2px 6px rgba(22,20,15,.18), inset 0 0 0 6px #fff, inset 0 0 0 13px #16140f; transition: transform .15s; }
+    .range::-moz-range-thumb { width: 28px; height: 28px; border-radius: 9999px; background: #16140f; border: 7px solid #fff; box-shadow: 0 2px 6px rgba(22,20,15,.25); }
+    .range:active::-webkit-slider-thumb { transform: scale(1.1); }
+    .range:focus-visible { outline: none; }
+    .range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(255,91,31,.3), inset 0 0 0 6px #fff, inset 0 0 0 13px #16140f; }
+    .range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(255,91,31,.3); }
+    .seg-pill { transition: transform .35s cubic-bezier(.3,1.3,.5,1), width .35s cubic-bezier(.3,1.3,.5,1); }
+    .tier { transition: border-color .3s, box-shadow .3s, opacity .3s; }
+    .tier.is-best { border-color: #16140f; box-shadow: 0 0 0 1px #16140f, 0 26px 50px -26px rgba(255,91,31,.55); }
+    .tier.is-over { opacity: .55; }
+    [aria-checked=true] .badge { background: #ff5b1f; color: #16140f; }
+    .cta { transition: background-color .25s, color .25s, border-color .25s; }
+    .tier.is-best .cta { background: #16140f; color: #fff; border-color: #16140f; }
+    .fit { transition: transform .55s cubic-bezier(.3,1.25,.4,1), opacity .3s; }
+    .fit.no-anim { transition: none; }
+    .save { transition: opacity .25s; }
+    a:focus-visible, button:focus-visible { outline: 2px solid #ff5b1f; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) { .fit, .seg-pill, .tier, .cta { transition: none; } }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <section class="relative overflow-hidden">
+    <div class="dotgrid pointer-events-none absolute inset-x-0 top-0 h-[420px]" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-12">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-3 py-1 text-[12px] font-semibold"><span class="h-1.5 w-1.5 rounded-full bg-signal"></span>Plotline pricing</p>
+          <h2 class="mt-4 font-serif text-[44px] leading-[.95] tracking-[-0.02em] sm:text-[58px]">Pay for the events you track,<br class="hidden sm:block"> <em class="text-ink/50">not the seats you add.</em></h2>
+        </div>
+        <div class="flex flex-col gap-4 lg:max-w-[340px] lg:items-end lg:text-right">
+          <p class="text-[15px] leading-relaxed text-ink/65">Unlimited teammates on every plan. Slide to your monthly volume and we’ll point you to the cheapest fit.</p>
+          <div id="period" role="radiogroup" aria-label="Billing period" class="relative inline-flex w-fit rounded-full border border-ink/10 bg-white p-1 text-[13px] font-semibold">
+            <span class="seg-pill absolute bottom-1 left-0 top-1 rounded-full bg-ink" aria-hidden="true"></span>
+            <button type="button" role="radio" aria-checked="true" data-period="monthly" class="relative z-10 rounded-full px-4 py-1.5 transition-colors">Monthly</button>
+            <button type="button" role="radio" aria-checked="false" data-period="annual" tabindex="-1" class="relative z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 transition-colors">Annual <span class="badge rounded-full bg-signal/15 px-1.5 py-px text-[10.5px] font-bold text-[#c2410c] transition-colors">2 months free</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel mt-8 rounded-[24px] border border-ink/10 bg-white p-5 sm:p-7">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <label for="events" class="text-[13px] font-semibold text-ink/60">Tracked events per month</label>
+            <p class="mt-1 flex items-baseline gap-2"><output id="evOut" for="events" class="font-serif text-[52px] leading-none tracking-[-0.02em] tabular-nums">1.2M</output><span class="text-[14px] text-ink/50">events</span></p>
+          </div>
+          <p class="inline-flex items-center gap-2 rounded-xl bg-paper px-3 py-2 text-[13px] text-ink/70"><iconify-icon icon="lucide:activity" class="text-signal"></iconify-icon><span>About <strong id="perDay" class="font-semibold text-ink">40K</strong> events a day</span></p>
+        </div>
+        <div class="relative mt-5">
+          <input id="events" class="range" type="range" min="0" max="1000" step="1" value="520" aria-valuetext="1.2 million events per month">
+          <div id="ticks" class="relative mt-2 h-5 text-[12px] font-semibold text-ink/45"></div>
+        </div>
+      </div>
+
+      <div id="tiers" class="relative mt-10 grid gap-5 md:grid-cols-3">
+        <span id="fit" class="fit no-anim pointer-events-none absolute left-0 top-0 z-20 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-signal px-3 py-1 text-[12px] font-bold text-ink shadow-[0_8px_20px_-8px_rgba(255,91,31,.9)]" aria-hidden="true"><iconify-icon icon="lucide:sparkles" class="text-[13px]"></iconify-icon>Best fit</span>
+      </div>
+
+      <p class="mt-8 text-center text-[13px] text-ink/55">All plans include unlimited projects, EU or US data residency and a 14-day trial. Tracking more than 100M events? <a href="#" class="font-semibold text-ink underline decoration-ink/25 underline-offset-4 hover:decoration-ink">Get volume pricing</a></p>
+      <p id="live" class="sr-only" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var TIERS = [
+        { id: 'starter', name: 'Starter', blurb: 'For new products finding their first users.', base: 19, incl: 1e5, rate: 0.30, cap: 2e6, cta: 'Start free trial',
+          feats: ['Up to 2M events a month', '90-day data retention', '5 dashboards', 'Community support'] },
+        { id: 'growth', name: 'Growth', blurb: 'For teams running weekly experiments.', base: 149, incl: 1e6, rate: 0.12, cap: 5e7, cta: 'Start free trial',
+          feats: ['Up to 50M events a month', '13-month retention', 'Unlimited dashboards', 'Daily warehouse sync'] },
+        { id: 'scale', name: 'Scale', blurb: 'For data teams with governance needs.', base: 899, incl: 1e7, rate: 0.05, cap: Infinity, cta: 'Start free trial',
+          feats: ['Unlimited events', '5-year retention', 'SSO, SCIM and audit logs', 'Dedicated solutions engineer'] }
+      ];
+      var $ = function (id) { return document.getElementById(id); };
+      var range = $('events'), tiersEl = $('tiers'), fit = $('fit'), live = $('live');
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var annual = false, best = -1, liveT = 0;
+
+      function short(n) {
+        if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+        if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+        return String(Math.round(n));
+      }
+      function long(n) { return n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + ' million' : Math.round(n / 1e3) + ' thousand'; }
+      function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+      function events(v) { var e = Math.pow(10, 4 + 4 * v / 1000), m = Math.pow(10, Math.floor(Math.log10(e)) - 1); return Math.round(e / m) * m; }
+      function price(t, e) { return t.base + Math.max(0, e - t.incl) / 1000 * t.rate; }
+
+      // Build tier cards
+      TIERS.forEach(function (t, i) {
+        var el = document.createElement('article');
+        el.className = 'tier relative flex flex-col rounded-[22px] border border-ink/10 bg-white p-6';
+        el.setAttribute('aria-labelledby', 'n-' + t.id);
+        el.innerHTML =
+          '<div class="flex items-center justify-between"><h3 id="n-' + t.id + '" class="text-[15px] font-bold">' + t.name + '</h3><span class="tag text-[11px] font-bold uppercase tracking-[0.12em] text-ink/40"></span></div>' +
+          '<p class="mt-1 text-[13px] text-ink/55">' + t.blurb + '</p>' +
+          '<p class="mt-5 flex items-baseline gap-1"><span class="price font-serif text-[52px] leading-none tracking-[-0.02em] tabular-nums">$0</span><span class="text-[13px] font-medium text-ink/50">/mo</span></p>' +
+          '<p class="bill mt-1.5 h-4 text-[12px] text-ink/50"></p>' +
+          '<p class="math mt-4 rounded-xl bg-paper px-3 py-2 font-medium text-[12px] text-ink/70"></p>' +
+          '<a href="#" class="cta mt-5 inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-ink/15 text-[14px] font-bold">' + t.cta + '<iconify-icon icon="lucide:arrow-right"></iconify-icon></a>' +
+          '<ul class="mt-5 space-y-2 border-t border-ink/10 pt-4 text-[13px] text-ink/70">' + t.feats.map(function (f) { return '<li class="flex items-center gap-2"><iconify-icon icon="lucide:check" class="text-signal"></iconify-icon>' + f + '</li>'; }).join('') + '</ul>' +
+          '<p class="save sr-only"></p>';
+        t.el = el; t.priceEl = el.querySelector('.price'); t.shown = 0; t.target = 0;
+        tiersEl.appendChild(el);
+      });
+
+      // Ticks at each decade
+      [1e4, 1e5, 1e6, 1e7, 1e8].forEach(function (n, i) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = short(n); b.setAttribute('aria-label', 'Set to ' + long(n) + ' events');
+        b.className = 'absolute top-0 rounded px-1 transition-colors hover:text-ink';
+        var p = i / 4; b.style.left = 'calc(14px + ' + p + ' * (100% - 28px))'; b.style.transform = 'translateX(' + (-p * 100) + '%)';
+        b.addEventListener('click', function () { range.value = i * 250; update(true); });
+        $('ticks').appendChild(b);
+      });
+
+      function placeFit(animate) {
+        var card = TIERS[best].el;
+        fit.classList.toggle('no-anim', !animate || reduce);
+        var x = card.offsetLeft + card.offsetWidth / 2 - fit.offsetWidth / 2, y = card.offsetTop - fit.offsetHeight / 2;
+        fit.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      }
+
+      function update(animate) {
+        var v = +range.value, e = events(v), mult = annual ? 10 / 12 : 1;
+        range.style.setProperty('--p', (v / 10) + '%');
+        $('evOut').textContent = short(e); $('perDay').textContent = short(e / 30);
+        range.setAttribute('aria-valuetext', long(e) + ' events per month');
+        var cheapest = -1, costs = [];
+        TIERS.forEach(function (t, i) {
+          var over = e > t.cap, c = price(t, e) * mult; costs[i] = over ? Infinity : c;
+          t.target = c; t.over = over;
+          t.el.classList.toggle('is-over', over);
+          var usage = Math.max(0, e - t.incl) / 1000 * t.rate * mult;
+          t.el.querySelector('.math').innerHTML = over
+            ? '<span class="text-[#c2410c]">Tops out at ' + short(t.cap) + ' events a month</span>'
+            : money(t.base * mult) + ' base' + (usage >= 1 ? ' + ' + money(usage) + ' for ' + short(e - t.incl) + ' extra events' : ' · ' + short(t.incl) + ' events included');
+          t.el.querySelector('.bill').textContent = over ? 'Not available at this volume' : annual ? money(c * 12) + ' billed yearly' : short(t.incl) + ' included, then $' + t.rate.toFixed(2) + ' per 1K';
+          if (!over && (cheapest < 0 || c < costs[cheapest])) cheapest = i;
+        });
+        var sorted = costs.slice().sort(function (a, b) { return a - b; }), saving = sorted[1] - sorted[0];
+        var changed = cheapest !== best; best = cheapest;
+        TIERS.forEach(function (t, i) {
+          t.el.classList.toggle('is-best', i === best);
+          t.el.querySelector('.tag').innerHTML = i === best && isFinite(saving) ? '<span class="normal-case tracking-normal text-[12px] font-semibold text-[#c2410c]">Saves ' + money(saving) + '/mo</span>' : (t.el.classList.contains('is-over') ? 'Over limit' : '');
+          t.el.querySelector('.save').textContent = i === best ? 'Best fit for your volume' : '';
+        });
+        placeFit(animate && changed);
+        clearTimeout(liveT);
+        liveT = setTimeout(function () { live.textContent = 'Best fit: ' + TIERS[best].name + ', ' + money(costs[best]) + ' per month for ' + long(e) + ' events.'; }, 500);
+        if (reduce) TIERS.forEach(function (t) { t.shown = t.target; t.priceEl.textContent = t.over ? '—' : money(t.shown); });
+      }
+
+      // Ease displayed prices toward their targets
+      (function tick() {
+        TIERS.forEach(function (t) {
+          if (Math.abs(t.target - t.shown) < 0.5) t.shown = t.target; else t.shown += (t.target - t.shown) * 0.22;
+          t.priceEl.textContent = t.over ? '—' : money(t.shown);
+        });
+        requestAnimationFrame(tick);
+      })();
+
+      range.addEventListener('input', function () { update(true); });
+      // Arrow keys step through round volumes; Page keys jump a decade
+      var STEPS = [];
+      [1e4, 1e5, 1e6, 1e7].forEach(function (d) { [1, 1.5, 2, 2.5, 3, 4, 5, 6, 7.5].forEach(function (m) { STEPS.push(d * m); }); }); STEPS.push(1e8);
+      function toV(e) { return Math.round((Math.log10(e) - 4) / 4 * 1000); }
+      range.addEventListener('keydown', function (e) {
+        var cur = events(+range.value), dir = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key], target;
+        if (dir === 1) target = STEPS.filter(function (x) { return x > cur * 1.001; })[0];
+        else if (dir === -1) target = STEPS.filter(function (x) { return x < cur * 0.999; }).pop();
+        else if (e.key === 'PageUp') target = Math.min(1e8, cur * 10);
+        else if (e.key === 'PageDown') target = Math.max(1e4, cur / 10);
+        else return;
+        e.preventDefault();
+        if (target) { range.value = toV(target); update(true); }
+      });
+
+      // Billing period radiogroup
+      var radios = [].slice.call(document.querySelectorAll('#period [role=radio]')), pill = document.querySelector('.seg-pill');
+      function setPeriod(isAnnual, focus) {
+        annual = isAnnual;
+        radios.forEach(function (r) {
+          var on = (r.dataset.period === 'annual') === isAnnual;
+          r.setAttribute('aria-checked', String(on)); r.tabIndex = on ? 0 : -1;
+          r.classList.toggle('text-white', on); r.classList.toggle('text-ink/60', !on);
+          if (on) { pill.style.width = r.offsetWidth + 'px'; pill.style.transform = 'translateX(' + r.offsetLeft + 'px)'; if (focus) r.focus(); }
+        });
+        update(false);
+      }
+      radios.forEach(function (r) {
+        r.addEventListener('click', function () { setPeriod(r.dataset.period === 'annual'); });
+        r.addEventListener('keydown', function (e) {
+          if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) > -1) { e.preventDefault(); setPeriod(!annual, true); }
+        });
+      });
+
+      setPeriod(false);
+      TIERS.forEach(function (t) { t.shown = t.target; });
+      addEventListener('resize', function () { placeFit(false); setPeriod(annual); });
+      document.fonts.ready.then(function () { placeFit(false); setPeriod(annual); });
+    })();
+  </script>
+</body>
+</html>

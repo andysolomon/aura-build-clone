@@ -151,7 +151,7 @@ export function HomePage() {
         {featured.map((t) => <TemplateCard key={t.slug} template={t} />)}
       </Shelf>
       <Shelf title="Pro Templates" action={<BrowseButton label="Browse Pro Templates" to="/templates?tier=pro" />}>
-        {pro.map((t) => <TemplateCard key={t.slug} template={t} />)}
+        {pro.slice(0, 3).map((t) => <TemplateCard key={t.slug} template={t} />)}
       </Shelf>
       <Shelf title="Free Templates" action={<BrowseButton label="Browse Free Templates" to="/templates?tier=free" />}>
         {free.slice(0, 3).map((t) => <TemplateCard key={t.slug} template={t} />)}

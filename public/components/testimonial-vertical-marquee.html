@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ovelo - Vertical testimonial marquee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Tight"', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background: #06080b; }
+    .glow { background: radial-gradient(50% 60% at 50% 0%, rgb(45 212 191 / .14), transparent 70%), radial-gradient(30% 40% at 85% 10%, rgb(129 140 248 / .12), transparent 70%); }
+    .grid-lines { background-image: linear-gradient(rgb(255 255 255 / .035) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .035) 1px, transparent 1px); background-size: 56px 56px; -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent 75%); mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent 75%); }
+    .grad { background: linear-gradient(90deg, #5eead4, #7dd3fc 45%, #a5b4fc 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .marquee { height: clamp(460px, 68vh, 620px); -webkit-mask-image: linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent); }
+    .col { position: relative; height: 100%; overflow: hidden; border-radius: 22px; outline: none; }
+    .col:focus-visible { box-shadow: inset 0 0 0 2px rgb(94 234 212 / .7); }
+    .set { display: flex; flex-direction: column; gap: 18px; padding-bottom: 18px; }
+    .ready .track { animation: up var(--dur, 48s) linear infinite; will-change: transform; }
+    .ready .col[data-dir="down"] .track { animation-name: down; }
+    .col:hover .track, .col:focus-within .track, .marquee.paused .track { animation-play-state: paused; }
+    @keyframes up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+    @keyframes down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+    .tcard { background: linear-gradient(180deg, rgb(255 255 255 / .045), rgb(255 255 255 / .02)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .07), inset 0 1px 0 rgb(255 255 255 / .05); transition: background .25s ease, box-shadow .25s ease; }
+    .col:hover .tcard:hover { background: linear-gradient(180deg, rgb(255 255 255 / .07), rgb(255 255 255 / .03)); box-shadow: inset 0 0 0 1px rgb(94 234 212 / .25), 0 20px 40px -24px rgb(45 212 191 / .35); }
+    .tcard mark { color: #f4f4f5; background: linear-gradient(90deg, rgb(94 234 212 / .22), rgb(129 140 248 / .22)) 0 100% / 100% 38% no-repeat; padding: 0 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+    .av { color: #fff; font-weight: 600; font-size: 11.5px; background: linear-gradient(135deg, var(--a), var(--b)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .2); }
+    .star { display: inline-block; width: 12px; height: 12px; background: #fbbf24; clip-path: polygon(50% 0%, 61.8% 35.4%, 98% 35.4%, 68.8% 57.3%, 79.4% 91.6%, 50% 70.4%, 20.6% 91.6%, 31.2% 57.3%, 2% 35.4%, 38.2% 35.4%); }
+    .mt-bar { height: 6px; border-radius: 99px; }
+    button:focus-visible, a:focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      .ready .track { animation: none; }
+      .col { overflow-y: auto; scrollbar-width: none; }
+      .col::-webkit-scrollbar { display: none; }
+      .set[aria-hidden="true"], #toggle { display: none; }
+    }
+  </style>
+</head>
+<body class="font-sans text-zinc-300">
+  <section class="relative overflow-hidden" aria-labelledby="vm-title">
+    <div class="glow pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="grid-lines pointer-events-none absolute inset-x-0 top-0 h-[520px]" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-6xl px-5 pt-12 sm:px-8 sm:pt-12">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] py-1 pl-1.5 pr-3 text-[12.5px] text-zinc-400">
+          <span class="flex items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 font-semibold text-amber-300"><i class="star"></i>4.9</span>
+          640 reviews from engineers who carry the pager
+        </p>
+        <h2 id="vm-title" class="mt-5 text-[2.3rem] font-semibold leading-[1.02] tracking-[-0.045em] text-white sm:text-[3.3rem]">Fewer pages at 3am.<br class="hidden sm:block"> <span class="grad">Better sleep for everyone.</span></h2>
+        <p class="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-zinc-400">From two-person startups to 400-engineer platform teams, Ovelo turns a wall of noisy alerts into the three that actually matter.</p>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+          <a href="#" class="inline-flex h-10 items-center gap-2 rounded-full bg-white px-5 text-[14px] font-semibold text-zinc-950 transition hover:bg-zinc-200">Read customer stories<iconify-icon icon="lucide:arrow-right"></iconify-icon></a>
+          <button id="toggle" type="button" aria-pressed="false" class="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-4 text-[14px] font-medium text-zinc-300 transition hover:bg-white/[.08] hover:text-white"><iconify-icon icon="lucide:pause" class="text-[15px]"></iconify-icon><span>Pause motion</span></button>
+        </div>
+      </div>
+
+      <div id="marquee" class="marquee mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Column 1 -->
+        <div class="col" data-dir="up" style="--dur:46s" tabindex="0" role="region" aria-label="Customer reviews, column 1 of 3. Focus or hover to pause.">
+          <div class="track">
+            <ul class="set">
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="inline-flex items-center gap-1.5 rounded-lg bg-teal-400/10 px-2 py-1 text-[12px] font-semibold text-teal-300"><iconify-icon icon="lucide:bell-off"></iconify-icon>&minus;87% pages per month</p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">We went from 300 pages a month to about 40. <mark>Every single one is real.</mark> My team trusts the pager again.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#2dd4bf;--b:#0f766e">AB</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Ama Boateng</span><span class="text-zinc-500">Staff SRE, Ferrolink</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <blockquote class="text-[14.5px] leading-relaxed text-zinc-400">The trace view finally shows the whole request, queue hops included. A checkout timeout took <mark>ten minutes instead of a war room.</mark></blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#818cf8;--b:#4338ca">LM</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Lucas Moreau</span><span class="text-zinc-500">Backend lead, Basketly</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <div class="flex items-end justify-between"><p class="text-[12px] font-medium uppercase tracking-[.12em] text-zinc-500">Mean time to resolve</p><p class="text-[12px] text-teal-300">&minus;79%</p></div>
+                <div class="mt-3 space-y-2 text-[12px]">
+                  <div class="grid grid-cols-[3.2rem_1fr] items-center gap-2"><span class="text-zinc-500">Before</span><span class="mt-bar w-full bg-zinc-700"></span></div>
+                  <div class="grid grid-cols-[3.2rem_1fr] items-center gap-2"><span class="text-zinc-300">Ovelo</span><span class="mt-bar w-[21%] bg-gradient-to-r from-teal-300 to-sky-400"></span></div>
+                </div>
+                <p class="mt-2 flex justify-between font-mono text-[11px] text-zinc-500"><span>52 min</span><span>11 min</span></p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">On-call handoffs are boring now, which is exactly what you want.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#f472b6;--b:#9d174d">IC</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Ines Carvalho</span><span class="text-zinc-500">Head of Platform, Tessellate Bank</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <blockquote class="text-[14.5px] leading-relaxed text-zinc-400">Migrating off our homegrown metrics stack took one weekend. <mark>Our cloud bill dropped by a third</mark> the following month.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#fbbf24;--b:#c2410c">OP</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Owen Pryce</span><span class="text-zinc-500">Infrastructure, Northgate Ledger</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">Alert grouping is the first feature my team begged to keep after a trial. Nobody wants to go back.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#a3e635;--b:#3f6212">HK</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Hana Kobayashi</span><span class="text-zinc-500">Engineering manager, Lumen Freight</span></span></figcaption>
+              </figure></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="col hidden md:block" data-dir="down" style="--dur:58s" tabindex="0" role="region" aria-label="Customer reviews, column 2 of 3. Focus or hover to pause.">
+          <div class="track">
+            <ul class="set">
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">Setup was one Helm chart and a coffee. <mark>Dashboards were populated</mark> before I finished the coffee.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#38bdf8;--b:#1e40af">PV</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Priya Venkataraman</span><span class="text-zinc-500">DevOps engineer, Cobaltline</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="text-[30px] font-semibold leading-none tracking-[-0.04em] text-white">3.2B<span class="ml-1.5 text-[13px] font-medium tracking-normal text-zinc-500">spans a day</span></p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">Ingests our whole firehose without sampling the interesting bits away. Our old vendor choked at a tenth of that.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#c084fc;--b:#6b21a8">MF</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Marcus Feld</span><span class="text-zinc-500">Principal engineer, Riverstone Games</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <blockquote class="text-[14.5px] leading-relaxed text-zinc-400">I used to keep my phone on loud all week. Now I go to my daughter's soccer games <mark>even when I'm on call.</mark></blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#fb923c;--b:#9a3412">DA</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Daniel Achebe</span><span class="text-zinc-500">SRE, Quayside Health</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-400/10 px-2 py-1 text-[12px] font-semibold text-indigo-300"><iconify-icon icon="lucide:gauge"></iconify-icon>40 rules replaced by 6 SLOs</p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">Burn-rate alerts replaced a graveyard of threshold rules. <mark>Our pager went quiet overnight</mark> and nothing slipped through.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#5eead4;--b:#155e75">SA</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Sofia Aranda</span><span class="text-zinc-500">Reliability lead, Parcelpoint</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <blockquote class="text-[14.5px] leading-relaxed text-zinc-400">Postmortems write half of themselves from the incident timeline. We spend the meeting on fixes, not archaeology.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#e879f9;--b:#86198f">TL</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Theo Lindgren</span><span class="text-zinc-500">CTO, Brightpath Labs</span></span></figcaption>
+              </figure></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Column 3 -->
+        <div class="col hidden lg:block" data-dir="up" style="--dur:51s" tabindex="0" role="region" aria-label="Customer reviews, column 3 of 3. Focus or hover to pause.">
+          <div class="track">
+            <ul class="set">
+              <li><figure class="tcard rounded-2xl p-5">
+                <blockquote class="text-[14.5px] leading-relaxed text-zinc-400">Ovelo caught a memory leak in staging that would have taken us down on launch day. <mark>That one alert paid for three years.</mark></blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#f87171;--b:#991b1b">RK</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Rachel Kim</span><span class="text-zinc-500">VP Engineering, Harbor &amp; Hide</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-400/10 px-2 py-1 text-[12px] font-semibold text-emerald-300"><iconify-icon icon="lucide:trending-down"></iconify-icon>&minus;41% observability spend</p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">Per-host pricing made our CFO suspicious. Paying for <mark>signal instead of volume</mark> made her a fan.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#34d399;--b:#065f46">JW</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Jonah Weiss</span><span class="text-zinc-500">Platform director, Kitebird</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <div class="rounded-lg bg-black/40 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-zinc-400 ring-1 ring-white/[.06]"><span class="text-sky-300">select</span> service, p95(latency)<br><span class="text-sky-300">from</span> spans <span class="text-sky-300">where</span> env = <span class="text-amber-200">'prod'</span></div>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">The query language is just SQL. <mark>Nobody had to learn another DSL</mark> to answer a question.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#60a5fa;--b:#3730a3">MT</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Mei Tanaka</span><span class="text-zinc-500">Data engineer, Orchard Mobility</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <blockquote class="text-[14.5px] leading-relaxed text-zinc-400">Our junior engineers debug production with confidence because the context is right there in the alert.</blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#facc15;--b:#a16207">KM</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Kwame Mensah</span><span class="text-zinc-500">Engineering manager, Sundry Supply</span></span></figcaption>
+              </figure></li>
+              <li><figure class="tcard rounded-2xl p-5">
+                <p class="flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+                <blockquote class="mt-3 text-[14.5px] leading-relaxed text-zinc-400">Runbooks attached to alerts sound like a small thing. <mark>At 3am they are everything.</mark></blockquote>
+                <figcaption class="mt-4 flex items-center gap-3"><span class="av grid h-9 w-9 shrink-0 place-items-center rounded-full" style="--a:#a78bfa;--b:#5b21b6">EP</span><span class="text-[13px] leading-tight"><span class="block font-semibold text-zinc-100">Elena Petrova</span><span class="text-zinc-500">On-call lead, Glasswing Cloud</span></span></figcaption>
+              </figure></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center justify-between gap-3 border-t border-white/[.07] py-6 text-[13px] text-zinc-500 sm:flex-row">
+        <p class="flex items-center gap-2"><iconify-icon icon="lucide:shield-check" class="text-teal-300"></iconify-icon>Reviews collected from verified paying teams, unedited.</p>
+        <p class="flex items-center gap-5"><span><b class="font-semibold text-zinc-200">96%</b> renew after year one</span><span><b class="font-semibold text-zinc-200">1,900+</b> teams on call</span></p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var marquee = document.getElementById('marquee');
+      var toggle = document.getElementById('toggle');
+      // Duplicate each column's list so translateY(-50%) loops seamlessly; the copy is hidden from assistive tech.
+      marquee.querySelectorAll('.track').forEach(function (track) {
+        var copy = track.querySelector('.set').cloneNode(true);
+        copy.setAttribute('aria-hidden', 'true');
+        copy.setAttribute('inert', '');
+        track.appendChild(copy);
+      });
+      requestAnimationFrame(function () { marquee.classList.add('ready'); });
+
+      toggle.addEventListener('click', function () {
+        var paused = toggle.getAttribute('aria-pressed') !== 'true';
+        toggle.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        marquee.classList.toggle('paused', paused);
+        toggle.querySelector('span').textContent = paused ? 'Resume motion' : 'Pause motion';
+        toggle.querySelector('iconify-icon').setAttribute('icon', paused ? 'lucide:play' : 'lucide:pause');
+      });
+    })();
+  </script>
+</body>
+</html>

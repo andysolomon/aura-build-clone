@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animated Logomarks - six SVG marks with motion lockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Outfit:wght@500&family=Space+Grotesk:wght@600&family=Instrument+Serif:ital@1&family=Sora:wght@600&family=Manrope:wght@800&family=Syne:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Tight"', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  .panel { background: radial-gradient(120% 80% at 50% -10%, #17171d, #0b0b0e 60%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07), inset 0 1px 0 rgba(255,255,255,.08), 0 40px 100px -30px rgba(0,0,0,.6), 0 12px 30px -16px rgba(0,0,0,.45); }
+  .tile { position: relative; overflow: hidden; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); transition: box-shadow .3s, background-color .3s; }
+  .tile::before { content: ""; position: absolute; left: 50%; top: 38%; width: 260px; height: 160px; margin: -80px 0 0 -130px; border-radius: 50%; background: radial-gradient(closest-side, var(--glow), transparent); opacity: .35; filter: blur(10px); transition: opacity .4s; pointer-events: none; }
+  .tile:hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  .tile:hover::before { opacity: .6; }
+  .mark { width: 60px; height: 60px; overflow: visible; flex-shrink: 0; }
+  .wm { display: inline-block; color: #f4f4f5; white-space: nowrap; }
+  .replay { opacity: .55; transition: opacity .2s, transform .5s cubic-bezier(.2,.8,.2,1), background-color .2s; }
+  .tile:hover .replay, .replay:focus-visible { opacity: 1; }
+  .replay:active { transform: rotate(-200deg); }
+  button:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+  .vb { transform-box: view-box; transform-origin: 24px 24px; }
+
+  /* entrance (runs while .play is set; removing and re-adding restarts it) */
+  .play .wm { animation: reveal .9s .45s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes reveal { from { clip-path: inset(0 100% 0 0); transform: translateX(-6px); opacity: .2; } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }
+  /* 1 loopwell: stroke draw-on */
+  .play .draw { stroke-dasharray: 1; animation: draw 1.7s cubic-bezier(.65,0,.35,1) both; }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .play .dotpop { animation: pop .5s 1.45s cubic-bezier(.3,1.6,.5,1) both; }
+  @keyframes pop { from { transform: scale(0); } }
+  /* 2 orbitra: rotation */
+  .ring-a { animation: spin 9s linear infinite; } .ring-b { animation: spin 13s linear infinite reverse; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .play .orbit { animation: wind 1.4s cubic-bezier(.2,.9,.25,1.15) both; }
+  @keyframes wind { from { transform: rotate(-200deg) scale(.4); opacity: 0; } }
+  .play .core { animation: pop .6s .2s cubic-bezier(.3,1.6,.5,1) both; }
+  /* 4 petalworks: staggered bloom */
+  .play .pt { animation: bloom .7s calc(var(--i) * .09s) cubic-bezier(.3,1.5,.5,1) both; }
+  @keyframes bloom { from { transform: scale(0); opacity: 0; } }
+  .play .petals { animation: twist 1.4s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes twist { from { transform: rotate(-75deg); } }
+  .play .bud { animation: pop .5s .7s cubic-bezier(.3,1.6,.5,1) both; }
+  /* 5 stackline: sliding bars */
+  .play .bar { animation: slide .8s calc(var(--i) * .13s) cubic-bezier(.2,1.25,.4,1) both; }
+  @keyframes slide { from { transform: translateX(var(--from)); opacity: 0; } }
+  /* 6 nodal: lines draw, nodes pop, hub pulses */
+  .play .edge { stroke-dasharray: 1; animation: draw .6s calc(.25s + var(--i) * .1s) ease-out both; }
+  .play .node { animation: pop .45s calc(var(--i) * .08s) cubic-bezier(.3,1.6,.5,1) both; }
+  .pulse { animation: pulse 2.4s ease-out infinite; }
+  @keyframes pulse { from { transform: scale(1); opacity: .7; } to { transform: scale(3.2); opacity: 0; } }
+  .node, .core, .dotpop, .bud, .pt { transform-box: fill-box; transform-origin: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile *, .tile *::before { animation: none !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen grid place-items-center p-4 sm:p-8 font-sans antialiased">
+  <section class="panel w-full max-w-[1100px] rounded-[30px] p-4 sm:p-7 text-zinc-100" aria-labelledby="t">
+    <header class="flex flex-wrap items-end justify-between gap-4 px-1 pb-5 sm:pb-6">
+      <div>
+        <p class="text-[11px] font-medium tracking-[.2em] text-zinc-500">MOTION IDENTITY · SET 03</p>
+        <h2 id="t" class="mt-1.5 text-[22px] sm:text-[26px] font-semibold tracking-[-0.03em]">Six logomarks, built to move</h2>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline text-[12.5px] text-zinc-500">Hover a tile to replay</span>
+        <button id="all" class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-white text-zinc-900 text-[13px] font-medium hover:bg-zinc-200 transition"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon>Replay all</button>
+      </div>
+    </header>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <!-- 1 Loopwell -->
+      <article class="tile play" style="--glow:#2dd4bf">
+        <div class="h-[168px] flex items-center justify-center gap-3.5">
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#2dd4bf"/><stop offset="1" stop-color="#bef264"/></linearGradient></defs>
+            <path class="draw" pathLength="1" d="M24 24c-4-6-7.5-9.5-11.5-9.5a9.5 9.5 0 0 0 0 19c4 0 7.5-3.5 11.5-9.5s7.5-9.5 11.5-9.5a9.5 9.5 0 0 1 0 19c-4 0-7.5-3.5-11.5-9.5z" fill="none" stroke="url(#g1)" stroke-width="4.6" stroke-linecap="round"/>
+            <circle class="dotpop" cx="35.5" cy="24" r="2.6" fill="#fff"/></svg>
+          <span class="wm text-[30px] tracking-[-0.03em]" style="font-family:Outfit,sans-serif;font-weight:500">loopwell</span>
+        </div>
+        <footer class="relative flex items-center justify-between border-t border-white/[.06] px-4 py-3">
+          <div><h3 class="text-[13.5px] font-medium">Loopwell</h3><p class="text-[12px] text-zinc-500">Stroke draw-on · 1.7s</p></div>
+          <button class="replay w-8 h-8 rounded-full grid place-items-center bg-white/[.06] hover:bg-white/[.12]" aria-label="Replay Loopwell animation"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </footer>
+      </article>
+
+      <!-- 2 Orbitra -->
+      <article class="tile play" style="--glow:#818cf8">
+        <div class="h-[168px] flex items-center justify-center gap-3.5">
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="g2" cx=".35" cy=".3"><stop stop-color="#e0e7ff"/><stop offset=".55" stop-color="#818cf8"/><stop offset="1" stop-color="#6d28d9"/></radialGradient></defs>
+            <g class="orbit vb">
+              <g class="ring-a vb"><ellipse cx="24" cy="24" rx="21" ry="8" fill="none" stroke="#a5b4fc" stroke-opacity=".55" stroke-width="1.6" transform="rotate(-28 24 24)"/><circle cx="42.5" cy="14.1" r="2.8" fill="#fff"/></g>
+              <g class="ring-b vb"><ellipse cx="24" cy="24" rx="21" ry="8" fill="none" stroke="#c4b5fd" stroke-opacity=".4" stroke-width="1.6" transform="rotate(38 24 24)"/><circle cx="7.4" cy="11.1" r="2.2" fill="#c4b5fd"/></g>
+            </g>
+            <circle class="core" cx="24" cy="24" r="8" fill="url(#g2)"/></svg>
+          <span class="wm text-[25px] tracking-[.16em]" style="font-family:'Space Grotesk',sans-serif;font-weight:600">ORBITRA</span>
+        </div>
+        <footer class="relative flex items-center justify-between border-t border-white/[.06] px-4 py-3">
+          <div><h3 class="text-[13.5px] font-medium">Orbitra</h3><p class="text-[12px] text-zinc-500">Counter-rotating orbits · loop</p></div>
+          <button class="replay w-8 h-8 rounded-full grid place-items-center bg-white/[.06] hover:bg-white/[.12]" aria-label="Replay Orbitra animation"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </footer>
+      </article>
+
+      <!-- 3 Shiftform -->
+      <article class="tile play" style="--glow:#f472b6">
+        <div class="h-[168px] flex items-center justify-center gap-3.5">
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+            <path id="morph" d="M24 4C40 4 44 8 44 24C44 40 40 44 24 44C8 44 4 40 4 24C4 8 8 4 24 4Z" fill="#f472b6">
+              <animate class="smil" attributeName="d" dur="5.6s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".7 0 .2 1;.7 0 .2 1;.7 0 .2 1;.7 0 .2 1" values="M24 4C40 4 44 8 44 24C44 40 40 44 24 44C8 44 4 40 4 24C4 8 8 4 24 4Z;M24 4C44 4 44 4 44 24C44 35 35 44 24 44C4 44 4 44 4 24C4 13 13 4 24 4Z;M24 4C35 4 44 13 44 24C44 35 35 44 24 44C13 44 4 35 4 24C4 13 13 4 24 4Z;M24 2C31 9 39 17 46 24C39 31 31 39 24 46C17 39 9 31 2 24C9 17 17 9 24 2Z;M24 4C40 4 44 8 44 24C44 40 40 44 24 44C8 44 4 40 4 24C4 8 8 4 24 4Z"/>
+              <animate class="smil" attributeName="fill" dur="5.6s" begin="indefinite" repeatCount="indefinite" keyTimes="0;.25;.5;.75;1" values="#f472b6;#fb923c;#facc15;#a78bfa;#f472b6"/>
+            </path>
+            <circle cx="17" cy="17" r="9" fill="url(#g3)"/></svg>
+          <span class="wm text-[36px] leading-none tracking-[-0.01em]" style="font-family:'Instrument Serif',serif;font-style:italic">Shiftform</span>
+        </div>
+        <footer class="relative flex items-center justify-between border-t border-white/[.06] px-4 py-3">
+          <div><h3 class="text-[13.5px] font-medium">Shiftform</h3><p class="text-[12px] text-zinc-500">Path morph · squircle to diamond</p></div>
+          <button class="replay w-8 h-8 rounded-full grid place-items-center bg-white/[.06] hover:bg-white/[.12]" aria-label="Replay Shiftform animation"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </footer>
+      </article>
+
+      <!-- 4 Petalworks -->
+      <article class="tile play" style="--glow:#fb7185">
+        <div class="h-[168px] flex items-center justify-center gap-3.5">
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fda4af"/><stop offset="1" stop-color="#f97316"/></linearGradient></defs>
+            <g class="petals vb" style="mix-blend-mode:screen">
+              <ellipse class="pt" style="--i:0" cx="24" cy="13" rx="6" ry="11" fill="url(#g4)" opacity=".85"/>
+              <g transform="rotate(60 24 24)"><ellipse class="pt" style="--i:1" cx="24" cy="13" rx="6" ry="11" fill="url(#g4)" opacity=".85"/></g>
+              <g transform="rotate(120 24 24)"><ellipse class="pt" style="--i:2" cx="24" cy="13" rx="6" ry="11" fill="url(#g4)" opacity=".85"/></g>
+              <g transform="rotate(180 24 24)"><ellipse class="pt" style="--i:3" cx="24" cy="13" rx="6" ry="11" fill="url(#g4)" opacity=".85"/></g>
+              <g transform="rotate(240 24 24)"><ellipse class="pt" style="--i:4" cx="24" cy="13" rx="6" ry="11" fill="url(#g4)" opacity=".85"/></g>
+              <g transform="rotate(300 24 24)"><ellipse class="pt" style="--i:5" cx="24" cy="13" rx="6" ry="11" fill="url(#g4)" opacity=".85"/></g>
+            </g>
+            <circle class="bud" cx="24" cy="24" r="4.2" fill="#fff7ed"/></svg>
+          <span class="wm text-[27px] tracking-[-0.04em]" style="font-family:Sora,sans-serif;font-weight:600">petalworks</span>
+        </div>
+        <footer class="relative flex items-center justify-between border-t border-white/[.06] px-4 py-3">
+          <div><h3 class="text-[13.5px] font-medium">Petalworks</h3><p class="text-[12px] text-zinc-500">Staggered bloom · 1.4s</p></div>
+          <button class="replay w-8 h-8 rounded-full grid place-items-center bg-white/[.06] hover:bg-white/[.12]" aria-label="Replay Petalworks animation"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </footer>
+      </article>
+
+      <!-- 5 Stackline -->
+      <article class="tile play" style="--glow:#38bdf8">
+        <div class="h-[168px] flex items-center justify-center gap-3.5">
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+            <rect class="bar" style="--i:0;--from:26px" x="10" y="7" width="32" height="9" rx="4.5" fill="#7dd3fc"/>
+            <rect class="bar" style="--i:1;--from:-26px" x="6" y="19.5" width="32" height="9" rx="4.5" fill="#3b82f6"/>
+            <rect class="bar" style="--i:2;--from:26px" x="10" y="32" width="32" height="9" rx="4.5" fill="#6366f1"/></svg>
+          <span class="wm text-[28px] tracking-[-0.045em]" style="font-family:Manrope,sans-serif;font-weight:800">stackline</span>
+        </div>
+        <footer class="relative flex items-center justify-between border-t border-white/[.06] px-4 py-3">
+          <div><h3 class="text-[13.5px] font-medium">Stackline</h3><p class="text-[12px] text-zinc-500">Alternating slide-in · 0.9s</p></div>
+          <button class="replay w-8 h-8 rounded-full grid place-items-center bg-white/[.06] hover:bg-white/[.12]" aria-label="Replay Stackline animation"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </footer>
+      </article>
+
+      <!-- 6 Nodal -->
+      <article class="tile play" style="--glow:#34d399">
+        <div class="h-[168px] flex items-center justify-center gap-3.5">
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+            <g fill="none" stroke="#6ee7b7" stroke-opacity=".6" stroke-width="1.8" stroke-linecap="round">
+              <path class="edge" style="--i:0" pathLength="1" d="M11 12 36 8"/><path class="edge" style="--i:1" pathLength="1" d="M36 8 41 31"/><path class="edge" style="--i:2" pathLength="1" d="M41 31 21 41"/>
+              <path class="edge" style="--i:3" pathLength="1" d="M21 41 6 28"/><path class="edge" style="--i:4" pathLength="1" d="M6 28 11 12"/>
+              <path class="edge" style="--i:5" pathLength="1" d="M24 24 11 12"/><path class="edge" style="--i:6" pathLength="1" d="M24 24 41 31"/><path class="edge" style="--i:7" pathLength="1" d="M24 24 21 41"/>
+            </g>
+            <circle class="pulse vb" cx="24" cy="24" r="3" fill="#34d399"/>
+            <g fill="#a7f3d0"><circle class="node" style="--i:0" cx="11" cy="12" r="3"/><circle class="node" style="--i:1" cx="36" cy="8" r="2.4"/><circle class="node" style="--i:2" cx="41" cy="31" r="3.2"/><circle class="node" style="--i:3" cx="21" cy="41" r="2.6"/><circle class="node" style="--i:4" cx="6" cy="28" r="2.2"/></g>
+            <circle class="node" style="--i:5" cx="24" cy="24" r="4.4" fill="#fff"/></svg>
+          <span class="wm text-[27px] tracking-[.02em]" style="font-family:Syne,sans-serif;font-weight:700">NODAL</span>
+        </div>
+        <footer class="relative flex items-center justify-between border-t border-white/[.06] px-4 py-3">
+          <div><h3 class="text-[13.5px] font-medium">Nodal</h3><p class="text-[12px] text-zinc-500">Edges draw, nodes connect</p></div>
+          <button class="replay w-8 h-8 rounded-full grid place-items-center bg-white/[.06] hover:bg-white/[.12]" aria-label="Replay Nodal animation"><iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon></button>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tiles = [].slice.call(document.querySelectorAll('.tile'));
+  function replay(t) {
+    if (reduce) return;
+    var now = Date.now();
+    if (t._last && now - t._last < 700) return; // ignore jittery re-entry
+    t._last = now;
+    t.classList.remove('play'); void t.offsetWidth; t.classList.add('play');
+    t.querySelectorAll('.smil').forEach(function (a) { try { a.beginElement(); } catch (e) {} });
+  }
+  tiles.forEach(function (t) {
+    t.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') replay(t); });
+    t.querySelector('.replay').addEventListener('click', function () { t._last = 0; replay(t); });
+  });
+  document.getElementById('all').addEventListener('click', function () {
+    tiles.forEach(function (t, i) { setTimeout(function () { t._last = 0; replay(t); }, i * 90); });
+  });
+  if (!reduce) document.querySelectorAll('.smil').forEach(function (a) { try { a.beginElement(); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

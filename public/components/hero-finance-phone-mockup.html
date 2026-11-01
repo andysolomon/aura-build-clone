@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fennec - Fintech hero with phone mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+    colors: { ink: '#05070a', lime: { DEFAULT: '#c8f560', soft: '#e4fbb0' }, mint: '#8ef0c8', peri: '#b9c6ff' } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #05070a; }
+  .glow { position: absolute; border-radius: 9999px; filter: blur(70px); pointer-events: none; }
+  .grad-text { background: linear-gradient(92deg, #c8f560 10%, #8ef0c8 60%, #b9c6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .field { box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 20px 50px -20px rgba(0,0,0,.8); transition: box-shadow .2s, border-color .2s; }
+  .field:focus-within { border-color: rgba(200,245,96,.55); box-shadow: 0 0 0 4px rgba(200,245,96,.12); }
+  .field.err { border-color: rgba(251,113,133,.6); box-shadow: 0 0 0 4px rgba(251,113,133,.12); }
+  .nl { transition: color .2s; } .nl:hover { color: #fff; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #c8f560; outline-offset: 3px; }
+  .spin { width: 15px; height: 15px; border-radius: 9999px; border: 2px solid rgba(5,7,10,.25); border-top-color: #05070a; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .stage-wrap { position: relative; height: calc(620px * var(--s)); --s: 1; }
+  .stage { position: absolute; left: 50%; top: 0; width: 560px; height: 620px; transform: translateX(-50%) scale(var(--s)); transform-origin: top center; }
+  @media (max-width: 639px) { .stage-wrap { --s: .62; } }
+  .phone { position: absolute; width: 264px; height: 548px; border-radius: 46px; padding: 9px; background: linear-gradient(145deg, #2a2e35, #0e1014 40%, #1d2026); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 1px rgba(255,255,255,.25), 0 50px 90px -30px rgba(0,0,0,.9), 0 30px 60px -40px rgba(200,245,96,.3); }
+  .screen { position: relative; height: 100%; border-radius: 37px; overflow: hidden; background: #0a0d11; padding: 44px 16px 0; }
+  .screen::before { content: ""; position: absolute; top: 10px; left: 50%; width: 82px; height: 24px; margin-left: -41px; border-radius: 9999px; background: #000; }
+  .sb { position: absolute; top: 14px; left: 28px; right: 24px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; }
+  .p-front { left: 28px; top: 56px; transform: rotate(-5deg); z-index: 2; }
+  .p-back { left: 262px; top: 6px; transform: rotate(6deg); z-index: 1; }
+  .p-back .screen::after { content: ""; position: absolute; inset: 0; background: linear-gradient(200deg, transparent 40%, rgba(5,7,10,.4)); pointer-events: none; }
+  .card { background: radial-gradient(120% 90% at 100% 0%, rgba(200,245,96,.55), transparent 55%), radial-gradient(90% 120% at 0% 100%, rgba(142,240,200,.35), transparent 60%), linear-gradient(135deg, #1a1f16, #0c0f0b); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 14px 30px -12px rgba(200,245,96,.35); }
+  .gold { background: linear-gradient(135deg, #f3dc9b, #b88d3c 55%, #ecd08a); }
+  .av { width: 32px; height: 32px; border-radius: 9999px; box-shadow: 0 0 0 2px #05070a; }
+  .tile { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 12px; flex-shrink: 0; }
+  .qa { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 4px; border-radius: 9999px; background: rgba(255,255,255,.07); }
+  .chip { position: absolute; z-index: 4; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; line-height: 1.25; animation: bob 6s ease-in-out infinite; background: rgba(18,22,28,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), inset 0 1px 0 rgba(255,255,255,.08), 0 24px 50px -20px rgba(0,0,0,.9); }
+  .chip small { display: block; font-size: 10.5px; color: rgba(255,255,255,.45); }
+  .chip b { display: block; font-size: 13.5px; }
+  @keyframes bob { 50% { transform: translateY(-9px); } }
+  #line { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); }
+  #line.draw { animation: draw 1.2s cubic-bezier(.6,.1,.2,1) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  #area { opacity: 0; transition: opacity .8s .5s; }
+  #area.on { opacity: 1; }
+  .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2s ease-out infinite; }
+  @keyframes pulse { from { transform: scale(1); opacity: .6; } to { transform: scale(3.2); opacity: 0; } }
+  .rng { flex: 1; border-radius: 9999px; padding: 4px 0; transition: background .2s, color .2s; }
+  .rng[aria-pressed="true"] { background: rgba(200,245,96,.14); color: #e4fbb0; }
+  @media (prefers-reduced-motion: reduce) {
+    .chip, .pulse, .spin { animation: none; }
+    #line, #line.draw { animation: none; stroke-dashoffset: 0; }
+    #area { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans text-white min-h-screen relative overflow-x-hidden antialiased">
+  <svg width="0" height="0" class="absolute" aria-hidden="true"><symbol id="star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></symbol></svg>
+  <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="glow w-[620px] h-[520px] right-[-60px] top-[90px] bg-[radial-gradient(closest-side,rgba(200,245,96,.2),transparent)]"></div>
+    <div class="glow w-[520px] h-[420px] right-[300px] top-[360px] bg-[radial-gradient(closest-side,rgba(110,124,255,.2),transparent)]"></div>
+  </div>
+
+  <header class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5 text-[17px] font-bold tracking-tight" aria-label="Fennec home">
+      <svg viewBox="0 0 28 28" class="w-7 h-7" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#c8f560"/><path d="M6.5 7.5 12 11.5h4l5.5-4V16a7.5 7.5 0 0 1-15 0z" fill="#05070a"/><circle cx="11.2" cy="16.2" r="1.25" fill="#c8f560"/><circle cx="16.8" cy="16.2" r="1.25" fill="#c8f560"/></svg>
+      Fennec
+    </a>
+    <nav aria-label="Main" class="hidden md:flex items-center gap-8 text-[14px] text-white/60">
+      <a href="#" class="nl">Personal</a><a href="#" class="nl">Business</a><a href="#" class="nl">Vaults</a><a href="#" class="nl">Cards</a><a href="#" class="nl">Security</a>
+    </nav>
+    <div class="flex items-center gap-2 text-[14px]">
+      <a href="#" class="hidden sm:block px-3 py-1.5 text-white/70 hover:text-white transition">Log in</a>
+      <a href="#" class="px-4 py-2 rounded-full bg-white/[.07] ring-1 ring-white/10 hover:bg-white/[.12] font-medium transition">Open account</a>
+    </div>
+  </header>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 grid lg:grid-cols-[1fr_560px] gap-10 lg:gap-6 items-center pt-8 lg:pt-10 pb-16">
+    <section class="max-w-[540px] mx-auto lg:mx-0 text-center lg:text-left">
+      <a href="#" class="inline-flex items-center gap-2 rounded-full pl-1 pr-3 py-1 text-[12.5px] text-white/75 bg-white/[.04] ring-1 ring-white/10 hover:ring-white/20 transition">
+        <span class="rounded-full bg-lime text-ink px-2 py-0.5 text-[11px] font-bold">New</span>
+        4.15% APY on Vaults, no lock-in
+        <iconify-icon icon="lucide:arrow-right" width="13" class="text-white/50"></iconify-icon>
+      </a>
+      <h1 class="mt-6 text-[44px] leading-[1.02] sm:text-[60px] lg:text-[66px] font-extrabold tracking-[-0.045em]">Your money,<br><span class="grad-text">finally in motion.</span></h1>
+      <p class="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-white/55">Fennec puts spending, high-yield Vaults and instant transfers in one calm app. No monthly fees, no minimums, and every tap of your card lands in under a second.</p>
+
+      <form id="signup" class="mt-8" novalidate>
+        <label for="email" class="sr-only">Email address</label>
+        <div id="field" class="field flex items-center gap-2 p-1.5 pl-4 rounded-full bg-white/[.04] border border-white/10 max-w-[460px] mx-auto lg:mx-0">
+          <iconify-icon icon="lucide:mail" width="17" class="text-white/40 shrink-0"></iconify-icon>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="msg" class="min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-white/30 focus:outline-none py-2">
+          <button id="go" type="submit" class="shrink-0 inline-flex items-center justify-center gap-2 h-11 px-5 rounded-full bg-lime text-ink text-[14px] font-bold hover:bg-lime-soft transition shadow-[0_8px_24px_-8px_rgba(200,245,96,.6)]"><span id="go-label">Get the app</span><iconify-icon id="go-icon" icon="lucide:arrow-right" width="16"></iconify-icon></button>
+        </div>
+        <p id="msg" class="mt-3 min-h-[20px] text-[13px] text-white/45" aria-live="polite">Free plan forever. Two-minute signup.</p>
+      </form>
+
+      <div class="mt-6 flex items-center justify-center lg:justify-start gap-3">
+        <div class="flex -space-x-2" aria-hidden="true">
+          <span class="av bg-gradient-to-br from-amber-200 to-rose-400"></span>
+          <span class="av bg-gradient-to-br from-sky-200 to-indigo-400"></span>
+          <span class="av bg-gradient-to-br from-lime-200 to-emerald-500"></span>
+          <span class="av bg-[#1a1e24] grid place-items-center text-[10px] font-bold text-white/80">38k</span>
+        </div>
+        <div class="text-left text-[13px] leading-tight">
+          <div id="stars" class="flex gap-0.5 text-lime" role="img" aria-label="Rated 4.9 out of 5"></div>
+          <div class="mt-1 text-white/50"><span class="text-white/85 font-semibold">4.9</span> from 38,400 members</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage-wrap" aria-label="Fennec app preview">
+      <div class="stage">
+        <div class="phone p-back" aria-hidden="true"><div class="screen">
+          <div class="sb"></div>
+          <div class="flex items-center justify-between"><span class="text-[17px] font-bold tracking-tight">Cards</span><span class="qa !w-7 !h-7 !m-0"><iconify-icon icon="lucide:plus" width="14"></iconify-icon></span></div>
+          <div class="card relative mt-3 h-[142px] rounded-2xl p-3.5 overflow-hidden">
+            <div class="flex justify-between"><span class="text-[13px] font-bold tracking-tight">Fennec</span><iconify-icon icon="lucide:nfc" width="16" class="text-white/70"></iconify-icon></div>
+            <div class="gold mt-3 w-8 h-6 rounded-[5px] relative"><span class="absolute inset-x-0 top-1/2 h-px bg-black/20"></span><span class="absolute inset-y-0 left-1/2 w-px bg-black/20"></span></div>
+            <div class="absolute bottom-3 inset-x-3.5 flex items-end justify-between"><div><div class="text-[9px] tracking-[.18em] text-white/55">INES ROWAN</div><div class="text-[12px] font-semibold tracking-[.14em] mt-0.5">•••• 4092</div></div><span class="flex"><span class="w-5 h-5 rounded-full bg-lime/90"></span><span class="w-5 h-5 -ml-2 rounded-full bg-white/50"></span></span></div>
+          </div>
+          <div class="mt-3 grid grid-cols-3 gap-2 text-[10.5px] text-white/70 text-center">
+            <span class="rounded-xl bg-white/[.05] py-2"><iconify-icon icon="lucide:snowflake" width="15" class="block mx-auto mb-1 text-sky-300"></iconify-icon>Freeze</span>
+            <span class="rounded-xl bg-white/[.05] py-2"><iconify-icon icon="lucide:eye" width="15" class="block mx-auto mb-1"></iconify-icon>Details</span>
+            <span class="rounded-xl bg-white/[.05] py-2"><iconify-icon icon="lucide:gauge" width="15" class="block mx-auto mb-1"></iconify-icon>Limits</span>
+          </div>
+          <div class="mt-4 flex justify-between items-center"><span class="text-[13px] font-semibold">Recent</span><span class="text-[11px] text-lime">See all</span></div>
+          <ul id="tx" class="mt-1.5"></ul>
+        </div></div>
+
+        <div class="phone p-front"><div class="screen">
+          <div class="sb" aria-hidden="true"></div>
+          <div class="flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-200 to-rose-400 grid place-items-center text-[11px] font-bold text-ink/80" aria-hidden="true">IR</span><div class="leading-tight"><div class="text-[10.5px] text-white/45">Good morning</div><div class="text-[13px] font-semibold">Ines Rowan</div></div><span class="qa !m-0 !w-8 !h-8 ml-auto relative" aria-hidden="true"><iconify-icon icon="lucide:bell" width="15"></iconify-icon><span class="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-lime"></span></span></div>
+          <div class="mt-5 text-[11px] text-white/45">Total balance</div>
+          <div class="mt-0.5 text-[31px] font-extrabold tracking-[-0.04em] leading-none"><span id="bal">$24,860</span><span class="text-white/35 text-[20px]">.42</span></div>
+          <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-lime/[.12] text-lime px-2 py-0.5 text-[11px] font-semibold"><iconify-icon icon="lucide:trending-up" width="12"></iconify-icon><span id="delta">+$1,284.10 · 5.4%</span></div>
+          <div class="mt-3">
+            <svg viewBox="0 0 232 108" class="w-full h-[108px] overflow-visible" role="img" aria-label="Balance trend, rising over the selected range">
+              <defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8f560" stop-opacity=".32"/><stop offset="1" stop-color="#c8f560" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" x2="232" y1="80" y2="80" stroke="rgba(255,255,255,.08)" stroke-dasharray="3 4"/>
+              <path id="area" fill="url(#fill)"/>
+              <path id="line" fill="none" stroke="#c8f560" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle id="ring" class="pulse" r="4" fill="#c8f560"/><circle id="dot" r="3.6" fill="#c8f560" stroke="#0a0d11" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="mt-1 flex rounded-full bg-white/[.04] p-0.5 text-[11px] font-semibold text-white/45" role="group" aria-label="Chart range">
+            <button class="rng" aria-pressed="false">1W</button><button class="rng" aria-pressed="true">1M</button><button class="rng" aria-pressed="false">3M</button><button class="rng" aria-pressed="false">1Y</button>
+          </div>
+          <div id="qa" class="mt-4 grid grid-cols-4 gap-1 text-center text-[10px] text-white/60" aria-hidden="true"></div>
+          <div class="mt-4 rounded-2xl bg-white/[.04] ring-1 ring-white/[.06] p-3" aria-hidden="true">
+            <div class="flex justify-between text-[11px]"><span class="text-white/80 font-semibold">Vault · Lisbon trip</span><span class="text-white/45">65%</span></div>
+            <div class="mt-2 h-1.5 rounded-full bg-white/[.07]"><div class="h-full w-[65%] rounded-full bg-gradient-to-r from-lime to-mint"></div></div>
+            <div class="mt-1.5 text-[10.5px] text-white/40">$3,120 of $4,800 · earning 4.15%</div>
+          </div>
+        </div></div>
+
+        <div class="chip left-[-14px] top-[18px]" style="animation-delay:-1s"><span class="tile bg-lime/15 text-lime"><iconify-icon icon="lucide:sparkles" width="16"></iconify-icon></span><span><small>Vault interest today</small><b>+$42.18</b></span></div>
+        <div class="chip right-[-10px] top-[300px]" style="animation-delay:-3.2s"><span class="tile !rounded-full bg-gradient-to-br from-sky-200 to-indigo-400 text-[10px] font-bold text-ink/80">AO</span><span><small>Sent to Ama Owusu</small><b>$120.00 <span class="text-[10.5px] text-mint">in 1.2s</span></b></span></div>
+        <div class="chip left-[8px] bottom-[2px]" style="animation-delay:-4.6s"><span class="tile bg-peri/15 text-peri"><iconify-icon icon="lucide:chart-pie" width="16"></iconify-icon></span><span><small>Spending vs. October</small><b>−18% <span class="text-[10.5px] text-white/45">on track</span></b></span></div>
+      </div>
+    </section>
+  </main>
+
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (id) { return document.getElementById(id); };
+  var ic = function (n, w) { return '<iconify-icon icon="lucide:' + n + '" width="' + w + '"></iconify-icon>'; };
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+
+  document.querySelectorAll('.sb').forEach(function (el) { el.innerHTML = '<span>9:41</span><span class="flex gap-1 text-white/80">' + ic('signal', 12) + ic('wifi', 12) + ic('battery-full', 13) + '</span>'; });
+  $('stars').innerHTML = new Array(6).join('<svg width="13" height="13"><use href="#star"/></svg>');
+  $('qa').innerHTML = [['arrow-up-right', 'Send'], ['arrow-down-left', 'Request'], ['plus', 'Top up'], ['piggy-bank', 'Vaults']].map(function (q, i) {
+    return '<span><span class="qa' + (i ? '' : ' !bg-lime text-ink') + '">' + ic(q[0], 17) + '</span>' + q[1] + '</span>';
+  }).join('');
+  $('tx').innerHTML = [
+    ['coffee', 'Bloom Coffee', 'Today, 8:12', '−$4.80', 'bg-amber-300/15 text-amber-200', ''],
+    ['briefcase', 'Arden Labs', 'Payroll · Yesterday', '+$6,250.00', 'bg-lime/15 text-lime', 'text-lime'],
+    ['tram-front', 'Metro Transit', 'Yesterday', '−$2.75', 'bg-sky-300/15 text-sky-200', ''],
+    ['shopping-basket', 'Larkspur Market', 'Oct 30', '−$62.18', 'bg-rose-300/15 text-rose-200', '']
+  ].map(function (t) {
+    return '<li class="flex items-center gap-2.5 py-2"><span class="tile ' + t[4] + '">' + ic(t[0], 15) + '</span>' +
+      '<span class="flex-1 min-w-0 leading-tight"><span class="block text-[12px] font-semibold truncate">' + t[1] + '</span><span class="block text-[10px] text-white/40">' + t[2] + '</span></span>' +
+      '<span class="text-[12px] font-semibold ' + t[5] + '">' + t[3] + '</span></li>';
+  }).join('');
+
+  var END = 24860.42, W = 232, H = 108, pts = [];
+  var ranges = {
+    '1W': { d: '+$312.40 · 1.3%', v: [.42, .38, .5, .47, .58, .55, .52, .64, .61, .7, .68, .78] },
+    '1M': { d: '+$1,284.10 · 5.4%', v: [.18, .26, .22, .34, .3, .44, .4, .37, .52, .6, .56, .72, .68, .86] },
+    '3M': { d: '+$2,906.77 · 13.2%', v: [.12, .2, .16, .3, .26, .22, .38, .48, .42, .55, .5, .66, .74, .9] },
+    '1Y': { d: '+$7,418.05 · 42.5%', v: [.06, .1, .08, .18, .26, .2, .34, .3, .46, .58, .52, .7, .82, .94] }
+  };
+  function smooth(p) { // Catmull-Rom to cubic Bezier
+    var d = 'M' + p[0][0] + ' ' + p[0][1], f = function (n) { return n.toFixed(1); };
+    for (var i = 0; i < p.length - 1; i++) {
+      var a = p[i - 1] || p[i], b = p[i], c = p[i + 1], e = p[i + 2] || c;
+      d += ' C' + f(b[0] + (c[0] - a[0]) / 6) + ' ' + f(b[1] + (c[1] - a[1]) / 6) + ' ' + f(c[0] - (e[0] - b[0]) / 6) + ' ' + f(c[1] - (e[1] - b[1]) / 6) + ' ' + f(c[0]) + ' ' + f(c[1]);
+    }
+    return d;
+  }
+  function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+  function render(key, animate) {
+    var r = ranges[key], line = $('line'), area = $('area');
+    pts = r.v.map(function (y, i) { return [i / (r.v.length - 1) * W, H - 10 - y * (H - 22)]; });
+    var d = smooth(pts);
+    line.setAttribute('d', d); area.setAttribute('d', d + ' L' + W + ' ' + H + ' L0 ' + H + 'Z');
+    line.style.setProperty('--len', Math.ceil(line.getTotalLength()));
+    line.classList.remove('draw'); area.classList.remove('on'); void line.getBoundingClientRect();
+    if (animate && !reduce) line.classList.add('draw'); else line.style.strokeDashoffset = 0;
+    area.classList.add('on');
+    var p = pts[pts.length - 1]; ['dot', 'ring'].forEach(function (id) { $(id).setAttribute('cx', p[0]); $(id).setAttribute('cy', p[1]); }); $('delta').textContent = r.d;
+  }
+  document.querySelectorAll('.rng').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.rng').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      render(b.textContent, true);
+    });
+  });
+  render('1M', true);
+
+  if (!reduce) {
+    var t0 = performance.now(), from = 21800;
+    (function tick(t) {
+      var k = Math.min(1, (t - t0) / 1100), e = 1 - Math.pow(1 - k, 3);
+      $('bal').textContent = money(Math.floor(from + (Math.floor(END) - from) * e));
+      if (k < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  // Email capture with inline validation
+  var form = $('signup'), input = $('email'), field = $('field'), msg = $('msg'), busy = false;
+  var re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function setMsg(text, kind) {
+    msg.textContent = text;
+    msg.className = 'mt-3 min-h-[20px] text-[13px] ' + (kind === 'err' ? 'text-rose-300' : kind === 'ok' ? 'text-lime' : 'text-white/45');
+    field.classList.toggle('err', kind === 'err');
+    input.setAttribute('aria-invalid', String(kind === 'err'));
+  }
+  input.addEventListener('input', function () { if (field.classList.contains('err') && re.test(input.value.trim())) setMsg('Looks good.', ''); });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (busy) return;
+    var v = input.value.trim();
+    if (!v) { setMsg('Enter your email and we will send a download link.', 'err'); input.focus(); return; }
+    if (!re.test(v)) { setMsg('That email looks incomplete. Check for typos.', 'err'); input.focus(); return; }
+    busy = true; setMsg('Reserving your spot…', '');
+    var icon = $('go-icon'), spin = document.createElement('span'); spin.className = 'spin'; icon.replaceWith(spin);
+    $('go-label').textContent = 'Sending';
+    setTimeout(function () {
+      spin.replaceWith(icon); icon.setAttribute('icon', 'lucide:check'); $('go-label').textContent = 'You’re in';
+      setMsg('Invite sent to ' + v + '. You are #2,481 in line.', 'ok');
+      input.value = ''; busy = false;
+    }, 1100);
+  });
+})();
+</script>
+</body>
+</html>

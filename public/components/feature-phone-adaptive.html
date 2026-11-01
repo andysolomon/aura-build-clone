@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tempo - Adaptive UI feature section with phone mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f3f3f0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .feat { display: flex; width: 100%; align-items: flex-start; gap: 16px; border-radius: 16px; padding: 16px; text-align: left; }
+  .feat .ico { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; background: rgba(20,22,26,.05); color: rgba(20,22,26,.6); }
+  .ft { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .ft small { font-size: 12px; font-weight: 400; color: rgba(20,22,26,.4); font-variant-numeric: tabular-nums; }
+  .ds { display: block; padding-top: 4px; font-size: 14px; line-height: 1.6; color: rgba(20,22,26,.55); }
+  .pg { display: block; height: 3px; margin-top: 12px; overflow: hidden; border-radius: 9px; background: rgba(20,22,26,.06); }
+  .pg > span { display: block; height: 100%; border-radius: 9px; background: var(--c); transform-origin: left; transform: scaleX(0); }
+  .sub { display: block; font-size: 11px; color: var(--mut); }
+  .row { display: flex; gap: 12px; padding: 6px 10px; } .row > :first-child { width: 36px; color: var(--mut); font-variant-numeric: tabular-nums; }
+  .fx { display: flex; align-items: center; justify-content: space-between; }
+  .st { position: relative; display: block; width: 10px; height: 10px; border-radius: 99px; background: var(--line); }
+  .lb { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: var(--mut); }
+  .chip { position: absolute; left: 0; z-index: 10; display: flex; align-items: center; gap: 12px; padding: 12px 16px 12px 12px; border-radius: 16px; background: rgba(255,255,255,.92); box-shadow: 0 0 0 1px rgba(20,22,26,.06), 0 12px 30px -14px rgba(20,22,26,.35); backdrop-filter: blur(8px); }
+  .chip::after { content: ""; position: absolute; left: 100%; top: 50%; width: var(--w, 28px); border-top: 1px dashed rgba(20,22,26,.25); }
+  .chip-k { display: block; font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .12em; color: rgba(20,22,26,.4); }
+  .feat { transition: background .35s, box-shadow .35s; }
+  .feat[aria-selected="true"] { background: #fff; box-shadow: 0 1px 2px rgba(20,22,26,.05), 0 16px 36px -20px rgba(20,22,26,.3); }
+  .feat .ico { transition: background .35s, color .35s; }
+  .feat[aria-selected="true"] .ico { background: var(--c); color: #fff; }
+  .feat .more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
+  .feat .more > span { overflow: hidden; min-height: 0; }
+  .feat[aria-selected="true"] .more { grid-template-rows: 1fr; }
+  .feat:focus-visible, .ctl:focus-visible { outline: 2px solid #14161a; outline-offset: 2px; }
+  .phone { --bg: #fbf6ee; --fg: #2a2118; --mut: rgba(42,33,24,.55); --card: #fff; --line: rgba(42,33,24,.08); --ac: #f26b1d; --soft: #ffe6d3; }
+  .phone[data-theme="1"] { --bg: #0c0c0c; --fg: #fafafa; --mut: rgba(255,255,255,.55); --card: #1c1c1c; --line: rgba(255,255,255,.1); --ac: #ffd60a; --soft: #2f2a07; }
+  .phone[data-theme="2"] { --bg: #0f1424; --fg: #e8ecff; --mut: rgba(232,236,255,.5); --card: #182037; --line: rgba(232,236,255,.08); --ac: #8ea2ff; --soft: #232c52; }
+  .phone[data-theme="3"] { --bg: #2a1e36; --fg: #f6e9dc; --mut: rgba(246,233,220,.55); --card: rgba(255,255,255,.07); --line: rgba(255,255,255,.08); --ac: #f5b971; --soft: rgba(245,185,113,.16); }
+  .phone { position: relative; width: 290px; height: 600px; padding: 10px; border-radius: 52px; background: linear-gradient(145deg, #2a2b2f, #0b0b0c 40%); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.12), 0 50px 90px -40px rgba(20,22,26,.6), 0 20px 40px -20px rgba(20,22,26,.35); }
+  .phone::before, .phone::after { content: ""; position: absolute; width: 3px; border-radius: 2px; background: #1c1c1f; }
+  .phone::before { left: -3px; top: 130px; height: 64px; box-shadow: 0 -44px 0 -0 #1c1c1f; }
+  .phone::after { right: -3px; top: 160px; height: 90px; }
+  .screen { position: relative; height: 100%; overflow: hidden; border-radius: 42px; background-color: var(--bg); color: var(--fg); transition: background-color .7s ease, color .7s ease; }
+  .phone[data-theme="3"] .screen { background-image: radial-gradient(120% 60% at 50% 0%, rgba(245,185,113,.18), transparent 60%); }
+  .island { position: absolute; left: 50%; top: 10px; width: 92px; height: 27px; transform: translateX(-50%); border-radius: 999px; background: #000; z-index: 5; }
+  .view { position: absolute; inset: 0; padding: 50px 18px 26px; display: flex; flex-direction: column; opacity: 0; transform: translateY(14px) scale(.985); transition: opacity .45s ease, transform .6s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .view.on { opacity: 1; transform: none; }
+  .view.on > * { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; }
+  .view.on > :nth-child(n+2) { animation-delay: .06s; } .view.on > :nth-child(n+4) { animation-delay: .14s; } .view.on > :nth-child(n+6) { animation-delay: .22s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  .c { background: var(--card); box-shadow: 0 0 0 1px var(--line); border-radius: 16px; transition: background .7s; }
+  .mut { color: var(--mut); } .ac { color: var(--ac); } .bg-ac { background: var(--ac); } .bg-soft { background: var(--soft); }
+  .sun { width: 34px; height: 34px; border-radius: 999px; background: radial-gradient(circle at 40% 40%, #ffd27a, #f59e0b); box-shadow: 0 0 0 6px rgba(245,158,11,.15), 0 0 20px rgba(245,158,11,.5); }
+  .moon { width: 46px; height: 46px; border-radius: 999px; background: radial-gradient(circle at 35% 35%, #fff4e0, #f5b971 70%); box-shadow: inset -12px -6px 0 0 #e09a4f, 0 0 30px rgba(245,185,113,.45); }
+  .blob { transition: background .8s ease; background: radial-gradient(circle, var(--glow), transparent 65%); }
+  .ring-prog { stroke-dasharray: 465; stroke-dashoffset: 167; transition: stroke-dashoffset 1s ease; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+</style>
+</head>
+<body class="font-sans text-[#14161a]">
+<section aria-labelledby="ad-title" class="relative [overflow-x:clip]">
+  <div class="mx-auto grid max-w-6xl items-center gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_500px] lg:gap-14 lg:py-[52px]">
+    <div>
+      <p class="inline-flex items-center gap-2 text-[13px] font-medium text-[#14161a]/55"><span class="grid h-5 w-5 place-items-center rounded-md bg-[#14161a] text-white"><iconify-icon icon="lucide:sparkle" width="12" aria-hidden="true"></iconify-icon></span>Tempo adaptive interface</p>
+      <h2 id="ad-title" class="mt-4 text-[36px] font-semibold leading-[1.04] tracking-[-0.035em] [text-wrap:balance] sm:text-[48px]">One app that changes shape with your day.</h2>
+      <p class="mt-4 max-w-lg text-[16px] leading-relaxed text-[#14161a]/55">Tempo reads your calendar, motion and the time of day, then rearranges itself: new layout, new theme, only what matters right now.</p>
+
+      <div class="mt-7 flex items-center justify-between gap-4">
+        <p id="list-label" class="text-[12px] font-medium uppercase tracking-[.14em] text-[#14161a]/40">Four modes, one app</p>
+        <button id="toggle" type="button" class="ctl inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium text-[#14161a]/55 ring-1 ring-[#14161a]/10 hover:text-[#14161a]" aria-pressed="false"><iconify-icon id="toggle-icon" icon="lucide:pause" width="12" aria-hidden="true"></iconify-icon><span id="toggle-text">Pause tour</span></button>
+      </div>
+      <div id="modes" role="tablist" aria-orientation="vertical" aria-labelledby="list-label" class="mt-3 space-y-1.5">
+        <button role="tab" id="m0" aria-controls="screen" class="feat" style="--c:#f26b1d"><span class="ico" aria-hidden="true"><iconify-icon icon="lucide:sunrise" width="19"></iconify-icon></span><span class="min-w-0 flex-1"><span class="ft">Morning brief<small>7:12</small></span><span class="more"><span><span class="ds">A calm agenda with weather, your first meeting and the one thing to prep before you leave.</span></span></span><span class="pg"><span></span></span></span></button>
+        <button role="tab" id="m1" aria-controls="screen" class="feat" style="--c:#c9a400"><span class="ico" aria-hidden="true"><iconify-icon icon="lucide:tram-front" width="19"></iconify-icon></span><span class="min-w-0 flex-1"><span class="ft">On the move<small>8:24</small></span><span class="more"><span><span class="ds">High-contrast type, live departures and one-thumb actions the moment Tempo senses your commute.</span></span></span><span class="pg"><span></span></span></span></button>
+        <button role="tab" id="m2" aria-controls="screen" class="feat" style="--c:#5b6ff0"><span class="ico" aria-hidden="true"><iconify-icon icon="lucide:timer" width="19"></iconify-icon></span><span class="min-w-0 flex-1"><span class="ft">Deep focus<small>10:30</small></span><span class="more"><span><span class="ds">Notifications held, a single timer and the task that matters. Everything else quietly waits.</span></span></span><span class="pg"><span></span></span></span></button>
+        <button role="tab" id="m3" aria-controls="screen" class="feat" style="--c:#b0618a"><span class="ico" aria-hidden="true"><iconify-icon icon="lucide:moon-star" width="19"></iconify-icon></span><span class="min-w-0 flex-1"><span class="ft">Wind down<small>21:48</small></span><span class="more"><span><span class="ds">Warm tones after sunset, tomorrow's first event and a reading list instead of another feed.</span></span></span><span class="pg"><span></span></span></span></button>
+      </div>
+    </div>
+
+    <div id="stage" class="relative flex min-h-[640px] items-center justify-center sm:justify-end sm:pr-6 lg:pr-2">
+      <div id="blob" class="blob pointer-events-none absolute right-[-115px] top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full max-sm:right-1/2 max-sm:translate-x-1/2" style="--glow:rgba(242,107,29,.24)" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute right-[-90px] top-1/2 h-[470px] w-[470px] -translate-y-1/2 rounded-full border border-[#14161a]/[.06] max-sm:hidden" aria-hidden="true"></div>
+      <div class="chip top-[150px] hidden sm:flex" style="--w:34px" aria-hidden="true"><span class="grid h-8 w-8 place-items-center rounded-lg bg-[#14161a] text-white"><iconify-icon id="ctx-icon" icon="lucide:calendar-clock" width="16"></iconify-icon></span><span><span class="chip-k">Signal</span><span id="ctx-text" class="block text-[13px] font-semibold">First event in 1h 48m</span></span></div>
+      <div class="chip top-[380px] hidden sm:flex" style="--w:52px" aria-hidden="true"><span id="sw" class="grid h-8 w-8 place-items-center rounded-lg text-white" style="background:#f26b1d"><iconify-icon icon="lucide:layout-template" width="16"></iconify-icon></span><span><span class="chip-k">Adapted to</span><span id="layout-text" class="block text-[13px] font-semibold">Agenda · Daylight</span></span></div>
+      <div id="phone" class="phone relative shrink-0" data-theme="0">
+        <div id="screen" class="screen" role="tabpanel" aria-labelledby="m0">
+          <span class="island" aria-hidden="true"></span>
+          <div class="absolute inset-x-0 top-0 z-[4] flex h-[47px] items-center justify-between px-7 pt-1 text-[13px] font-semibold" aria-hidden="true">
+            <span id="clock" class="tabular-nums">7:12</span>
+            <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:signal" width="14"></iconify-icon><iconify-icon icon="lucide:wifi" width="14"></iconify-icon><iconify-icon icon="lucide:battery-medium" width="18"></iconify-icon></span>
+          </div>
+
+          <div class="view on" aria-hidden="true">
+            <p class="mut text-[11.5px]">Tuesday, 14 October</p>
+            <p class="text-[22px] font-semibold leading-tight tracking-[-0.02em]">Good morning, Maya</p>
+            <div class="c mt-3 flex items-center gap-3 p-3"><span class="sun shrink-0"></span><span><span class="block text-[19px] font-semibold leading-none">14°</span><span class="mut mt-1 block text-[11px]">Clear, high of 21°</span></span><span class="bg-soft ac ml-auto whitespace-nowrap rounded-full px-2 py-1 text-[10.5px] font-semibold">Leave 8:20</span></div>
+            <p class="lb mt-4">Up next</p>
+            <div class="mt-2 space-y-1.5 text-[12.5px]">
+              <div class="c row py-2.5" style="box-shadow:inset 3px 0 0 var(--ac),0 0 0 1px var(--line)"><span>09:00</span><span><span class="block font-semibold">Product standup</span><span class="sub ac" style="color:var(--ac)">in 48 min · Room 3B</span></span></div>
+              <div class="row"><span>11:30</span><span><span class="block font-medium">Design review</span><span class="sub">Deck shared by Theo</span></span></div>
+              <div class="row"><span>13:00</span><span><span class="block font-medium">Lunch with Theo</span><span class="sub">Café Alma, 6 min walk</span></span></div>
+              <div class="row"><span>16:15</span><span><span class="block font-medium">Dentist</span><span class="sub">Dr. Ferreira</span></span></div>
+              <div class="row"><span>18:30</span><span><span class="block font-medium">Climbing with Jess</span><span class="sub">Bring the new shoes</span></span></div>
+            </div>
+            <div class="bg-soft mt-auto flex items-center gap-2.5 rounded-2xl p-3 text-[12px]"><iconify-icon icon="lucide:book-open" width="15" class="ac"></iconify-icon><span><span class="font-semibold">Prep:</span> Q4 roadmap, 6 min read</span></div>
+          </div>
+
+          <div class="view" aria-hidden="true">
+            <div class="fx"><span class="bg-ac rounded-full px-2.5 py-1 text-[11px] font-bold text-black">On the move</span><span class="mut text-[11.5px] tabular-nums">32 km/h</span></div>
+            <p class="mut mt-6 text-[12px]">Next departure, platform 2</p>
+            <p class="text-[76px] font-bold leading-[.9] tracking-[-0.05em]">3<span class="ac ml-1 text-[24px] tracking-normal">min</span></p>
+            <p class="mt-2 text-[19px] font-semibold leading-tight">Line 4 to Harbour St</p>
+            <p class="mut text-[12px]">Then every 6 minutes</p>
+            <div class="mt-6">
+              <div class="fx relative"><span class="absolute inset-x-1 top-1/2 h-[2px] -translate-y-1/2" style="background:linear-gradient(90deg,var(--ac) 40%,var(--line) 40%)"></span><i class="st bg-ac"></i><i class="st bg-ac"></i><i class="st h-4 w-4 border-[3px] bg-black" style="border-color:var(--ac)"></i><i class="st"></i><i class="st"></i></div>
+              <div class="mut mt-2 flex justify-between text-[10.5px]"><span>Mercado</span><span class="font-semibold" style="color:var(--fg)">You</span><span>Harbour St, 08:41</span></div>
+            </div>
+            <div class="mt-auto grid grid-cols-2 gap-2">
+              <span class="c flex h-[86px] flex-col justify-between p-3"><iconify-icon icon="lucide:headphones" width="20" class="ac"></iconify-icon><span class="text-[13px] font-semibold leading-tight">Resume episode</span></span>
+              <span class="bg-ac flex h-[86px] flex-col justify-between rounded-2xl p-3 text-black"><iconify-icon icon="lucide:send" width="20"></iconify-icon><span class="text-[13px] font-bold leading-tight">Tell Theo I'm 5 late</span></span>
+            </div>
+          </div>
+
+          <div class="view" aria-hidden="true">
+            <div class="fx text-[11.5px]"><span class="mut">Focus block 2 of 4</span><span class="bg-soft ac inline-flex items-center gap-1 rounded-full px-2 py-1 font-semibold"><iconify-icon icon="lucide:bell-off" width="12"></iconify-icon>Muted</span></div>
+            <div class="relative mx-auto mt-7 h-[176px] w-[176px]">
+              <svg viewBox="0 0 176 176" class="h-full w-full -rotate-90"><circle cx="88" cy="88" r="74" fill="none" stroke="var(--line)" stroke-width="8"/><circle class="ring-prog" cx="88" cy="88" r="74" fill="none" stroke="var(--ac)" stroke-width="8" stroke-linecap="round"/></svg>
+              <span class="absolute inset-0 grid place-items-center text-center"><span><span class="block text-[38px] font-light tabular-nums leading-none tracking-[-0.03em]">18:24</span><span class="mut mt-1 block text-[11px]">of 50 minutes</span></span></span>
+            </div>
+            <p class="mut mt-6 text-center text-[11px] uppercase tracking-[.14em]">Working on</p>
+            <p class="mt-1 text-center text-[16px] font-semibold">Onboarding spec, v2</p>
+            <div class="c mt-auto flex items-center gap-3 p-3 text-[12px]"><span class="bg-soft ac grid h-8 w-8 place-items-center rounded-lg"><iconify-icon icon="lucide:inbox" width="15"></iconify-icon></span><span><span class="block font-semibold">14 notifications held</span><span class="sub">Delivered at 11:20, when you surface</span></span></div>
+          </div>
+
+          <div class="view" aria-hidden="true">
+            <span class="moon mt-2"></span>
+            <p class="mt-5 text-[23px] font-medium leading-tight tracking-[-0.02em]">Time to wind down, Maya</p>
+            <p class="mut mt-1 text-[12px]">Sunset was 18:41. Your screen warms further in 12 minutes.</p>
+            <div class="c mt-5 p-3"><p class="lb">Tomorrow</p><div class="fx mt-2 text-[13px]"><span class="font-semibold">Studio sync, first event</span><span class="ac tabular-nums">09:30</span></div></div>
+            <div class="c mt-2 p-3"><div class="fx text-[12px]"><span class="font-semibold">Sleep by 23:30</span><span class="mut">7h 40m</span></div><div class="mt-2 h-1.5 overflow-hidden rounded-full" style="background:var(--line)"><span class="bg-ac block h-full w-[82%] rounded-full"></span></div></div>
+            <div class="mt-auto space-y-2 text-[12.5px]">
+              <p class="lb">Reading list</p>
+              <div class="flex items-center gap-2.5"><span class="h-9 w-7 rounded-[4px] bg-gradient-to-b from-[#7f5a83] to-[#3d2a45]"></span><span><span class="block font-medium">The Salt Orchard</span><span class="sub">Chapter 12, 18 min left</span></span></div>
+              <div class="flex items-center gap-2.5"><span class="h-9 w-7 rounded-[4px] bg-gradient-to-b from-[#f5b971] to-[#b5713a]"></span><span><span class="block font-medium">Notes on a quieter internet</span><span class="sub">Essay, 9 min</span></span></div>
+            </div>
+          </div>
+          <span class="absolute bottom-2 left-1/2 h-[4px] w-[100px] -translate-x-1/2 rounded-full bg-current opacity-30" aria-hidden="true"></span>
+        </div>
+      </div>
+      <p id="live" class="sr-only" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var MODES = [
+    { clock: '7:12', sw: '#f26b1d', icon: 'lucide:calendar-clock', ctx: 'First event in 1h 48m', layout: 'Agenda · Daylight' },
+    { clock: '8:24', sw: '#ffd60a', icon: 'lucide:gauge', ctx: 'Moving at 32 km/h', layout: 'Transit · High contrast' },
+    { clock: '10:30', sw: '#5b6ff0', icon: 'lucide:calendar-check', ctx: '90 min focus block', layout: 'Timer · Night' },
+    { clock: '21:48', sw: '#b0618a', icon: 'lucide:sunset', ctx: 'Sunset was at 18:41', layout: 'Evening · Warm dusk' }
+  ];
+  var DURATION = 5500;
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var views = Array.prototype.slice.call(document.querySelectorAll('.view'));
+  var phone = document.getElementById('phone'), screen = document.getElementById('screen'), stage = document.getElementById('stage');
+  var toggle = document.getElementById('toggle');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cur = 0, elapsed = 0, last = null, hover = false, stopped = reduce;
+
+  function select(i, focus, announce) {
+    cur = (i + tabs.length) % tabs.length; elapsed = 0;
+    var m = MODES[cur];
+    tabs.forEach(function (t, k) {
+      var on = k === cur;
+      t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1;
+      t.querySelector('.pg > span').style.transform = 'scaleX(0)';
+    });
+    views.forEach(function (v, k) { v.classList.toggle('on', k === cur); });
+    phone.dataset.theme = cur;
+    screen.setAttribute('aria-labelledby', tabs[cur].id);
+    document.getElementById('clock').textContent = m.clock;
+    document.getElementById('blob').style.setProperty('--glow', 'color-mix(in srgb, ' + m.sw + ' 26%, transparent)');
+    document.getElementById('sw').style.background = m.sw;
+    document.getElementById('ctx-icon').setAttribute('icon', m.icon);
+    document.getElementById('ctx-text').textContent = m.ctx;
+    document.getElementById('layout-text').textContent = m.layout;
+    var ring = document.querySelector('.ring-prog');
+    ring.style.strokeDashoffset = cur === 2 ? '167' : '465';
+    if (announce) document.getElementById('live').textContent = tabs[cur].querySelector('.ft').firstChild.textContent + ' mode: ' + m.layout.replace(' · ', ' layout, ') + ' theme.';
+    if (focus) tabs[cur].focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(i, false, true); });
+    t.addEventListener('keydown', function (e) {
+      var map = { ArrowDown: cur + 1, ArrowUp: cur - 1, ArrowRight: cur + 1, ArrowLeft: cur - 1, Home: 0, End: tabs.length - 1 };
+      if (e.key in map) { e.preventDefault(); select(map[e.key], true, true); }
+    });
+  });
+  function setStopped(v) {
+    stopped = v;
+    toggle.setAttribute('aria-pressed', v ? 'true' : 'false');
+    document.getElementById('toggle-text').textContent = v ? 'Play tour' : 'Pause tour';
+    document.getElementById('toggle-icon').setAttribute('icon', v ? 'lucide:play' : 'lucide:pause');
+  }
+  toggle.addEventListener('click', function () { setStopped(!stopped); });
+  [document.getElementById('modes'), stage].forEach(function (el) {
+    el.addEventListener('mouseenter', function () { hover = true; });
+    el.addEventListener('mouseleave', function () { hover = false; });
+  });
+  function tick(now) {
+    if (last !== null && !hover && !stopped && !document.hidden) elapsed += now - last;
+    last = now;
+    var p = Math.min(elapsed / DURATION, 1);
+    tabs[cur].querySelector('.pg > span').style.transform = 'scaleX(' + p.toFixed(4) + ')';
+    if (p >= 1) select(cur + 1);
+    requestAnimationFrame(tick);
+  }
+  setStopped(stopped);
+  select(0);
+  requestAnimationFrame(function () { document.querySelector('.ring-prog').style.strokeDashoffset = '465'; requestAnimationFrame(tick); });
+})();
+</script>
+</body>
+</html>

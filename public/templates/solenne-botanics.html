@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solenne — Botanical skincare, grown in season</title>
+  <meta name="description" content="Small-batch botanical skincare cold-pressed from calendula, oat and rosehip grown on our Oregon farm. Shop oils, balms and cleansers or find your ritual.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'], sans: ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: {
+            sand: '#f4ede3', linen: '#fbf8f2', dune: '#e7dccb', bark: '#2d2a24',
+            clay: { DEFAULT: '#b4643f', deep: '#8c4428', soft: '#ecc9b1' },
+            sage: { DEFAULT: '#8a9a78', deep: '#46543e', soft: '#d5dbc6', mist: '#e7eadf' }
+          },
+          boxShadow: { soft: '0 50px 90px -50px rgba(84,60,38,.55)', card: '0 1px 0 rgba(45,42,36,.04), 0 22px 44px -30px rgba(84,60,38,.45)' }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .font-display, .h2, .lbl em { font-variation-settings: "SOFT" 100; }
+    :focus-visible { outline: 2px solid #b4643f; outline-offset: 3px; border-radius: 8px; }
+    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #b4643f; }
+    .h2 { font-family: Fraunces, serif; font-weight: 300; font-size: 2.75rem; line-height: 1.02; letter-spacing: -.025em; }
+    @media (min-width: 768px) { .h2 { font-size: 3.75rem; } }
+    .pill { border: 1px solid rgba(45,42,36,.15); border-radius: 999px; padding: .55rem 1rem; font-size: 14px; transition: background .2s, border-color .2s, color .2s; }
+    .pill:hover { border-color: #2d2a24; }
+    .pill[aria-pressed="true"] { background: #2d2a24; color: #fbf8f2; border-color: #2d2a24; }
+    .ibtn { display: grid; place-items: center; width: 2rem; height: 2rem; flex-shrink: 0; border-radius: 999px; background: #2d2a24; color: #fbf8f2; transition: background .2s; }
+    .ibtn:hover { background: #b4643f; }
+    .card { background: #fbf8f2; border-radius: 1.75rem; box-shadow: 0 1px 0 rgba(45,42,36,.04), 0 22px 44px -30px rgba(84,60,38,.45); }
+    .rv { display: flex; flex-direction: column; padding: 1.75rem; }
+    .rv h3 { margin-top: 1rem; font: 400 1.25rem/1.25 Fraunces, serif; }
+    .rv blockquote { flex: 1; margin-top: .75rem; font-size: 15px; line-height: 1.65; color: rgba(45,42,36,.7); }
+    .rv figcaption { display: flex; align-items: center; gap: .75rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(45,42,36,.1); font-size: 13px; line-height: 1.35; }
+    .av { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 999px; font-family: Fraunces, serif; }
+    .faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.25rem 0; cursor: pointer; list-style: none; font: 400 1.25rem/1.3 Fraunces, serif; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq p { max-width: 42rem; padding-bottom: 1.25rem; line-height: 1.65; color: rgba(45,42,36,.65); }
+    .faq[open] .plus { transform: rotate(45deg); }
+    @keyframes up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+    .up { animation: up .9s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes sway { 0%,100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.6deg) translateX(10px); } }
+    .dapple { animation: sway 10s ease-in-out infinite; transform-origin: 15% 0; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    .bob { animation: bob 6s ease-in-out infinite; }
+    @keyframes pop { 50% { transform: scale(1.35); } }
+    .pop { animation: pop .4s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .fade { animation: fade .45s ease both; }
+    .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+    .js .reveal.in { opacity: 1; transform: none; }
+    /* CSS-built products: size the .pr box, everything inside is proportional */
+    .stage { container-type: inline-size; }
+    .pr { position: relative; display: block; flex-shrink: 0; }
+    .pr i { position: absolute; display: block; }
+    .glass { background: var(--c); }
+    .glass::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, rgba(50,32,20,.32), transparent 18%, rgba(255,255,255,.5) 25%, transparent 35%, transparent 72%, rgba(50,32,20,.34)); }
+    .lbl { position: absolute; left: 13%; right: 13%; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; border-radius: 2px; background: #fbf6ed; color: #2d2a24; text-align: center; line-height: 1.05; }
+    .lbl b { font: 600 .42em/1 "DM Sans", sans-serif; letter-spacing: .3em; margin-left: .3em; }
+    .lbl em { font-family: Fraunces, serif; margin: .28em 0 .2em; }
+    .lbl s { text-decoration: none; font-size: .36em; letter-spacing: .16em; opacity: .55; }
+    .dropper .bulb { left: 34%; right: 34%; top: 0; height: 23%; border-radius: 45% 45% 16% 16% / 55% 55% 12% 12%; background: linear-gradient(90deg, #191714, #57534b 40%, #26231f 70%, #12110f); }
+    .dropper .col { left: 27%; right: 27%; top: 21%; height: 11%; border-radius: 2px; background: linear-gradient(90deg, #76623f, #eadbb6 30%, #b49c70 58%, #6a573a); }
+    .dropper .bd { inset: 31% 0 0; border-radius: 32% 32% 9% 9% / 13% 13% 4% 4%; }
+    .pump .hd { left: 31%; right: 31%; top: 0; height: 7%; border-radius: 3px 3px 1px 1px; background: var(--k); }
+    .pump .hd::after { content: ""; position: absolute; left: 85%; top: 22%; width: 70%; height: 42%; border-radius: 0 3px 3px 0; background: inherit; }
+    .pump .st { left: 44%; right: 44%; top: 7%; height: 8%; background: var(--k); filter: brightness(1.3); }
+    .pump .col { left: 30%; right: 30%; top: 14%; height: 10%; border-radius: 2px; background: repeating-linear-gradient(90deg, rgba(0,0,0,.2) 0 1px, transparent 1px 4px), var(--k); }
+    .pump .bd { inset: 23% 0 0; border-radius: 22% 22% 8% 8% / 9% 9% 3% 3%; }
+    .jar .ld { left: -3%; right: -3%; top: 0; height: 36%; z-index: 2; border-radius: 8% 8% 4% 4% / 18% 18% 8% 8%; background: repeating-linear-gradient(90deg, rgba(0,0,0,.13) 0 1px, transparent 1px 5px), linear-gradient(90deg, rgba(0,0,0,.25), rgba(255,255,255,.28) 26%, transparent 46%, rgba(0,0,0,.28)), var(--k); }
+    .jar .bd { inset: 32% 0 0; border-radius: 4% 4% 12% 12% / 6% 6% 16% 16%; }
+    .tube .bd { inset: 0 0 15%; clip-path: polygon(0 0, 100% 0, 84% 100%, 16% 100%); }
+    .tube .bd::before { content: ""; position: absolute; inset: 0 0 auto; height: 7%; background: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 1px, transparent 1px 4px); }
+    .tube .cp { left: 25%; right: 25%; bottom: 0; height: 16%; border-radius: 2px 2px 5px 5px; background: linear-gradient(90deg, rgba(0,0,0,.3), rgba(255,255,255,.25) 30%, rgba(0,0,0,.25)), var(--k); }
+    .flr { position: absolute; left: 50%; bottom: -6px; width: 120%; height: 14px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(70,48,28,.38), transparent); }
+    .plinth { position: absolute; background: linear-gradient(90deg, #cbbca2, #f1e8d9 32%, #e5d8c3 62%, #c2b296); border-radius: 0 0 50% 50% / 0 0 2cqw 2cqw; }
+    .plinth::before { content: ""; position: absolute; left: 0; right: 0; top: -2cqw; height: 4cqw; border-radius: 50%; background: linear-gradient(#f8f3ea, #e8decb); }
+    .plinth::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(0deg, rgba(120,95,60,.07) 0 1px, transparent 1px 7px); }
+    .shd { position: absolute; height: 3%; border-radius: 50%; background: rgba(107,74,44,.3); filter: blur(10px); }
+    #cart { visibility: hidden; transform: translateX(100%); transition: transform .5s cubic-bezier(.2,.8,.2,1), visibility 0s .5s; }
+    #cart.open { visibility: visible; transform: none; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+    #scrim { opacity: 0; pointer-events: none; transition: opacity .4s; }
+    #scrim.open { opacity: 1; pointer-events: auto; }
+    .ing.ing[aria-selected="true"] { background: #fbf8f2; color: #2d2a24; }
+    .ing[aria-selected="true"] small { color: rgba(45,42,36,.55); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+      .js .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body class="bg-sand font-sans text-bark antialiased selection:bg-clay selection:text-linen">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[90] focus:rounded-full focus:bg-bark focus:px-4 focus:py-2 focus:text-linen">Skip to content</a>
+
+  <div class="bg-sage-deep px-4 py-2 text-center text-[13px] text-linen/90">Free carbon-neutral shipping over $60<span class="hidden sm:inline"> · <a href="#faq" class="underline decoration-clay-soft underline-offset-4">Our glass refill program is open</a></span></div>
+
+  <header class="sticky top-0 z-50 border-b border-bark/10 bg-sand/85 backdrop-blur-md">
+    <nav class="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-5 py-4 md:px-8" aria-label="Primary">
+      <a href="#" class="flex items-center gap-2.5" aria-label="Solenne home">
+        <svg viewBox="0 0 40 40" class="h-9 w-9" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#b4643f"/><path d="M20 31V17M9 31h22" stroke="#fbf8f2" stroke-width="1.6" stroke-linecap="round"/><path d="M20 22c-5 0-8-3-8-8 5 0 8 3 8 8zM20 19c4 0 7-3 7-7-4 0-7 3-7 7z" fill="#fbf8f2"/></svg>
+        <span class="font-display text-[26px] tracking-tight">Solenne</span>
+      </a>
+      <ul id="dnav" class="hidden items-center gap-8 text-[15px] lg:flex">
+        <li><a href="#shop" class="hover:text-clay">Shop</a></li>
+        <li><a href="#ingredients" class="hover:text-clay">Ingredients</a></li>
+        <li><a href="#ritual" class="hover:text-clay">Ritual finder</a></li>
+        <li><a href="#reviews" class="hover:text-clay">Reviews</a></li>
+        <li><a href="#faq" class="hover:text-clay">Refills &amp; FAQ</a></li>
+      </ul>
+      <div class="flex items-center gap-2">
+        <a href="#" class="hidden h-10 w-10 place-items-center rounded-full hover:bg-bark/5 sm:grid" aria-label="Your account"><iconify-icon icon="lucide:user-round" class="text-[19px]"></iconify-icon></a>
+        <button id="cartBtn" class="relative grid h-10 w-10 place-items-center rounded-full border border-bark/15 transition hover:border-bark" aria-label="Open bag, 1 item" aria-controls="cart"><iconify-icon icon="lucide:shopping-bag" class="text-[19px]"></iconify-icon><span class="cart-count absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-clay px-1 text-[11px] font-bold text-linen">1</span></button>
+        <a href="#ritual" class="ml-1 hidden rounded-full bg-bark px-5 py-2.5 text-sm font-medium text-linen transition hover:bg-clay-deep md:block">Find your ritual</a>
+        <button id="menuBtn" class="grid h-10 w-10 place-items-center rounded-full lg:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mnav"><iconify-icon icon="lucide:menu" class="text-[22px]"></iconify-icon></button>
+      </div>
+    </nav>
+    <ul id="mnav" class="hidden divide-y divide-bark/10 border-t border-bark/10 px-5 pb-4 font-display text-2xl lg:hidden"></ul>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="overflow-hidden">
+      <div class="mx-auto grid max-w-[1320px] items-center gap-12 px-5 pb-20 pt-8 md:px-8 lg:grid-cols-[1fr_1.02fr] lg:gap-14 lg:pt-6">
+        <div>
+          <a href="#shop" class="up inline-flex items-center gap-2 rounded-full border border-bark/10 bg-linen py-1 pl-1 pr-3 text-[13px] shadow-card transition hover:border-bark/30"><span class="rounded-full bg-sage-deep px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-linen">New</span>Sea Fennel Barrier Serum is here<iconify-icon icon="lucide:arrow-right" class="text-clay"></iconify-icon></a>
+          <h1 class="up mt-7 font-display text-[3.5rem] font-light leading-[0.94] tracking-[-0.035em] sm:text-7xl xl:text-[6.4rem]" style="animation-delay:.08s">The garden,<br><em class="font-normal italic text-clay">gently</em> bottled.</h1>
+          <p class="up mt-7 max-w-[31rem] text-lg leading-relaxed text-bark/70" style="animation-delay:.16s">Small-batch skincare cold-pressed from calendula, oat and rosehip we grow ourselves in Oregon’s Willamette Valley — picked at peak and in your hands within six weeks.</p>
+          <div class="up mt-9 flex flex-wrap gap-3" style="animation-delay:.24s">
+            <a href="#shop" class="group inline-flex items-center gap-2 rounded-full bg-clay px-7 py-4 font-medium text-linen shadow-[0_14px_30px_-12px_rgba(180,100,63,.9)] transition hover:-translate-y-0.5 hover:bg-clay-deep">Shop bestsellers <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-1"></iconify-icon></a>
+            <a href="#ritual" class="inline-flex items-center gap-2 rounded-full border border-bark/25 px-7 py-4 font-medium transition hover:bg-bark hover:text-linen"><iconify-icon icon="lucide:sparkles"></iconify-icon>Find your ritual</a>
+          </div>
+          <dl class="up mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-bark/10 pt-6 text-[13px] text-bark/55" style="animation-delay:.32s">
+            <div><dt class="sr-only">Average rating</dt><dd><span class="font-display text-3xl text-bark">4.8</span><span class="ml-1.5 block tracking-[.12em] text-clay sm:inline" aria-hidden="true">★★★★★</span><span class="mt-1 block">12,400 reviews</span></dd></div>
+            <div><dt class="sr-only">Ingredients</dt><dd><span class="font-display text-3xl text-bark">96%</span><span class="mt-1 block">organic, plant-grown</span></dd></div>
+            <div><dt class="sr-only">Packaging</dt><dd><span class="font-display text-3xl text-bark">0</span><span class="mt-1 block">single-use plastic</span></dd></div>
+          </dl>
+        </div>
+
+        <div class="up relative" style="animation-delay:.15s">
+          <div class="stage relative aspect-[56/60] overflow-hidden rounded-[2.75rem] bg-gradient-to-b from-[#dde2d0] via-[#cfd6c0] to-[#bcc6aa] shadow-soft" aria-hidden="true">
+            <div class="absolute left-[34%] top-[6%] aspect-square w-[54%] rounded-full bg-gradient-to-b from-[#f1c9a8] via-[#df9e78] to-[#c47552]"></div>
+            <div class="absolute left-[30%] top-[2%] aspect-square w-[62%] rounded-full border border-linen/40"></div>
+            <svg class="dapple absolute inset-0 h-full w-full" viewBox="0 0 560 600" preserveAspectRatio="xMidYMid slice">
+              <defs><filter id="bl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter><path id="lf" d="M0 0C14-10 40-10 58 0 40 10 14 10 0 0Z"/></defs>
+              <g filter="url(#bl)" fill="#2c3726" opacity=".2">
+                <path d="M-20 40C80 70 170 60 260 140M600 10C520 60 470 80 430 170" stroke="#2c3726" stroke-width="4" fill="none"/>
+                <use href="#lf" transform="translate(20 52) rotate(30)"/><use href="#lf" transform="translate(60 58) rotate(-20)"/><use href="#lf" transform="translate(96 66) rotate(40)"/><use href="#lf" transform="translate(130 70) rotate(-10) scale(1.2)"/><use href="#lf" transform="translate(170 86) rotate(55)"/><use href="#lf" transform="translate(200 100) rotate(5) scale(1.1)"/><use href="#lf" transform="translate(228 122) rotate(70)"/>
+                <use href="#lf" transform="translate(560 30) rotate(160)"/><use href="#lf" transform="translate(520 56) rotate(210) scale(1.2)"/><use href="#lf" transform="translate(490 70) rotate(140)"/><use href="#lf" transform="translate(462 104) rotate(230)"/><use href="#lf" transform="translate(446 130) rotate(120) scale(.9)"/>
+              </g>
+            </svg>
+            <div class="absolute inset-x-0 bottom-0 h-[21%] bg-gradient-to-b from-[#ece3d4] to-[#dacdb7] shadow-[inset_0_1px_0_rgba(255,255,255,.7)]"></div>
+            <svg class="absolute bottom-[19%] left-[1%] h-[56%] w-[26%]" viewBox="0 0 120 280" fill="none"><path d="M70 280C66 210 78 130 48 8" stroke="#62704f" stroke-width="2.2"/><g fill="#94a585" stroke="#6f7f5c" stroke-width=".8"><ellipse cx="52" cy="40" rx="15" ry="11" transform="rotate(-25 52 40)"/><ellipse cx="74" cy="66" rx="16" ry="12" transform="rotate(20 74 66)"/><ellipse cx="48" cy="96" rx="17" ry="12" transform="rotate(-30 48 96)"/><ellipse cx="82" cy="124" rx="17" ry="13" transform="rotate(25 82 124)"/><ellipse cx="52" cy="156" rx="18" ry="13" transform="rotate(-20 52 156)"/><ellipse cx="88" cy="188" rx="17" ry="12" transform="rotate(15 88 188)"/><ellipse cx="56" cy="218" rx="16" ry="12" transform="rotate(-15 56 218)"/></g><ellipse cx="46" cy="22" rx="10" ry="8" fill="#b3c0a5"/></svg>
+            <span class="shd bottom-[10.5%] left-[6%] w-[34%]"></span><span class="shd bottom-[9%] left-[36%] w-[32%]"></span><span class="shd bottom-[7%] left-[66%] w-[30%]"></span>
+            <div class="plinth bottom-[12%] left-[7%] h-[11%] w-[29%]"></div>
+            <div class="plinth bottom-[10.5%] left-[38%] h-[25%] w-[28%]"></div>
+            <span class="pr pump absolute bottom-[23%] left-[13%] h-[44%] w-[17%]" style="--c:#f4efe6;--k:#3a362f;font-size:2.15cqw"><i class="hd"></i><i class="st"></i><i class="col"></i><i class="bd glass"><span class="lbl" style="top:30%;bottom:22%"><b>SOLENNE</b><em>Oat Milk</em><s>CLEANSER · 150 ML</s></span></i><span class="flr"></span></span>
+            <span class="pr dropper absolute bottom-[35.5%] left-[44%] h-[39%] w-[16%]" style="--c:#a4582c;font-size:2.15cqw"><i class="bulb"></i><i class="col"></i><i class="bd glass"><span class="lbl" style="top:30%;bottom:16%"><b>SOLENNE</b><em>Calendula</em><s>RENEWAL OIL · 30 ML</s></span></i><span class="flr"></span></span>
+            <span class="pr jar absolute bottom-[8.5%] left-[68%] h-[17%] w-[25%]" style="--c:#f0dccd;--k:#b4643f;font-size:2cqw"><i class="ld"></i><i class="bd glass"><span class="lbl" style="top:20%;bottom:20%"><b>SOLENNE</b><em>Rose &amp; Shea</em><s>NIGHT BALM · 50 G</s></span></i></span>
+            <div class="absolute bottom-[7%] left-[52%] h-[4.5%] w-[11%] rounded-[50%] bg-gradient-to-b from-[#a9a395] to-[#7c7668] shadow-[0_6px_10px_-4px_rgba(0,0,0,.4)]"></div>
+            <div class="absolute bottom-[10%] left-[55%] h-[3%] w-[6%] rounded-[50%] bg-gradient-to-b from-[#d6cfc0] to-[#b2aa98]"></div>
+          </div>
+          <p class="absolute left-5 top-5 rounded-full bg-linen/85 px-3.5 py-1.5 text-[12px] font-medium tracking-wide backdrop-blur sm:left-7 sm:top-7">Harvest Nº 14 · Calendula · Oct ’26</p>
+          <div class="bob absolute right-4 top-[30%] hidden w-52 rounded-2xl bg-linen/95 p-4 shadow-card sm:block">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-clay">Bestseller</p>
+            <p class="mt-1 font-display text-lg leading-tight">Calendula Renewal Oil</p>
+            <div class="mt-3 flex items-center justify-between"><span class="text-sm text-bark/60">$48 · 30 ml</span><button data-add="calendula" class="ibtn" aria-label="Add Calendula Renewal Oil to bag"><iconify-icon icon="lucide:plus"></iconify-icon></button></div>
+          </div>
+          <figure class="absolute -bottom-7 left-6 hidden items-center gap-3 rounded-2xl bg-linen py-3 pl-3 pr-5 shadow-card sm:flex lg:-left-8">
+            <span class="av h-11 w-11 bg-sage-soft text-lg text-sage-deep">P</span>
+            <div><blockquote class="font-display text-[16px] italic leading-snug">“The redness on my cheeks has simply… settled.”</blockquote><figcaption class="text-[12px] text-bark/55"><span class="tracking-[.1em] text-clay">★★★★★</span> Priya N. · sensitive skin</figcaption></div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Press -->
+    <section class="border-y border-bark/10 bg-linen/60" aria-label="Press">
+      <div class="mx-auto flex max-w-[1320px] flex-col items-center gap-6 px-5 py-10 md:px-8 lg:flex-row lg:justify-between">
+        <p class="text-[12px] font-semibold uppercase tracking-[0.2em] text-bark/45">As loved in</p>
+        <ul class="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-bark/60">
+          <li class="font-display text-2xl italic">Verdant</li>
+          <li class="text-[15px] font-bold uppercase tracking-[0.3em]">The Sunday Leaf</li>
+          <li class="font-display text-xl font-semibold">FIELD <i class="font-light">&amp;</i> FERN</li>
+          <li class="text-xl font-medium">kindred<span class="text-clay">.</span></li>
+          <li class="font-display text-xl tracking-[0.18em]">OBJET</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Shop -->
+    <section id="shop" class="mx-auto max-w-[1320px] px-5 py-24 md:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-6">
+        <div><p class="eyebrow">The essentials</p><h2 class="h2 mt-3">Pressed this <em class="italic text-sage-deep">season</em></h2></div>
+        <div id="tabs" class="flex flex-wrap gap-2 font-medium" role="group" aria-label="Filter products">
+          <button class="pill" data-f="all" aria-pressed="true">All</button><button class="pill" data-f="cleanse" aria-pressed="false">Cleanse</button><button class="pill" data-f="treat" aria-pressed="false">Treat</button><button class="pill" data-f="moisturize" aria-pressed="false">Moisturize</button><button class="pill" data-f="body" aria-pressed="false">Body</button>
+        </div>
+      </div>
+      <div id="grid" class="mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4"></div>
+    </section>
+
+    <!-- Ingredient explorer -->
+    <section id="ingredients" class="bg-sage-deep text-linen">
+      <div class="mx-auto max-w-[1320px] px-5 py-24 md:px-8">
+        <div class="reveal grid gap-6 lg:grid-cols-2 lg:items-end">
+          <div><p class="eyebrow !text-clay-soft">Ingredient library</p><h2 class="h2 mt-3">Know every plant <em class="italic text-clay-soft">by name.</em></h2></div>
+          <p class="max-w-md text-linen/70 lg:justify-self-end">Five botanicals do most of the work in our formulas. Tap one to see what it does, where it grows and which bottles it ends up in.</p>
+        </div>
+        <div class="reveal mt-14 grid gap-6 lg:grid-cols-[300px_1fr]">
+          <div id="ingList" class="grid content-start grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1" role="tablist" aria-label="Ingredients"></div>
+          <div id="ingPanel" class="rounded-[2rem] border border-linen/15 bg-linen/[.06] p-6 md:p-10" role="tabpanel"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ritual builder -->
+    <section id="ritual" class="mx-auto grid max-w-[1320px] gap-12 px-5 py-24 md:px-8 lg:grid-cols-[1fr_1.05fr] lg:items-start">
+      <div class="reveal">
+        <p class="eyebrow">Ritual finder · 30 seconds</p>
+        <h2 class="h2 mt-3">Three questions. <em class="italic text-clay">One</em> ritual.</h2>
+        <div id="quiz" class="mt-10 space-y-8 text-sm">
+          <fieldset><legend class="font-semibold">1 · By midday, my skin feels…</legend><div class="mt-3 flex flex-wrap gap-2"><button class="pill" data-g="skin" data-v="dry">Tight &amp; dry</button><button class="pill" data-g="skin" data-v="oily">Shiny</button><button class="pill" data-g="skin" data-v="combo">Both, depending</button><button class="pill" data-g="skin" data-v="sensitive">Easily irritated</button></div></fieldset>
+          <fieldset><legend class="font-semibold">2 · What I’d most like to change</legend><div class="mt-3 flex flex-wrap gap-2"><button class="pill" data-g="goal" data-v="calm">Redness</button><button class="pill" data-g="goal" data-v="glow">Dullness</button><button class="pill" data-g="goal" data-v="balance">Uneven texture</button><button class="pill" data-g="goal" data-v="soften">Fine lines</button></div></fieldset>
+          <fieldset><legend class="font-semibold">3 · Time I’ll actually spend</legend><div class="mt-3 flex flex-wrap gap-2"><button class="pill" data-g="time" data-v="quick">Two minutes</button><button class="pill" data-g="time" data-v="full">A proper ritual</button></div></fieldset>
+        </div>
+        <p class="mt-10 flex max-w-md gap-3 border-t border-bark/10 pt-6 text-sm text-bark/60"><iconify-icon icon="lucide:package-open" class="mt-0.5 shrink-0 text-lg text-clay"></iconify-icon>Every ritual set ships with travel-size minis, so you can patch-test before opening the full bottles.</p>
+      </div>
+      <div class="reveal card p-6 md:p-9" aria-live="polite">
+        <div class="flex items-start justify-between gap-4">
+          <div><p class="text-[13px] text-bark/55">Your match</p><h3 id="rName" class="font-display text-3xl md:text-4xl"></h3></div>
+          <span class="shrink-0 rounded-full bg-sage-mist px-3 py-1 text-[12px] font-semibold text-sage-deep">Set · save 15%</span>
+        </div>
+        <p id="rDesc" class="mt-3 text-[15px] leading-relaxed text-bark/65"></p>
+        <ol id="rSteps" class="mt-6 divide-y divide-bark/10 border-y border-bark/10"></ol>
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <p><span id="rTotal" class="font-display text-4xl"></span> <s id="rWas" class="ml-1 text-bark/45"></s></p>
+          <button id="rAdd" class="inline-flex items-center gap-2 rounded-full bg-clay px-6 py-3.5 font-medium text-linen transition hover:bg-clay-deep"><iconify-icon icon="lucide:shopping-bag"></iconify-icon>Add ritual to bag</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews -->
+    <section id="reviews" class="bg-dune/60">
+      <div class="mx-auto grid max-w-[1320px] gap-10 px-5 py-24 md:px-8 lg:grid-cols-[300px_1fr]">
+        <div class="reveal">
+          <p class="eyebrow">Reviews</p>
+          <p class="mt-4 font-display text-7xl font-light">4.8</p>
+          <p class="text-lg tracking-[.16em] text-clay" aria-label="4.8 out of 5 stars">★★★★★</p>
+          <p class="mt-2 text-sm text-bark/60">12,400 verified buyers · 94% would buy again</p>
+          <ul id="hist" class="mt-6 space-y-2 text-[13px]"></ul>
+        </div>
+        <div class="grid gap-5 md:grid-cols-3">
+          <figure class="reveal card rv"><p class="tracking-[.16em] text-clay" aria-label="5 stars">★★★★★</p><h3>My redness finally calmed down</h3><blockquote>“Three weeks of the calendula oil at night and the flush across my cheeks has faded. It smells like a summer field, not a perfume counter.”</blockquote><figcaption><span class="av bg-clay-soft text-clay-deep">P</span><span><b class="font-semibold">Priya N.</b> · Sensitive<br><span class="text-bark/55">Calendula Renewal Oil</span></span></figcaption></figure>
+          <figure class="reveal card rv"><p class="tracking-[.16em] text-clay" aria-label="5 stars">★★★★★</p><h3>Rich, but never greasy</h3><blockquote>“Denver winters wreck my skin. The night balm melts in like warm butter and I wake up soft. One jar lasted me the whole season.”</blockquote><figcaption><span class="av bg-sage-soft text-sage-deep">H</span><span><b class="font-semibold">Hannah L.</b> · Dry<br><span class="text-bark/55">Rose &amp; Shea Night Balm</span></span></figcaption></figure>
+          <figure class="reveal card rv"><p class="tracking-[.16em] text-clay" aria-label="4 stars">★★★★<span class="text-bark/20">★</span></p><h3>Glow without the sting</h3><blockquote>“Retinol always made me peel. Sea Fennel gives me that rested look with zero flaking. My only wish is a bigger bottle.”</blockquote><figcaption><span class="av bg-dune">M</span><span><b class="font-semibold">Marcus T.</b> · Combination<br><span class="text-bark/55">Sea Fennel Barrier Serum</span></span></figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="mx-auto grid max-w-[1320px] gap-12 px-5 py-24 md:px-8 lg:grid-cols-[1fr_1.4fr]">
+      <div class="reveal">
+        <p class="eyebrow">Questions</p>
+        <h2 class="h2 mt-3">Good to <em class="italic text-clay">know.</em></h2>
+        <p class="mt-5 max-w-sm text-bark/65">Still unsure what suits you? Our skin team answers every message within a day.</p>
+        <a href="#" class="mt-6 inline-flex items-center gap-2 border-b border-bark pb-1 font-medium transition hover:gap-3">care@solenne.example <iconify-icon icon="lucide:arrow-up-right"></iconify-icon></a>
+      </div>
+      <div class="reveal divide-y divide-bark/15 border-y border-bark/15">
+        <details class="faq" open><summary>Is Solenne suitable for sensitive skin?<iconify-icon icon="lucide:plus" class="plus shrink-0 text-clay transition"></iconify-icon></summary><p>Every formula is dermatologist-tested on sensitive skin and made without synthetic fragrance or drying alcohols. Essential oils never exceed 0.5%, and our calendula oil was designed for reactive skin first.</p></details>
+        <details class="faq"><summary>How does the glass refill program work?<iconify-icon icon="lucide:plus" class="plus shrink-0 text-clay transition"></iconify-icon></summary><p>Send back any five empty vessels with our prepaid label. We sterilize and reuse every one and credit $10 to your account. Cleanser and body wash refills ship in compostable pouches.</p></details>
+        <details class="faq"><summary>How long does a bottle last?<iconify-icon icon="lucide:plus" class="plus shrink-0 text-clay transition"></iconify-icon></summary><p>Used daily, a 30 ml oil or serum lasts 10–12 weeks and a 150 ml cleanser about three months. Each batch is dated on the base; use within a year of opening.</p></details>
+        <details class="faq"><summary>What if it isn’t right for my skin?<iconify-icon icon="lucide:plus" class="plus shrink-0 text-clay transition"></iconify-icon></summary><p>Live with it for 60 days. If you don’t love it, we’ll refund you in full, even if the bottle is empty.</p></details>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="mx-auto max-w-[1320px] px-5 pb-24 md:px-8">
+      <div class="reveal relative overflow-hidden rounded-[2.75rem] bg-clay px-7 py-14 text-linen md:px-16 md:py-20">
+        <div aria-hidden="true" class="absolute -right-20 -top-28 h-96 w-96 rounded-full bg-[#c97b55]"></div>
+        <div aria-hidden="true" class="absolute -right-6 -top-14 h-64 w-64 rounded-full border border-linen/30"></div>
+        <div class="relative grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <p class="eyebrow !text-clay-soft">The Garden Letter</p>
+            <h2 class="h2 mt-3">First pick of every <em class="italic">harvest.</em></h2>
+            <p class="mt-5 max-w-md text-linen/80">Seasonal notes from the farm, early access to small-batch drops and 10% off your first order. Twice a month, never more.</p>
+          </div>
+          <form id="news" class="flex flex-col gap-3 sm:flex-row">
+            <label for="em" class="sr-only">Email address</label>
+            <input id="em" type="email" required placeholder="you@example.com" class="min-w-0 flex-1 rounded-full border border-linen/30 bg-linen/10 px-6 py-4 text-linen placeholder:text-linen/60 focus:border-linen focus:outline-none">
+            <button class="rounded-full bg-linen px-7 py-4 font-medium text-clay-deep transition hover:bg-sand">Claim 10% off</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-bark text-sm text-sand/65">
+    <div class="mx-auto grid max-w-[1320px] gap-10 px-5 py-16 sm:grid-cols-2 md:grid-cols-[2fr_1fr_1fr] md:px-8">
+      <div><p class="font-display text-4xl font-light text-sand">Solenne</p><p class="mt-3 max-w-sm leading-relaxed">Botanical skincare grown and pressed on a forty-acre organic farm in Oregon’s Willamette Valley since 2016.</p></div>
+      <nav aria-label="Shop"><h3 class="font-semibold text-sand">Shop &amp; learn</h3><ul class="mt-4 space-y-2 [&_a:hover]:text-clay-soft"><li><a href="#shop">Face &amp; body</a></li><li><a href="#ritual">Ritual sets</a></li><li><a href="#ingredients">Ingredient library</a></li><li><a href="#">Farm journal</a></li></ul></nav>
+      <nav aria-label="Help"><h3 class="font-semibold text-sand">Help</h3><ul class="mt-4 space-y-2 [&_a:hover]:text-clay-soft"><li><a href="#faq">Shipping &amp; returns</a></li><li><a href="#faq">Refill program</a></li><li><a href="#">care@solenne.example</a></li></ul></nav>
+    </div>
+    <div class="mx-auto flex max-w-[1320px] flex-col justify-between gap-2 border-t border-sand/10 px-5 py-6 text-xs text-sand/40 sm:flex-row md:px-8"><p>© 2026 Solenne Botanics, Inc.</p><p>Grown slowly in Oregon. Never tested on animals.</p></div>
+  </footer>
+
+  <!-- Cart drawer -->
+  <div id="scrim" class="fixed inset-0 z-[60] bg-bark/35 backdrop-blur-[2px]"></div>
+  <aside id="cart" class="fixed right-0 top-0 z-[70] flex h-full w-full max-w-[420px] flex-col bg-linen shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="cartTitle" inert>
+    <div class="flex items-center justify-between border-b border-bark/10 px-6 py-5">
+      <h2 id="cartTitle" class="font-display text-2xl">Your bag <span class="cart-count text-base text-bark/50">1</span></h2>
+      <button id="cartClose" class="grid h-10 w-10 place-items-center rounded-full hover:bg-bark/5" aria-label="Close bag"><iconify-icon icon="lucide:x" class="text-xl"></iconify-icon></button>
+    </div>
+    <div class="border-b border-bark/10 bg-sage-mist/60 px-6 py-4">
+      <p id="shipMsg" class="text-[13px]"></p>
+      <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-bark/10"><div id="shipBar" class="h-full rounded-full bg-sage-deep transition-all duration-500"></div></div>
+    </div>
+    <ul id="cartList" class="flex-1 divide-y divide-bark/10 overflow-y-auto px-6"></ul>
+    <div class="border-t border-bark/10 px-6 py-5 text-[15px]">
+      <p class="flex justify-between"><span class="text-bark/60">Subtotal</span><span id="sub"></span></p>
+      <p class="mt-1 flex justify-between"><span class="text-bark/60">Shipping</span><span id="ship"></span></p>
+      <p class="mt-3 flex justify-between font-display text-2xl"><span>Total</span><span id="tot"></span></p>
+      <button id="checkout" class="mt-5 w-full rounded-full bg-bark py-4 font-medium text-linen transition hover:bg-clay-deep disabled:opacity-40">Checkout securely</button>
+      <p class="mt-3 text-center text-[12px] text-bark/50">60-day love-it guarantee · Carbon-neutral delivery</p>
+    </div>
+  </aside>
+
+  <script>
+    document.documentElement.classList.add('js');
+    const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    const money = (n) => '$' + (Number.isInteger(n) ? n : n.toFixed(2));
+    const P = {
+      calendula: { name: 'Calendula Renewal Oil', short: 'Calendula', size: '30 ml', price: 48, cat: 'treat', type: 'dropper', c: '#a4582c', bg: '#ecd8c4', tag: 'Bestseller', r: '4.9 (3,120)', note: 'Face oil for calm, supple skin' },
+      oat: { name: 'Oat Milk Cleansing Cream', short: 'Oat Milk', size: '150 ml', price: 32, cat: 'cleanse', type: 'pump', c: '#f4efe6', k: '#3a362f', bg: '#dfe3d2', r: '4.8 (2,240)', note: 'Low-foam cream cleanser' },
+      balm: { name: 'Rose & Shea Night Balm', short: 'Rose & Shea', size: '50 g', price: 44, cat: 'moisturize', type: 'jar', c: '#f0dccd', k: '#b4643f', bg: '#efdfd0', r: '4.9 (1,870)', note: 'Overnight barrier balm' },
+      fennel: { name: 'Sea Fennel Barrier Serum', short: 'Sea Fennel', size: '30 ml', price: 56, cat: 'treat', type: 'dropper', c: '#5f6f52', bg: '#d5dbc6', tag: 'New', r: '4.8 (412)', note: 'Plant retinol alternative' },
+      mist: { name: 'Chamomile Cloud Mist', short: 'Chamomile', size: '120 ml', price: 28, cat: 'cleanse', type: 'pump', c: '#dfe6d5', k: '#8a9a78', bg: '#eef0e6', r: '4.7 (960)', note: 'Hydrating toner mist' },
+      salve: { name: 'Rosehip Lip Salve', short: 'Rosehip', size: '15 g', price: 16, cat: 'moisturize', type: 'tin', c: '#d9a184', k: '#8c4428', bg: '#f2e2d4', r: '4.8 (1,310)', note: 'Tinted lip & cuticle salve' },
+      wash: { name: 'Wild Fig Body Wash', short: 'Wild Fig', size: '300 ml', price: 30, cat: 'body', type: 'pump', c: '#9a5a3c', k: '#2d2a24', bg: '#e8d3c1', r: '4.7 (880)', note: 'Sulfate-free daily wash' },
+      hand: { name: 'Oat & Honey Hand Cream', short: 'Oat & Honey', size: '75 ml', price: 22, cat: 'body', type: 'tube', c: '#ecdcbc', k: '#46543e', bg: '#ede5d4', tag: 'Gift idea', r: '4.9 (1,040)', note: 'Fast-absorbing hand cream' }
+    };
+    // Product art: one renderer, scaled by k
+    const DIM = { dropper: [70, 156], pump: [74, 182], jar: [116, 86], tin: [104, 42], tube: [62, 158] };
+    function vis(id, k = 1) {
+      const p = P[id], [w, h] = DIM[p.type], tin = p.type === 'tin', t = tin ? 'jar' : p.type;
+      const fs = (w * k) / (tin ? 11 : t === 'jar' ? 8.5 : 7);
+      const L = (a, b) => `<span class="lbl" style="top:${a}%;bottom:${b}%"><b>SOLENNE</b><em>${p.short}</em>${tin ? '' : `<s>${p.size.toUpperCase()}</s>`}</span>`;
+      const parts = { dropper: `<i class="bulb"></i><i class="col"></i><i class="bd glass">${L(30, 16)}</i>`, pump: `<i class="hd"></i><i class="st"></i><i class="col"></i><i class="bd glass">${L(28, 20)}</i>`, jar: `<i class="ld"></i><i class="bd glass">${tin ? L(10, 12) : L(18, 20)}</i>`, tube: `<i class="bd glass">${L(30, 22)}</i><i class="cp"></i>` };
+      return `<span class="pr ${t}" style="--c:${p.c};--k:${p.k || '#2d2a24'};width:${w * k}px;height:${h * k}px;font-size:${fs.toFixed(1)}px" aria-hidden="true">${parts[t]}<span class="flr"></span></span>`;
+    }
+    const mini = (id, box, k) => `<span class="flex shrink-0 items-end justify-center rounded-xl ${box}" style="background:${P[id].bg}">${vis(id, /jar|tin/.test(P[id].type) ? k * 1.2 : k)}</span>`;
+
+    // Shop grid + filters
+    $('#grid').innerHTML = Object.entries(P).map(([id, p]) => `
+      <article class="card group flex flex-col !rounded-[1.5rem] p-2 transition duration-300 hover:-translate-y-1 sm:p-3" data-cat="${p.cat}">
+        <div class="relative flex h-48 items-end justify-center overflow-hidden rounded-[1.2rem] pb-7 sm:h-64 sm:pb-9" style="background:${p.bg}">
+          ${p.tag ? `<span class="absolute left-2.5 top-2.5 rounded-full bg-linen/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider sm:text-[11px]">${p.tag}</span>` : ''}
+          <div class="origin-bottom scale-[.8] transition duration-500 group-hover:-translate-y-1.5 sm:scale-100 sm:group-hover:scale-[1.04]">${vis(id)}</div>
+        </div>
+        <div class="flex flex-1 flex-col px-1.5 pb-1.5 pt-3 sm:px-2 sm:pt-4">
+          <div class="flex items-start justify-between gap-2"><h3 class="font-display text-[15px] leading-tight sm:text-[19px]">${p.name}</h3><span class="font-medium">$${p.price}</span></div>
+          <p class="mt-1 hidden text-[13px] text-bark/55 sm:block">${p.note} · ${p.size}</p>
+          <div class="mt-auto flex items-center justify-between pt-4"><span class="text-[12px] text-bark/55 sm:text-[13px]"><span class="text-clay">★</span> ${p.r}</span>
+          <button data-add="${id}" class="ibtn !h-9 !w-9 sm:!w-auto sm:gap-1.5 sm:px-4 sm:!flex sm:items-center sm:text-[13px] sm:font-medium" aria-label="Add ${p.name} to bag"><iconify-icon icon="lucide:plus"></iconify-icon><span class="hidden sm:inline">Add</span></button></div>
+        </div>
+      </article>`).join('');
+    $$('#tabs .pill').forEach((b) => b.addEventListener('click', () => {
+      $$('#tabs .pill').forEach((x) => x.setAttribute('aria-pressed', x === b));
+      $$('#grid article').forEach((a) => { a.hidden = !(b.dataset.f === 'all' || a.dataset.cat === b.dataset.f); a.classList.remove('fade'); void a.offsetWidth; a.classList.add('fade'); });
+    }));
+
+    // Cart drawer
+    const FREE = 60, cartEl = $('#cart'), scrim = $('#scrim'), list = $('#cartList'), cart = { calendula: 1 };
+    let lastFocus = null;
+    function renderCart() {
+      const ids = Object.keys(cart), n = ids.reduce((a, i) => a + cart[i], 0), sub = ids.reduce((a, i) => a + cart[i] * P[i].price, 0);
+      $$('.cart-count').forEach((e) => (e.textContent = n));
+      $('#cartBtn').setAttribute('aria-label', `Open bag, ${n} item${n === 1 ? '' : 's'}`);
+      list.innerHTML = ids.length ? ids.map((i) => `<li class="flex gap-4 py-5">${mini(i, 'h-24 w-20 pb-2.5', .44)}
+          <div class="flex-1"><p class="flex justify-between gap-3"><span class="font-display text-[17px] leading-tight">${P[i].name}</span><span class="font-medium">${money(P[i].price * cart[i])}</span></p>
+          <p class="text-[13px] text-bark/55">${P[i].size}</p>
+          <div class="mt-3 flex items-center justify-between"><div class="flex items-center rounded-full border border-bark/15">
+            <button data-q="${i}" data-d="-1" class="grid h-8 w-8 place-items-center rounded-full hover:bg-bark/5" aria-label="Decrease ${P[i].name}"><iconify-icon icon="lucide:minus"></iconify-icon></button><span class="w-6 text-center text-sm">${cart[i]}</span><button data-q="${i}" data-d="1" class="grid h-8 w-8 place-items-center rounded-full hover:bg-bark/5" aria-label="Increase ${P[i].name}"><iconify-icon icon="lucide:plus"></iconify-icon></button>
+          </div><button data-rm="${i}" class="text-[13px] text-bark/55 underline underline-offset-4 hover:text-clay">Remove</button></div></div></li>`).join('')
+        : `<li class="py-16 text-center"><p class="font-display text-2xl">Your bag is empty.</p><p class="mt-2 text-sm text-bark/60">Most people start with our calendula oil.</p><button data-add="calendula" class="mt-5 rounded-full bg-bark px-5 py-2.5 text-sm text-linen hover:bg-clay">Add Calendula Oil · $48</button></li>`;
+      const left = Math.max(0, FREE - sub), ship = sub && left ? 6 : 0;
+      $('#shipBar').style.width = Math.min(100, (sub / FREE) * 100) + '%';
+      $('#shipMsg').innerHTML = !sub ? 'Free carbon-neutral shipping on orders over $60.' : left ? `You’re <b>${money(left)}</b> away from free shipping.` : '<iconify-icon icon="lucide:sprout" class="align-[-2px] text-sage-deep"></iconify-icon> You’ve unlocked <b>free shipping</b>.';
+      $('#sub').textContent = money(sub); $('#ship').textContent = ship ? money(ship) : 'Free'; $('#tot').textContent = money(sub + ship);
+      $('#checkout').disabled = !n;
+    }
+    function add(id) {
+      cart[id] = (cart[id] || 0) + 1; renderCart();
+      $$('.cart-count').forEach((e) => { e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop'); });
+    }
+    function openCart() {
+      if (cartEl.classList.contains('open')) return;
+      lastFocus = document.activeElement; cartEl.inert = false; cartEl.classList.add('open'); scrim.classList.add('open');
+      document.body.style.overflow = 'hidden'; setTimeout(() => $('#cartClose').focus(), 60);
+    }
+    function closeCart() {
+      cartEl.classList.remove('open'); scrim.classList.remove('open'); cartEl.inert = true; document.body.style.overflow = '';
+      if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    }
+    document.addEventListener('click', (e) => { const a = e.target.closest('[data-add]'); if (a) { add(a.dataset.add); openCart(); } });
+    list.addEventListener('click', (e) => {
+      const q = e.target.closest('[data-q]'), rm = e.target.closest('[data-rm]');
+      if (q) { const id = q.dataset.q; cart[id] += +q.dataset.d; if (cart[id] < 1) delete cart[id]; renderCart(); ($(`[data-q="${id}"][data-d="${q.dataset.d}"]`, list) || $('#cartClose')).focus(); }
+      if (rm) { delete cart[rm.dataset.rm]; renderCart(); $('#cartClose').focus(); }
+    });
+    $('#cartBtn').addEventListener('click', openCart);
+    $('#cartClose').addEventListener('click', closeCart);
+    scrim.addEventListener('click', closeCart);
+    $('#checkout').addEventListener('click', (e) => { e.target.textContent = 'Redirecting to checkout…'; setTimeout(() => (e.target.textContent = 'Checkout securely'), 1800); });
+    document.addEventListener('keydown', (e) => {
+      if (!cartEl.classList.contains('open')) return;
+      if (e.key === 'Escape') closeCart();
+      if (e.key === 'Tab') {
+        const f = $$('button:not([disabled])', cartEl), first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    renderCart();
+
+    // Ingredient explorer
+    const ART = {
+      calendula: () => { let s = ''; for (let i = 0; i < 16; i++) s += `<ellipse cx="32" cy="17" rx="4" ry="10" transform="rotate(${i * 22.5} 32 28)"/>`; return `<path d="M32 40v22M32 54c-6-1-10-5-11-10 6 0 10 4 11 10z" stroke="#7d8f68" stroke-width="1.6" fill="#7d8f68"/><g fill="#eaa047" stroke="#c0702d" stroke-width=".7">${s}</g><circle cx="32" cy="28" r="7" fill="#8c4428"/><circle cx="32" cy="28" r="3.5" fill="#b4643f"/>`; },
+      oat: () => { let s = ''; for (let i = 0; i < 5; i++) { const y = 12 + i * 9, a = 26 - i, b = 39 - i * .6; s += `<ellipse cx="${a}" cy="${y}" rx="2.6" ry="6.5" transform="rotate(-32 ${a} ${y})"/><ellipse cx="${b}" cy="${y + 4}" rx="2.6" ry="6.5" transform="rotate(32 ${b} ${y + 4})"/>`; } return `<path d="M33 62C32 44 31 24 34 4" stroke="#8a9a78" stroke-width="1.6" fill="none"/><g fill="#e2c995" stroke="#a88a52" stroke-width=".7">${s}</g>`; },
+      rosehip: () => `<path d="M32 4v16" stroke="#46543e" stroke-width="1.6"/><path d="M32 12C22 6 14 10 11 18c8 2 16-1 21-6zM32 9c8-6 15-5 19 1-7 4-14 3-19-1z" fill="#7d8f68"/><ellipse cx="32" cy="40" rx="13" ry="17" fill="#c4452d"/><ellipse cx="27" cy="34" rx="3" ry="7" fill="#fff" opacity=".35"/><path d="M32 23l-7-6M32 23l7-6M32 23l-2-8M32 23l3-8" stroke="#46543e" stroke-width="1.4" stroke-linecap="round"/>`,
+      fennel: () => `<path d="M32 60V36" stroke="#5f6f52" stroke-width="2.4"/><path d="M32 42 19 27M32 42l13-15M32 34l-6-17M32 34l7-17M32 34V9M19 27l-7-7M45 27l7-7" stroke="#7f9a7b" stroke-width="5" stroke-linecap="round" fill="none"/><g fill="#a9c0a3"><circle cx="32" cy="9" r="2.5"/><circle cx="12" cy="20" r="2.5"/><circle cx="52" cy="20" r="2.5"/></g>`,
+      shea: () => `<path d="M14 30C14 14 30 6 50 8 48 24 34 34 14 30z" fill="#7d8f68"/><path d="M14 30C26 22 38 16 50 8" stroke="#46543e" stroke-width="1.2"/><ellipse cx="34" cy="44" rx="13" ry="15" fill="#8a6440"/><ellipse cx="30" cy="40" rx="4" ry="7" fill="#c49a6c" opacity=".7"/>`
+    };
+    const ING = [
+      { id: 'calendula', name: 'Calendula', latin: 'Calendula officinalis', tint: '#f3d3a6', lede: 'The golden marigold we grow in long rows behind the press house. Its resinous petals steep in sunflower oil for six slow weeks.', ben: ['Settles visible redness within days', 'Supports a resilient moisture barrier', 'Gentle on reactive, post-sun skin'], origin: 'Solenne Farm · Willamette Valley, Oregon', harvest: 'Hand-picked Jun–Sep, at midday when petals open', stat: ['6 wk', 'slow sun infusion'], use: ['calendula', 'oat', 'hand'] },
+      { id: 'oat', name: 'Oat', latin: 'Avena sativa', tint: '#efe2c4', lede: 'Colloidal oat milled so finely it disperses into a silky milk — a centuries-old remedy for tight, itchy skin.', ben: ['Relieves tightness and itch', 'Beta-glucans bind lasting moisture', 'Cleanses without stripping'], origin: 'Lindqvist Family Farm · Palouse, Washington', harvest: 'Rolled and stone-milled every August', stat: ['<5 µm', 'micronized particle size'], use: ['oat', 'hand'] },
+      { id: 'rosehip', name: 'Rosehip', latin: 'Rosa canina', tint: '#f1c9bb', lede: 'Cold-pressed from wild dog-rose hips gathered on the slopes of northern Patagonia by a women-led cooperative.', ben: ['Naturally rich in pro-vitamin A', 'Softens the look of marks and texture', 'Omega 3 & 6 for supple skin'], origin: 'Río Negro Valley · Argentina', harvest: 'Wild-gathered March–May', stat: ['77%', 'essential fatty acids'], use: ['calendula', 'balm', 'salve'] },
+      { id: 'fennel', name: 'Sea Fennel', latin: 'Crithmum maritimum', tint: '#d3dfcf', lede: 'A succulent that clings to Atlantic sea cliffs, and our gentle answer to retinol — no flaking, no sun sensitivity.', ben: ['Refines texture like a mild retinoid', 'Brings back glow without irritation', 'Safe for daily morning use'], origin: 'Crozon Peninsula · Brittany, France', harvest: 'Cut by hand at low tide, Jul–Aug', stat: ['28 days', 'to visibly smoother skin'], use: ['fennel', 'mist', 'balm'] },
+      { id: 'shea', name: 'Shea Butter', latin: 'Vitellaria paradoxa', tint: '#e6d3bd', lede: 'Unrefined shea, hand-kneaded by a women’s cooperative we have partnered with since 2019 and pay well above market rate.', ben: ['Deep, long-lasting nourishment', 'Vitamins A & E for barrier care', 'Melts at skin temperature'], origin: 'Tamale · Northern Region, Ghana', harvest: 'Nuts gathered June–August', stat: ['212', 'cooperative members'], use: ['balm', 'salve', 'wash'] }
+    ];
+    const svg = (id, cls) => `<svg viewBox="0 0 64 64" class="${cls}" aria-hidden="true">${ART[id]()}</svg>`;
+    const ingList = $('#ingList'), ingPanel = $('#ingPanel');
+    ingList.innerHTML = ING.map((g, i) => `<button role="tab" id="t-${g.id}" aria-controls="ingPanel" class="ing flex items-center gap-3 rounded-2xl p-3 text-left transition hover:bg-linen/10" data-i="${i}"><span class="grid h-12 w-12 shrink-0 place-items-center rounded-full" style="background:${g.tint}">${svg(g.id, 'h-9 w-9')}</span><span><span class="block font-display text-lg leading-tight">${g.name}</span><small class="block text-[12px] italic text-linen/50">${g.latin}</small></span></button>`).join('');
+    function showIng(i) {
+      const g = ING[i];
+      $$('.ing', ingList).forEach((b, j) => { b.setAttribute('aria-selected', j === i); b.tabIndex = j === i ? 0 : -1; });
+      ingPanel.setAttribute('aria-labelledby', 't-' + g.id);
+      ingPanel.innerHTML = `<div class="fade grid gap-8 md:grid-cols-[200px_1fr] md:gap-10">
+        <div class="mx-auto w-48 md:w-auto"><div class="relative grid aspect-square place-items-center rounded-full" style="background:${g.tint}"><span class="absolute inset-3 rounded-full border border-dashed border-bark/20"></span>${svg(g.id, 'h-3/4 w-3/4')}</div>
+          <p class="mt-5 rounded-2xl bg-linen/10 p-4 text-center text-[13px] text-linen/60"><b class="block font-display text-3xl font-normal text-linen">${g.stat[0]}</b>${g.stat[1]}</p></div>
+        <div><p class="text-[13px] italic text-linen/55">${g.latin}</p><h3 class="font-display text-4xl font-light md:text-5xl">${g.name}</h3><p class="mt-4 max-w-xl leading-relaxed text-linen/75">${g.lede}</p>
+          <ul class="mt-6 grid gap-2.5 sm:grid-cols-3">${g.ben.map((b) => `<li class="rounded-2xl border border-linen/15 p-4 text-[14px] leading-snug"><iconify-icon icon="lucide:leaf" class="mb-2 block text-clay-soft"></iconify-icon>${b}</li>`).join('')}</ul>
+          <div class="mt-6 grid gap-4 border-t border-linen/15 pt-6 text-[14px] sm:grid-cols-2">${[['map-pin', 'Origin', g.origin], ['calendar-days', 'Harvest', g.harvest]].map(([ic, h, t]) => `<p class="flex gap-2.5"><iconify-icon icon="lucide:${ic}" class="mt-0.5 shrink-0 text-clay-soft"></iconify-icon><span><b class="block font-semibold">${h}</b><span class="text-linen/70">${t}</span></span></p>`).join('')}</div>
+          <p class="mt-7 text-[12px] font-semibold uppercase tracking-[0.2em] text-linen/50">Found in</p>
+          <div class="mt-3 flex flex-wrap gap-3">${g.use.map((u) => `<div class="flex items-center gap-3 rounded-2xl bg-linen p-2 pr-3 text-bark">${mini(u, 'h-12 w-10 pb-1', .26)}<span class="text-[13px] leading-tight"><b class="block font-medium">${P[u].name}</b>$${P[u].price}</span><button data-add="${u}" class="ibtn ml-1" aria-label="Add ${P[u].name} to bag"><iconify-icon icon="lucide:plus"></iconify-icon></button></div>`).join('')}</div>
+        </div></div>`;
+    }
+    ingList.addEventListener('click', (e) => { const b = e.target.closest('.ing'); if (b) showIng(+b.dataset.i); });
+    ingList.addEventListener('keydown', (e) => {
+      const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return;
+      e.preventDefault(); const cur = $$('.ing', ingList).findIndex((b) => b.getAttribute('aria-selected') === 'true'), nx = (cur + d + ING.length) % ING.length;
+      showIng(nx); $$('.ing', ingList)[nx].focus();
+    });
+    showIng(0);
+
+    // Ritual builder
+    const R = { skin: 'sensitive', goal: 'calm', time: 'quick' };
+    const NAMES = { calm: 'The Quiet Ritual', glow: 'The Golden Hour Ritual', balance: 'The Equilibrium Ritual', soften: 'The Slow Bloom Ritual' };
+    const DESC = { calm: 'Settles redness and rebuilds comfort', glow: 'Wakes up a dull, tired complexion', balance: 'Smooths texture without stripping', soften: 'Cushions and softens fine lines' };
+    const SKIN = { dry: 'skin that runs dry', oily: 'skin that shines by noon', combo: 'combination skin', sensitive: 'easily irritated skin' };
+    function ritual() {
+      $$('#quiz .pill').forEach((c) => c.setAttribute('aria-pressed', R[c.dataset.g] === c.dataset.v));
+      const treat = { calm: 'calendula', glow: 'fennel', balance: 'fennel', soften: 'calendula' }[R.goal], light = /oily|combo/.test(R.skin), full = R.time === 'full';
+      const s = [['Cleanse', 'oat'], full && ['Tone', 'mist'], ['Treat', treat], full && R.skin !== 'sensitive' && ['Boost', treat === 'fennel' ? 'calendula' : 'fennel'], light ? !full && ['Hydrate', 'mist'] : ['Seal', 'balm']].filter(Boolean);
+      const was = s.reduce((a, [, id]) => a + P[id].price, 0);
+      $('#rName').textContent = NAMES[R.goal];
+      $('#rDesc').textContent = `${['', '', 'Two', 'Three', 'Four', 'Five'][s.length]} steps for ${SKIN[R.skin]}. ${DESC[R.goal]} in about ${full ? 'five' : 'two'} minutes, morning and night.`;
+      $('#rSteps').innerHTML = s.map(([step, id], i) => `<li class="fade flex items-center gap-4 py-3.5" style="animation-delay:${i * 60}ms"><span class="w-5 font-display text-lg text-clay">${i + 1}</span>${mini(id, 'h-14 w-12 pb-1.5', .28)}<span class="flex-1"><span class="block text-[11px] font-semibold uppercase tracking-[0.16em] text-bark/45">${step}</span><span class="font-display text-lg leading-tight">${P[id].name}</span></span><span class="text-[15px] text-bark/70">$${P[id].price}</span></li>`).join('');
+      $('#rTotal').textContent = money(Math.round(was * .85)); $('#rWas').textContent = money(was);
+      $('#rAdd').onclick = () => { s.forEach(([, id]) => add(id)); openCart(); };
+    }
+    $('#quiz').addEventListener('click', (e) => { const c = e.target.closest('.pill'); if (c) { R[c.dataset.g] = c.dataset.v; ritual(); } });
+    ritual();
+
+    // Review histogram
+    $('#hist').innerHTML = [['5★', 86], ['4★', 10], ['3★', 3], ['≤2★', 1]].map(([l, v]) => `<li class="flex items-center gap-3"><span class="w-7">${l}</span><span class="h-1.5 flex-1 rounded-full bg-bark/10"><span class="block h-full rounded-full bg-clay" style="width:${v}%"></span></span><span class="w-8 text-right text-bark/55">${v}%</span></li>`).join('');
+
+    // Mobile menu
+    const menuBtn = $('#menuBtn'), mnav = $('#mnav');
+    mnav.innerHTML = $$('#dnav a').map((a) => `<li><a href="${a.getAttribute('href')}" class="block py-3">${a.innerHTML}</a></li>`).join('');
+    const setMenu = (open) => { mnav.classList.toggle('hidden', !open); menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); menuBtn.firstElementChild.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu'); };
+    menuBtn.addEventListener('click', () => setMenu(mnav.classList.contains('hidden')));
+    $$('a', mnav).forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+    // Newsletter
+    $('#news').addEventListener('submit', (e) => { e.preventDefault(); e.target.innerHTML = '<p class="flex items-center gap-2 rounded-full bg-linen/15 px-6 py-4" role="status"><iconify-icon icon="lucide:sprout"></iconify-icon>You’re in. Your 10% code is on its way.</p>'; });
+
+    // Scroll reveal (anything already on screen shows immediately)
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.1 });
+    $$('.reveal').forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>

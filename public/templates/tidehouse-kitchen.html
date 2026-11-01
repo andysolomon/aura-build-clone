@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidehouse — Coastal seafood kitchen on the Old Ferry Pier</title>
+<meta name="description" content="Tidehouse is a thirty-two-seat raw bar and wood-fire kitchen at the end of the Old Ferry Pier in Port Calloway. Day-boat fish, three local oysters and a private loft upstairs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+ tailwind.config = {
+  theme: { extend: {
+   fontFamily: { disp: ['"Cormorant Garamond"', 'ui-serif', 'Georgia', 'serif'], sans: ['Jost', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+   colors: { ink: '#090f1a', navy: { DEFAULT: '#0f1a2e', 2: '#15233b', 3: '#1d3050' }, brass: { DEFAULT: '#c7a165', lite: '#e2c793' }, glass: { DEFAULT: '#9cc9bb', deep: '#5f9e8f' }, foam: '#ece5d6' },
+   boxShadow: { deep: '0 40px 80px -40px rgba(0,0,0,.8)', brass: '0 0 0 1px rgba(199,161,101,.35)' }
+  } }
+ }
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+ .kick { display: block; font: 500 12px/1.4 Jost, sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #9cc9bb; }
+ .h2 { margin-top: .9rem; font: 400 3rem/1 "Cormorant Garamond", serif; letter-spacing: -.01em; }
+ @media (min-width: 768px) { .h2 { font-size: 4.4rem; } }
+ .h2 em { color: #e2c793; }
+ .btn { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; padding: 1rem 1.8rem; font-size: 12.5px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; transition: background .25s, color .25s, border-color .25s; }
+ .btn-b { background: #c7a165; color: #090f1a; } .btn-b:hover { background: #e2c793; }
+ .btn-l { border: 1px solid rgba(236,229,214,.35); } .btn-l:hover { border-color: #e2c793; color: #e2c793; }
+ .fld { margin-top: .4rem; width: 100%; border: 0; border-bottom: 1px solid rgba(236,229,214,.25); background: transparent; padding: .55rem 0; font-size: 15px; color: #ece5d6; }
+ .fld:focus { outline: none; border-color: #e2c793; }
+ .cap { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(236,229,214,.55); }
+ :focus-visible { outline: 2px solid #e2c793; outline-offset: 3px; }
+ @keyframes up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+ .up { animation: up 1.1s cubic-bezier(.16,1,.3,1) both; }
+ @keyframes drift { to { transform: translateX(-1440px); } }
+ .wv { animation: drift linear infinite; }
+ @keyframes tw { 50% { opacity: .15; } }
+ .tw { animation: tw 4s ease-in-out infinite; }
+ @keyframes shim { 50% { opacity: .2; } }
+ .gl { animation: shim 3s ease-in-out infinite; }
+ @keyframes sweep { 0%, 100% { transform: scaleX(1); opacity: .5; } 50% { transform: scaleX(-1); opacity: .15; } }
+ .beam { transform-origin: 786px 510px; animation: sweep 9s ease-in-out infinite; }
+ @keyframes smoke { from { transform: translate(0, 0) scale(.6); opacity: .35; } to { transform: translate(-26px, -70px) scale(1.8); opacity: 0; } }
+ .smk { transform-box: fill-box; transform-origin: center; animation: smoke 6s ease-out infinite; }
+ @keyframes ping { to { transform: scale(2.6); opacity: 0; } }
+ .ping { transform-box: fill-box; transform-origin: center; animation: ping 2.2s ease-out infinite; }
+ html.js .reveal { opacity: 0; transform: translateY(26px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
+ html.js .reveal.in { opacity: 1; transform: none; }
+ .tab[aria-selected="true"] { color: #ece5d6; border-color: #c7a165; }
+ .chip[aria-pressed="true"] { background: #ece5d6; color: #090f1a; border-color: #ece5d6; }
+ .mk { display: inline-grid; place-items: center; min-width: 24px; height: 20px; padding: 0 5px; border: 1px solid rgba(156,201,187,.5); border-radius: 99px; font-size: 10px; font-weight: 500; letter-spacing: .06em; color: #9cc9bb; }
+ .item { transition: opacity .35s; } .item.dim { opacity: .22; }
+ .flip { perspective: 1400px; }
+ .flip-in { position: relative; height: 100%; transition: transform .9s cubic-bezier(.3,1.2,.4,1); transform-style: preserve-3d; }
+ .flip[aria-pressed="true"] .flip-in { transform: rotateY(180deg); }
+ .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+ .back { transform: rotateY(180deg); }
+ .day[aria-pressed="true"], .slot[aria-pressed="true"] { background: #c7a165; border-color: #c7a165; color: #090f1a; }
+ .day:disabled, .slot:disabled { opacity: .3; cursor: not-allowed; }
+ .slot:disabled { text-decoration: line-through; }
+ details > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; font: 500 1.6rem/1.2 "Cormorant Garamond", serif; }
+ summary::-webkit-details-marker { display: none; }
+ summary::after { content: "+"; font: 300 24px Jost, sans-serif; color: #c7a165; transition: transform .3s; }
+ details[open] summary::after { transform: rotate(45deg); }
+ details p { margin-top: .8rem; max-width: 40rem; color: rgba(236,229,214,.65); }
+ .scroll-x { scrollbar-width: none; } .scroll-x::-webkit-scrollbar { display: none; }
+ @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  html.js .reveal { opacity: 1; transform: none; }
+ }
+</style>
+</head>
+<body class="bg-ink font-sans font-light text-foam antialiased selection:bg-brass/30">
+<a href="#main" class="sr-only z-[60] bg-brass px-4 py-2 text-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+
+<!-- Nav -->
+<header id="nav" class="fixed inset-x-0 top-0 z-50 transition duration-500">
+ <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 md:px-10" aria-label="Primary">
+  <a href="#top" class="flex items-center gap-3" aria-label="Tidehouse, home">
+   <svg viewBox="0 0 36 36" class="h-9 w-9" fill="none" stroke="#c7a165" stroke-width="1.4" aria-hidden="true"><circle cx="18" cy="18" r="17"/><path d="M21.5 8.5a7 7 0 1 0 4.8 11.6 6 6 0 1 1-4.8-11.6Z" fill="#c7a165" stroke="none"/><path d="M5 24c3-2 5.5-2 8.5 0s5.5 2 8.5 0 5.5-2 9 0M7 28.5c2.5-1.6 4.6-1.6 7 0s4.6 1.6 7 0 4.6-1.6 7.5 0" stroke-linecap="round"/></svg>
+   <span class="font-disp text-[22px] font-semibold tracking-[.32em]">TIDEHOUSE</span>
+  </a>
+  <ul class="hidden items-center gap-10 text-[12px] font-normal uppercase tracking-[.24em] text-foam/75 lg:flex">
+   <li><a href="#menu" class="hover:text-brass-lite">Menu</a></li><li><a href="#oysters" class="hover:text-brass-lite">Oysters</a></li><li><a href="#loft" class="hover:text-brass-lite">Private dining</a></li><li><a href="#visit" class="hover:text-brass-lite">Visit</a></li>
+  </ul>
+  <div class="flex items-center gap-3">
+   <a href="#reserve" class="btn btn-l hidden !py-3 sm:inline-flex">Reserve</a>
+   <button id="menuBtn" class="grid h-11 w-11 place-items-center rounded-full border border-foam/25 text-xl lg:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><iconify-icon icon="lucide:menu"></iconify-icon></button>
+  </div>
+ </nav>
+ <div id="mobileMenu" class="hidden border-t border-foam/10 px-5 pb-7 lg:hidden">
+  <ul class="font-disp text-4xl"><li><a href="#menu" class="block py-2">Menu</a></li><li><a href="#oysters" class="block py-2">Oysters</a></li><li><a href="#loft" class="block py-2">Private dining</a></li><li><a href="#visit" class="block py-2">Visit</a></li></ul>
+  <a href="#reserve" class="btn btn-b mt-5 w-full">Reserve a table</a>
+ </div>
+</header>
+
+<main id="main">
+ <!-- Hero -->
+ <section id="top" class="relative isolate overflow-hidden bg-ink md:h-screen md:min-h-[820px] md:max-h-[1000px]" aria-labelledby="hero-title">
+  <svg class="absolute bottom-0 right-0 -z-10 h-[520px] w-[220%] [mask-image:linear-gradient(transparent,#000_20%)] sm:w-full md:inset-0 md:h-full md:[mask-image:none]" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+   <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050a13"/><stop offset=".42" stop-color="#0b1526"/><stop offset=".62" stop-color="#1c2e4b"/></linearGradient>
+    <radialGradient id="mglow"><stop offset="0" stop-color="#f1e5c4" stop-opacity=".42"/><stop offset=".35" stop-color="#c7a165" stop-opacity=".1"/><stop offset="1" stop-color="#c7a165" stop-opacity="0"/></radialGradient>
+    <radialGradient id="moon" cx=".62" cy=".38"><stop offset="0" stop-color="#fdf6e4"/><stop offset=".7" stop-color="#e9dcb9"/><stop offset="1" stop-color="#cdbb92"/></radialGradient>
+    <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2c48"/><stop offset="1" stop-color="#070d18"/></linearGradient>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a6"/><stop offset="1" stop-color="#d8933c"/></linearGradient>
+    <linearGradient id="beamG" x1="0" x2="1"><stop offset="0" stop-color="#ffe2a6" stop-opacity=".5"/><stop offset="1" stop-color="#ffe2a6" stop-opacity="0"/></linearGradient>
+    <linearGradient id="shade" x1="0" x2="1"><stop offset="0" stop-color="#050a13" stop-opacity=".75"/><stop offset=".4" stop-color="#050a13" stop-opacity=".35"/><stop offset=".62" stop-color="#050a13" stop-opacity="0"/></linearGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".8"/></filter>
+    <filter id="haze" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>
+    <radialGradient id="mmG" cx="1010" cy="700" r="520" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></radialGradient>
+    <mask id="mm" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900"><rect width="1440" height="900" fill="url(#mmG)"/></mask>
+   </defs>
+   <rect width="1440" height="900" fill="url(#sky)"/>
+   <g id="stars" fill="#efe6d2"></g>
+   <circle cx="1010" cy="250" r="330" fill="url(#mglow)"/>
+   <g id="bezel" fill="none" stroke="#c7a165"></g>
+   <circle cx="1010" cy="250" r="76" fill="url(#moon)"/>
+   <g fill="#b6a37b" opacity=".32"><circle cx="1028" cy="232" r="14"/><circle cx="1046" cy="270" r="9"/><circle cx="1006" cy="272" r="7"/><circle cx="1040" cy="210" r="5"/></g>
+   <path d="M1010 174a76 76 0 0 0 0 152a34 76 0 0 1 0-152Z" fill="#081120" opacity=".86" filter="url(#soft)"/>
+   <path d="M720 562c14-12 30-22 52-26s40-2 60 2 46 4 70 2 52 6 78 22Z" fill="#0a1323"/>
+   <path class="beam" d="M786 510 940 499v24Z" fill="url(#beamG)"/>
+   <path d="M782 534h8l-1.5-22h-5Z" fill="#0a1323"/><circle cx="786" cy="510" r="2.6" fill="#ffe2a6"/><circle cx="786" cy="510" r="9" fill="#ffe2a6" opacity=".25" filter="url(#haze)"/>
+   <path d="M1236 562c34-12 66-28 104-28s68 16 100 20v8Z" fill="#0c1729"/>
+   <rect y="561" width="1440" height="339" fill="url(#seaG)"/>
+   <rect y="560" width="1440" height="1.5" fill="#e2c793" opacity=".22"/>
+   <g id="waves"></g>
+   <!-- Pier and kitchen -->
+   <g>
+    <g fill="#070d18"><rect x="1070" y="668" width="420" height="10"/><path id="piles" d=""/></g>
+    <path d="M1070 640q55 18 110 0" fill="none" stroke="#c7a165" stroke-opacity=".5"/>
+    <g fill="#ffd994"><circle cx="1088" cy="645" r="2"/><circle cx="1106" cy="650" r="2"/><circle cx="1125" cy="652" r="2"/><circle cx="1144" cy="651" r="2"/><circle cx="1162" cy="647" r="2"/></g>
+    <rect x="1068" y="632" width="4" height="36" fill="#070d18"/>
+    <path d="M1180 668v-72h230v72Z" fill="#0b1424"/>
+    <path d="M1168 600l127-54 127 54Z" fill="#070d18"/><path d="M1168 600l127-54 127 54" fill="none" stroke="#c7a165" stroke-opacity=".55"/>
+    <rect x="1376" y="552" width="14" height="30" fill="#070d18"/>
+    <g fill="#8f9aab" filter="url(#haze)"><circle class="smk" cx="1383" cy="545" r="9"/><circle class="smk" cx="1383" cy="545" r="9" style="animation-delay:-2s"/><circle class="smk" cx="1383" cy="545" r="9" style="animation-delay:-4s"/></g>
+    <g fill="url(#win)"><rect x="1196" y="616" width="40" height="38"/><rect x="1246" y="616" width="40" height="38"/><rect x="1300" y="622" width="22" height="46"/><rect x="1336" y="616" width="56" height="38"/></g>
+    <g fill="#0b1424"><rect x="1215" y="616" width="2" height="38"/><rect x="1265" y="616" width="2" height="38"/><rect x="1363" y="616" width="2" height="38"/></g>
+    <text x="1295" y="590" text-anchor="middle" font-family="Jost" font-size="9" letter-spacing="3" fill="#e2c793">TIDEHOUSE</text>
+    <g id="warm" fill="#e8b468" filter="url(#soft)"></g>
+   </g>
+   <g id="waves2"></g>
+   <g id="glint" fill="#f3dfae" filter="url(#soft)"></g>
+   <g id="crests" mask="url(#mm)" fill="none" stroke="#e2c793"></g>
+   <rect width="1440" height="900" fill="url(#shade)"/>
+  </svg>
+
+  <div class="relative mx-auto flex h-full max-w-7xl flex-col px-5 pb-7 pt-32 md:px-10 md:pt-[158px]">
+   <p class="up flex items-center gap-3 text-[12px] font-normal uppercase tracking-[.3em] text-glass"><iconify-icon icon="lucide:moon-star" class="text-base"></iconify-icon>Raw bar &amp; wood fire · Port Calloway</p>
+   <h1 id="hero-title" class="up mt-6 font-disp text-[4rem] font-normal leading-[.92] tracking-[-.015em] sm:text-[5.6rem] lg:text-[7.4rem]" style="animation-delay:.1s">Where the tide<br>sets the <em class="text-brass-lite">menu.</em></h1>
+   <p class="up mt-7 max-w-[30rem] text-[18px] leading-relaxed text-foam/75" style="animation-delay:.2s">A thirty-two-seat kitchen at the end of the Old Ferry Pier. Day-boat fish, oysters from three nearby coves, and a fire that’s lit at four and banked at midnight.</p>
+   <div class="up mt-9 flex flex-wrap gap-3" style="animation-delay:.3s"><a href="#reserve" class="btn btn-b">Reserve a table <iconify-icon icon="lucide:arrow-right"></iconify-icon></a><a href="#menu" class="btn btn-l">Tonight’s menu</a></div>
+   <p class="up mt-8 flex items-center gap-3 text-[13px] text-foam/60" style="animation-delay:.4s"><span class="flex gap-1 text-brass"><iconify-icon icon="lucide:anchor"></iconify-icon><iconify-icon icon="lucide:anchor"></iconify-icon></span>Two Anchors, Coastal Table Guide 2026</p>
+   <div class="h-64 md:hidden" aria-hidden="true"></div>
+   <div class="up mt-auto grid items-center gap-x-10 gap-y-3 border-t border-brass/25 pt-5 text-[13px] text-foam/65 md:grid-cols-[auto_1fr_auto]" style="animation-delay:.5s">
+    <p class="kick !text-brass-lite">Tonight at the pier</p>
+    <ul class="flex flex-wrap gap-x-8 gap-y-1.5"><li><b class="font-normal text-foam">9:42 PM</b> high tide</li><li><b class="font-normal text-foam">6:18 PM</b> moonrise, waxing gibbous</li><li><b class="font-normal text-foam">11°C</b> water</li><li>On ice: Wren Cove, Black Lantern, Sister Isle</li></ul>
+    <svg viewBox="0 0 160 36" class="hidden h-9 w-40 md:block" aria-hidden="true"><path d="M0 26C20 26 30 6 52 6s34 26 56 26 36-22 52-22" fill="none" stroke="#9cc9bb" stroke-opacity=".6"/><circle cx="126" cy="25" r="3.5" fill="#e2c793"/><circle cx="126" cy="25" r="3.5" fill="#e2c793" class="ping"/></svg>
+   </div>
+  </div>
+ </section>
+
+ <!-- Press -->
+ <section class="border-b border-foam/10 bg-navy" aria-label="Press">
+  <div class="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:grid-cols-3 md:px-10">
+   <figure class="reveal"><p class="font-disp text-[15px] font-semibold uppercase tracking-[.28em] text-foam/80">The Calloway Courier</p><blockquote class="mt-4 font-disp text-[26px] italic leading-snug text-foam/90">“The best raw bar on this stretch of coast, in the most romantic room on it.”</blockquote></figure>
+   <figure class="reveal"><p class="text-[19px] font-medium lowercase tracking-tight text-foam/80">salt<span class="text-brass">&amp;</span>smoke</p><blockquote class="mt-4 font-disp text-[26px] italic leading-snug text-foam/90">“Ines Varga cooks fish the way good poets edit: nothing extra, nothing missing.”</blockquote></figure>
+   <figure class="reveal"><p class="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[.3em] text-foam/80"><iconify-icon icon="lucide:anchor" class="text-brass"></iconify-icon>Coastal Table Guide · 2026</p><blockquote class="mt-4 font-disp text-[26px] italic leading-snug text-foam/90">“Two Anchors. Book the counter at high tide and order whatever came in last.”</blockquote></figure>
+  </div>
+ </section>
+
+ <!-- Menu -->
+ <section id="menu" class="mx-auto max-w-7xl px-5 py-24 md:px-10" aria-labelledby="menu-title">
+  <div class="reveal grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+   <div><span class="kick">The menu</span><h2 id="menu-title" class="h2">Written at three, <em>from the boats.</em></h2><p class="mt-5 max-w-lg text-[17px] leading-relaxed text-foam/65">Four day boats, three oyster coves and under nine hours from net to plate. What’s below changes nightly; prices include a 4% kitchen wage.</p></div>
+   <dl class="grid grid-cols-3 gap-8 text-[12px] uppercase tracking-[.18em] text-foam/50"><div><dd class="font-disp text-5xl normal-case tracking-normal text-brass-lite">4</dd><dt class="mt-1">day boats</dt></div><div><dd class="font-disp text-5xl normal-case tracking-normal text-brass-lite">3</dd><dt class="mt-1">oyster coves</dt></div><div><dd class="font-disp text-5xl normal-case tracking-normal text-brass-lite">9 h</dd><dt class="mt-1">boat to plate</dt></div></dl>
+  </div>
+  <div class="reveal mt-12 flex flex-col gap-5 border-b border-foam/15 md:flex-row md:items-end md:justify-between">
+   <div role="tablist" aria-label="Menu sections" id="tabs" class="scroll-x -mb-px flex gap-8 overflow-x-auto"></div>
+   <div class="flex flex-wrap items-center gap-2 pb-4" role="group" aria-label="Dietary filter" id="diet"><span class="cap mr-1">Show</span><button class="chip rounded-full border border-foam/20 px-3.5 py-1.5 text-[13px]" data-d="" aria-pressed="true">All</button><button class="chip rounded-full border border-foam/20 px-3.5 py-1.5 text-[13px]" data-d="GF" aria-pressed="false">Gluten-free</button><button class="chip rounded-full border border-foam/20 px-3.5 py-1.5 text-[13px]" data-d="DF" aria-pressed="false">Dairy-free</button><button class="chip rounded-full border border-foam/20 px-3.5 py-1.5 text-[13px]" data-d="V" aria-pressed="false">Vegetarian</button></div>
+  </div>
+  <ul id="panel" role="tabpanel" tabindex="0" class="grid gap-x-16 md:grid-cols-2"></ul>
+  <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-foam/55"><span><span class="mk">GF</span> gluten-free</span><span><span class="mk">DF</span> dairy-free</span><span><span class="mk">V</span> vegetarian</span><span><span class="mk">R</span> served raw</span><span id="dietNote" aria-live="polite"></span></p>
+ </section>
+
+ <!-- Oysters -->
+ <section id="oysters" class="bg-navy" aria-labelledby="oy-title">
+  <div class="mx-auto max-w-7xl px-5 py-24 md:px-10">
+   <div class="reveal flex flex-wrap items-end justify-between gap-6"><div><span class="kick">On ice tonight</span><h2 id="oy-title" class="h2">Four oysters, <em>four coves.</em></h2></div><p class="max-w-sm text-[16px] text-foam/65">Tap a shell for tasting notes. A mixed half-dozen is $24; a dozen, $46.</p></div>
+   <div id="oyGrid" class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
+  </div>
+ </section>
+
+ <!-- Private dining -->
+ <section id="loft" class="mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 md:px-10 lg:grid-cols-[1.1fr_1fr] lg:gap-20" aria-labelledby="loft-title">
+  <div class="reveal overflow-hidden rounded-[2rem] shadow-deep ring-1 ring-brass/25">
+   <svg viewBox="0 0 600 440" class="block w-full" role="img" aria-label="Illustration of the Net Loft: a long candlelit table beneath an arched harbour window">
+    <defs><linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1526"/><stop offset="1" stop-color="#2a4063"/></linearGradient><radialGradient id="lamp"><stop offset="0" stop-color="#ffd994" stop-opacity=".55"/><stop offset="1" stop-color="#ffd994" stop-opacity="0"/></radialGradient></defs>
+    <rect width="600" height="440" fill="#111d31"/>
+    <path d="M0 0h600v70L300 18 0 70Z" fill="#0a1323"/><path d="M0 70 300 18l300 52M150 44v26M450 44v26" fill="none" stroke="#c7a165" stroke-opacity=".3"/>
+    <path d="M200 312V180a100 100 0 0 1 200 0v132Z" fill="url(#night)"/>
+    <circle cx="338" cy="150" r="17" fill="#f3e9cf"/><path d="M200 262h200" stroke="#e2c793" stroke-opacity=".35"/><path d="M300 268v40M318 274h-36M330 286h-60" stroke="#f3e9cf" stroke-opacity=".35" stroke-width="2"/>
+    <path d="M300 80v232M200 214h200" stroke="#0a1323" stroke-width="7"/><path d="M200 312V180a100 100 0 0 1 200 0v132Z" fill="none" stroke="#c7a165" stroke-width="3"/>
+    <path d="M20 90q140 70 280 0t280 0M20 112q140 70 280 0t280 0" fill="none" stroke="#ece5d6" stroke-opacity=".1"/>
+    <g stroke="#c7a165" stroke-opacity=".6"><path d="M110 38v92M490 38v92"/></g>
+    <circle cx="110" cy="148" r="70" fill="url(#lamp)"/><circle cx="490" cy="148" r="70" fill="url(#lamp)"/>
+    <path d="M94 146l8-16h16l8 16Z M474 146l8-16h16l8 16Z" fill="#c7a165"/>
+    <g fill="#0a1323"><rect x="96" y="318" width="34" height="56" rx="10"/><rect x="176" y="318" width="34" height="56" rx="10"/><rect x="256" y="318" width="34" height="56" rx="10"/><rect x="336" y="318" width="34" height="56" rx="10"/><rect x="416" y="318" width="34" height="56" rx="10"/><rect x="480" y="318" width="34" height="56" rx="10"/></g>
+    <path d="M70 360h460l46 50H24Z" fill="#4a3322"/><path d="M70 360h460" stroke="#e2c793" stroke-opacity=".6" stroke-width="2"/><path d="M24 410h552v12H24Z" fill="#2c1e14"/>
+    <g id="candles"></g>
+   </svg>
+  </div>
+  <div class="reveal">
+   <span class="kick">Private dining</span><h2 id="loft-title" class="h2">The <em>Net Loft.</em></h2>
+   <p class="mt-6 max-w-md text-[17px] leading-relaxed text-foam/70">Upstairs, under the old net-mending rafters: one long oak table, a window full of harbour and a menu Chef Ines Varga builds around your evening.</p>
+   <dl class="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-foam/10 text-[13px] text-foam/55">
+    <div class="bg-ink p-5"><dd class="font-disp text-4xl text-foam">14</dd><dt>seated at one table</dt></div><div class="bg-ink p-5"><dd class="font-disp text-4xl text-foam">24</dd><dt>for a standing reception</dt></div>
+    <div class="bg-ink p-5"><dd class="font-disp text-4xl text-foam">$95</dd><dt>set menus from, per guest</dt></div><div class="bg-ink p-5"><dd class="font-disp text-4xl text-foam">Sun–Thu</dd><dt>whole-room buyouts</dt></div>
+   </dl>
+   <div class="mt-8 flex flex-wrap gap-3"><a href="mailto:loft@tidehouse.example" class="btn btn-b">Enquire about the Loft</a><a href="#visit" class="btn btn-l">Sample menus</a></div>
+  </div>
+ </section>
+
+ <!-- Testimonials -->
+ <section class="border-y border-foam/10 bg-navy-2" aria-labelledby="rev-title">
+  <div class="mx-auto max-w-7xl px-5 py-24 md:px-10">
+   <div class="reveal flex flex-wrap items-end justify-between gap-6"><div><span class="kick">From the guestbook</span><h2 id="rev-title" class="h2">Regulars, <em>mostly.</em></h2></div><p class="flex items-center gap-3 text-[14px] text-foam/60"><span class="text-brass" role="img" aria-label="4.8 out of 5">★★★★★</span>4.8 from 1,900 guest reviews</p></div>
+   <div class="mt-12 grid gap-5 md:grid-cols-3">
+    <figure class="reveal flex flex-col rounded-3xl bg-ink/60 p-8 ring-1 ring-foam/10"><blockquote class="font-disp text-[25px] leading-snug">“We came for the oysters and stayed three hours. The halibut in dashi is the best fish I’ve eaten all year.”</blockquote><figcaption class="mt-auto pt-8 text-[13px] uppercase tracking-[.2em] text-foam/50">Hannah L. · Anniversary</figcaption></figure>
+    <figure class="reveal flex flex-col rounded-3xl bg-ink/60 p-8 ring-1 ring-foam/10"><blockquote class="font-disp text-[25px] leading-snug">“Sat at the counter at high tide and watched the water rise under the pier. They knew every oyster by name.”</blockquote><figcaption class="mt-auto pt-8 text-[13px] uppercase tracking-[.2em] text-foam/50">Marcus O. · Oyster counter</figcaption></figure>
+    <figure class="reveal flex flex-col rounded-3xl bg-ink/60 p-8 ring-1 ring-foam/10"><blockquote class="font-disp text-[25px] leading-snug">“Booked the Net Loft for Dad’s seventieth. Ines came up between courses to tell us where each fish was caught.”</blockquote><figcaption class="mt-auto pt-8 text-[13px] uppercase tracking-[.2em] text-foam/50">Priyanka S. · The Net Loft</figcaption></figure>
+   </div>
+  </div>
+ </section>
+
+ <!-- Reservations -->
+ <section id="reserve" class="mx-auto grid max-w-7xl gap-12 px-5 py-24 md:px-10 lg:grid-cols-[1fr_1.25fr] lg:gap-20" aria-labelledby="res-title">
+  <div class="reveal">
+   <span class="kick">Reservations</span><h2 id="res-title" class="h2">A table <em>by the water.</em></h2>
+   <p class="mt-6 max-w-md text-[17px] leading-relaxed text-foam/70">Tables open 30 days ahead at 10 a.m. The eight-seat oyster counter is always kept for walk-ins.</p>
+   <ul class="mt-8 space-y-4 text-[15px] text-foam/75">
+    <li class="flex gap-3"><iconify-icon icon="lucide:users" class="mt-1 text-brass"></iconify-icon>Seven or more? The Net Loft is yours.</li>
+    <li class="flex gap-3"><iconify-icon icon="lucide:calendar-x" class="mt-1 text-brass"></iconify-icon>Free cancellation until 24 hours before.</li>
+    <li class="flex gap-3"><iconify-icon icon="lucide:wind" class="mt-1 text-brass"></iconify-icon>Come as you are, but bring a sweater. It’s a pier.</li>
+   </ul>
+  </div>
+  <div class="reveal min-w-0">
+   <form id="resForm" class="rounded-[2rem] bg-navy p-6 shadow-deep ring-1 ring-brass/25 md:p-9" novalidate>
+    <div class="flex items-center justify-between gap-4 border-b border-foam/10 pb-6">
+     <span class="cap" id="pLbl">Party size</span>
+     <div class="flex items-center gap-4" role="group" aria-labelledby="pLbl"><button type="button" id="pMinus" class="grid h-10 w-10 place-items-center rounded-full border border-foam/25 text-lg hover:border-brass disabled:opacity-30" aria-label="Fewer guests"><iconify-icon icon="lucide:minus"></iconify-icon></button><output id="pCount" class="w-24 text-center font-disp text-3xl" aria-live="polite"></output><button type="button" id="pPlus" class="grid h-10 w-10 place-items-center rounded-full border border-foam/25 text-lg hover:border-brass disabled:opacity-30" aria-label="More guests"><iconify-icon icon="lucide:plus"></iconify-icon></button></div>
+    </div>
+    <p class="cap mt-6" id="dLbl">Date</p>
+    <div id="dates" class="scroll-x -mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 [mask-image:linear-gradient(90deg,#000_86%,transparent)]" role="group" aria-labelledby="dLbl"></div>
+    <p class="cap mt-6" id="tLbl">Time</p>
+    <div id="slots" class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5" role="group" aria-labelledby="tLbl"></div>
+    <p id="bigNote" class="mt-3 hidden text-[13px] text-glass">For parties of seven or more we suggest the Net Loft, so fewer times are shown.</p>
+    <div class="mt-6 grid gap-5 sm:grid-cols-2"><label><span class="cap">Name</span><input name="name" required autocomplete="name" class="fld" placeholder="Ada Morrow"></label><label><span class="cap">Email</span><input name="email" type="email" required autocomplete="email" class="fld" placeholder="you@example.com"></label></div>
+    <div class="mt-7 flex flex-col gap-4 border-t border-foam/10 pt-6 sm:flex-row sm:items-center sm:justify-between"><p id="summary" class="font-disp text-xl text-foam/80" aria-live="polite"></p><button id="confirm" class="btn btn-b disabled:cursor-not-allowed disabled:opacity-40" disabled>Confirm table</button></div>
+    <p id="resErr" class="mt-3 hidden text-[13px] text-[#e8a08a]" role="alert">Please add a name and a valid email for the confirmation.</p>
+   </form>
+   <div id="resDone" class="hidden rounded-[2rem] bg-navy p-8 text-center shadow-deep ring-1 ring-brass/40 md:p-12" role="status" tabindex="-1">
+    <span class="mx-auto grid h-16 w-16 place-items-center rounded-full border border-brass text-2xl text-brass"><iconify-icon icon="lucide:anchor"></iconify-icon></span>
+    <p class="mt-6 font-disp text-5xl">You’re on the <em class="text-brass-lite">tide list.</em></p>
+    <p id="doneText" class="mx-auto mt-4 max-w-md text-[16px] text-foam/70"></p>
+    <p class="mt-6 text-[12px] uppercase tracking-[.3em] text-glass">Confirmation <span id="code"></span></p>
+    <button id="again" class="mt-8 text-[13px] uppercase tracking-[.2em] text-foam/60 underline underline-offset-4 hover:text-foam">Change booking</button>
+   </div>
+  </div>
+ </section>
+
+ <!-- Visit -->
+ <section id="visit" class="bg-navy" aria-labelledby="visit-title">
+  <div class="mx-auto grid max-w-7xl gap-12 px-5 py-24 md:px-10 lg:grid-cols-[1fr_1.3fr] lg:gap-16">
+   <div class="reveal">
+    <span class="kick">Hours &amp; location</span><h2 id="visit-title" class="h2">At the end of <em>the pier.</em></h2>
+    <dl id="hours" class="mt-8 divide-y divide-foam/10 border-y border-foam/10 text-[15px]">
+     <div class="flex justify-between py-3" data-d="1"><dt>Monday</dt><dd class="text-foam/50">Closed for the boats</dd></div>
+     <div class="flex justify-between py-3" data-d="2 3 4"><dt>Tuesday – Thursday</dt><dd>5 PM – 10 PM</dd></div>
+     <div class="flex justify-between py-3" data-d="5 6"><dt>Friday – Saturday</dt><dd>5 PM – 11 PM</dd></div>
+     <div class="flex justify-between py-3" data-d="0"><dt>Sunday</dt><dd>4 PM – 9 PM · oyster hour 4–5</dd></div>
+    </dl>
+    <address class="mt-8 not-italic leading-relaxed text-foam/75"><span class="font-disp text-2xl text-foam">12 Harbour Row, Old Ferry Pier</span><br>Port Calloway · +1 (555) 014-2290<br>Four minutes’ walk from Harbour Row station; the Sister Isle ferry docks alongside.</address>
+    <div class="mt-8 flex flex-wrap gap-3"><a href="#" class="btn btn-b"><iconify-icon icon="lucide:navigation"></iconify-icon>Directions</a><a href="tel:+15550142290" class="btn btn-l"><iconify-icon icon="lucide:phone"></iconify-icon>Call the pier</a></div>
+   </div>
+   <div class="reveal">
+    <svg viewBox="0 0 640 480" class="w-full rounded-[2rem] ring-1 ring-brass/25" role="img" aria-label="Map: Tidehouse at the end of the Old Ferry Pier, off Harbour Row, facing Calloway Sound">
+     <defs><path id="land" d="M0 0h640v150c-34 6-60 34-100 30s-62-46-104-34-58 70-102 84-80-6-114 22-58 92-108 98S0 340 0 340Z"/></defs>
+     <rect width="640" height="480" fill="#0a1424"/>
+     <g fill="none" stroke-linejoin="round"><use href="#land" stroke="#1d3450" stroke-width="152"/><use href="#land" stroke="#0d1a2e" stroke-width="149"/><use href="#land" stroke="#21395a" stroke-width="98"/><use href="#land" stroke="#0f1f35" stroke-width="95"/><use href="#land" stroke="#25405f" stroke-width="46"/><use href="#land" stroke="#12233b" stroke-width="43"/></g>
+     <use href="#land" fill="#202e43" stroke="#9cc9bb" stroke-opacity=".45"/>
+     <g fill="none" stroke="#26374f"><path d="M0 104 170 96l160-26 140-6 170 8M210 0l-20 230M420 0v170M560 0l-14 160" stroke-width="5"/><path d="M0 40h640M90 0v300M300 0l10 200M0 200l220-40" stroke-width="2.5"/></g>
+     <path d="M0 104 170 96l160-26 140-6 170 8" fill="none" stroke="#c7a165" stroke-opacity=".45" stroke-width="2"/>
+     <path d="M321 228 334 226 352 336 339 338Z" fill="#3a4c66"/>
+     <path d="M346 340q90 40 150 110" fill="none" stroke="#9cc9bb" stroke-opacity=".5" stroke-dasharray="4 6"/>
+     <g font-family="Jost" font-size="10" letter-spacing="2.4" fill="#ece5d6" fill-opacity=".5"><text x="24" y="92">HARBOUR ROW</text><text x="186" y="206" transform="rotate(-85 186 206)">MARKET ST</text><text x="236" y="34">CHANDLERS LANE</text><text x="64" y="400">LANTERN POINT</text><text x="300" y="456">FERRY TO SISTER ISLE</text></g>
+     <text x="420" y="300" font-family="Cormorant Garamond" font-style="italic" font-size="30" fill="#9cc9bb" fill-opacity=".45">Calloway Sound</text>
+     <circle cx="470" cy="64" r="6" fill="#0c1829" stroke="#9cc9bb" stroke-width="2"/><text x="482" y="88" font-family="Jost" font-size="9" fill="#9cc9bb" fill-opacity=".7">HARBOUR ROW STN</text>
+     <circle cx="346" cy="340" r="9" fill="#e2c793" class="ping"/><path d="M346 344c-10-12-15-19-15-27a15 15 0 0 1 30 0c0 8-5 15-15 27Z" transform="translate(0 -6)" fill="#e2c793"/><circle cx="346" cy="311" r="5" fill="#0c1829"/>
+     <g transform="translate(372 336)"><rect width="148" height="44" rx="22" fill="#ece5d6"/><text x="20" y="20" font-family="Cormorant Garamond" font-weight="600" font-size="17" fill="#090f1a">Tidehouse</text><text x="20" y="34" font-family="Jost" font-size="9" letter-spacing="1.5" fill="#090f1a" fill-opacity=".6">OLD FERRY PIER</text></g>
+     <g transform="translate(586 420)" fill="#c7a165"><path d="M0-26 5-5 26 0 5 5 0 26-5 5-26 0-5-5Z" fill-opacity=".8"/><text y="-32" text-anchor="middle" font-family="Jost" font-size="10" fill="#ece5d6" fill-opacity=".6">N</text></g>
+     <g transform="translate(28 452)" font-family="Jost" font-size="9" fill="#ece5d6" fill-opacity=".55"><path d="M0 0h80M0-4v8M40-3v6M80-4v8" stroke="#ece5d6" stroke-opacity=".5"/><text x="88" y="3">200 m</text></g>
+    </svg>
+   </div>
+  </div>
+ </section>
+
+ <!-- FAQ -->
+ <section class="mx-auto grid max-w-7xl gap-12 px-5 py-24 md:px-10 lg:grid-cols-[1fr_1.6fr]" aria-labelledby="faq-title">
+  <div class="reveal"><span class="kick">Good to know</span><h2 id="faq-title" class="h2">Before you <em>come aboard.</em></h2></div>
+  <div class="reveal divide-y divide-foam/10 border-y border-foam/10 [&>details]:py-6">
+   <details open><summary>Do you take walk-ins?</summary><p>Always. The eight-seat oyster counter is walk-in only every night we’re open. Arrive before six for the best chance, or put your name down and wait with a drink on the deck.</p></details>
+   <details><summary>Can you cook around allergies?</summary><p>Tell us when you book. Our kitchen handles shellfish, fish, gluten, dairy and nuts, so we can’t promise a trace-free plate, but we will always cook around an allergy.</p></details>
+   <details><summary>Is there anything for non-seafood eaters?</summary><p>Every section has vegetarian dishes marked V, plus a dry-aged rib for two. A garden tasting menu is available with 48 hours’ notice.</p></details>
+   <details><summary>Where do I park?</summary><p>Harbour Row has free street parking after 6 p.m. Better still, take the train to Harbour Row station or the Sister Isle ferry, which docks right beside us.</p></details>
+  </div>
+ </section>
+
+ <!-- CTA -->
+ <section class="relative isolate overflow-hidden border-t border-foam/10" aria-labelledby="cta-title">
+  <svg class="absolute inset-x-0 bottom-0 -z-10 h-40 w-full" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70c120-30 240-30 360 0s240 30 360 0 240-30 360 0 240 30 360 0v90H0Z" fill="#0f1a2e"/><path d="M0 110c120-24 240-24 360 0s240 24 360 0 240-24 360 0 240 24 360 0v50H0Z" fill="#15233b"/></svg>
+  <div class="mx-auto max-w-3xl px-5 pb-40 pt-24 text-center">
+   <span class="kick">The Tide Letter</span>
+   <h2 id="cta-title" class="h2">What came in <em>on the boats.</em></h2>
+   <p class="mx-auto mt-5 max-w-lg text-[17px] text-foam/65">Every Thursday: the oysters on ice, the week’s catch and first word on our winter crab suppers. Or give someone dinner by the water.</p>
+   <form id="nlForm" class="mx-auto mt-9 flex max-w-lg flex-col gap-3 sm:flex-row"><label for="nl" class="sr-only">Email address</label><input id="nl" type="email" required placeholder="you@example.com" class="fld !mt-0 flex-1 !border !border-foam/25 !px-5 !py-3.5"><button class="btn btn-b">Subscribe</button></form>
+   <a href="#" class="mt-6 inline-flex items-center gap-2 text-[13px] uppercase tracking-[.22em] text-brass-lite hover:text-foam"><iconify-icon icon="lucide:gift"></iconify-icon>Buy a gift card</a>
+  </div>
+ </section>
+</main>
+
+<footer class="bg-navy-2 text-[14px] text-foam/60">
+ <div class="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:px-10 lg:grid-cols-[2fr_1fr_1fr_1fr] [&_h3]:text-[11px] [&_h3]:font-medium [&_h3]:uppercase [&_h3]:tracking-[.26em] [&_h3]:text-foam [&_li]:mt-2 [&_a:hover]:text-brass-lite">
+  <div><p class="font-disp text-2xl font-semibold tracking-[.32em] text-foam">TIDEHOUSE</p><p class="mt-4 max-w-xs">Coastal seafood kitchen and raw bar on the Old Ferry Pier, Port Calloway. Chef Ines Varga.</p></div>
+  <div><h3>Visit</h3><ul class="mt-3"><li>12 Harbour Row</li><li>Tue–Sun from 5 PM</li><li><a href="tel:+15550142290">+1 (555) 014-2290</a></li></ul></div>
+  <div><h3>Eat</h3><ul class="mt-3"><li><a href="#menu">Menu</a></li><li><a href="#oysters">Oysters</a></li><li><a href="#loft">Private dining</a></li></ul></div>
+  <div><h3>More</h3><ul class="mt-3"><li><a href="#">Gift cards</a></li><li><a href="#">Careers</a></li><li><a href="#">Sourcing</a></li></ul></div>
+ </div>
+ <div class="border-t border-foam/10"><div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 py-6 text-[12px] text-foam/40 sm:flex-row sm:items-center md:px-10"><p>© 2026 Tidehouse Kitchen LLC. Consuming raw shellfish may increase your risk of foodborne illness.</p><div class="flex gap-5 text-base"><a href="#" aria-label="Instagram" class="hover:text-foam"><iconify-icon icon="lucide:instagram"></iconify-icon></a><a href="#" aria-label="Email us" class="hover:text-foam"><iconify-icon icon="lucide:mail"></iconify-icon></a></div></div></div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rng = (s) => { const f = () => (s = (s * 16807) % 2147483647) / 2147483647; f(); f(); f(); return f; };
+
+// Nav, mobile menu
+const nav = $('#nav'), menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
+const solid = () => { const on = scrollY > 40 || !menu.classList.contains('hidden'); nav.classList.toggle('bg-ink/90', on); nav.classList.toggle('backdrop-blur-md', on); };
+const setMenu = (open) => { menu.classList.toggle('hidden', !open); menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); menuBtn.firstElementChild.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu'); solid(); };
+menuBtn.onclick = () => setMenu(menu.classList.contains('hidden'));
+$$('#mobileMenu a').forEach((a) => (a.onclick = () => setMenu(false)));
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.classList.contains('hidden')) { setMenu(false); menuBtn.focus(); } });
+addEventListener('scroll', solid, { passive: true }); solid();
+
+// Night sea: stars, moon bezel, waves, moonlight on the water, pier piles
+let r = rng(42), h = '';
+for (let i = 0; i < 70; i++) { const x = r() * 1440, y = r() * 500; if (Math.hypot(x - 1010, y - 250) < 120) continue; h += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(.4 + r() * 1.1).toFixed(1)}" opacity="${(.3 + r() * .6).toFixed(2)}"${r() < .4 ? ` class="tw" style="animation-delay:-${(r() * 4).toFixed(1)}s"` : ''}/>`; }
+$('#stars').innerHTML = h;
+h = '<circle cx="1010" cy="250" r="118" stroke-opacity=".22"/><circle cx="1010" cy="250" r="156" stroke-opacity=".12"/>';
+for (let a = 0; a < 360; a += 5) { const t = a * Math.PI / 180, l = a % 90 ? (a % 15 ? 5 : 9) : 15, c = Math.cos(t), s = Math.sin(t); h += `<path d="M${(1010 + c * 156).toFixed(1)} ${(250 + s * 156).toFixed(1)}L${(1010 + c * (156 + l)).toFixed(1)} ${(250 + s * (156 + l)).toFixed(1)}" stroke-opacity="${a % 90 ? .25 : .55}"/>`; }
+$('#bezel').innerHTML = h;
+const W = [[598, 4, 120, '#15253f', 80], [640, 7, 240, '#111f36', 60], [700, 9, 360, '#0d192d', 44], [780, 12, 480, '#0a1424', 34, 1], [884, 10, 720, '#070e1a', 26]];
+let fills = '', crests = '';
+W.forEach(([y, a, l, c, t, rev], i) => {
+ let d = `M0 ${y}`; for (let k = 0; k < 2880 / (l / 2); k++) d += `q${l / 4} ${k % 2 ? a : -a} ${l / 2} 0`;
+ const st = `class="wv" style="animation-duration:${t}s${rev ? ';animation-direction:reverse' : ''}"`;
+ fills += (i === 3 ? '|' : '') + `<path ${st} d="${d}V900H0Z" fill="${c}"/>`;
+ crests += `<path ${st} d="${d}" stroke-opacity="${.3 + i * .06}" stroke-width="${1 + i * .2}"/>`;
+});
+[$('#waves').innerHTML, $('#waves2').innerHTML] = fills.split('|'); $('#crests').innerHTML = crests;
+const glints = (cx, y0, rows, spread0, grow, step, op, seed) => { const q = rng(seed); let g = ''; for (let k = 0; k < rows; k++) { const sp = spread0 + k * grow, n = 1 + Math.floor(q() * 3); for (let j = 0; j < n; j++) { const w = 5 + q() * sp, x = cx + (q() - .5) * sp * 1.8 - w / 2; g += `<rect x="${x.toFixed(0)}" y="${(y0 + k * step + q() * 3).toFixed(0)}" width="${w.toFixed(0)}" height="${(1 + q() * 1.5).toFixed(1)}" opacity="${(op * (1 - k / rows) ** 1.2 * (.4 + q() * .6)).toFixed(2)}" class="gl" style="animation-delay:-${(q() * 3).toFixed(1)}s"/>`; } } return g; };
+$('#glint').innerHTML = glints(1010, 568, 30, 12, 3.4, 7.6, .95, 7);
+$('#warm').innerHTML = [[1216, 20], [1266, 20], [1311, 12], [1364, 28]].map(([x, w], i) => glints(x, 686, 10, w, 1.2, 7, .7, i + 3)).join('');
+h = ''; for (let x = 1080; x < 1500; x += 34) h += `M${x} 678h6v130h-6Z`; $('#piles').setAttribute('d', h);
+
+// Menu
+const MENU = {
+ 'Raw bar': [['Wren Cove oysters', 'Small, deep-cupped and cucumber-bright. Pickled shallot mignonette.', '$4 ea', 'GF DF R'], ['Black Lantern oysters', 'Big brine and a long mineral finish. Fresh horseradish.', '$4.50 ea', 'GF DF R'], ['Day-boat scallop crudo', 'Yuzu kosho, sea-glass cucumber, puffed wild rice.', '$19', 'GF DF R'], ['Albacore tartare', 'Smoked soy, crisp shallot, nori cracker.', '$21', 'DF R'], ['The Tidehouse tower', 'A dozen oysters, six clams, chilled prawns, crab claws and half a lobster.', '$118', 'GF R']],
+ 'Small plates': [['Sourdough & seaweed butter', 'Our own levain, toasted over the fire.', '$8', 'V'], ['Charred octopus', 'Romesco, crushed potatoes, smoked paprika oil.', '$22', 'GF DF'], ['Smoked mackerel pâté', 'Pickled radish, rye crisps, dill.', '$14', ''], ['Fried clam bellies', 'Malt vinegar aioli, lemon salt.', '$16', 'DF'], ['Heirloom tomatoes', 'Kombu oil, sea salt, opal basil.', '$15', 'GF DF V']],
+ 'Mains': [['Whole grilled bream', 'Salsa verde, shaved fennel, charred lemon.', '$38', 'GF DF'], ['Halibut in brown-butter dashi', 'Steamed clams, leeks, sea herbs.', '$44', 'GF'], ['Harbour stew', 'Saffron broth, mussels, hake, rouille toast.', '$36', 'DF'], ['Lobster roll', 'Brown butter, chives, griddled milk bun, fries.', '$34', ''], ['Fire-roasted mushrooms', 'Barley, cultured cream, hazelnut, sorrel.', '$28', 'V']],
+ 'Desserts': [['Burnt honey tart', 'Crème fraîche, flaky salt.', '$12', 'V'], ['Salted caramel pot de crème', 'Brown-butter shortbread.', '$11', 'V'], ['Rhubarb & elderflower granita', 'Pink peppercorn, mint.', '$10', 'GF DF V'], ['Brown-bread ice cream', 'Toasted rye, sherry-soaked raisins.', '$11', 'V'], ['Two cheeses from the hills', 'Oatcakes, quince paste.', '$16', 'V']]
+};
+const keys = Object.keys(MENU); let cur = 0, diet = '';
+$('#tabs').innerHTML = keys.map((k, i) => `<button role="tab" id="t${i}" aria-controls="panel" aria-selected="${!i}" tabindex="${i ? -1 : 0}" class="tab shrink-0 whitespace-nowrap border-b-2 border-transparent pb-4 font-disp text-2xl text-foam/45 transition hover:text-foam">${k}</button>`).join('');
+function renderMenu() {
+ const items = MENU[keys[cur]];
+ $('#panel').setAttribute('aria-labelledby', 't' + cur);
+ $('#panel').innerHTML = items.map(([n, d, p, m]) => `<li class="item border-b border-foam/10 py-6 ${diet && !m.split(' ').includes(diet) ? 'dim' : ''}"><div class="flex items-baseline gap-4"><h3 class="font-disp text-[26px] leading-tight">${n}</h3><span class="flex-1 -translate-y-1.5 border-b border-dotted border-foam/20"></span><span class="font-disp text-[22px] text-brass-lite">${p}</span></div><p class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[15px] text-foam/60">${d}${m ? `<span class="flex gap-1">${m.split(' ').map((x) => `<abbr class="mk no-underline" title="${{ GF: 'Gluten-free', DF: 'Dairy-free', V: 'Vegetarian', R: 'Served raw' }[x]}">${x}</abbr>`).join('')}</span>` : ''}</p></li>`).join('');
+ const n = items.filter(([, , , m]) => m.split(' ').includes(diet)).length;
+ $('#dietNote').textContent = diet ? `· ${n} of ${items.length} ${keys[cur].toLowerCase()} dishes match` : '';
+}
+function selectTab(i, focus) { cur = i; $$('.tab').forEach((t, j) => { t.setAttribute('aria-selected', j === i); t.tabIndex = j === i ? 0 : -1; }); if (focus) $('#t' + i).focus(); renderMenu(); }
+$('#tabs').onclick = (e) => { const t = e.target.closest('.tab'); if (t) selectTab(+t.id.slice(1)); };
+$('#tabs').onkeydown = (e) => { const n = { ArrowRight: cur + 1, ArrowLeft: cur + 3, Home: 0, End: 3 }[e.key]; if (n !== undefined) { e.preventDefault(); selectTab(n % 4, true); } };
+$('#diet').onclick = (e) => { const b = e.target.closest('.chip'); if (!b) return; diet = b.dataset.d; $$('.chip').forEach((c) => c.setAttribute('aria-pressed', c === b)); renderMenu(); };
+renderMenu();
+
+// Oyster tasting cards with procedural half-shells
+const OY = [
+ ['Wren Cove', 'North Inlet, Calloway Sound', 4, [4, 3, 3, 3], 'Cucumber, cold slate and a clean, sweet snap at the end.', 'Dry cider and mignonette', 5],
+ ['Calloway Flats', 'Tidal flats below the pier', 3, [3, 4, 2, 3], 'Butter, sweet grass and a gentle, rounded brine.', 'Lemon, and nothing else', 11],
+ ['Black Lantern', 'Lantern Point, open water', 5, [5, 2, 4, 5], 'Bold brine, iodine and a long, flinty finish.', 'Horseradish and a dry stout', 19],
+ ['Sister Isle', 'Leeward shore of Sister Isle', 2, [2, 5, 2, 3], 'Melon, sweet cream and a whisper of kelp.', 'A crisp dry sparkling wine', 27]
+];
+function shell(seed) {
+ const q = rng(seed), k = q() * 6, rot = ((q() - .5) * 60).toFixed(0), sx = .68 + q() * .14;
+ const ring = (R, j) => { let d = ''; for (let i = 0; i <= 132; i++) { const t = i / 132 * Math.PI * 2, rr = R * (1 + .09 * Math.sin(3 * t + k) + .05 * Math.sin(5 * t + 2 * k) + j * Math.sin(13 * t + 3 * k)); d += (i ? 'L' : 'M') + (100 + rr * Math.sin(t) * sx).toFixed(1) + ' ' + (110 - rr * Math.cos(t) * (1 + .2 * Math.cos(t))).toFixed(1); } return d + 'Z'; };
+ return `<svg viewBox="0 0 200 220" class="mx-auto h-44 w-44 drop-shadow-[0_22px_22px_rgba(0,0,0,.55)]" aria-hidden="true"><g transform="rotate(${rot} 100 110)"><path d="${ring(94, .045)}" fill="#25313a"/><path d="${ring(87, .035)}" fill="#3e4e56"/><path d="${ring(80, .025)}" fill="#5b6b6d"/><path d="${ring(73, .012)}" fill="url(#nacre)"/><path d="${ring(52, .05)}" fill="#b5a685"/><path d="${ring(45, .02)}" fill="#e3d7bc"/><ellipse cx="88" cy="92" rx="14" ry="9" fill="#fff" opacity=".35"/></g></svg>`;
+}
+const dots = (n) => [1, 2, 3, 4, 5].map((i) => `<span class="h-2 w-2 rounded-full ${i <= n ? 'bg-glass' : 'bg-foam/15'}"></span>`).join('');
+$('#oyGrid').innerHTML = '<svg width="0" height="0" class="absolute" aria-hidden="true"><radialGradient id="nacre" cx=".45" cy=".4"><stop offset="0" stop-color="#f6f2e8"/><stop offset=".6" stop-color="#c9d4cf"/><stop offset="1" stop-color="#7f9a97"/></radialGradient></svg>' + OY.map(([n, o, sal, bars, notes, pair, seed]) => `<button class="flip reveal h-[430px] text-left" aria-pressed="false" aria-label="${n}: show tasting notes"><span class="flip-in block">
+ <span class="face flex flex-col rounded-3xl bg-ink p-6 ring-1 ring-foam/10"><span class="relative grid flex-1 place-items-center"><span class="absolute h-40 w-40 rounded-full bg-glass/10 blur-2xl"></span>${shell(seed)}</span><span class="block font-disp text-[32px] leading-none">${n}</span><span class="mt-2 block text-[13px] text-foam/55">${o}</span><span class="mt-4 flex items-center justify-between border-t border-foam/10 pt-4 text-[11px] uppercase tracking-[.2em] text-foam/50"><span class="flex items-center gap-2">Salinity <span class="flex gap-1">${dots(sal)}</span></span><iconify-icon icon="lucide:rotate-cw" class="text-base text-brass"></iconify-icon></span></span>
+ <span class="face back flex flex-col rounded-3xl bg-brass p-6 text-ink"><span class="block text-[11px] font-medium uppercase tracking-[.26em] opacity-70">Tasting notes</span><span class="mt-2 block font-disp text-[32px] leading-none">${n}</span><span class="mt-6 block space-y-3 text-[12px] uppercase tracking-[.16em]">${['Brine', 'Sweetness', 'Mineral', 'Finish'].map((l, i) => `<span class="flex items-center justify-between gap-4">${l}<span class="flex gap-1">${[1, 2, 3, 4, 5].map((j) => `<span class="h-1.5 w-5 rounded-full ${j <= bars[i] ? 'bg-ink' : 'bg-ink/20'}"></span>`).join('')}</span></span>`).join('')}</span><span class="mt-6 block font-disp text-[22px] italic leading-snug">${notes}</span><span class="mt-auto block border-t border-ink/20 pt-4 text-[13px]"><b class="font-medium">Pair with:</b> ${pair}</span></span>
+</span></button>`).join('');
+$$('.flip').forEach((b) => (b.onclick = () => { const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', `${b.querySelector('.font-disp').textContent}: ${on ? 'show shell' : 'show tasting notes'}`); }));
+
+// Loft candles
+$('#candles').innerHTML = [110, 170, 230, 290, 350, 410, 470].map((x) => `<circle cx="${x}" cy="344" r="22" fill="url(#lamp)"/><rect x="${x - 3}" y="342" width="6" height="16" fill="#efe4cc"/><ellipse cx="${x}" cy="337" rx="3" ry="6" fill="#ffd994" class="tw" style="animation-duration:${1.5 + (x % 7) / 5}s"/>`).join('');
+
+// Reservations
+let party = 2, day = null, slot = null;
+const TIMES = ['5:00', '5:30', '6:00', '6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30'];
+const days = [...Array(12)].map((_, i) => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + i); return d; });
+const fmtD = (d, o) => d.toLocaleDateString('en-US', o);
+$('#dates').innerHTML = days.map((d, i) => { const closed = d.getDay() === 1; return `<button type="button" class="day shrink-0 rounded-2xl border border-foam/15 px-4 py-3 text-center transition hover:border-brass" data-i="${i}" aria-pressed="false" ${closed ? 'disabled aria-label="' + fmtD(d, { weekday: 'long', month: 'long', day: 'numeric' }) + ', closed"' : `aria-label="${fmtD(d, { weekday: 'long', month: 'long', day: 'numeric' })}"`}><span class="block text-[11px] uppercase tracking-[.2em] opacity-70">${i ? fmtD(d, { weekday: 'short' }) : 'Today'}</span><span class="block font-disp text-2xl leading-tight">${d.getDate()}</span><span class="block text-[11px] uppercase tracking-[.15em] opacity-60">${closed ? 'Closed' : fmtD(d, { month: 'short' })}</span></button>`; }).join('');
+function renderSlots() {
+ $('#slots').innerHTML = TIMES.map((t, si) => { const off = day === null || (day * 7 + si * 3 + party * 5) % 11 < 4 || (party > 6 && si % 3 !== 1); return `<button type="button" class="slot rounded-full border border-foam/15 py-2.5 text-[14px] transition enabled:hover:border-brass" data-t="${t}" aria-pressed="${slot === t && !off}" ${off ? 'disabled' : ''} aria-label="${t} PM${off ? ', unavailable' : ''}">${t}</button>`; }).join('');
+ if (slot && $(`.slot[data-t="${slot}"]`)?.disabled) slot = null;
+ $('#bigNote').classList.toggle('hidden', party < 7);
+ $('#pCount').textContent = party + (party > 1 ? ' guests' : ' guest');
+ $('#pMinus').disabled = party <= 1; $('#pPlus').disabled = party >= 10;
+ $('#summary').textContent = day === null ? 'Choose a date' : `${party} · ${fmtD(days[day], { weekday: 'short', month: 'short', day: 'numeric' })}${slot ? ' · ' + slot + ' PM' : ' · choose a time'}`;
+ $('#confirm').disabled = !slot;
+}
+$('#dates').onclick = (e) => { const b = e.target.closest('.day'); if (!b || b.disabled) return; day = +b.dataset.i; $$('.day').forEach((x) => x.setAttribute('aria-pressed', x === b)); renderSlots(); };
+$('#slots').onclick = (e) => { const b = e.target.closest('.slot'); if (!b || b.disabled) return; slot = b.dataset.t; renderSlots(); };
+$('#pMinus').onclick = () => { party--; renderSlots(); }; $('#pPlus').onclick = () => { party++; renderSlots(); };
+$('.day:not(:disabled)').click();
+$('#resForm').onsubmit = (e) => {
+ e.preventDefault(); const f = e.currentTarget;
+ if (!f.checkValidity()) { $('#resErr').classList.remove('hidden'); return; }
+ $('#doneText').textContent = `A table for ${party} on ${fmtD(days[day], { weekday: 'long', month: 'long', day: 'numeric' })} at ${slot} PM. We’ve sent the details to ${f.email.value} and will text a reminder at noon on the day.`;
+ $('#code').textContent = 'TH-' + (4000 + day * 97 + party * 13 + TIMES.indexOf(slot) * 7);
+ f.classList.add('hidden'); $('#resErr').classList.add('hidden'); $('#resDone').classList.remove('hidden'); $('#resDone').focus();
+};
+$('#again').onclick = () => { $('#resDone').classList.add('hidden'); $('#resForm').classList.remove('hidden'); };
+
+// Hours: highlight today
+const today = new Date().getDay();
+$$('#hours [data-d]').forEach((row) => { if (row.dataset.d.split(' ').includes(String(today))) { row.classList.add('text-brass-lite'); row.firstElementChild.insertAdjacentHTML('beforeend', ' <span class="ml-2 rounded-full border border-brass/50 px-2 py-0.5 text-[10px] uppercase tracking-[.2em]">Today</span>'); } });
+
+$('#nlForm').onsubmit = (e) => { e.preventDefault(); e.target.outerHTML = '<p class="mt-9 font-disp text-2xl italic text-brass-lite" role="status">Thank you. The first letter lands Thursday.</p>'; };
+
+// Scroll reveal
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+$$('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

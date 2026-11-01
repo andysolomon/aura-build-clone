@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oscilla - Dot-matrix wave field background</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #04050a; }
+  #field { touch-action: pan-y; }
+  .horizon { position: absolute; left: 50%; top: var(--hz, 52%); width: 120%; height: 260px; transform: translate(-50%, -50%); background: radial-gradient(50% 50% at 50% 50%, rgba(129,140,248,.3), rgba(34,211,238,.1) 45%, transparent 70%); pointer-events: none; }
+  .veil { background: radial-gradient(44% 34% at 50% 36%, rgba(4,5,10,.85), rgba(4,5,10,.4) 60%, transparent 88%); }
+  .headline { background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,.62)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .accent { background: linear-gradient(90deg, #67e8f9, #a78bfa 50%, #f9a8d4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 3px; }
+  .live { animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .live { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-white antialiased overflow-x-hidden">
+  <section id="hero" class="relative h-[100svh] min-h-[660px] overflow-hidden">
+    <canvas id="field" class="absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
+    <div class="horizon" aria-hidden="true"></div>
+    <div class="veil absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+
+    <header class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 h-[72px] flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2.5 text-[18px] font-semibold tracking-tight" aria-label="Oscilla home">
+        <svg viewBox="0 0 28 28" class="w-7 h-7" aria-hidden="true"><defs><linearGradient id="lg" x1="0" x2="1"><stop stop-color="#67e8f9"/><stop offset=".5" stop-color="#a78bfa"/><stop offset="1" stop-color="#f9a8d4"/></linearGradient></defs><g fill="url(#lg)"><circle cx="5" cy="14" r="2"/><circle cx="10" cy="9" r="2.4"/><circle cx="16" cy="19" r="2.4"/><circle cx="21" cy="11" r="2.2"/><circle cx="26" cy="15" r="1.6"/></g></svg>
+        Oscilla
+      </a>
+      <nav aria-label="Main" class="hidden md:flex items-center gap-8 text-[14px] text-white/60">
+        <a href="#" class="hover:text-white transition">Platform</a><a href="#" class="hover:text-white transition">Streams</a><a href="#" class="hover:text-white transition">Docs</a><a href="#" class="hover:text-white transition">Pricing</a>
+      </nav>
+      <a href="#" class="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-white/[.06] ring-1 ring-white/15 text-[13.5px] font-medium hover:bg-white/[.12] transition backdrop-blur">Console<iconify-icon icon="lucide:arrow-up-right" width="14"></iconify-icon></a>
+    </header>
+
+    <div class="relative z-10 max-w-3xl mx-auto px-5 text-center pt-[7vh] sm:pt-[9vh]">
+      <a href="#" class="inline-flex items-center gap-2 rounded-full bg-white/[.05] ring-1 ring-white/10 pl-2 pr-3 py-1 text-[12.5px] text-white/70 backdrop-blur hover:ring-white/20 transition">
+        <span class="live w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_#67e8f9]"></span><span class="font-mono text-[11px] text-cyan-200/90">LIVE</span>2.4M events per second, sub-10ms
+      </a>
+      <h1 class="headline mt-6 text-[44px] leading-[1] sm:text-[66px] lg:text-[78px] font-semibold tracking-[-0.045em]">Every signal,<br>one <span class="accent">living field.</span></h1>
+      <p class="mt-6 max-w-xl mx-auto text-[16px] sm:text-[17px] leading-relaxed text-white/60">Oscilla streams telemetry from every device, service and sensor into a single real-time surface. Spot the ripple before it becomes a wave.</p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="#" class="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-white text-[#04050a] text-[15px] font-semibold shadow-[0_0_40px_-8px_rgba(167,139,250,.7)] hover:bg-white/90 transition">Start streaming<iconify-icon icon="lucide:arrow-right" width="16" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+        <a href="#" class="inline-flex items-center gap-2 h-12 px-5 rounded-full bg-white/[.04] ring-1 ring-white/12 text-[15px] text-white/85 hover:bg-white/[.08] transition backdrop-blur"><iconify-icon icon="lucide:terminal" width="16" class="text-white/50"></iconify-icon>npx oscilla init</a>
+      </div>
+    </div>
+
+    <div class="absolute z-10 bottom-5 inset-x-5 sm:inset-x-8 flex items-center justify-between font-mono text-[11px] text-white/40 pointer-events-none">
+      <span class="flex items-center gap-2 rounded-full bg-[#04050a]/70 backdrop-blur px-3 py-1.5 ring-1 ring-white/[.06]"><iconify-icon icon="lucide:mouse-pointer-2" width="13"></iconify-icon><span id="hint">Move to ripple · click to pulse</span></span>
+      <span id="stat" class="hidden sm:block rounded-full bg-[#04050a]/70 backdrop-blur px-3 py-1.5 ring-1 ring-white/[.06]" aria-hidden="true"></span>
+    </div>
+  </section>
+
+<script>
+(function () {
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  var hero = document.getElementById('hero'), cv = document.getElementById('field'), ctx = cv.getContext('2d');
+  var stat = document.getElementById('stat');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // World: a ground plane of dots viewed in perspective. Camera height CAM, depth range Z0..Z1.
+  var CAM = 1, Z0 = 1, Z1 = 4.8, HZ = 0.48, B = 12;
+  var W, H, f, hor, dx, cols, zs, grad, spacing = 30;
+  var bx = [], by = [], br = [], bn = new Int32Array(B);
+  var ptr = { x: 0, z: 2.4, tx: 0, tz: 2.4, on: 0, target: .7, auto: true }, pulses = [];
+  var raf = 0, visible = true, inView = true, frames = 0, slow = 0, lastT = 0, acc = 0, accN = 0, drawn = 0;
+
+  function build() {
+    var r = hero.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    hor = H * HZ; f = (H * 1.06 - hor) / CAM;          // nearest row lands just below the fold
+    dx = spacing / f;
+    cols = Math.ceil(W * Z1 / spacing / 2) + 1;
+    zs = []; for (var z = Z0; z < Z1; z += (spacing * 0.9 / f) * Math.pow(z, 0.62)) zs.push(z);
+    var cap = (cols * 2 + 1) * zs.length;
+    for (var b = 0; b < B; b++) { bx[b] = new Float32Array(cap); by[b] = new Float32Array(cap); br[b] = new Float32Array(cap); }
+    grad = ctx.createLinearGradient(0, hor, W, H);
+    grad.addColorStop(0, '#67e8f9'); grad.addColorStop(.45, '#a78bfa'); grad.addColorStop(1, '#f9a8d4');
+    hero.style.setProperty('--hz', HZ * 100 + '%');
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    bn.fill(0);
+    if (ptr.auto) { ptr.tx = 1.1 * Math.sin(t * 0.21); ptr.tz = 2.3 + 0.7 * Math.sin(t * 0.33 + 1); } // idle autopilot until the pointer takes over
+    ptr.x += (ptr.tx - ptr.x) * 0.08; ptr.z += (ptr.tz - ptr.z) * 0.08;
+    ptr.on += (ptr.target - ptr.on) * 0.05;
+    var pon = ptr.on, px = ptr.x, pz = ptr.z, cx = W / 2, sc = spacing / 30;
+    pulses = pulses.filter(function (p) { return t - p.t < 3.2; });
+    for (var j = 0; j < zs.length; j++) {
+      var z = zs[j], inv = 1 / z, fz = f * inv;
+      var depth = Math.min(1, (Z1 - z) / 1.8);
+      for (var i = -cols; i <= cols; i++) {
+        var x = i * dx, sx = cx + x * fz;
+        if (sx < -6 || sx > W + 6) continue;
+        var h = 0.15 * Math.sin(x * 0.85 + t * 0.7) * Math.cos(z * 0.9 - t * 0.35) + 0.09 * Math.sin(z * 2.1 - t * 1.15) + 0.045 * Math.sin((x * 0.7 + z) * 3 + t * 1.6);
+        var glow = 0;
+        if (pon > 0.01 || pulses.length) {
+          var ddx = x - px, ddz = z - pz, d = Math.sqrt(ddx * ddx + ddz * ddz);
+          if (pon > 0.01) { h += pon * (0.2 * Math.sin(d * 7 + t * 4.2) * Math.exp(-d * 0.85) + 0.16 * Math.exp(-d * d * 4)); glow = pon * 0.4 * Math.exp(-d * d * 2.2); } // ripples converge on the cursor
+          for (var k = 0; k < pulses.length; k++) {
+            var p = pulses[k], age = t - p.t, qx = x - p.x, qz = z - p.z, e = Math.sqrt(qx * qx + qz * qz) - age * 1.7;
+            h += 0.26 * Math.exp(-e * e * 14) * Math.exp(-age * 1.1);
+          }
+        }
+        var a = depth * (0.12 + Math.max(0, Math.min(1, (h + 0.2) * 2.3)) * 0.88 + glow);
+        var b = (a * B) | 0;
+        if (b <= 0) continue; if (b >= B) b = B - 1;
+        var n = bn[b]++;
+        bx[b][n] = sx; by[b][n] = hor + (CAM - h) * fz; br[b][n] = Math.max(0.45, (2.3 + h * 6) * inv * sc);
+      }
+    }
+    ctx.fillStyle = grad; drawn = 0;
+    for (b = 1; b < B; b++) {
+      var m = bn[b]; if (!m) continue;
+      var X = bx[b], Y = by[b], R = br[b];
+      ctx.globalAlpha = (b + 0.5) / B; ctx.beginPath();
+      for (var q = 0; q < m; q++) {
+        var rr = R[q];
+        if (rr < 1.15) ctx.rect(X[q] - rr, Y[q] - rr, rr * 2, rr * 2);
+        else { ctx.moveTo(X[q] + rr, Y[q]); ctx.arc(X[q], Y[q], rr, 0, 6.2832); }
+      }
+      ctx.fill(); drawn += m;
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function loop(now) {
+    var dt = lastT ? now - lastT : 16; lastT = now;
+    draw(now / 1000);
+    // adaptive quality: if the first 90 frames average over ~22ms, thin the grid out
+    if (++frames < 90) slow += dt; else if (frames === 90 && slow / 89 > 22 && spacing < 48) { spacing *= 1.3; build(); }
+    acc += dt; accN++;
+    if (acc > 600) { stat.textContent = drawn.toLocaleString('en-US') + ' dots · ' + Math.round(1000 * accN / acc) + ' fps'; acc = 0; accN = 0; }
+    raf = requestAnimationFrame(loop);
+  }
+  function run() {
+    cancelAnimationFrame(raf); lastT = 0;
+    if (reduce) { draw(1.6); stat.textContent = 'Static frame · reduced motion'; return; }
+    if (visible && inView) raf = requestAnimationFrame(loop);
+  }
+
+  function toWorld(e) {
+    var r = hero.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
+    var z = sy > hor + 6 ? Math.min(Z1, CAM * f / (sy - hor)) : Z1 * 0.8;  // above the horizon: ripple the far field
+    return { x: (sx - W / 2) * z / f, z: z };
+  }
+  hero.addEventListener('pointermove', function (e) { var w = toWorld(e); ptr.tx = w.x; ptr.tz = w.z; ptr.target = 1; ptr.auto = false; });
+  hero.addEventListener('pointerleave', function () { ptr.target = .7; ptr.auto = true; });
+  hero.addEventListener('pointerdown', function (e) {
+    if (reduce || e.target.closest('a, button')) return;
+    var w = toWorld(e); pulses.push({ x: w.x, z: w.z, t: performance.now() / 1000 });
+    if (pulses.length > 6) pulses.shift();
+  });
+  var hint = document.getElementById('hint');
+  if (reduce) hint.textContent = 'Reduced motion: static field';
+  else if (matchMedia('(hover: none)').matches) hint.textContent = 'Drag to ripple · tap to pulse';
+
+  document.addEventListener('visibilitychange', function () { visible = !document.hidden; run(); });
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].isIntersecting; run(); }).observe(hero);
+  var rt = 0;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { build(); run(); }, 120); });
+  build(); run();
+})();
+</script>
+</body>
+</html>

@@ -10,7 +10,8 @@
     "build": "tsc -b && vite build",
     "start": "NODE_ENV=production tsx --env-file-if-exists=.env server/index.ts",
     "typecheck": "tsc -b --noEmit",
-    "assets": "tsx scripts/generate-assets.ts"
+    "assets": "tsx scripts/generate-assets.ts",
+    "thumbs": "tsx scripts/generate-thumbs.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",

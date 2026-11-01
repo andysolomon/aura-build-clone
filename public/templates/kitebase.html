@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kitebase — Team planning that gets your roadmap off the ground</title>
+  <meta name="description" content="Kitebase is the planning board your whole team actually opens: roadmaps, sprints and async standups on one living canvas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['"Bricolage Grotesque"', 'ui-sans-serif', 'system-ui', 'sans-serif'], sans: ['"Inter Tight"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: {
+            paper: '#FBF8F2', cream: '#F3EEE4', ink: '#16171D', slate: '#5D606C',
+            cobalt: { 50: '#EEF1FF', 100: '#DCE2FF', 400: '#5C79FF', 500: '#3557F5', 600: '#2245E0', 700: '#1A35B3', 900: '#101E66' },
+            tangerine: { 50: '#FFF1E5', 100: '#FFDFC4', 400: '#FF9445', 500: '#FF7A1A', 600: '#EB650C', 700: '#B54A05' },
+            butter: '#FFE58F', mint: '#D8F1E2', lilac: '#E8E3FF'
+          },
+          boxShadow: {
+            card: '0 1px 2px rgba(22,23,29,.06), 0 4px 12px -6px rgba(22,23,29,.10)',
+            board: '0 50px 90px -40px rgba(26,53,179,.45), 0 20px 40px -24px rgba(22,23,29,.25)',
+            lift: '0 24px 48px -20px rgba(16,30,102,.28)'
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    :focus-visible { outline: 2.5px solid #2245E0; outline-offset: 3px; border-radius: 10px; }
+    .dots { background-image: radial-gradient(rgba(22,23,29,.11) 1px, transparent 1.3px); background-size: 24px 24px; -webkit-mask-image: radial-gradient(ellipse 75% 70% at 62% 42%, #000 30%, transparent 78%); mask-image: radial-gradient(ellipse 75% 70% at 62% 42%, #000 30%, transparent 78%); }
+    .disp, .h2, .tile h3 { font-family: "Bricolage Grotesque", ui-sans-serif, sans-serif; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; padding: 14px 20px; font-weight: 600; transition: transform .15s, box-shadow .15s, background-color .2s, border-color .2s; }
+    .btn-c { background: #2245E0; color: #fff; box-shadow: 0 3px 0 #101E66; } .btn-c:hover { background: #3557F5; }
+    .btn-t { background: #FF7A1A; color: #fff; box-shadow: 0 3px 0 #B54A05; } .btn-t:hover { background: #FF9445; }
+    .btn-c:hover, .btn-t:hover { transform: translateY(-1px); } .btn-c:active, .btn-t:active { transform: translateY(2px); box-shadow: none; }
+    .btn-o { border: 1px solid rgba(22,23,29,.15); background: #fff; } .btn-o:hover { border-color: rgba(22,23,29,.4); }
+    .eb { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .16em; color: #EB650C; }
+    .h2 { margin-top: 12px; font-size: clamp(2.25rem, 4.2vw, 3.5rem); font-weight: 800; line-height: 1.02; letter-spacing: -.04em; }
+    .tile { border-radius: 24px; border: 1px solid rgba(22,23,29,.08); background: #fff; padding: 28px; }
+    .tile h3 { font-size: 24px; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
+    .tile h3 + p { margin-top: 8px; color: #5D606C; }
+    .nl a { border-radius: 8px; padding: 8px 14px; } .nl a:hover { background: rgba(22,23,29,.05); color: #16171D; }
+    .avs.big .av { width: 40px; height: 40px; font-size: 12px; box-shadow: 0 0 0 4px #FBF8F2; } .avs.big .av + .av { margin-left: -8px; }
+    .avs.md .av { width: 28px; height: 28px; font-size: 10px; }
+    .vt > span { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 6px 10px; }
+    .ml a { display: block; border-radius: 12px; padding: 12px; }
+    .so a { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 99px; border: 1px solid rgba(22,23,29,.1); } .so a:hover { color: #16171D; }
+    .su li { display: flex; gap: 12px; border-radius: 16px; padding: 12px; } .su .av { width: 32px; height: 32px; flex-shrink: 0; font-size: 11px; box-shadow: none; }
+    .rings svg { margin: 0 auto; width: 64px; height: 64px; transform: rotate(-90deg); fill: none; stroke-width: 8; } .rings b { font: 800 18px "Bricolage Grotesque", sans-serif; }
+    .tl .r { display: grid; grid-template-columns: 104px 1fr; align-items: center; gap: 12px; } .tl .r > div { position: relative; height: 32px; border-radius: 8px; background: #fff; }
+    .tl b { position: absolute; top: 4px; bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-radius: 6px; padding: 0 8px; font-size: 11px; line-height: 24px; }
+    @media (min-width: 640px) { .tl .r { grid-template-columns: 132px 1fr; } }
+    .lg-row > span { display: flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: -.025em; }
+    /* Board */
+    .col { border-radius: 16px; background: rgba(243,238,228,.75); padding: 8px; scroll-snap-align: start; transition: background-color .2s, box-shadow .2s; }
+    .col.drop { background: #E6EBFF; box-shadow: inset 0 0 0 2px rgba(34,69,224,.25); }
+    .colh { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px 8px; }
+    .colh h2 { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+    .colh h2 i { width: 8px; height: 8px; border-radius: 99px; }
+    .count { border-radius: 6px; background: #fff; padding: 1px 6px; font-size: 11px; font-weight: 700; color: #5D606C; }
+    .count.over { background: #FF7A1A; color: #fff; }
+    .add { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; color: #5D606C; } .add:hover { background: #fff; }
+    .cards { min-height: 120px; display: flex; flex-direction: column; gap: 8px; }
+    .card { cursor: grab; border-radius: 12px; border: 1px solid rgba(22,23,29,.07); background: #fff; padding: 12px; box-shadow: 0 1px 2px rgba(22,23,29,.06), 0 4px 12px -6px rgba(22,23,29,.1); touch-action: manipulation; -webkit-user-select: none; user-select: none; transition: box-shadow .2s, border-color .2s, transform .2s; }
+    .card:hover { border-color: rgba(34,69,224,.28); box-shadow: 0 10px 20px -10px rgba(16,30,102,.25); }
+    .card.held { transform: rotate(2deg) translate(6px,-2px); box-shadow: 0 22px 40px -18px rgba(16,30,102,.45); border-color: rgba(34,69,224,.45); }
+    .ch, .meta { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+    .tag { border-radius: 6px; padding: 2px 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .t-res { background: #E8E3FF; color: #5333C9; } .t-eng { background: #EEF1FF; color: #1A35B3; } .t-mkt { background: #FFF0B8; color: #7A5600; } .t-des { background: #D8F1E2; color: #1D6B45; } .t-sup { background: #FFF1E5; color: #B54A05; } .t-hot { background: #FF7A1A; color: #fff; }
+    .mv { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; border-radius: 99px; border: 1px solid rgba(22,23,29,.1); font-size: 13px; color: #5D606C; transition: .15s; }
+    .mv:hover { background: #2245E0; border-color: #2245E0; color: #fff; }
+    .ttl { margin-top: 8px; font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+    .is-done .ttl { color: #6B6E7A; text-decoration: line-through rgba(22,23,29,.3); }
+    .is-done .ttl::before { content: "✓"; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 5px; border-radius: 99px; background: #2245E0; color: #fff; font-size: 10px; vertical-align: 1px; }
+    .meta { margin-top: 12px; gap: 10px; justify-content: flex-start; font-size: 11px; font-weight: 500; color: #5D606C; }
+    .meta > span { display: inline-flex; align-items: center; gap: 4px; }
+    .av { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 99px; font-size: 9px; font-weight: 700; font-style: normal; box-shadow: 0 0 0 2px #fff; }
+    .meta .av, .meta .avs { margin-left: auto; } .avs { display: flex; } .avs .av + .av { margin-left: -6px; }
+    .bar { margin-top: 10px; height: 6px; overflow: hidden; border-radius: 99px; background: #F3EEE4; }
+    .ghost { position: fixed; z-index: 80; pointer-events: none; box-shadow: 0 30px 50px -18px rgba(16,30,102,.45); }
+    .ph { border: 2px dashed rgba(34,69,224,.38); background: rgba(34,69,224,.06); border-radius: 12px; }
+    @keyframes land { 0% { transform: scale(.95); } 55% { transform: scale(1.025); box-shadow: 0 0 0 6px rgba(255,122,26,.18); } }
+    .landed { animation: land .45s ease-out; }
+    @keyframes conf { 40% { transform: translate(calc(var(--dx) * .6), var(--dy)) rotate(calc(var(--r) * .5)); opacity: 1; } 100% { transform: translate(var(--dx), calc(var(--dy) + 150px)) rotate(var(--r)); opacity: 0; } }
+    .confetti { position: fixed; z-index: 90; width: 7px; height: 11px; border-radius: 2px; pointer-events: none; animation: conf .95s cubic-bezier(.2,.7,.3,1) forwards; }
+    /* Motion */
+    @keyframes heroIn { from { opacity: 0; transform: translateY(16px); } }
+    .hero-in { animation: heroIn .7s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes sway { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(6deg) translateY(-10px); } }
+    .sway { animation: sway 6s ease-in-out infinite; transform-origin: 40% 90%; }
+    @keyframes driftA { 35% { transform: translate(-26px,18px); } 70% { transform: translate(14px,30px); } }
+    @keyframes driftB { 40% { transform: translate(22px,-24px); } 75% { transform: translate(-12px,-8px); } }
+    .drift-a { animation: driftA 9s ease-in-out infinite; } .drift-b { animation: driftB 11s ease-in-out infinite; }
+    .reveal { transition: opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
+    .rv .reveal:not(.in) { opacity: 0; transform: translateY(24px); }
+    /* Integrations */
+    .it { border-radius: 16px; border: 1px solid rgba(22,23,29,.08); background: #fff; padding: 16px; text-align: center; transition: transform .2s, box-shadow .2s; }
+    .it:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -20px rgba(16,30,102,.28); }
+    .it > span { margin: 0 auto; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: #EEF1FF; transition: transform .2s; }
+    .it:nth-child(even) > span { background: #FFF1E5; } .it:hover > span { transform: rotate(-6deg); }
+    .it svg { width: 30px; height: 30px; fill: none; stroke: #2245E0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .it .a { stroke: #FF7A1A; } .it .f { fill: #FF7A1A; stroke: #FF7A1A; }
+    .it b { display: block; margin-top: 12px; font-size: 14px; font-weight: 600; } .it small { font-size: 12px; color: #5D606C; }
+    /* Pricing, FAQ, footer */
+    [data-bill][aria-pressed="true"] { background: #16171D; color: #fff; }
+    @keyframes tick { from { opacity: 0; transform: translateY(-10px); } }
+    .tick { display: inline-block; animation: tick .35s cubic-bezier(.2,.8,.2,1); }
+    .pl { margin: 24px 0 32px; display: grid; gap: 12px; font-size: 15px; flex: 1; align-content: start; }
+    .pl li { display: flex; gap: 10px; } .pl iconify-icon { margin-top: 4px; color: #2245E0; } .pl.lt iconify-icon { color: #FFE58F; }
+    .faq { border-radius: 16px; border: 1px solid rgba(22,23,29,.08); background: #fff; padding: 20px 24px; }
+    .faq summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: 16px; font-size: 17px; font-weight: 600; list-style: none; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq p { margin-top: 12px; line-height: 1.65; color: #5D606C; }
+    .chev { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 99px; background: #F3EEE4; transition: transform .2s, background-color .2s; }
+    details[open] .chev { transform: rotate(45deg); background: #2245E0; color: #fff; }
+    .fl { margin-top: 16px; display: grid; gap: 10px; color: #5D606C; } .fl a:hover { color: #16171D; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+      .rv .reveal:not(.in) { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body class="bg-paper font-sans text-ink antialiased selection:bg-tangerine-100">
+<a href="#main" class="sr-only z-[100] rounded-lg bg-ink px-4 py-2 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+
+<header class="sticky top-0 z-50 border-b border-ink/[.06] bg-paper/80 backdrop-blur-lg">
+  <nav class="mx-auto flex max-w-[1360px] items-center justify-between px-5 py-3.5 md:px-8" aria-label="Primary">
+    <a href="#" class="flex items-center gap-2" aria-label="Kitebase home">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 1 27 11 16 23 5 11Z" fill="#2245E0"/><path d="M16 1 27 11H16Z" fill="#FF7A1A"/><path d="M5 11h11v12Z" fill="#5C79FF"/><path d="M16 23c-3 2.5 3 3.5 0 7.5" stroke="#16171D" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="m13.5 26.5 2.5-.8-.6 2.4zM18.6 28.4l-2.4-.2 1 2.2z" fill="#FF7A1A"/></svg>
+      <span class="disp text-[22px] font-extrabold tracking-[-0.04em]">kitebase</span>
+    </a>
+    <ul class="nl hidden items-center gap-1 text-[15px] font-medium text-ink/75 md:flex">
+      <li><a href="#product">Product</a></li><li><a href="#integrations">Integrations</a></li><li><a href="#customers">Customers</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="flex items-center gap-2">
+      <a href="#" class="hidden rounded-lg px-3 py-2 text-[15px] font-semibold sm:block">Log in</a>
+      <a href="#pricing" class="btn btn-c hidden !px-4 !py-2.5 text-[15px] sm:inline-flex">Start free</a>
+      <button id="menu-btn" class="grid h-10 w-10 place-items-center rounded-xl border border-ink/10 bg-white text-xl md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><iconify-icon icon="lucide:menu"></iconify-icon></button>
+    </div>
+  </nav>
+  <div id="mobile-menu" class="hidden border-t border-ink/[.06] bg-paper px-5 pb-6 pt-2 md:hidden">
+    <ul class="ml text-lg font-semibold">
+      <li><a href="#product">Product</a></li><li><a href="#integrations">Integrations</a></li><li><a href="#customers">Customers</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="mt-4 grid grid-cols-2 gap-2"><a href="#" class="btn btn-o">Log in</a><a href="#pricing" class="btn btn-c">Start free</a></div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero -->
+  <section class="relative overflow-hidden" aria-labelledby="hero-title">
+    <div aria-hidden="true" class="dots absolute inset-0"></div>
+    <div aria-hidden="true" class="absolute right-[-12%] top-[2%] h-[680px] w-[820px] rounded-full bg-cobalt-100/70 blur-3xl"></div>
+    <div aria-hidden="true" class="absolute bottom-[-180px] left-[-120px] h-[380px] w-[380px] rounded-full bg-tangerine-100/80 blur-3xl"></div>
+    <div class="relative mx-auto grid max-w-[1360px] grid-cols-1 items-center gap-14 px-5 pb-20 pt-10 md:px-8 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:gap-12 lg:pb-24 lg:pt-14">
+      <div>
+        <a href="#product" class="hero-in inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white py-1 pl-1 pr-3 text-[13px] font-medium shadow-card transition hover:border-ink/25">
+          <span class="rounded-full bg-tangerine-500 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">New</span>Sprint Autopilot forecasts your finish line<iconify-icon icon="lucide:arrow-right" class="text-sm"></iconify-icon>
+        </a>
+        <h1 id="hero-title" class="hero-in disp mt-6 text-[48px] font-extrabold leading-[.95] tracking-[-0.035em] sm:text-[64px] lg:text-[66px] xl:text-[78px]" style="animation-delay:.06s">Get your roadmap off the <span class="relative inline-block text-cobalt-600">ground.<svg class="absolute -bottom-3 left-0 w-full" height="16" viewBox="0 0 240 16" preserveAspectRatio="none" aria-hidden="true"><path d="M4 11C50 3 120 2 236 8" stroke="#FF7A1A" stroke-width="6" fill="none" stroke-linecap="round"/></svg></span></h1>
+        <p class="hero-in mt-7 max-w-[30rem] text-lg leading-relaxed text-slate" style="animation-delay:.12s">Kitebase is the planning board your whole team actually opens. Roadmaps, sprints and standups share one living canvas, so everyone sees the work move.</p>
+        <div class="hero-in mt-8 flex flex-wrap items-center gap-3" style="animation-delay:.18s">
+          <a href="#pricing" class="btn btn-c group">Start planning free <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+          <a href="#product" class="btn btn-o"><span class="grid h-6 w-6 place-items-center rounded-full bg-tangerine-500 text-white"><iconify-icon icon="lucide:play" class="text-[11px]"></iconify-icon></span>Watch the 2-min tour</a>
+        </div>
+        <div class="hero-in mt-10 flex items-center gap-4" style="animation-delay:.24s">
+          <div class="avs big" aria-hidden="true">
+            <i class="av bg-tangerine-400 text-white">MF</i><i class="av bg-cobalt-500 text-white">JA</i><i class="av bg-butter">SO</i><i class="av bg-ink text-white">11k</i>
+          </div>
+          <p class="text-sm leading-snug"><span class="flex items-center gap-2"><svg width="86" height="16" viewBox="0 0 86 16" fill="#FF7A1A" role="img" aria-label="Rated 4.9 out of 5"><path id="st" d="m8 .8 2.2 4.6 5 .6-3.7 3.4 1 5L8 11.9l-4.5 2.5 1-5L.8 6l5-.6z"/><use href="#st" x="17.5"/><use href="#st" x="35"/><use href="#st" x="52.5"/><use href="#st" x="70"/></svg><b>4.9</b></span><span class="text-slate">Loved by 11,000+ product teams · free up to 10</span></p>
+        </div>
+      </div>
+
+      <!-- Interactive kanban board -->
+      <div class="hero-in relative" style="animation-delay:.1s">
+        <svg class="sway pointer-events-none absolute -right-[50px] -top-[50px] z-10 hidden w-[84px] min-[1360px]:block" viewBox="0 0 100 150" aria-hidden="true"><path d="M50 4 88 40 50 86 12 40Z" fill="#2245E0"/><path d="M50 4 88 40H50Z" fill="#FF7A1A"/><path d="M12 40h38v46Z" fill="#5C79FF"/><path d="M50 4v82M12 40h76" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/><path d="M50 86c-12 10 14 16 0 28s12 18 2 34" stroke="#16171D" stroke-width="2" fill="none" stroke-linecap="round"/><path d="m41 99 9-2-3 8zM57 116l-8-1 4 8zM44 132l8-2-2 8z" fill="#FF7A1A"/></svg>
+        <div class="drift-a pointer-events-none absolute left-[47%] top-[46%] z-30 hidden items-start md:flex" aria-hidden="true"><svg width="20" height="22" viewBox="0 0 20 22"><path d="m2 2 15 8-7 2-3 7z" fill="#2245E0" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="-ml-1 mt-4 rounded-full rounded-tl-sm bg-cobalt-600 px-2 py-0.5 text-[11px] font-semibold text-white shadow-card">Priya</span></div>
+        <div class="drift-b pointer-events-none absolute right-[7%] top-[78%] z-30 hidden items-start md:flex" aria-hidden="true"><svg width="20" height="22" viewBox="0 0 20 22"><path d="m2 2 15 8-7 2-3 7z" fill="#FF7A1A" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="-ml-1 mt-4 rounded-full rounded-tl-sm bg-tangerine-500 px-2 py-0.5 text-[11px] font-semibold text-white shadow-card">Theo</span></div>
+        <div class="pointer-events-none absolute -bottom-[74px] -left-9 z-30 hidden w-[190px] -rotate-[5deg] rounded-md bg-butter p-3.5 pb-4 shadow-lift lg:block" aria-hidden="true">
+          <span class="absolute -top-2.5 left-1/2 h-5 w-14 -translate-x-1/2 rotate-2 bg-white/60"></span>
+          <p class="disp text-[15px] font-bold leading-tight">Go on, drag a card. Or tap its arrow.</p>
+          <p class="mt-1 text-xs text-ink/60">The counts keep up, promise.</p>
+          <svg class="absolute -right-11 -top-9" width="60" height="46" viewBox="0 0 64 48" fill="none" stroke="#16171D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 42c18-2 34-14 46-34"/><path d="m42 9 9-3 1 10"/></svg>
+        </div>
+
+        <div id="board" class="relative rounded-[22px] border border-ink/10 bg-white/85 p-2.5 shadow-board backdrop-blur-md sm:p-3">
+          <div class="flex items-center justify-between gap-3 px-2 pb-3 pt-1">
+            <div class="flex min-w-0 items-center gap-2.5">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-tangerine-500 text-lg text-white"><iconify-icon icon="lucide:rocket"></iconify-icon></span>
+              <div class="min-w-0"><p class="truncate text-[11px] font-medium text-slate">Halyard Mobile · Q4 roadmap</p><p class="disp truncate text-base font-bold leading-tight tracking-tight">Sprint 14 — Launch prep</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="avs md hidden sm:flex" aria-hidden="true"><i class="av bg-cobalt-500 text-white">PK</i><i class="av bg-tangerine-400 text-white">TL</i><i class="av bg-mint">MF</i><i class="av bg-cream">+5</i></div>
+              <button class="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-white"><iconify-icon icon="lucide:share-2"></iconify-icon>Share</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-3 border-y border-ink/[.06] px-2 py-2.5">
+            <div class="vt flex gap-1 text-xs font-semibold text-slate">
+              <span class="bg-cobalt-50 text-cobalt-700"><iconify-icon icon="lucide:kanban"></iconify-icon>Board</span><span><iconify-icon icon="lucide:gantt-chart"></iconify-icon>Timeline</span><span class="max-sm:!hidden"><iconify-icon icon="lucide:list"></iconify-icon>List</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-medium text-slate">
+              <span id="sprint-label">2 of 8 done</span>
+              <span class="h-2 w-24 overflow-hidden rounded-full bg-cream sm:w-32"><span id="sprint-bar" class="block h-full rounded-full bg-gradient-to-r from-cobalt-600 to-cobalt-400 transition-all duration-500" style="width:25%"></span></span>
+              <span class="hidden sm:inline">6 days left</span>
+            </div>
+          </div>
+          <div class="grid snap-x snap-mandatory auto-cols-[82%] grid-flow-col gap-2.5 overflow-x-auto pt-3 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-3 sm:overflow-visible">
+            <div class="col" data-col="todo" role="group" aria-labelledby="h-todo">
+              <div class="colh"><h2 id="h-todo"><i class="bg-slate/50"></i>To do <span class="count">3</span></h2><button class="add" aria-label="Add card to To do"><iconify-icon icon="lucide:plus"></iconify-icon></button></div>
+              <ul class="cards">
+                <li class="card" tabindex="0"><div class="ch"><span class="tag t-res">Research</span><button class="mv"><iconify-icon icon="lucide:arrow-right"></iconify-icon></button></div><p class="ttl">Interview six churned teams about setup</p><div class="meta"><span><iconify-icon icon="lucide:calendar"></iconify-icon>Nov 4</span><span><iconify-icon icon="lucide:square-check"></iconify-icon>1/6</span><i class="av bg-tangerine-400 text-white">MR</i></div></li>
+                <li class="card" tabindex="0"><div class="ch"><span class="tag t-eng">Eng</span><button class="mv"><iconify-icon icon="lucide:arrow-right"></iconify-icon></button></div><p class="ttl">Offline drafts for the mobile editor</p><div class="meta"><span><iconify-icon icon="lucide:calendar"></iconify-icon>Nov 7</span><span><iconify-icon icon="lucide:message-square"></iconify-icon>3</span><i class="av bg-cobalt-500 text-white">JA</i></div></li>
+                <li class="card" tabindex="0"><div class="ch"><span class="tag t-mkt">Marketing</span><button class="mv"><iconify-icon icon="lucide:arrow-right"></iconify-icon></button></div><p class="ttl">Launch post for the new Timeline view</p><div class="meta"><span><iconify-icon icon="lucide:calendar"></iconify-icon>Nov 9</span><span><iconify-icon icon="lucide:paperclip"></iconify-icon>2</span><i class="av bg-butter">SO</i></div></li>
+              </ul>
+            </div>
+            <div class="col" data-col="doing" role="group" aria-labelledby="h-doing">
+              <div class="colh"><h2 id="h-doing"><i class="bg-cobalt-600"></i>In progress <span class="count">3/4</span></h2><button class="add" aria-label="Add card to In progress"><iconify-icon icon="lucide:plus"></iconify-icon></button></div>
+              <ul class="cards">
+                <li class="card held" tabindex="0"><div class="ch"><span class="tag t-des">Design</span><button class="mv"><iconify-icon icon="lucide:arrow-right"></iconify-icon></button></div><p class="ttl">Onboarding checklist, round three</p><div class="bar"><span class="block h-full w-3/5 rounded-full bg-[#2E9A62]"></span></div><div class="meta !mt-2.5"><span><iconify-icon icon="lucide:square-check"></iconify-icon>3/5</span><span><iconify-icon icon="lucide:message-square"></iconify-icon>8</span><span class="avs"><i class="av bg-mint">MF</i><i class="av bg-cobalt-500 text-white">PK</i></span></div></li>
+                <li class="card" tabindex="0"><div class="ch"><span class="flex gap-1"><span class="tag t-eng">Eng</span><span class="tag t-hot">Urgent</span></span><button class="mv"><iconify-icon icon="lucide:arrow-right"></iconify-icon></button></div><p class="ttl">Rate-limit the public sync API</p><div class="meta"><span class="text-tangerine-600"><iconify-icon icon="lucide:calendar"></iconify-icon>Today</span><span><iconify-icon icon="lucide:git-pull-request"></iconify-icon>#482</span><i class="av bg-tangerine-400 text-white">TL</i></div></li>
+                <li class="card" tabindex="0"><div class="ch"><span class="tag t-sup">Support</span><button class="mv"><iconify-icon icon="lucide:arrow-right"></iconify-icon></button></div><p class="ttl">Triage the 14 mobile crash reports</p><div class="meta"><span><iconify-icon icon="lucide:calendar"></iconify-icon>Nov 2</span><span><iconify-icon icon="lucide:square-check"></iconify-icon>9/14</span><i class="av bg-ink text-white">AN</i></div></li>
+              </ul>
+            </div>
+            <div class="col" data-col="done" role="group" aria-labelledby="h-done">
+              <div class="colh"><h2 id="h-done"><i class="bg-tangerine-500"></i>Done <span class="count">2</span></h2><button class="add" aria-label="Add card to Done"><iconify-icon icon="lucide:plus"></iconify-icon></button></div>
+              <ul class="cards">
+                <li class="card is-done" tabindex="0"><div class="ch"><span class="tag t-eng">Eng</span><button class="mv"><iconify-icon icon="lucide:rotate-ccw"></iconify-icon></button></div><p class="ttl">Dark mode for the whole board</p><div class="meta"><span><iconify-icon icon="lucide:party-popper"></iconify-icon>Shipped Oct 29</span><i class="av bg-cobalt-500 text-white">PK</i></div></li>
+                <li class="card is-done" tabindex="0"><div class="ch"><span class="tag t-res">Research</span><button class="mv"><iconify-icon icon="lucide:rotate-ccw"></iconify-icon></button></div><p class="ttl">Q3 NPS themes, synthesized</p><div class="meta"><span><iconify-icon icon="lucide:party-popper"></iconify-icon>Shipped Oct 27</span><i class="av bg-tangerine-400 text-white">MR</i></div></li>
+              </ul>
+            </div>
+          </div>
+          <p id="board-live" class="sr-only" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logos -->
+  <section class="mx-auto max-w-[1360px] px-5 pb-16 md:px-8" aria-label="Customers">
+    <div class="flex flex-col items-center gap-6 border-t border-ink/[.07] pt-8 lg:flex-row lg:justify-between">
+      <p class="shrink-0 text-sm font-medium text-slate">Teams at 11,000+ companies plan in Kitebase</p>
+      <div class="lg-row grid w-full grid-cols-2 items-center gap-x-8 gap-y-5 text-xl text-ink/55 sm:grid-cols-3 lg:flex lg:w-auto lg:gap-12">
+        <span class="disp font-extrabold"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2v14H3z"/><path d="M11.5 5 17 16h-5.5z" opacity=".55"/><path d="M2 17.5h16" stroke="currentColor" stroke-width="1.6"/></svg>Halyard</span>
+        <span class="font-semibold"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M6 13c1-5 4-7 8-7-1 4-3 7-8 7z" fill="currentColor"/></svg>mossworks</span>
+        <span class="disp font-bold"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12" r="4" fill="currentColor"/><path d="M10 2v3M3.5 6l2 2M16.5 6l-2 2M2 13h2.5M15.5 13H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Brightloom</span>
+        <span class="text-lg font-bold uppercase !tracking-[0.28em]">Otterly</span>
+        <span class="disp font-medium"><svg width="22" height="16" viewBox="0 0 22 16" fill="currentColor" aria-hidden="true"><path d="M2 8c4-6 10-6 14 0-4 6-10 6-14 0zM16 8l5-5v10z"/></svg>Quillfish</span>
+        <span class="font-bold !gap-0 max-sm:!hidden">pebble<b class="text-tangerine-500/80">&amp;</b>co</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features bento -->
+  <section id="product" class="mx-auto max-w-[1360px] px-5 py-16 md:px-8 md:py-24">
+    <div class="reveal max-w-2xl">
+      <p class="eb">Product</p>
+      <h2 class="h2">One board. Every altitude.</h2>
+      <p class="mt-5 text-lg leading-relaxed text-slate">Zoom out to the quarter, zoom in to today. Kitebase keeps the roadmap, the sprint and the standup in sync, so nobody rebuilds the plan in a slide deck again.</p>
+    </div>
+    <div class="mt-12 grid gap-4 md:grid-cols-6">
+      <article class="reveal tile md:col-span-4 md:p-8">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="max-w-md"><h3>Roadmap to today, in one pinch</h3><p>Initiatives roll up from real cards, so the timeline redraws itself when work actually moves, not when someone remembers to update it.</p></div>
+          <span class="rounded-full bg-cobalt-50 px-3 py-1 text-xs font-bold text-cobalt-700">Timeline view</span>
+        </div>
+        <div class="tl relative mt-7 overflow-hidden rounded-2xl border border-ink/[.08] bg-paper p-4 text-[12px] font-semibold">
+          <div class="r text-[11px] font-bold uppercase tracking-wider text-slate"><span>Initiative</span><p class="grid grid-cols-3"><span>Oct</span><span>Nov</span><span>Dec</span></p></div>
+          <div class="mt-3 space-y-2.5">
+            <div class="r"><span class="truncate">Onboarding v3</span><div><b class="left-[1%] w-[38%] bg-cobalt-600 text-white">12 cards · 75%</b></div></div>
+            <div class="r"><span class="truncate">Timeline view</span><div><b class="left-[18%] w-[44%] bg-tangerine-500 text-white">Beta Nov 12</b></div></div>
+            <div class="r"><span class="truncate">Offline mobile</span><div><b class="left-[40%] w-[52%] bg-cobalt-100 text-cobalt-700" style="background-image:repeating-linear-gradient(135deg,transparent 0 6px,rgba(34,69,224,.12) 6px 12px)">Planned · 21 cards</b></div></div>
+            <div class="r"><span class="truncate">Billing revamp</span><div><b class="left-[62%] w-[30%] bg-butter text-[#6B4C00]">Scoping</b></div></div>
+          </div>
+          <div aria-hidden="true" class="pointer-events-none absolute bottom-3 top-9 w-0.5 bg-tangerine-500 left-[calc(132px+(100%-176px)*.3)] max-sm:left-[calc(104px+(100%-148px)*.3)]"><span class="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded bg-tangerine-500 px-1.5 text-[10px] font-bold text-white">Today</span></div>
+        </div>
+      </article>
+      <article class="reveal tile flex flex-col !border-0 !bg-cobalt-600 text-white md:col-span-2 md:p-8">
+        <h3>Standups, minus the meeting</h3>
+        <p class="!text-white/75">Everyone posts a 30-second update by 10am. Kitebase stitches them into one digest.</p>
+        <ul class="su mt-6 space-y-2.5 text-[13px]">
+          <li class="bg-white/10"><i class="av bg-tangerine-400">TL</i><span><b>Shipped</b> rate limits to staging. <span class="text-white/70">Today: load test.</span></span></li>
+          <li class="bg-white/10"><i class="av bg-mint text-ink">MF</i><span><b>Checklist</b> copy is final. <span class="text-white/70">Today: empty states.</span></span></li>
+          <li class="bg-butter text-ink"><i class="av bg-ink text-white">AN</i><span><b>Blocked</b> on crash logs from older phones.</span></li>
+        </ul>
+      </article>
+      <article class="reveal tile md:col-span-2 md:p-8">
+        <h3>WIP limits that nudge</h3>
+        <p>Cap each column. When it’s full, Kitebase suggests what to finish first.</p>
+        <div class="mt-6 rounded-2xl bg-cream/70 p-3">
+          <div class="flex items-center justify-between text-[13px] font-semibold"><span>In progress</span><span class="count over">4/4</span></div>
+          <div class="mt-2 space-y-1.5"><div class="h-8 rounded-lg bg-white shadow-card"></div><div class="h-8 rounded-lg bg-white shadow-card"></div></div>
+          <div class="mt-3 flex items-start gap-2 rounded-xl bg-ink p-3 text-[12.5px] text-white"><iconify-icon icon="lucide:lightbulb" class="mt-0.5 text-butter"></iconify-icon><span>Column’s full. <b>“Crash triage”</b> is 9/14 done. Finish it first?</span></div>
+        </div>
+      </article>
+      <article class="reveal tile md:col-span-2 md:p-8">
+        <h3>Sprint Autopilot</h3>
+        <p>Forecasts your finish from six sprints of real velocity, and flags slips by Tuesday.</p>
+        <div class="mt-6 rounded-2xl border border-ink/[.08] bg-paper p-3">
+          <svg viewBox="0 0 260 120" class="h-32 w-full" role="img" aria-label="Burndown chart forecasting completion one day early"><path d="M10 30h240M10 60h240M10 90h240" stroke="rgba(22,23,29,.07)"/><path d="M12 14 248 108" stroke="#5D606C" stroke-width="1.5" stroke-dasharray="4 5" fill="none"/><path d="M12 14 44 20 76 36 108 42 140 64" stroke="#2245E0" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M140 64 214 108" stroke="#FF7A1A" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round" fill="none"/><circle cx="140" cy="64" r="5" fill="#fff" stroke="#2245E0" stroke-width="3"/><circle cx="214" cy="108" r="5" fill="#FF7A1A"/><text x="158" y="100" font-size="11" font-weight="700" fill="#B54A05" font-family="Inter Tight, sans-serif">Lands Thu</text></svg>
+          <p class="flex items-center gap-1.5 text-xs font-semibold text-[#1D6B45]"><iconify-icon icon="lucide:trending-up"></iconify-icon>1 day early at current pace</p>
+        </div>
+      </article>
+      <article class="reveal tile md:col-span-2 md:p-8">
+        <h3>Goals that roll up</h3>
+        <p>Link cards to quarterly goals. Progress updates itself, honestly.</p>
+        <div class="rings mt-6 grid grid-cols-3 gap-2 text-center text-[12px] font-semibold">
+          <div><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" stroke="#EEF1FF"/><circle cx="32" cy="32" r="26" stroke="#2245E0" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="37"/></svg><p class="mt-2"><b>77%</b><br><span class="text-slate">Activation</span></p></div>
+          <div><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" stroke="#FFF1E5"/><circle cx="32" cy="32" r="26" stroke="#FF7A1A" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="85"/></svg><p class="mt-2"><b>48%</b><br><span class="text-slate">Mobile parity</span></p></div>
+          <div><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" stroke="#D8F1E2"/><circle cx="32" cy="32" r="26" stroke="#2E9A62" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="16"/></svg><p class="mt-2"><b>90%</b><br><span class="text-slate">Crash-free</span></p></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Integrations -->
+  <section id="integrations" class="border-y border-ink/[.07] bg-white/60 py-16 md:py-24">
+    <div class="mx-auto max-w-[1360px] px-5 md:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-6">
+        <div class="max-w-xl"><p class="eb">Integrations</p><h2 class="h2">Tied to the tools you already use.</h2></div>
+        <p class="max-w-sm text-slate">Two-way sync with 70+ apps. Merge a pull request and its card glides to Done on its own.</p>
+      </div>
+      <div class="reveal mt-12">
+        <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="10" cy="7" r="3"/><circle cx="10" cy="25" r="3"/><circle class="f" cx="23" cy="11" r="3"/><path d="M10 10v12M23 14c0 6-7 5-11 9"/></svg></span><b>Code hosts</b><small>PRs, branches, CI</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 6h16v11h-9l-5 4v-4H4z"/><path class="a" d="M24 11h4v11h-2v4l-5-4h-7v-2"/></svg></span><b>Team chat</b><small>Alerts &amp; digests</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 9 11-9 15-9-15z"/><circle class="f" cx="16" cy="15" r="2.5"/><path d="M16 17.5V29"/></svg></span><b>Design files</b><small>Live frame previews</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="4"/><path d="M4 13h24M11 3v6M21 3v6"/><circle class="f" cx="20" cy="21" r="3"/></svg></span><b>Calendars</b><small>Sprints &amp; time off</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 4h11l6 6v18H8z"/><path d="M19 4v6h6"/><path class="a" d="M12 17h9M12 22h6"/></svg></span><b>Docs &amp; wikis</b><small>Specs beside cards</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="4.5"/><path class="a" d="m8 8 5 5m11-5-5 5M8 24l5-5m11 5-5-5"/></svg></span><b>Help desks</b><small>Tickets to cards</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M26 12A11 11 0 0 0 6 10m0 10a11 11 0 0 0 20 2"/><path d="M26 5v7h-7M6 27v-7h7"/><path class="a" d="m12 16 3 3 5-6"/></svg></span><b>CI / CD</b><small>Deploy status</small></li>
+          <li class="it"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 6c-4 0-4 3-4 5s-2 5-3 5c1 0 3 3 3 5s0 5 4 5M22 6c4 0 4 3 4 5s2 5 3 5c-1 0-3 3-3 5s0 5-4 5"/><path class="a" d="M14 12v5a3 3 0 0 0 6 0"/></svg></span><b>Webhooks &amp; API</b><small>Build your own</small></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="customers" class="mx-auto max-w-[1360px] px-5 py-16 md:px-8 md:py-24">
+    <div class="reveal max-w-2xl"><p class="eb">Customers</p><h2 class="h2">Fewer status meetings. More Fridays that ship.</h2></div>
+    <div class="mt-12 grid gap-4 lg:grid-cols-5">
+      <figure class="reveal relative flex flex-col justify-between overflow-hidden rounded-3xl bg-ink p-8 text-white md:p-10 lg:col-span-3">
+        <svg aria-hidden="true" class="absolute -right-10 -top-10 w-32 rotate-12" viewBox="0 0 100 100"><path d="M50 4 88 40 50 86 12 40Z" fill="#2245E0"/><path d="M50 4 88 40H50Z" fill="#FF7A1A"/></svg>
+        <blockquote class="disp relative max-w-2xl text-[26px] font-semibold leading-[1.22] tracking-tight md:text-[34px]">“We cancelled our Monday status meeting in week two. The board <span class="text-tangerine-400">is</span> the status now, and people keep it current because moving a card genuinely feels good.”</blockquote>
+        <figcaption class="mt-10 flex items-center gap-3"><i class="av !h-12 !w-12 bg-tangerine-400 !text-sm !shadow-none">MF</i><span><b class="block">Maya Ferreira</b><span class="text-sm text-white/60">Head of Product, Halyard</span></span></figcaption>
+      </figure>
+      <div class="grid gap-4 lg:col-span-2">
+        <figure class="reveal tile"><blockquote class="text-[17px] leading-relaxed">“Autopilot told us on Tuesday that we’d miss Friday. We cut scope before standup instead of apologizing after the demo.”</blockquote><figcaption class="mt-5 flex items-center gap-3 text-sm"><i class="av !h-10 !w-10 bg-cobalt-500 !text-xs text-white">JA</i><span><b class="block">Jonah Abiola</b><span class="text-slate">Engineering Manager, Mossworks</span></span></figcaption></figure>
+        <figure class="reveal tile !border-0 !bg-tangerine-50"><blockquote class="text-[17px] leading-relaxed">“Design, product and support finally plan in the same place. Our ‘where is this at?’ threads dropped to almost zero.”</blockquote><figcaption class="mt-5 flex items-center gap-3 text-sm"><i class="av !h-10 !w-10 bg-butter !text-xs">SO</i><span><b class="block">Sana Okoro</b><span class="text-slate">COO, Brightloom</span></span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="mx-auto max-w-[1360px] px-5 py-16 md:px-8 md:py-24">
+    <div class="reveal text-center">
+      <p class="eb">Pricing</p>
+      <h2 class="h2">Fair pricing, per member.</h2>
+      <p class="mx-auto mt-4 max-w-lg text-slate">Guests and viewers are always free. Change plans or headcount any time, prorated to the day.</p>
+      <div class="relative mt-8 inline-flex rounded-xl border border-ink/10 bg-white p-1 text-sm font-semibold" role="group" aria-label="Billing period">
+        <button class="rounded-lg px-4 py-2 transition" data-bill="monthly" aria-pressed="true">Monthly</button>
+        <button class="rounded-lg px-4 py-2 transition" data-bill="annual" aria-pressed="false">Annual</button>
+        <span class="absolute -right-24 -top-4 hidden rotate-6 rounded-full bg-tangerine-500 px-2.5 py-1 text-xs font-bold text-white sm:block">Save 20%</span>
+      </div>
+    </div>
+    <div class="mt-12 grid gap-4 md:grid-cols-3">
+      <div class="reveal tile flex flex-col md:p-8">
+        <h3>Starter</h3><p>For small crews finding their rhythm.</p>
+        <p class="mt-6 flex items-end gap-1"><span class="disp text-5xl font-extrabold tracking-tight">$0</span><span class="pb-1.5 text-sm text-slate">forever</span></p>
+        <p class="mt-1 h-5 text-xs text-slate">Up to 10 members</p>
+        <ul class="pl"><li><iconify-icon icon="lucide:check"></iconify-icon>Unlimited boards &amp; cards</li><li><iconify-icon icon="lucide:check"></iconify-icon>Board, list &amp; calendar views</li><li><iconify-icon icon="lucide:check"></iconify-icon>5 integrations</li></ul>
+        <a href="#" class="btn btn-o">Start for free</a>
+      </div>
+      <div class="reveal tile relative flex flex-col !border-0 !bg-cobalt-600 text-white shadow-board md:p-8">
+        <span class="absolute -top-3.5 right-8 rotate-3 rounded-full bg-tangerine-500 px-3 py-1 text-xs font-bold">Most popular</span>
+        <h3>Team</h3><p class="!text-white/70">For product teams shipping every sprint.</p>
+        <p class="mt-6 flex items-end gap-1"><span class="disp text-5xl font-extrabold tracking-tight">$<span data-price data-monthly="10" data-annual="8">10</span></span><span class="pb-1.5 text-sm text-white/70">/ member / mo</span></p>
+        <p class="mt-1 h-5 text-xs text-white/70" data-note data-monthly="Billed monthly" data-annual="Billed $96 per member, yearly">Billed monthly</p>
+        <ul class="pl lt"><li><iconify-icon icon="lucide:check"></iconify-icon>Timeline &amp; roadmap views</li><li><iconify-icon icon="lucide:check"></iconify-icon>Sprint Autopilot forecasts</li><li><iconify-icon icon="lucide:check"></iconify-icon>Async standups &amp; digests</li><li><iconify-icon icon="lucide:check"></iconify-icon>Unlimited integrations</li></ul>
+        <a href="#" class="btn btn-t">Start 14-day trial</a>
+      </div>
+      <div class="reveal tile flex flex-col md:p-8">
+        <h3>Business</h3><p>For orgs planning across many teams.</p>
+        <p class="mt-6 flex items-end gap-1"><span class="disp text-5xl font-extrabold tracking-tight">$<span data-price data-monthly="18" data-annual="14">18</span></span><span class="pb-1.5 text-sm text-slate">/ member / mo</span></p>
+        <p class="mt-1 h-5 text-xs text-slate" data-note data-monthly="Billed monthly" data-annual="Billed $168 per member, yearly">Billed monthly</p>
+        <ul class="pl"><li><iconify-icon icon="lucide:check"></iconify-icon>Goals &amp; portfolio roll-ups</li><li><iconify-icon icon="lucide:check"></iconify-icon>SSO, SCIM &amp; audit log</li><li><iconify-icon icon="lucide:check"></iconify-icon>EU or US data residency</li><li><iconify-icon icon="lucide:check"></iconify-icon>Priority support, 4-hour reply</li></ul>
+        <a href="#" class="btn bg-ink text-white hover:bg-ink/85">Talk to sales</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="mx-auto grid max-w-[1360px] gap-10 px-5 py-16 md:px-8 lg:grid-cols-[1fr_1.6fr]">
+    <div class="reveal">
+      <h2 class="h2 !mt-0">Questions, untangled.</h2>
+      <p class="mt-4 max-w-sm text-slate">Can’t find what you need? A real human answers <a href="mailto:hello@kitebase.app" class="font-semibold text-cobalt-600 underline decoration-tangerine-400 decoration-2 underline-offset-4">hello@kitebase.app</a> within a few hours.</p>
+    </div>
+    <div class="reveal space-y-3">
+      <details class="faq" open><summary>Can we import from spreadsheets or another planning tool?<span class="chev"><iconify-icon icon="lucide:plus"></iconify-icon></span></summary><p>Yes. Drop in a CSV or connect your old tool and Kitebase maps columns, assignees, labels and due dates automatically. Most teams are fully moved over in an afternoon.</p></details>
+      <details class="faq"><summary>Who counts as a paid member?<span class="chev"><iconify-icon icon="lucide:plus"></iconify-icon></span></summary><p>Anyone who creates or edits cards. Stakeholders who only view boards, comment or react are free guests, with no cap.</p></details>
+      <details class="faq"><summary>How does Sprint Autopilot make its forecast?<span class="chev"><iconify-icon icon="lucide:plus"></iconify-icon></span></summary><p>It looks at your last six sprints of completed work, current scope and planned time off, then simulates thousands of outcomes. You see a likely finish day and the cards most at risk.</p></details>
+      <details class="faq"><summary>Where is our data stored, and is it secure?<span class="chev"><iconify-icon icon="lucide:plus"></iconify-icon></span></summary><p>Kitebase is SOC 2 Type II audited and encrypts data at rest and in transit. Business plans can pin data to EU or US regions and enforce SSO.</p></details>
+      <details class="faq"><summary>What happens when our trial ends?<span class="chev"><iconify-icon icon="lucide:plus"></iconify-icon></span></summary><p>Nothing disappears. If you don’t add a card, your workspace drops to Starter and keeps every board; premium views simply go read-only.</p></details>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="px-3 pb-16 pt-8 md:px-5">
+    <div class="reveal relative mx-auto max-w-[1400px] overflow-hidden rounded-[2.5rem] bg-cobalt-600 px-6 py-16 text-white md:px-16 md:py-24">
+      <div aria-hidden="true" class="absolute inset-0 opacity-25" style="background-image:radial-gradient(rgba(255,255,255,.5) 1px,transparent 1.3px);background-size:22px 22px"></div>
+      <svg aria-hidden="true" class="sway absolute -right-4 top-6 hidden w-[230px] md:block lg:right-20" viewBox="0 0 100 190"><path d="M50 4 88 40 50 86 12 40Z" fill="#FF7A1A"/><path d="M50 4 88 40H50Z" fill="#FFE58F"/><path d="M12 40h38v46Z" fill="#fff" fill-opacity=".9"/><path d="M50 4v82M12 40h76" stroke="#101E66" stroke-opacity=".35" stroke-width="1.2"/><path d="M50 86c-14 12 16 20 0 34s14 22 2 40" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="m40 101 10-2-3 8zM58 122l-9-1 4 8zM43 144l9-2-2 8z" fill="#FFE58F"/></svg>
+      <div class="relative max-w-2xl">
+        <h2 class="disp text-4xl font-extrabold leading-[1] tracking-[-0.04em] md:text-[64px]">Ready when <br class="hidden md:block">your team is.</h2>
+        <p class="mt-5 max-w-lg text-lg text-white/80">Spin up a board in under a minute. Bring your backlog, invite your crew and watch the first card take flight.</p>
+        <div class="mt-8 flex flex-wrap gap-3"><a href="#pricing" class="btn btn-t">Start planning free</a><a href="#" class="btn ring-1 ring-white/40 hover:bg-white/10">Book a walkthrough</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-ink/[.07]">
+  <div class="mx-auto grid max-w-[1360px] gap-10 px-5 py-14 text-sm md:grid-cols-5 md:px-8">
+    <div class="md:col-span-2">
+      <a href="#" class="flex items-center gap-2" aria-label="Kitebase home"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 1 27 11 16 23 5 11Z" fill="#2245E0"/><path d="M16 1 27 11H16Z" fill="#FF7A1A"/><path d="M5 11h11v12Z" fill="#5C79FF"/><path d="M16 23c-3 2.5 3 3.5 0 7.5" stroke="#16171D" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg><span class="disp text-xl font-extrabold tracking-[-0.04em]">kitebase</span></a>
+      <p class="mt-4 max-w-xs text-slate">Team planning with a little lift. Made with string and stubbornness in Lisbon and Toronto.</p>
+    </div>
+    <div><h3 class="font-semibold">Product</h3><ul class="fl"><li><a href="#product">Boards</a></li><li><a href="#product">Timeline</a></li><li><a href="#product">Sprint Autopilot</a></li><li><a href="#integrations">Integrations</a></li></ul></div>
+    <div><h3 class="font-semibold">Company</h3><ul class="fl"><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Blog</a></li><li><a href="#">Press kit</a></li></ul></div>
+    <div><h3 class="font-semibold">Resources</h3><ul class="fl"><li><a href="#">Help center</a></li><li><a href="#">Board templates</a></li><li><a href="#">API docs</a></li><li><a href="#">Status</a></li></ul></div>
+  </div>
+  <div class="mx-auto flex max-w-[1360px] flex-col justify-between gap-4 border-t border-ink/[.07] px-5 py-6 text-xs text-slate sm:flex-row sm:items-center md:px-8">
+    <p>© 2026 Kitebase Labs, Inc. · <a href="#" class="hover:text-ink">Privacy</a> · <a href="#" class="hover:text-ink">Terms</a> · <a href="#" class="hover:text-ink">Security</a></p>
+    <div class="so flex gap-2 text-base"><a href="#" aria-label="Newsletter"><iconify-icon icon="lucide:mail"></iconify-icon></a><a href="#" aria-label="Blog RSS feed"><iconify-icon icon="lucide:rss"></iconify-icon></a><a href="#" aria-label="Community forum"><iconify-icon icon="lucide:messages-square"></iconify-icon></a></div>
+  </div>
+</footer>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+
+  // Mobile menu
+  const menuBtn = $('#menu-btn'), menu = $('#mobile-menu');
+  const setMenu = (open) => {
+    menuBtn.setAttribute('aria-expanded', open);
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    $('iconify-icon', menuBtn).setAttribute('icon', open ? 'lucide:x' : 'lucide:menu');
+    menu.classList.toggle('hidden', !open);
+  };
+  menuBtn.onclick = () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true');
+  $$('a', menu).forEach((a) => (a.onclick = () => setMenu(false)));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') { setMenu(false); menuBtn.focus(); } });
+
+  // Scroll reveal: anything already on screen is revealed first, so nothing above the fold is ever hidden.
+  const reveals = $$('.reveal');
+  reveals.forEach((el) => { const r = el.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) el.classList.add('in'); });
+  if ('IntersectionObserver' in window && !reduce) {
+    document.documentElement.classList.add('rv');
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach((el) => el.classList.contains('in') || io.observe(el));
+  }
+
+  // Kanban: move buttons, arrow keys, and pointer drag-and-drop keep counts and sprint progress in sync.
+  const COLS = ['todo', 'doing', 'done'], NAMES = { todo: 'To do', doing: 'In progress', done: 'Done' }, WIP = 4;
+  const board = $('#board');
+  const colOf = (card) => card.closest('[data-col]').dataset.col;
+  const listOf = (id) => $(`[data-col="${id}"] .cards`, board);
+  const titleOf = (card) => $('.ttl', card).textContent.trim();
+  const nextOf = (id) => (id === 'done' ? 'todo' : COLS[COLS.indexOf(id) + 1]);
+
+  const update = () => {
+    let total = 0, done = 0;
+    COLS.forEach((id) => {
+      const cards = $$('.card', listOf(id)), n = cards.length, count = $(`[data-col="${id}"] .count`, board);
+      total += n; if (id === 'done') done = n;
+      count.textContent = id === 'doing' ? `${n}/${WIP}` : n;
+      count.classList.toggle('over', id === 'doing' && n > WIP);
+      cards.forEach((card) => {
+        const fin = id === 'done', btn = $('.mv', card), t = titleOf(card);
+        card.classList.toggle('is-done', fin);
+        card.setAttribute('aria-label', `${t}, in ${NAMES[id]}. Arrow keys move it.`);
+        btn.setAttribute('aria-label', fin ? `Reopen “${t}”` : `Move “${t}” to ${NAMES[nextOf(id)]}`);
+        $('iconify-icon', btn).setAttribute('icon', fin ? 'lucide:rotate-ccw' : 'lucide:arrow-right');
+      });
+    });
+    $('#sprint-label').textContent = `${done} of ${total} done`;
+    $('#sprint-bar').style.width = `${total ? (done / total) * 100 : 0}%`;
+  };
+
+  const burst = (card) => {
+    const r = card.getBoundingClientRect();
+    for (let i = 0; i < 18; i++) {
+      const s = document.createElement('span');
+      s.className = 'confetti';
+      s.style.cssText = `left:${r.left + r.width / 2}px;top:${r.top + 14}px;background:${['#2245E0', '#FF7A1A', '#FFE58F', '#5C79FF'][i % 4]};--dx:${Math.random() * 200 - 100}px;--dy:${-Math.random() * 90 - 40}px;--r:${Math.random() * 720 - 360}deg`;
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1000);
+    }
+  };
+
+  const landed = (card, from) => {
+    const to = colOf(card);
+    card.classList.remove('held', 'landed'); void card.offsetWidth; card.classList.add('landed');
+    update();
+    if (from === to) return;
+    $('#board-live').textContent = `Moved “${titleOf(card)}” to ${NAMES[to]}.`;
+    if (to === 'done' && !reduce) burst(card);
+  };
+
+  const moveTo = (card, to, focusEl) => {
+    const from = colOf(card);
+    listOf(to).appendChild(card);
+    landed(card, from);
+    (focusEl || card).focus({ preventScroll: true });
+  };
+
+  board.addEventListener('click', (e) => {
+    const btn = e.target.closest('.mv');
+    if (btn) { const card = btn.closest('.card'); moveTo(card, nextOf(colOf(card)), btn); }
+  });
+  board.addEventListener('keydown', (e) => {
+    const card = e.target.closest('.card'), dir = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+    if (!card || e.target !== card || !dir) return;
+    const i = COLS.indexOf(colOf(card)) + dir;
+    if (COLS[i]) { e.preventDefault(); moveTo(card, COLS[i]); }
+  });
+
+  // Drag: mouse and pen start after a 6px move; touch starts after a short press so the page still scrolls.
+  let drag = null;
+  const clearDrop = () => $$('.col.drop', board).forEach((c) => c.classList.remove('drop'));
+  const startDrag = () => {
+    const { card } = drag, r = card.getBoundingClientRect(), g = card.cloneNode(true);
+    Object.assign(drag, { active: true, from: colOf(card), offX: drag.x - r.left, offY: drag.y - r.top, ghost: g });
+    g.classList.remove('held', 'landed'); g.classList.add('ghost');
+    g.removeAttribute('tabindex'); g.setAttribute('aria-hidden', 'true');
+    g.style.cssText = `width:${r.width}px;left:0;top:0;margin:0`;
+    document.body.appendChild(g);
+    drag.ph = Object.assign(document.createElement('li'), { className: 'ph' });
+    drag.ph.style.height = `${r.height}px`;
+    card.before(drag.ph);
+    card.hidden = true;
+    document.body.style.cursor = 'grabbing';
+  };
+  const moveDrag = (x, y) => {
+    drag.ghost.style.transform = `translate(${x - drag.offX}px, ${y - drag.offY}px) rotate(${reduce ? 0 : 3}deg)`;
+    const el = document.elementFromPoint(x, y), col = el && el.closest('#board [data-col]');
+    clearDrop();
+    if (!col) return;
+    col.classList.add('drop');
+    const list = $('.cards', col);
+    const before = $$('.card:not([hidden])', list).find((c) => { const r = c.getBoundingClientRect(); return y < r.top + r.height / 2; });
+    before ? before.before(drag.ph) : list.appendChild(drag.ph);
+  };
+  const endDrag = (commit) => {
+    if (!drag) return;
+    clearTimeout(drag.timer);
+    if (drag.active) {
+      const { card, ph, ghost, from } = drag;
+      commit ? ph.replaceWith(card) : ph.remove();
+      card.hidden = false; ghost.remove(); clearDrop();
+      document.body.style.cursor = '';
+      landed(card, from);
+    }
+    drag = null;
+  };
+  board.addEventListener('pointerdown', (e) => {
+    const card = e.target.closest('.card');
+    if (!card || e.target.closest('button') || e.button !== 0) return;
+    drag = { card, x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch' };
+    if (drag.touch) drag.timer = setTimeout(() => { if (drag && !drag.active) { startDrag(); moveDrag(drag.x, drag.y); } }, 260);
+  });
+  addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    if (!drag.active) {
+      const far = Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6;
+      if (drag.touch) { if (far) endDrag(false); return; }
+      if (!far) return;
+      startDrag();
+    }
+    e.preventDefault();
+    moveDrag(e.clientX, e.clientY);
+  });
+  board.addEventListener('touchmove', (e) => { if (drag && drag.active) e.preventDefault(); }, { passive: false });
+  board.addEventListener('contextmenu', (e) => { if (drag) e.preventDefault(); });
+  board.addEventListener('dragstart', (e) => e.preventDefault());
+  addEventListener('pointerup', () => endDrag(true));
+  addEventListener('pointercancel', () => endDrag(false));
+  update();
+
+  // Pricing toggle
+  const billBtns = $$('[data-bill]');
+  billBtns.forEach((b) => (b.onclick = () => {
+    const key = b.dataset.bill;
+    billBtns.forEach((x) => x.setAttribute('aria-pressed', x === b));
+    $$('[data-price]').forEach((p) => { p.textContent = p.dataset[key]; p.classList.remove('tick'); void p.offsetWidth; p.classList.add('tick'); });
+    $$('[data-note]').forEach((n) => (n.textContent = n.dataset[key]));
+  }));
+</script>
+</body>
+</html>
