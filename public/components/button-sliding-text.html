@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sliding Text Buttons - text swap, corner brackets, directional fill, arrow nudge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Tight"', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .sheet { box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 24px 60px -24px rgba(20,16,10,.3); }
+    .grid-lines { background-image: linear-gradient(var(--gl) 1px, transparent 1px), linear-gradient(90deg, var(--gl) 1px, transparent 1px); background-size: 16px 16px; background-position: -1px -1px;
+      -webkit-mask-image: radial-gradient(60% 70% at 50% 50%, #000, transparent 85%); mask-image: radial-gradient(60% 70% at 50% 50%, #000, transparent 85%); }
+    .cross { position: absolute; width: 9px; height: 9px; background: linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat, linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat; opacity: .35; }
+    .ease { --e: cubic-bezier(.7,0,.2,1); }
+
+    /* 01 Sliding swap */
+    .swap-wrap { clip-path: inset(0 -40px); line-height: 1.3; }
+    .swap .ch { display: inline-block; white-space: pre; transition: transform .48s var(--e); transition-delay: calc(var(--i) * 16ms); }
+    .swap .b { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; }
+    .swap .b .ch { transform: translateY(125%); }
+    .swap:hover .a .ch, .swap:focus-visible .a .ch, .force .swap .a .ch { transform: translateY(-125%); }
+    .swap:hover .b .ch, .swap:focus-visible .b .ch, .force .swap .b .ch { transform: translateY(0); }
+
+    /* 02 Corner brackets */
+    .brk .c { position: absolute; width: 10px; height: 10px; border: 0 solid #a1a1aa; transition: all .38s var(--e); }
+    .brk .tl { top: -7px; left: -7px; border-top-width: 1.5px; border-left-width: 1.5px; }
+    .brk .tr { top: -7px; right: -7px; border-top-width: 1.5px; border-right-width: 1.5px; }
+    .brk .bl { bottom: -7px; left: -7px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+    .brk .br { bottom: -7px; right: -7px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+    .brk .tint { opacity: 0; transition: opacity .3s; }
+    .brk .txt { transition: letter-spacing .38s var(--e); }
+    .brk:hover .c, .brk:focus-visible .c, .force .brk .c { width: 51%; height: 51%; border-color: #18181b; }
+    .brk:hover .tl, .brk:focus-visible .tl, .force .brk .tl { top: 0; left: 0; }
+    .brk:hover .tr, .brk:focus-visible .tr, .force .brk .tr { top: 0; right: 0; }
+    .brk:hover .bl, .brk:focus-visible .bl, .force .brk .bl { bottom: 0; left: 0; }
+    .brk:hover .br, .brk:focus-visible .br, .force .brk .br { bottom: 0; right: 0; }
+    .brk:hover .tint, .brk:focus-visible .tint, .force .brk .tint { opacity: 1; }
+    .brk:hover .txt, .brk:focus-visible .txt, .force .brk .txt { letter-spacing: .02em; }
+
+    /* 03 Directional fill */
+    .dir .fill { --x: -101%; --y: 0%; transform: translate(var(--x), var(--y)); }
+    .dir .fill-in { transform: translate(calc(var(--x) * -1), calc(var(--y) * -1)); }
+    .dir.anim .fill, .dir.anim .fill-in { transition: transform .42s var(--e); }
+    .force .dir .fill, .force .dir .fill-in { transform: none; }
+
+    /* 04 Arrow nudge */
+    .nudge .circ { transition: transform .35s cubic-bezier(.3,1.6,.5,1), background-color .2s; }
+    .nudge .lbl { transition: transform .35s var(--e); }
+    .nudge:hover .circ, .nudge:focus-visible .circ, .force .nudge .circ { transform: scale(1.1); }
+    .nudge:hover .lbl, .nudge:focus-visible .lbl, .force .nudge .lbl { transform: translateX(-3px); }
+    .nudge:hover .arr, .nudge:focus-visible .arr, .force .nudge .arr { animation: shoot .55s var(--e), bob 1.2s .55s ease-in-out infinite; }
+    @keyframes shoot { 0% { transform: translateX(0); } 45% { transform: translateX(160%); opacity: 1; } 46% { transform: translateX(-160%); opacity: 0; } 47% { opacity: 1; } 100% { transform: translateX(0); } }
+    @keyframes bob { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+
+    #force[aria-checked=true] .sw { background: #18181b; }
+    #force[aria-checked=true] .knob { transform: translateX(16px); background: #ff6a2b; }
+    .knob { transition: transform .3s cubic-bezier(.3,1.4,.5,1), background-color .2s; }
+    button:focus-visible { outline: 2px solid #ff6a2b; outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) {
+      .swap .ch, .brk .c, .brk .txt, .dir.anim .fill, .dir.anim .fill-in, .nudge .circ, .nudge .lbl, .knob { transition-duration: .01ms !important; transition-delay: 0s !important; }
+      .nudge .arr { animation: none !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-3 font-sans antialiased sm:p-8">
+  <main id="sheet" class="sheet ease w-full max-w-[1040px] rounded-[28px] border border-zinc-200 bg-[#f4f3ef] p-2 text-zinc-900 sm:p-2.5">
+    <header class="flex flex-wrap items-center justify-between gap-3 px-3 pb-3 pt-2 sm:px-4">
+      <div class="flex items-center gap-3">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-zinc-900 text-[#ff6a2b]"><iconify-icon icon="lucide:mouse-pointer-2" class="text-[17px]"></iconify-icon></span>
+        <div class="leading-tight">
+          <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-zinc-500">Motion spec · Buttons · v2.4</p>
+          <h1 class="mt-0.5 text-[17px] font-semibold tracking-[-0.01em]">Hover studies</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden font-mono text-[11px] text-zinc-500 sm:inline">Hover or Tab to preview</span>
+        <button type="button" id="force" role="switch" aria-checked="false" class="sw-wrap inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white py-1 pl-1 pr-3 text-[12px] font-medium">
+          <span class="sw relative h-5 w-9 rounded-full bg-zinc-200 transition-colors" aria-hidden="true"><span class="knob absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow"></span></span>Force hover
+        </button>
+      </div>
+    </header>
+
+    <div class="grid gap-2 sm:grid-cols-2 sm:gap-2.5">
+      <!-- 01 -->
+      <section class="relative overflow-hidden rounded-[20px] bg-[#111113] text-white" aria-labelledby="t1" style="--gl: rgba(255,255,255,.06)">
+        <div class="grid-lines pointer-events-none absolute inset-0"></div>
+        <div class="relative flex items-center justify-between px-5 pt-4 font-mono text-[11px]"><span><b class="font-medium text-[#ff8a50]">B—01</b>&ensp;<span id="t1" class="text-white/80">Sliding text swap</span></span><span class="rounded border border-white/15 px-1.5 py-0.5 text-white/50">HOVER · FOCUS</span></div>
+        <div class="relative grid h-[172px] place-items-center">
+          <span class="cross left-5 top-3"></span><span class="cross right-5 top-3"></span><span class="cross bottom-3 left-5"></span><span class="cross bottom-3 right-5"></span>
+          <div class="measure relative">
+            <button type="button" class="swap inline-flex h-12 items-center rounded-full bg-white px-7 text-[15px] font-semibold tracking-[-0.01em] text-zinc-900 shadow-[0_8px_24px_-10px_rgba(255,255,255,.35)]" aria-label="Start a project">
+              <span class="swap-wrap relative block" aria-hidden="true"><span class="a block" data-split>Start a project</span><span class="b text-[#c2410c]" data-split>Takes 2 minutes</span></span>
+            </button>
+          </div>
+        </div>
+        <dl class="relative grid grid-cols-3 border-t border-white/10 font-mono text-[11px]">
+          <div class="px-5 py-3"><dt class="text-white/40">Property</dt><dd class="mt-0.5 text-white/85">translateY</dd></div>
+          <div class="border-l border-white/10 px-4 py-3"><dt class="text-white/40">Timing</dt><dd class="mt-0.5 text-white/85">480ms +16/ch</dd></div>
+          <div class="border-l border-white/10 px-4 py-3"><dt class="text-white/40">Easing</dt><dd class="mt-0.5 text-white/85">(.7,0,.2,1)</dd></div>
+        </dl>
+      </section>
+
+      <!-- 02 -->
+      <section class="relative overflow-hidden rounded-[20px] border border-zinc-200 bg-white" aria-labelledby="t2" style="--gl: rgba(0,0,0,.05)">
+        <div class="grid-lines pointer-events-none absolute inset-0"></div>
+        <div class="relative flex items-center justify-between px-5 pt-4 font-mono text-[11px]"><span><b class="font-medium text-[#c2410c]">B—02</b>&ensp;<span id="t2" class="text-zinc-700">Corner-bracket outline</span></span><span class="rounded border border-zinc-200 px-1.5 py-0.5 text-zinc-400">HOVER · FOCUS</span></div>
+        <div class="relative grid h-[172px] place-items-center">
+          <span class="cross left-5 top-3"></span><span class="cross right-5 top-3"></span><span class="cross bottom-3 left-5"></span><span class="cross bottom-3 right-5"></span>
+          <div class="measure relative">
+            <button type="button" class="brk relative inline-flex h-12 items-center gap-2 px-7 text-[15px] font-semibold text-zinc-900">
+              <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+              <span class="tint absolute inset-0 bg-zinc-900/[.04]"></span>
+              <span class="txt relative">View case study</span><iconify-icon icon="lucide:arrow-up-right" class="relative text-[16px]"></iconify-icon>
+            </button>
+          </div>
+        </div>
+        <dl class="relative grid grid-cols-3 border-t border-zinc-200 font-mono text-[11px]">
+          <div class="px-5 py-3"><dt class="text-zinc-400">Property</dt><dd class="mt-0.5 text-zinc-800">inset, size</dd></div>
+          <div class="border-l border-zinc-200 px-4 py-3"><dt class="text-zinc-400">Timing</dt><dd class="mt-0.5 text-zinc-800">380ms</dd></div>
+          <div class="border-l border-zinc-200 px-4 py-3"><dt class="text-zinc-400">Easing</dt><dd class="mt-0.5 text-zinc-800">(.7,0,.2,1)</dd></div>
+        </dl>
+      </section>
+
+      <!-- 03 -->
+      <section class="relative overflow-hidden rounded-[20px] border border-zinc-200 bg-white" aria-labelledby="t3" style="--gl: rgba(0,0,0,.05)">
+        <div class="grid-lines pointer-events-none absolute inset-0"></div>
+        <div class="relative flex items-center justify-between px-5 pt-4 font-mono text-[11px]"><span><b class="font-medium text-[#c2410c]">B—03</b>&ensp;<span id="t3" class="text-zinc-700">Directional fill sweep</span></span><span class="rounded border border-zinc-200 px-1.5 py-0.5 text-zinc-400">POINTER EDGE</span></div>
+        <div class="relative grid h-[172px] place-items-center">
+          <span class="cross left-5 top-3"></span><span class="cross right-5 top-3"></span><span class="cross bottom-3 left-5"></span><span class="cross bottom-3 right-5"></span>
+          <div class="measure relative">
+            <button type="button" class="dir relative inline-flex h-12 items-center overflow-hidden rounded-xl border-[1.5px] border-zinc-900 px-7 text-[15px] font-semibold text-zinc-900">
+              <span class="inline-flex items-center gap-2"><iconify-icon icon="lucide:download" class="text-[16px]"></iconify-icon>Download the report</span>
+              <span class="fill absolute inset-0 overflow-hidden bg-zinc-900" aria-hidden="true"><span class="fill-in absolute inset-0 flex items-center justify-center gap-2 text-white"><iconify-icon icon="lucide:download" class="text-[16px]"></iconify-icon>Download the report</span></span>
+            </button>
+          </div>
+        </div>
+        <dl class="relative grid grid-cols-3 border-t border-zinc-200 font-mono text-[11px]">
+          <div class="px-5 py-3"><dt class="text-zinc-400">Property</dt><dd class="mt-0.5 text-zinc-800">translate x|y</dd></div>
+          <div class="border-l border-zinc-200 px-4 py-3"><dt class="text-zinc-400">Timing</dt><dd class="mt-0.5 text-zinc-800">420ms</dd></div>
+          <div class="border-l border-zinc-200 px-4 py-3"><dt class="text-zinc-400">Last edge</dt><dd id="edge" class="mt-0.5 text-[#c2410c]" aria-live="polite">in left</dd></div>
+        </dl>
+      </section>
+
+      <!-- 04 -->
+      <section class="relative overflow-hidden rounded-[20px] border border-[#ffd9c4] bg-[#fff6f0]" aria-labelledby="t4" style="--gl: rgba(194,65,12,.07)">
+        <div class="grid-lines pointer-events-none absolute inset-0"></div>
+        <div class="relative flex items-center justify-between px-5 pt-4 font-mono text-[11px]"><span><b class="font-medium text-[#c2410c]">B—04</b>&ensp;<span id="t4" class="text-zinc-700">Arrow nudge</span></span><span class="rounded border border-[#ffd2b8] px-1.5 py-0.5 text-[#c2410c]/60">HOVER · FOCUS</span></div>
+        <div class="relative grid h-[172px] place-items-center text-[#c2410c]">
+          <span class="cross left-5 top-3"></span><span class="cross right-5 top-3"></span><span class="cross bottom-3 left-5"></span><span class="cross bottom-3 right-5"></span>
+          <div class="measure relative text-zinc-900">
+            <button type="button" class="nudge inline-flex h-12 items-center gap-3 rounded-full bg-zinc-900 pl-6 pr-1.5 text-[15px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(24,24,27,.7)]">
+              <span class="lbl">Continue to checkout</span>
+              <span class="circ grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-[#ff6a2b] text-zinc-900"><iconify-icon icon="lucide:arrow-right" class="arr text-[17px]"></iconify-icon></span>
+            </button>
+          </div>
+        </div>
+        <dl class="relative grid grid-cols-3 border-t border-[#ffd9c4] font-mono text-[11px]">
+          <div class="px-5 py-3"><dt class="text-zinc-400">Property</dt><dd class="mt-0.5 text-zinc-800">translateX</dd></div>
+          <div class="border-l border-[#ffd9c4] px-4 py-3"><dt class="text-zinc-400">Timing</dt><dd class="mt-0.5 text-zinc-800">550ms → loop</dd></div>
+          <div class="border-l border-[#ffd9c4] px-4 py-3"><dt class="text-zinc-400">Easing</dt><dd class="mt-0.5 text-zinc-800">(.7,0,.2,1)</dd></div>
+        </dl>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      // Split labels into staggered characters
+      document.querySelectorAll('[data-split]').forEach(function (el) {
+        el.innerHTML = el.textContent.split('').map(function (c, i) { return '<span class="ch" style="--i:' + i + '">' + (c === ' ' ? ' ' : c) + '</span>'; }).join('');
+      });
+
+      // Dimension callouts measured from the real buttons
+      function measure() {
+        document.querySelectorAll('.measure').forEach(function (m) {
+          var b = m.querySelector('button'), dim = m.querySelector('.dim');
+          if (!dim) {
+            dim = document.createElement('div');
+            dim.setAttribute('aria-hidden', 'true');
+            dim.className = 'dim pointer-events-none absolute -bottom-7 left-0 right-0 flex items-center gap-1.5 font-mono text-[10px] opacity-50';
+            dim.innerHTML = '<span class="h-2 w-px bg-current"></span><span class="h-px flex-1 bg-current"></span><span class="w-txt"></span><span class="h-px flex-1 bg-current"></span><span class="h-2 w-px bg-current"></span>';
+            m.appendChild(dim);
+          }
+          dim.querySelector('.w-txt').textContent = Math.round(b.offsetWidth) + ' × ' + Math.round(b.offsetHeight);
+        });
+      }
+      document.fonts.ready.then(measure); addEventListener('resize', measure); measure();
+
+      // Directional fill: enter and exit from the nearest edge
+      var OFF = { left: ['-101%', '0%'], right: ['101%', '0%'], top: ['0%', '-101%'], bottom: ['0%', '101%'] };
+      var edgeOut = document.getElementById('edge');
+      document.querySelectorAll('.dir').forEach(function (btn) {
+        var fill = btn.querySelector('.fill');
+        function edge(e) {
+          var r = btn.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+          var d = { left: x, right: 1 - x, top: y * r.height / r.width, bottom: (1 - y) * r.height / r.width };
+          return Object.keys(d).reduce(function (a, k) { return d[k] < d[a] ? k : a; }, 'left');
+        }
+        function set(side) { fill.style.setProperty('--x', side ? OFF[side][0] : '0%'); fill.style.setProperty('--y', side ? OFF[side][1] : '0%'); }
+        function enter(side) { btn.classList.remove('anim'); set(side); void fill.offsetWidth; btn.classList.add('anim'); set(null); edgeOut.textContent = 'in ' + side; }
+        function leave(side) { btn.classList.add('anim'); set(side); edgeOut.textContent = 'out ' + side; }
+        btn.addEventListener('pointerenter', function (e) { enter(edge(e)); });
+        btn.addEventListener('pointerleave', function (e) { leave(edge(e)); });
+        btn.addEventListener('focus', function () { if (btn.matches(':focus-visible')) enter('left'); });
+        btn.addEventListener('blur', function () { if (!btn.matches(':hover')) leave('right'); });
+      });
+
+      // Force hover switch for touch screens and reviews
+      var sw = document.getElementById('force'), sheet = document.getElementById('sheet');
+      sw.addEventListener('click', function () {
+        var on = sw.getAttribute('aria-checked') !== 'true';
+        sw.setAttribute('aria-checked', String(on));
+        sheet.classList.toggle('force', on);
+      });
+    })();
+  </script>
+</body>
+</html>

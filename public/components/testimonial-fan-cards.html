@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wrenly - Fanned testimonial card stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'], serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background-color: #f6f3ee; background-image: radial-gradient(42% 50% at 78% 42%, rgb(251 191 36 / .16), transparent 70%), radial-gradient(36% 40% at 12% 88%, rgb(167 139 250 / .12), transparent 70%), radial-gradient(rgb(68 64 60 / .05) 1px, transparent 1.2px); background-size: 100% 100%, 100% 100%, 20px 20px; }
+    .star { display: inline-block; width: 13px; height: 13px; background: currentColor; clip-path: polygon(50% 0%, 61.8% 35.4%, 98% 35.4%, 68.8% 57.3%, 79.4% 91.6%, 50% 70.4%, 20.6% 91.6%, 31.2% 57.3%, 2% 35.4%, 38.2% 35.4%); }
+    .star.lg { width: 18px; height: 18px; }
+    .panel { background: rgb(255 255 255 / .78); box-shadow: 0 0 0 1px rgb(68 64 60 / .08), 0 1px 2px rgb(68 64 60 / .05), 0 24px 48px -28px rgb(68 64 60 / .28); backdrop-filter: blur(8px); }
+    .bar { height: 6px; border-radius: 99px; background: rgb(68 64 60 / .08); overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #f97316); }
+
+    .stack { --cw: 344px; --ch: 416px; --sx: 20px; --sy: 8px; --rot: 4.2deg; --sc: .045; position: relative; height: calc(var(--ch) + 40px); outline: none; }
+    .stack:hover, .stack:focus-visible, .stack.spread { --sx: 42px; --sy: 12px; --rot: 6.6deg; }
+    .stack:focus-visible::after { content: ""; position: absolute; inset: -14px -8px; border-radius: 36px; box-shadow: 0 0 0 2px #1c1917; pointer-events: none; }
+    .fan-card {
+      --s: 0; --d: 0; position: absolute; left: 50%; top: 8px; width: var(--cw); height: var(--ch); margin-left: calc(var(--cw) / -2);
+      display: flex; flex-direction: column; padding: 26px 26px 22px; border-radius: 28px; cursor: pointer; user-select: none;
+      background: var(--bg); color: var(--fg); transform-origin: 50% 100%;
+      transform: translateX(calc(var(--s) * var(--sx))) translateY(calc(var(--d) * var(--sy))) rotate(calc(var(--s) * var(--rot))) scale(calc(1 - var(--d) * var(--sc)));
+      box-shadow: 0 0 0 1px rgb(28 25 23 / .07), 0 2px 4px rgb(28 25 23 / .04), 0 22px 44px -24px rgb(28 25 23 / .35);
+      transition: transform .65s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease, filter .4s ease;
+    }
+    .fan-card:not(.is-front) { filter: saturate(.92) brightness(.985); }
+    .fan-card:not(.is-front):hover { filter: none; }
+    .fan-card.is-front { cursor: default; box-shadow: 0 0 0 1px rgb(28 25 23 / .08), 0 4px 8px rgb(28 25 23 / .05), 0 40px 70px -30px rgb(28 25 23 / .5); }
+    .fan-card .inner { display: flex; flex: 1; flex-direction: column; transition: opacity .35s ease; }
+    .fan-card:not(.is-front) .inner { opacity: .38; }
+    .t-cream { --bg: #fffdf8; --fg: #1c1917; --mut: #78716c; --line: rgb(28 25 23 / .09); --chip: #f5efe4; --acc: #d97706; }
+    .t-ink   { --bg: #1c1917; --fg: #fafaf9; --mut: #a8a29e; --line: rgb(255 255 255 / .1); --chip: rgb(255 255 255 / .08); --acc: #fbbf24; }
+    .t-sage  { --bg: #dde7d8; --fg: #1a2a1c; --mut: #5b6f5d; --line: rgb(26 42 28 / .12); --chip: rgb(255 255 255 / .55); --acc: #3f7a46; }
+    .t-clay  { --bg: #f2d6c4; --fg: #3a1d12; --mut: #8a5a45; --line: rgb(58 29 18 / .12); --chip: rgb(255 255 255 / .5); --acc: #c2410c; }
+    .t-lilac { --bg: #e5e0f6; --fg: #231a3b; --mut: #6b5f8c; --line: rgb(35 26 59 / .12); --chip: rgb(255 255 255 / .55); --acc: #6d28d9; }
+    .chip { background: var(--chip); color: var(--fg); }
+    .mut { color: var(--mut); }
+    .acc { color: var(--acc); }
+    .rule { border-color: var(--line); }
+    .av { color: #fff; font-weight: 700; font-size: 12.5px; letter-spacing: .02em; text-shadow: 0 1px 1px rgb(0 0 0 / .18); background: linear-gradient(135deg, var(--a), var(--b)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .22); }
+    .tab { transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease; opacity: .55; }
+    .tab:hover { opacity: .9; transform: translateY(-2px); }
+    .tab[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 2px #f6f3ee, 0 0 0 4px #1c1917; }
+    .ctl:focus-visible, .tab:focus-visible, a:focus-visible { outline: 2px solid #1c1917; outline-offset: 3px; }
+    @media (max-width: 640px) {
+      .stack { --cw: min(318px, 80vw); --ch: 452px; --sx: 14px; --rot: 3.5deg; }
+      .stack:hover, .stack:focus-visible, .stack.spread { --sx: 26px; --rot: 5deg; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fan-card, .fan-card .inner, .tab { transition: none !important; }
+    }
+  </style>
+</head>
+<body class="font-sans text-stone-800">
+  <section class="relative overflow-hidden" aria-labelledby="fan-title">
+    <div class="mx-auto grid min-h-[800px] max-w-6xl items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-[0.86fr_1.14fr] lg:gap-10 lg:py-12">
+      <div class="relative z-10 max-w-xl">
+        <p class="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[12.5px] font-medium text-stone-600 shadow-sm ring-1 ring-stone-900/[.07]"><span class="grid h-4 w-4 place-items-center rounded-full bg-stone-900 text-[9px] text-amber-300"><iconify-icon icon="lucide:feather"></iconify-icon></span>Wrenly for independent studios</p>
+        <h2 id="fan-title" class="mt-5 text-[2.35rem] font-bold leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-[3.1rem]">The front desk your studio <span class="font-serif text-[1.13em] font-normal italic tracking-[-0.015em] text-amber-700">always wanted.</span></h2>
+        <p class="mt-4 max-w-md text-[15.5px] leading-relaxed text-stone-500">Pottery barns, tattoo parlors and yoga lofts use Wrenly to fill classes, cut no-shows and get paid before anyone walks through the door.</p>
+
+        <div class="panel mt-8 rounded-[22px] p-5 sm:p-6">
+          <div class="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-7">
+            <div>
+              <p class="flex items-end gap-1.5"><span class="text-[3.25rem] font-extrabold leading-none tracking-[-0.05em] text-stone-900">4.9</span><span class="mb-1.5 text-sm font-medium text-stone-400">/ 5</span></p>
+              <p class="mt-2 flex gap-0.5 text-amber-500" role="img" aria-label="Rated 4.9 out of 5 stars"><i class="star lg"></i><i class="star lg"></i><i class="star lg"></i><i class="star lg"></i><i class="star lg"></i></p>
+              <p class="mt-2 text-[12.5px] text-stone-500">from <b class="font-semibold text-stone-800">2,380</b> verified studios</p>
+            </div>
+            <ul class="space-y-1.5 text-[12px] text-stone-500" aria-label="Rating breakdown">
+              <li class="grid grid-cols-[1.4rem_1fr_2.2rem] items-center gap-2" aria-label="5 stars, 88 percent"><span class="font-medium text-stone-700">5</span><span class="bar"><i style="width:88%"></i></span><span class="text-right tabular-nums">88%</span></li>
+              <li class="grid grid-cols-[1.4rem_1fr_2.2rem] items-center gap-2" aria-label="4 stars, 9 percent"><span class="font-medium text-stone-700">4</span><span class="bar"><i style="width:9%"></i></span><span class="text-right tabular-nums">9%</span></li>
+              <li class="grid grid-cols-[1.4rem_1fr_2.2rem] items-center gap-2" aria-label="3 stars, 2 percent"><span class="font-medium text-stone-700">3</span><span class="bar"><i style="width:2%"></i></span><span class="text-right tabular-nums">2%</span></li>
+              <li class="grid grid-cols-[1.4rem_1fr_2.2rem] items-center gap-2" aria-label="2 stars, 1 percent"><span class="font-medium text-stone-700">2</span><span class="bar"><i style="width:1%"></i></span><span class="text-right tabular-nums">1%</span></li>
+              <li class="grid grid-cols-[1.4rem_1fr_2.2rem] items-center gap-2" aria-label="1 star, under 1 percent"><span class="font-medium text-stone-700">1</span><span class="bar"><i style="width:0%"></i></span><span class="text-right tabular-nums">&lt;1%</span></li>
+            </ul>
+          </div>
+          <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-stone-900/[.07] pt-4 text-[12.5px] text-stone-600">
+            <span class="inline-flex items-center gap-1.5"><iconify-icon icon="lucide:heart-handshake" class="text-[15px] text-rose-500"></iconify-icon><b class="font-semibold text-stone-900">97%</b> would recommend</span>
+            <span class="inline-flex items-center gap-1.5"><iconify-icon icon="lucide:badge-check" class="text-[15px] text-emerald-600"></iconify-icon>Every review from a paying studio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative lg:translate-x-5">
+        <div id="stack" class="stack" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Studio reviews. Use the left and right arrow keys to bring a card to the front.">
+          <figure class="fan-card t-cream" data-name="Mara Lindqvist, Kilnhouse Ceramics">
+            <div class="inner">
+              <div class="flex items-center justify-between"><span class="chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold"><iconify-icon icon="lucide:flame" class="acc"></iconify-icon>Ceramics studio</span><span class="mut text-[12px]">Asheville, NC</span></div>
+              <p class="acc mt-6 flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+              <blockquote class="mt-3 font-serif text-[27.5px] leading-[1.12] tracking-[-0.005em]">Our wheel classes had three no-shows a week. Deposits and reminder texts took that to almost zero.</blockquote>
+              <p class="mt-auto flex items-baseline gap-2 pt-5"><span class="text-[28px] font-extrabold tracking-[-0.04em]">&minus;91%</span><span class="mut text-[12.5px]">no-shows since switching</span></p>
+              <figcaption class="rule mt-4 flex items-center gap-3 border-t pt-4"><span class="av grid h-10 w-10 shrink-0 place-items-center rounded-full" style="--a:#fbbf24;--b:#ea580c">ML</span><span class="text-[13.5px] leading-tight"><span class="block font-semibold">Mara Lindqvist</span><span class="mut">Owner, Kilnhouse Ceramics</span></span></figcaption>
+            </div>
+          </figure>
+          <figure class="fan-card t-ink" data-name="Dev Raghunathan, Ironvine Tattoo">
+            <div class="inner">
+              <div class="flex items-center justify-between"><span class="chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold"><iconify-icon icon="lucide:pen-tool" class="acc"></iconify-icon>Tattoo parlor</span><span class="mut text-[12px]">Austin, TX</span></div>
+              <p class="acc mt-6 flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+              <blockquote class="mt-3 font-serif text-[27.5px] leading-[1.12] tracking-[-0.005em]">I stopped answering DMs at midnight. Clients book, pay the deposit and sign consent before they walk in.</blockquote>
+              <p class="mt-auto flex items-baseline gap-2 pt-5"><span class="text-[28px] font-extrabold tracking-[-0.04em]">6 hrs</span><span class="mut text-[12.5px]">of admin saved every week</span></p>
+              <figcaption class="rule mt-4 flex items-center gap-3 border-t pt-4"><span class="av grid h-10 w-10 shrink-0 place-items-center rounded-full" style="--a:#818cf8;--b:#312e81">DR</span><span class="text-[13.5px] leading-tight"><span class="block font-semibold">Dev Raghunathan</span><span class="mut">Founder, Ironvine Tattoo</span></span></figcaption>
+            </div>
+          </figure>
+          <figure class="fan-card t-sage" data-name="Noor Haddad, Saltwater Yoga Loft">
+            <div class="inner">
+              <div class="flex items-center justify-between"><span class="chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold"><iconify-icon icon="lucide:sun-medium" class="acc"></iconify-icon>Yoga loft</span><span class="mut text-[12px]">San Diego, CA</span></div>
+              <p class="acc mt-6 flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+              <blockquote class="mt-3 font-serif text-[27.5px] leading-[1.12] tracking-[-0.005em]">Waitlists fill themselves now. When someone cancels, the next person has the mat in seconds.</blockquote>
+              <p class="mt-auto flex items-baseline gap-2 pt-5"><span class="text-[28px] font-extrabold tracking-[-0.04em]">+38%</span><span class="mut text-[12.5px]">average class fill rate</span></p>
+              <figcaption class="rule mt-4 flex items-center gap-3 border-t pt-4"><span class="av grid h-10 w-10 shrink-0 place-items-center rounded-full" style="--a:#6ee7b7;--b:#0f766e">NH</span><span class="text-[13.5px] leading-tight"><span class="block font-semibold">Noor Haddad</span><span class="mut">Lead teacher, Saltwater Yoga</span></span></figcaption>
+            </div>
+          </figure>
+          <figure class="fan-card t-clay" data-name="Callum Reyes, Paper Moon Print Shop">
+            <div class="inner">
+              <div class="flex items-center justify-between"><span class="chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold"><iconify-icon icon="lucide:printer" class="acc"></iconify-icon>Print workshop</span><span class="mut text-[12px]">Chicago, IL</span></div>
+              <p class="acc mt-6 flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+              <blockquote class="mt-3 font-serif text-[27.5px] leading-[1.12] tracking-[-0.005em]">Setup took one evening. By Saturday our risograph workshops were sold out and already paid for.</blockquote>
+              <p class="mt-auto flex items-baseline gap-2 pt-5"><span class="text-[28px] font-extrabold tracking-[-0.04em]">4 days</span><span class="mut text-[12.5px]">to sell out a new series</span></p>
+              <figcaption class="rule mt-4 flex items-center gap-3 border-t pt-4"><span class="av grid h-10 w-10 shrink-0 place-items-center rounded-full" style="--a:#fb7185;--b:#9f1239">CR</span><span class="text-[13.5px] leading-tight"><span class="block font-semibold">Callum Reyes</span><span class="mut">Co-owner, Paper Moon Print Shop</span></span></figcaption>
+            </div>
+          </figure>
+          <figure class="fan-card t-lilac" data-name="Ingrid Sato, Brightwater Dance Co.">
+            <div class="inner">
+              <div class="flex items-center justify-between"><span class="chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold"><iconify-icon icon="lucide:music-2" class="acc"></iconify-icon>Dance school</span><span class="mut text-[12px]">Seattle, WA</span></div>
+              <p class="acc mt-6 flex gap-0.5" role="img" aria-label="5 out of 5 stars"><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i><i class="star"></i></p>
+              <blockquote class="mt-3 font-serif text-[27.5px] leading-[1.12] tracking-[-0.005em]">Parents love the app and our front desk loves the quiet. Recurring billing paid for Wrenly in month one.</blockquote>
+              <p class="mt-auto flex items-baseline gap-2 pt-5"><span class="text-[28px] font-extrabold tracking-[-0.04em]">$2.1k</span><span class="mut text-[12.5px]">late fees recovered monthly</span></p>
+              <figcaption class="rule mt-4 flex items-center gap-3 border-t pt-4"><span class="av grid h-10 w-10 shrink-0 place-items-center rounded-full" style="--a:#c4b5fd;--b:#6d28d9">IS</span><span class="text-[13.5px] leading-tight"><span class="block font-semibold">Ingrid Sato</span><span class="mut">Director, Brightwater Dance Co.</span></span></figcaption>
+            </div>
+          </figure>
+        </div>
+
+        <div class="relative z-10 mt-4 flex items-center justify-center gap-3 sm:gap-4">
+          <button id="prev" type="button" class="ctl grid h-10 w-10 place-items-center rounded-full bg-white text-stone-700 shadow-sm ring-1 ring-stone-900/10 transition hover:bg-stone-50 hover:text-stone-900" aria-label="Previous review"><iconify-icon icon="lucide:arrow-left" class="text-[17px]"></iconify-icon></button>
+          <div class="flex items-center gap-2.5" role="group" aria-label="Choose a review">
+            <button type="button" class="tab av grid h-9 w-9 place-items-center rounded-full !text-[11px]" style="--a:#fbbf24;--b:#ea580c" data-go="0" aria-label="Show review from Mara Lindqvist">ML</button>
+            <button type="button" class="tab av grid h-9 w-9 place-items-center rounded-full !text-[11px]" style="--a:#818cf8;--b:#312e81" data-go="1" aria-label="Show review from Dev Raghunathan">DR</button>
+            <button type="button" class="tab av grid h-9 w-9 place-items-center rounded-full !text-[11px]" style="--a:#6ee7b7;--b:#0f766e" data-go="2" aria-label="Show review from Noor Haddad">NH</button>
+            <button type="button" class="tab av grid h-9 w-9 place-items-center rounded-full !text-[11px]" style="--a:#fb7185;--b:#9f1239" data-go="3" aria-label="Show review from Callum Reyes">CR</button>
+            <button type="button" class="tab av grid h-9 w-9 place-items-center rounded-full !text-[11px]" style="--a:#c4b5fd;--b:#6d28d9" data-go="4" aria-label="Show review from Ingrid Sato">IS</button>
+          </div>
+          <button id="next" type="button" class="ctl grid h-10 w-10 place-items-center rounded-full bg-stone-900 text-white shadow-sm transition hover:bg-stone-700" aria-label="Next review"><iconify-icon icon="lucide:arrow-right" class="text-[17px]"></iconify-icon></button>
+        </div>
+        <p class="mt-3 flex items-center justify-center gap-2 text-[12px] text-stone-400"><span id="count" class="font-semibold tabular-nums text-stone-600">01 / 05</span><span aria-hidden="true">&middot;</span><span class="hidden sm:inline">Hover to fan out, click a card or press</span><span class="sm:hidden">Tap a card or press</span><kbd class="rounded border border-stone-300 bg-white px-1.5 font-sans text-[11px] text-stone-600">&larr;</kbd><kbd class="rounded border border-stone-300 bg-white px-1.5 font-sans text-[11px] text-stone-600">&rarr;</kbd></p>
+        <p id="live" class="sr-only" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var stack = document.getElementById('stack');
+      var cards = [].slice.call(stack.querySelectorAll('.fan-card'));
+      var tabs = [].slice.call(document.querySelectorAll('[data-go]'));
+      var count = document.getElementById('count');
+      var live = document.getElementById('live');
+      var n = cards.length, front = 0, announce = false;
+      var pad = function (v) { return (v < 10 ? '0' : '') + v; };
+
+      function render() {
+        cards.forEach(function (card, i) {
+          var off = (i - front + n) % n;
+          if (off > n / 2) off -= n;
+          var depth = Math.abs(off);
+          card.style.setProperty('--s', off);
+          card.style.setProperty('--d', depth);
+          card.style.zIndex = 20 - depth * 2 - (off < 0 ? 1 : 0);
+          card.classList.toggle('is-front', off === 0);
+          card.setAttribute('aria-hidden', off === 0 ? 'false' : 'true');
+        });
+        tabs.forEach(function (t, i) { t.setAttribute('aria-current', i === front ? 'true' : 'false'); });
+        count.textContent = pad(front + 1) + ' / ' + pad(n);
+        if (announce) live.textContent = 'Review ' + (front + 1) + ' of ' + n + ': ' + cards[front].dataset.name;
+      }
+      function go(i) { front = (i + n) % n; announce = true; render(); }
+
+      cards.forEach(function (card, i) { card.addEventListener('click', function () { if (i !== front) go(i); }); });
+      tabs.forEach(function (t) { t.addEventListener('click', function () { go(+t.dataset.go); }); });
+      document.getElementById('prev').addEventListener('click', function () { go(front - 1); });
+      document.getElementById('next').addEventListener('click', function () { go(front + 1); });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(e.target.tagName)) return;
+        var map = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+        if (e.key in map) { e.preventDefault(); go(front + map[e.key]); }
+        else if (e.key === 'Home') { e.preventDefault(); go(0); }
+        else if (e.key === 'End') { e.preventDefault(); go(n - 1); }
+      });
+
+      // Entrance: start stacked, then fan out. Reduced motion renders the final state directly.
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) { render(); return; }
+      cards.forEach(function (card, i) { card.style.zIndex = n - i; card.style.setProperty('--d', 0); card.style.setProperty('--s', 0); });
+      requestAnimationFrame(function () { setTimeout(render, 120); });
+    })();
+  </script>
+</body>
+</html>

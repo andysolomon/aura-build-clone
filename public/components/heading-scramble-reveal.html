@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glyphworks - Kinetic heading specimens</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; background: #08080a; }
+    .backdrop { background-image: linear-gradient(rgb(255 255 255 / .03) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .03) 1px, transparent 1px); background-size: 40px 40px; -webkit-mask-image: radial-gradient(80% 70% at 50% 0%, #000, transparent); mask-image: radial-gradient(80% 70% at 50% 0%, #000, transparent); }
+    .spec { background: linear-gradient(180deg, rgb(255 255 255 / .035), rgb(255 255 255 / .012)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .07), inset 0 1px 0 rgb(255 255 255 / .05); }
+    .demo { font-size: clamp(2rem, 3.6vw, 3.25rem); line-height: 1.04; letter-spacing: -0.045em; font-weight: 600; color: #fafafa; }
+    /* 01 scramble */
+    .scr .q { color: #67e8f9; opacity: .75; }
+    /* 02 rotating words */
+    .rot { display: inline-flex; height: 1.12em; overflow: hidden; vertical-align: bottom; transition: width .5s cubic-bezier(.6,.1,.2,1); }
+    .rot-track { display: flex; flex-direction: column; align-items: flex-start; transition: transform .6s cubic-bezier(.7,0,.2,1); }
+    .rot-track span { display: block; height: 1.12em; white-space: nowrap; padding-right: .04em; background: linear-gradient(90deg, #d9f99d, #67e8f9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    /* 03 letter rise */
+    .wd { display: inline-block; overflow: hidden; padding: .06em .02em .12em; margin: -.06em -.02em -.12em; vertical-align: top; }
+    .ch { display: inline-block; }
+    .play .ch { animation: rise .8s cubic-bezier(.2,.9,.25,1.15) both; animation-delay: calc(var(--i) * 26ms); }
+    @keyframes rise { from { transform: translateY(110%) rotate(8deg); opacity: 0; filter: blur(4px); } 60% { opacity: 1; filter: blur(0); } to { transform: none; opacity: 1; } }
+    /* 04 gradient sweep */
+    .sweep { background: linear-gradient(100deg, #d9f99d 0%, #67e8f9 20%, #a78bfa 38%, #fff 44%, #fff 46%, #34343b 52%, #34343b 100%); background-size: 260% 100%; background-position: 0 0; -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .play .sweep { animation: sweep 1.5s cubic-bezier(.65,0,.25,1) both; animation-delay: .1s; }
+    @keyframes sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
+    .spin { animation: spin .55s cubic-bezier(.2,.7,.2,1); }
+    @keyframes spin { to { transform: rotate(-360deg); } }
+    .status i { display: inline-block; width: 6px; height: 6px; border-radius: 99px; background: #3f3f46; }
+    .status.run i { background: #67e8f9; box-shadow: 0 0 0 3px rgb(103 232 249 / .18); }
+    .status.done i { background: #a3e635; }
+    button:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      .play .ch, .play .sweep, .spin { animation: none !important; }
+      .rot, .rot-track { transition: none; }
+    }
+  </style>
+</head>
+<body class="font-sans text-zinc-300">
+  <section class="relative min-h-screen overflow-hidden" aria-labelledby="sheet-title">
+    <div class="backdrop pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-3xl" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
+      <header class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="font-mono text-[11.5px] uppercase tracking-[.2em] text-zinc-500"><span class="text-cyan-300">Glyphworks</span> / Motion type kit</p>
+          <h1 id="sheet-title" class="mt-2 text-[22px] font-semibold tracking-[-0.03em] text-white sm:text-[26px]">Four kinetic heading treatments</h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="loops" type="button" class="inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[13px] font-medium text-zinc-300 ring-1 ring-inset ring-white/10 transition hover:bg-white/[.06]"><iconify-icon icon="lucide:pause" class="text-[14px]"></iconify-icon><span>Pause loops</span></button>
+          <button id="replayAll" type="button" class="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[13px] font-semibold text-black transition hover:bg-zinc-200"><iconify-icon icon="lucide:rotate-ccw" class="text-[14px]"></iconify-icon>Replay all<kbd class="hidden rounded border border-black/15 px-1 font-mono text-[10px] text-zinc-500 sm:inline">R</kbd></button>
+        </div>
+      </header>
+
+      <div class="mt-7 grid gap-4 md:grid-cols-2">
+        <article class="spec flex min-h-[300px] flex-col rounded-3xl p-6 sm:p-7" data-fx="scramble">
+          <div class="flex items-start justify-between gap-3">
+            <div><p class="font-mono text-[11px] uppercase tracking-[.16em] text-zinc-500"><span class="text-cyan-300">01</span> Text scramble decode</p><p class="status mt-2 flex items-center gap-2 font-mono text-[11px] text-zinc-500"><i></i><span>idle</span></p></div>
+            <button type="button" class="replay grid h-9 w-9 shrink-0 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:bg-white/[.06] hover:text-white" aria-label="Replay text scramble decode"><iconify-icon icon="lucide:rotate-ccw" class="text-[15px]"></iconify-icon></button>
+          </div>
+          <h2 class="demo scr my-auto py-6 font-mono !font-bold !tracking-[-0.06em]" data-text="Signal from the noise.">Signal from the noise.</h2>
+          <p class="text-[12.5px] text-zinc-500">Characters resolve left to right out of random glyphs. requestAnimationFrame, about 1.3s.</p>
+        </article>
+
+        <article class="spec flex min-h-[300px] flex-col rounded-3xl p-6 sm:p-7" data-fx="rotate">
+          <div class="flex items-start justify-between gap-3">
+            <div><p class="font-mono text-[11px] uppercase tracking-[.16em] text-zinc-500"><span class="text-cyan-300">02</span> Rotating words</p><p class="status mt-2 flex items-center gap-2 font-mono text-[11px] text-zinc-500"><i></i><span>idle</span></p></div>
+            <button type="button" class="replay grid h-9 w-9 shrink-0 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:bg-white/[.06] hover:text-white" aria-label="Replay rotating words"><iconify-icon icon="lucide:rotate-ccw" class="text-[15px]"></iconify-icon></button>
+          </div>
+          <h2 class="demo my-auto py-6" aria-label="Made for designers, founders, night owls and small teams.">
+            <span aria-hidden="true">Made for<br><span class="rot"><span class="rot-track"><span>designers.</span><span>founders.</span><span>night owls.</span><span>small teams.</span></span></span></span>
+          </h2>
+          <p class="text-[12.5px] text-zinc-500">The word slot slides vertically and its width eases to fit each word. Loops every 2.2s.</p>
+        </article>
+
+        <article class="spec flex min-h-[300px] flex-col rounded-3xl p-6 sm:p-7" data-fx="rise">
+          <div class="flex items-start justify-between gap-3">
+            <div><p class="font-mono text-[11px] uppercase tracking-[.16em] text-zinc-500"><span class="text-cyan-300">03</span> Letter-stagger rise</p><p class="status mt-2 flex items-center gap-2 font-mono text-[11px] text-zinc-500"><i></i><span>idle</span></p></div>
+            <button type="button" class="replay grid h-9 w-9 shrink-0 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:bg-white/[.06] hover:text-white" aria-label="Replay letter-stagger rise"><iconify-icon icon="lucide:rotate-ccw" class="text-[15px]"></iconify-icon></button>
+          </div>
+          <h2 class="demo my-auto py-6" data-split>Every letter, right <span class="text-zinc-500">on cue.</span></h2>
+          <p class="text-[12.5px] text-zinc-500">Each glyph rises out of a masked line, 26ms apart, with a small overshoot. Pure CSS keyframes.</p>
+        </article>
+
+        <article class="spec flex min-h-[300px] flex-col rounded-3xl p-6 sm:p-7" data-fx="sweep">
+          <div class="flex items-start justify-between gap-3">
+            <div><p class="font-mono text-[11px] uppercase tracking-[.16em] text-zinc-500"><span class="text-cyan-300">04</span> Gradient sweep</p><p class="status mt-2 flex items-center gap-2 font-mono text-[11px] text-zinc-500"><i></i><span>idle</span></p></div>
+            <button type="button" class="replay grid h-9 w-9 shrink-0 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:bg-white/[.06] hover:text-white" aria-label="Replay gradient sweep"><iconify-icon icon="lucide:rotate-ccw" class="text-[15px]"></iconify-icon></button>
+          </div>
+          <h2 class="demo my-auto py-6"><span class="sweep">Light moves through every word.</span></h2>
+          <p class="text-[12.5px] text-zinc-500">A white highlight crosses dim text and leaves a lime-to-violet gradient behind. background-clip: text.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var loopsOn = !reduce;
+      var GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&*+=/<>';
+      var rand = function (s) { return s[Math.floor(Math.random() * s.length)]; };
+
+      function status(card, state, text) {
+        var st = card.querySelector('.status');
+        st.className = 'status mt-2 flex items-center gap-2 font-mono text-[11px] text-zinc-500 ' + state;
+        st.querySelector('span').textContent = text;
+      }
+
+      // 01: scramble decode. Characters lock in left to right with a little randomness.
+      var scrRaf = 0;
+      function scramble(card) {
+        var el = card.querySelector('.scr'), text = el.dataset.text;
+        el.setAttribute('aria-label', text);
+        cancelAnimationFrame(scrRaf);
+        if (reduce) { el.textContent = text; return status(card, 'done', 'static'); }
+        var spans = text.split('').map(function (c) { var s = document.createElement('span'); s.textContent = c; s.setAttribute('aria-hidden', 'true'); return s; });
+        el.replaceChildren.apply(el, spans);
+        var lock = text.split('').map(function (c, i) { return 120 + i * 42 + Math.random() * 260; });
+        var t0 = performance.now(), last = 0;
+        status(card, 'run', 'decoding');
+        (function frame(now) {
+          var t = now - t0, tick = now - last > 45, left = 0;
+          if (tick) last = now;
+          spans.forEach(function (s, i) {
+            if (text[i] === ' ' || t >= lock[i]) { if (s.className) { s.className = ''; s.textContent = text[i]; } return; }
+            left++;
+            if (tick) { s.className = 'q'; s.textContent = rand(GLYPHS); }
+          });
+          if (left) scrRaf = requestAnimationFrame(frame);
+          else status(card, 'done', 'done in ' + (t / 1000).toFixed(2) + 's');
+        })(t0);
+      }
+
+      // 02: rotating words. The slot width follows the active word.
+      var rotTimer = 0, rotIndex = 0;
+      function rotate(card, restart) {
+        var slot = card.querySelector('.rot'), track = slot.firstElementChild, words = track.children;
+        if (restart) rotIndex = 0;
+        clearTimeout(rotTimer);
+        var w = words[rotIndex];
+        slot.style.width = w.getBoundingClientRect().width + 'px';
+        track.style.transform = 'translateY(' + (-1.12 * rotIndex) + 'em)';
+        if (!loopsOn) return status(card, 'done', reduce ? 'static' : 'paused on "' + w.textContent.replace('.', '') + '"');
+        status(card, 'run', 'word ' + (rotIndex + 1) + ' of ' + words.length);
+        rotTimer = setTimeout(function () { rotIndex = (rotIndex + 1) % words.length; rotate(card); }, restart ? 3400 : 2200);
+      }
+
+      // 03 + 04: CSS keyframe effects, restarted by toggling the .play class.
+      document.querySelectorAll('[data-split]').forEach(function (el) {
+        var i = 0, label = el.textContent.replace(/\s+/g, ' ').trim();
+        var parts = [].map.call(el.childNodes, function (n) { return { text: n.textContent, cls: n.nodeType === 1 ? n.className : '' }; });
+        el.setAttribute('aria-label', label); el.textContent = '';
+        parts.forEach(function (p) {
+          p.text.split(/(\s+)/).forEach(function (word) {
+            if (!word) return;
+            if (/^\s+$/.test(word)) return el.appendChild(document.createTextNode(' '));
+            var wd = document.createElement('span'); wd.className = 'wd'; wd.setAttribute('aria-hidden', 'true');
+            word.split('').forEach(function (c) { var ch = document.createElement('span'); ch.className = 'ch ' + p.cls; ch.textContent = c; ch.style.setProperty('--i', i++); wd.appendChild(ch); });
+            el.appendChild(wd);
+          });
+        });
+      });
+      function cssFx(card, ms) {
+        card.classList.remove('play'); void card.offsetWidth; card.classList.add('play');
+        if (reduce) return status(card, 'done', 'static');
+        status(card, 'run', 'playing');
+        clearTimeout(card._t);
+        card._t = setTimeout(function () { status(card, 'done', 'done in ' + (ms / 1000).toFixed(2) + 's'); }, ms);
+      }
+
+      var cards = {};
+      document.querySelectorAll('[data-fx]').forEach(function (c) { cards[c.dataset.fx] = c; });
+      var run = {
+        scramble: function () { scramble(cards.scramble); },
+        rotate: function () { rotate(cards.rotate, true); },
+        rise: function () { var n = cards.rise.querySelectorAll('.ch').length; cssFx(cards.rise, 800 + (n - 1) * 26); },
+        sweep: function () { cssFx(cards.sweep, 1600); }
+      };
+      function replayAll() { Object.keys(run).forEach(function (k) { run[k](); }); spin(document.getElementById('replayAll')); }
+      function spin(btn) { var ic = btn.querySelector('iconify-icon'); ic.classList.remove('spin'); void ic.offsetWidth; ic.classList.add('spin'); }
+
+      document.querySelectorAll('.replay').forEach(function (b) {
+        b.addEventListener('click', function () { run[b.closest('[data-fx]').dataset.fx](); spin(b); });
+      });
+      document.getElementById('replayAll').addEventListener('click', replayAll);
+      document.addEventListener('keydown', function (e) {
+        if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && !e.altKey && !/input|textarea|select/i.test(e.target.tagName)) replayAll();
+      });
+
+      var loops = document.getElementById('loops');
+      if (reduce) { loops.disabled = true; loops.classList.add('opacity-50'); loops.querySelector('span').textContent = 'Loops off'; }
+      loops.addEventListener('click', function () {
+        loopsOn = !loopsOn;
+        loops.querySelector('span').textContent = loopsOn ? 'Pause loops' : 'Resume loops';
+        loops.querySelector('iconify-icon').setAttribute('icon', loopsOn ? 'lucide:pause' : 'lucide:play');
+        rotate(cards.rotate);
+      });
+      window.addEventListener('resize', function () { var c = cards.rotate; c.querySelector('.rot').style.width = c.querySelector('.rot-track').children[rotIndex].getBoundingClientRect().width + 'px'; });
+
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(replayAll);
+    })();
+  </script>
+</body>
+</html>

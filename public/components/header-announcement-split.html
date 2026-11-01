@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plume - Announcement bar, split nav and command palette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #fbfaf8; }
+  .bar { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.2,.8,.2,1), opacity .3s; }
+  .bar.gone { grid-template-rows: 0fr; opacity: 0; }
+  .bar-bg { background: linear-gradient(90deg, #ffe3d3, #f6e6ff 45%, #dcebff); }
+  .shine { background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.7) 50%, transparent 70%); background-size: 250% 100%; animation: shine 5s ease-in-out infinite; }
+  @keyframes shine { 0%, 40% { background-position: 150% 0; } 100% { background-position: -100% 0; } }
+  kbd, .k { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #7c5cff; outline-offset: 2px; }
+  .nl { position: relative; padding: 6px 2px; color: #57534e; transition: color .2s; }
+  .nl::after { content: ""; position: absolute; left: 2px; right: 2px; bottom: 0; height: 1.5px; background: #1c1917; transform: scaleX(0); transform-origin: left; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+  .nl:hover { color: #1c1917; } .nl:hover::after { transform: scaleX(1); }
+  .mpanel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.2,.8,.2,1); }
+  .mpanel.open { grid-template-rows: 1fr; }
+  .scrim { opacity: 0; transition: opacity .2s; }
+  .pal { opacity: 0; transform: translateY(-8px) scale(.98); transition: opacity .2s, transform .25s cubic-bezier(.2,.8,.2,1); }
+  .cmdk.open .scrim { opacity: 1; } .cmdk.open .pal { opacity: 1; transform: none; }
+  .opt { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 12px; cursor: pointer; font-size: 14px; color: #44403c; }
+  .opt[aria-selected="true"] { background: #f5f3ff; color: #1c1917; box-shadow: inset 0 0 0 1px rgba(124,92,255,.18); }
+  .opt[aria-selected="true"] .go { opacity: 1; }
+  .opt mark { background: none; color: #6d4aff; font-weight: 600; }
+  .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; background: #f5f5f4; color: #57534e; box-shadow: inset 0 0 0 1px rgba(28,25,23,.06); }
+  .go { opacity: 0; margin-left: auto; font-size: 12px; color: #7c5cff; display: flex; align-items: center; gap: 4px; }
+  .k { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 6px; font-size: 11px; color: #78716c; background: #fff; box-shadow: inset 0 0 0 1px rgba(28,25,23,.12), 0 1px 0 rgba(28,25,23,.08); }
+  .toast { opacity: 0; transform: translate(-50%, 12px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .fade { -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+  @media (prefers-reduced-motion: reduce) { .bar, .mpanel, .pal, .scrim, .toast, .nl::after { transition: none; } .shine { animation: none; } }
+</style>
+</head>
+<body class="font-sans text-stone-900 antialiased min-h-screen overflow-x-hidden">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-[700px] bg-[radial-gradient(40%_50%_at_20%_10%,rgba(255,214,190,.45),transparent_70%),radial-gradient(40%_50%_at_85%_20%,rgba(214,220,255,.55),transparent_70%)]" aria-hidden="true"></div>
+
+  <div id="bar" class="bar relative z-20" role="region" aria-label="Announcement">
+    <div class="overflow-hidden">
+      <div class="bar-bg relative">
+        <div class="shine absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+        <div class="relative max-w-6xl mx-auto px-12 py-2.5 flex items-center justify-center gap-3 text-[13px] text-stone-700">
+          <span class="hidden sm:inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-[#6d4aff] ring-1 ring-[#7c5cff]/20"><iconify-icon icon="lucide:sparkles" width="11"></iconify-icon>Plume 4.0</span>
+          <p class="truncate"><span class="hidden md:inline">Offline mode, live cursors and a new outline view are here. </span><a href="#" class="font-semibold text-stone-900 underline decoration-stone-900/25 underline-offset-4 hover:decoration-stone-900 transition">Read the launch notes<span class="sr-only"> for Plume 4.0</span> →</a></p>
+        </div>
+        <button id="dismiss" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full grid place-items-center text-stone-600 hover:bg-white/70 hover:text-stone-900 transition" aria-label="Dismiss announcement"><iconify-icon icon="lucide:x" width="15"></iconify-icon></button>
+      </div>
+    </div>
+  </div>
+
+  <header class="sticky top-0 z-30 bg-[#fbfaf8]/80 backdrop-blur-xl border-b border-stone-900/[.06]">
+    <nav class="max-w-6xl mx-auto px-5 sm:px-8 h-[68px] grid grid-cols-[1fr_auto_1fr] items-center" aria-label="Main">
+      <div class="flex items-center">
+        <button id="menu-btn" class="md:hidden w-10 h-10 -ml-2 rounded-full grid place-items-center hover:bg-stone-900/5 transition" aria-label="Open menu" aria-expanded="false" aria-controls="mpanel"><iconify-icon id="menu-ico" icon="lucide:menu" width="20"></iconify-icon></button>
+        <ul class="hidden md:flex items-center gap-7 text-[14px]">
+          <li><a href="#" class="nl">Product</a></li><li><a href="#" class="nl">Templates</a></li><li><a href="#" class="nl">Customers</a></li><li><a href="#" class="nl">Pricing</a></li>
+        </ul>
+      </div>
+      <a href="#" class="flex items-center gap-2 text-[21px] font-semibold tracking-[-0.04em]" aria-label="Plume home">
+        <svg viewBox="0 0 32 32" class="w-8 h-8" aria-hidden="true"><defs><linearGradient id="pl" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#7c5cff"/><stop offset="1" stop-color="#ff8a5c"/></linearGradient></defs><rect width="32" height="32" rx="10" fill="#1c1917"/><path d="M22.5 7.5c-6.5.5-11 5-12 12.5l-1.5 5" fill="none" stroke="url(#pl)" stroke-width="2.4" stroke-linecap="round"/><path d="M22.5 7.5c.5 6-3.5 10.5-10.8 11.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/><path d="M15.5 12.5l3 3M13.5 15l2.4 2.4" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".55"/></svg>
+        plume
+      </a>
+      <div class="flex items-center justify-end gap-2">
+        <button id="open-k" class="group flex items-center gap-2 h-9 pl-2.5 sm:pl-3 pr-2.5 sm:pr-1.5 rounded-full bg-white ring-1 ring-stone-900/10 text-[13px] text-stone-500 hover:ring-stone-900/20 hover:text-stone-800 transition shadow-[0_1px_2px_rgba(28,25,23,.05)]" aria-haspopup="dialog" aria-label="Search and commands">
+          <iconify-icon icon="lucide:search" width="15"></iconify-icon><span class="hidden lg:inline pr-6">Search</span><span class="hidden sm:inline-flex gap-0.5"><kbd class="k mod">⌘</kbd><kbd class="k">K</kbd></span>
+        </button>
+        <a href="#" class="hidden md:inline-flex h-9 items-center px-3 text-[14px] text-stone-600 hover:text-stone-900 transition">Log in</a>
+        <a href="#" class="hidden sm:inline-flex h-9 items-center gap-1.5 px-4 rounded-full bg-stone-900 text-white text-[13.5px] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_6px_16px_-6px_rgba(28,25,23,.5)] hover:bg-stone-800 transition">Start writing</a>
+      </div>
+    </nav>
+    <div id="mpanel" class="mpanel md:hidden">
+      <div class="overflow-hidden">
+        <div class="px-5 pb-5 pt-1 grid gap-1 text-[16px]">
+          <a href="#" class="py-3 border-b border-stone-900/[.06]">Product</a><a href="#" class="py-3 border-b border-stone-900/[.06]">Templates</a><a href="#" class="py-3 border-b border-stone-900/[.06]">Customers</a><a href="#" class="py-3 border-b border-stone-900/[.06]">Pricing</a>
+          <div class="grid grid-cols-2 gap-2 pt-3"><a href="#" class="h-11 grid place-items-center rounded-full ring-1 ring-stone-900/15 text-[14px]">Log in</a><a href="#" class="h-11 grid place-items-center rounded-full bg-stone-900 text-white text-[14px]">Start writing</a></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative max-w-5xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 text-center">
+    <p class="inline-flex items-center gap-2 text-[13px] text-stone-500"><span class="w-1.5 h-1.5 rounded-full bg-[#7c5cff]"></span>Docs, wikis and plans in one calm place</p>
+    <h1 class="mt-5 text-[40px] leading-[1.05] sm:text-[60px] lg:text-[68px] font-semibold tracking-[-0.05em]">Write it down.<br><span class="text-stone-400">Ship it together.</span></h1>
+    <p class="mt-5 max-w-xl mx-auto text-[15.5px] leading-relaxed text-stone-500 font-light">Plume keeps specs, meeting notes and roadmaps a keystroke away. Jump anywhere, run any command, never lose a thread.</p>
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a href="#" class="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-stone-900 text-white text-[14px] font-medium hover:bg-stone-800 transition">Start writing free<iconify-icon icon="lucide:arrow-right" width="15"></iconify-icon></a>
+      <button id="try-k" class="inline-flex items-center gap-2 h-11 px-4 rounded-full bg-white ring-1 ring-stone-900/10 text-[14px] text-stone-600 hover:ring-stone-900/20 transition">Try it: press <span class="inline-flex gap-0.5"><kbd class="k mod">⌘</kbd><kbd class="k">K</kbd></span></button>
+    </div>
+    <div class="fade relative mt-12 mx-auto max-w-4xl rounded-[22px] bg-white ring-1 ring-stone-900/[.07] shadow-[0_40px_80px_-40px_rgba(28,25,23,.35)] text-left" aria-hidden="true">
+      <div class="h-11 px-4 flex items-center gap-3 border-b border-stone-900/[.06] text-[12px] text-stone-400">
+        <span class="flex gap-1.5"><i class="w-2.5 h-2.5 rounded-full bg-stone-200"></i><i class="w-2.5 h-2.5 rounded-full bg-stone-200"></i><i class="w-2.5 h-2.5 rounded-full bg-stone-200"></i></span>
+        <span class="ml-2">Roadmap / <b class="font-medium text-stone-700">Q1 2027 planning</b></span>
+        <span class="ml-auto flex -space-x-1.5"><i class="w-6 h-6 rounded-full ring-2 ring-white bg-gradient-to-br from-violet-300 to-violet-500"></i><i class="w-6 h-6 rounded-full ring-2 ring-white bg-gradient-to-br from-orange-200 to-orange-400"></i><i class="w-6 h-6 rounded-full ring-2 ring-white bg-gradient-to-br from-sky-200 to-sky-400"></i></span>
+      </div>
+      <div class="px-6 sm:px-14 py-8">
+        <p class="text-[24px] font-semibold tracking-[-0.03em]">Q1 2027 planning</p>
+        <p class="mt-3 text-[14px] leading-7 text-stone-500 max-w-2xl">We are betting on three themes: faster sync, <span class="bg-[#efe9ff] text-stone-800 rounded px-1">a calmer inbox</span><span class="inline-block w-0.5 h-4 bg-[#7c5cff] align-middle mx-px"></span><span class="text-[10px] font-semibold text-white bg-[#7c5cff] rounded px-1 py-px align-top">Mina</span> and templates teams actually reuse.</p>
+        <div class="mt-5 grid sm:grid-cols-3 gap-3">
+          <div class="rounded-xl ring-1 ring-stone-900/[.06] p-3"><p class="text-[12px] text-stone-400">Theme 01</p><p class="text-[13.5px] font-medium">Sync under 80ms</p><div class="mt-3 h-1.5 rounded-full bg-stone-100"><i class="block h-full w-3/4 rounded-full bg-[#7c5cff]"></i></div></div>
+          <div class="rounded-xl ring-1 ring-stone-900/[.06] p-3"><p class="text-[12px] text-stone-400">Theme 02</p><p class="text-[13.5px] font-medium">Inbox zero by default</p><div class="mt-3 h-1.5 rounded-full bg-stone-100"><i class="block h-full w-2/5 rounded-full bg-[#ff8a5c]"></i></div></div>
+          <div class="rounded-xl ring-1 ring-stone-900/[.06] p-3"><p class="text-[12px] text-stone-400">Theme 03</p><p class="text-[13.5px] font-medium">Template gallery v2</p><div class="mt-3 h-1.5 rounded-full bg-stone-100"><i class="block h-full w-1/4 rounded-full bg-sky-400"></i></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="cmdk" class="cmdk fixed inset-0 z-50 hidden">
+    <div class="scrim absolute inset-0 bg-stone-900/25 backdrop-blur-[3px]" data-close></div>
+    <div class="pal relative mx-auto mt-[12vh] w-[min(620px,calc(100%-24px))] rounded-[20px] bg-white/95 backdrop-blur-xl ring-1 ring-stone-900/10 shadow-[0_40px_100px_-30px_rgba(28,25,23,.5)] overflow-hidden" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="flex items-center gap-3 px-4 h-14 border-b border-stone-900/[.07]">
+        <iconify-icon icon="lucide:search" width="18" class="text-stone-400"></iconify-icon>
+        <input id="q" class="flex-1 min-w-0 bg-transparent text-[15px] placeholder:text-stone-400 focus:outline-none" placeholder="Search pages, docs and actions…" role="combobox" aria-expanded="true" aria-controls="list" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+        <button class="k !h-6 !px-2 hover:text-stone-900" data-close aria-label="Close command palette">esc</button>
+      </div>
+      <div id="list" role="listbox" aria-label="Results" class="max-h-[min(360px,55vh)] overflow-y-auto p-2"></div>
+      <div class="flex items-center gap-4 px-4 h-10 border-t border-stone-900/[.07] bg-stone-50/80 text-[11.5px] text-stone-500">
+        <span class="flex items-center gap-1.5"><kbd class="k">↑</kbd><kbd class="k">↓</kbd>Navigate</span>
+        <span class="flex items-center gap-1.5"><kbd class="k">↵</kbd>Open</span>
+        <span id="count" class="ml-auto" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast fixed left-1/2 bottom-6 z-[60] flex items-center gap-2 rounded-full bg-stone-900 text-white text-[13px] pl-3 pr-4 py-2 shadow-xl" role="status" aria-live="polite"><iconify-icon icon="lucide:circle-check" width="16" class="text-emerald-300"></iconify-icon><span id="toast-t"></span></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  if (!isMac) document.querySelectorAll('.mod').forEach(function (k) { k.textContent = 'Ctrl'; });
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+
+  // Announcement bar
+  $('dismiss').addEventListener('click', function () {
+    var bar = $('bar'); bar.classList.add('gone');
+    setTimeout(function () { bar.hidden = true; }, reduce ? 0 : 420);
+    $('open-k').focus();
+  });
+
+  // Mobile menu
+  var mBtn = $('menu-btn'), mp = $('mpanel');
+  function setMenu(o) { mp.classList.toggle('open', o); mBtn.setAttribute('aria-expanded', String(o)); mBtn.setAttribute('aria-label', o ? 'Close menu' : 'Open menu'); $('menu-ico').setAttribute('icon', o ? 'lucide:x' : 'lucide:menu'); }
+  mBtn.addEventListener('click', function () { setMenu(!mp.classList.contains('open')); });
+
+  // Command palette data
+  var groups = [
+    ['Suggestions', [['file-plus-2', 'New document', 'N'], ['layout-template', 'Browse templates', 'T'], ['user-plus', 'Invite teammates', 'I']]],
+    ['Pages', [['tag', 'Pricing'], ['sparkles', 'Changelog'], ['building-2', 'Customers'], ['briefcase', 'Careers'], ['shield-check', 'Security and compliance']]],
+    ['Docs', [['rocket', 'Getting started'], ['keyboard', 'Keyboard shortcuts'], ['braces', 'API reference'], ['import', 'Import from other tools']]],
+    ['Actions', [['moon', 'Toggle dark mode', 'D'], ['download', 'Download brand assets'], ['headset', 'Contact sales']]]
+  ];
+  var cmdk = $('cmdk'), q = $('q'), list = $('list'), opener = null, sel = 0, shown = [], toastT = 0;
+  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function match(label, term) { // subsequence match, returns highlighted html or null
+    if (!term) return esc(label);
+    var out = '', j = 0, lo = label.toLowerCase();
+    for (var i = 0; i < label.length; i++) {
+      if (j < term.length && lo[i] === term[j]) { out += '<mark>' + esc(label[i]) + '</mark>'; j++; } else out += esc(label[i]);
+    }
+    return j === term.length ? out : null;
+  }
+  function render() {
+    var term = q.value.trim().toLowerCase().replace(/\s+/g, ' '), html = '', n = 0;
+    shown = [];
+    groups.forEach(function (g) {
+      var rows = '';
+      g[1].forEach(function (it) {
+        var h = match(it[1], term);
+        if (h === null) return;
+        var id = 'opt-' + n;
+        rows += '<div id="' + id + '" class="opt" role="option" aria-selected="false" data-i="' + n + '"><span class="ico"><iconify-icon icon="lucide:' + it[0] + '" width="16"></iconify-icon></span><span class="truncate">' + h + '</span>' +
+          '<span class="go">' + (it[2] ? '<kbd class="k">' + (isMac ? '⌘' : 'Ctrl') + '</kbd><kbd class="k">' + it[2] + '</kbd>' : 'Jump to<iconify-icon icon="lucide:corner-down-left" width="13"></iconify-icon>') + '</span></div>';
+        shown.push(it[1]); n++;
+      });
+      if (rows) html += '<div role="group" aria-label="' + g[0] + '"><p class="px-2.5 pt-2.5 pb-1 text-[11px] font-medium uppercase tracking-[.1em] text-stone-400">' + g[0] + '</p>' + rows + '</div>';
+    });
+    list.innerHTML = html || '<div class="py-12 text-center"><iconify-icon icon="lucide:search-x" width="26" class="text-stone-300"></iconify-icon><p class="mt-2 text-[14px] text-stone-600">No results for “' + esc(q.value) + '”</p><p class="text-[12.5px] text-stone-400">Try “pricing” or “shortcuts”.</p></div>';
+    $('count').textContent = n + (n === 1 ? ' result' : ' results');
+    setSel(0);
+  }
+  function setSel(i) {
+    var opts = list.querySelectorAll('.opt');
+    if (!opts.length) { q.removeAttribute('aria-activedescendant'); return; }
+    sel = (i + opts.length) % opts.length;
+    opts.forEach(function (o, k) { o.setAttribute('aria-selected', String(k === sel)); });
+    q.setAttribute('aria-activedescendant', opts[sel].id);
+    opts[sel].scrollIntoView({ block: 'nearest' });
+  }
+  function run(i) {
+    if (!shown.length) return;
+    close();
+    $('toast-t').textContent = 'Opening ' + shown[i];
+    var t = $('toast'); t.classList.add('on'); clearTimeout(toastT);
+    toastT = setTimeout(function () { t.classList.remove('on'); }, 2200);
+  }
+  function open() {
+    if (!cmdk.classList.contains('hidden')) return;
+    opener = document.activeElement; setMenu(false);
+    cmdk.classList.remove('hidden'); q.value = ''; render();
+    requestAnimationFrame(function () { cmdk.classList.add('open'); q.focus(); });
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    cmdk.classList.remove('open'); document.body.style.overflow = '';
+    setTimeout(function () { cmdk.classList.add('hidden'); }, reduce ? 0 : 180);
+    if (opener && opener.focus) opener.focus();
+  }
+
+  $('open-k').addEventListener('click', open);
+  $('try-k').addEventListener('click', open);
+  cmdk.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) close(); });
+  list.addEventListener('mousemove', function (e) { var o = e.target.closest('.opt'); if (o && +o.dataset.i !== sel) setSel(+o.dataset.i); });
+  list.addEventListener('click', function (e) { var o = e.target.closest('.opt'); if (o) run(+o.dataset.i); });
+  q.addEventListener('input', render);
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setSel(sel + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setSel(sel - 1); }
+    else if (e.key === 'Home' && !q.value) { e.preventDefault(); setSel(0); }
+    else if (e.key === 'End' && !q.value) { e.preventDefault(); setSel(-1); }
+    else if (e.key === 'Enter') { e.preventDefault(); run(sel); }
+    else if (e.key === 'Tab') { e.preventDefault(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdk.classList.contains('hidden') ? open() : close(); }
+    else if (e.key === 'Escape') { if (!cmdk.classList.contains('hidden')) close(); else if (mp.classList.contains('open')) { setMenu(false); mBtn.focus(); } }
+  });
+})();
+</script>
+</body>
+</html>

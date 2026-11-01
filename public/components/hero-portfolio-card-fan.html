@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noa Halvorsen - Portfolio hero with fanned project cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  body { background: #f5f3ee; }
+  .dots { background-image: radial-gradient(rgba(28,25,23,.08) 1px, transparent 1.2px); background-size: 24px 24px; mask-image: radial-gradient(ellipse 80% 70% at 70% 45%, #000 20%, transparent 75%); }
+  .blob { position: absolute; border-radius: 9999px; filter: blur(60px); pointer-events: none; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #1c1917; outline-offset: 3px; }
+  .live::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: #22c55e; animation: ping 2s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes ping { 75%, 100% { transform: scale(2.4); opacity: 0; } }
+
+  .fan-wrap { position: relative; height: calc(520px * var(--k)); --k: 1; }
+  .fan { position: absolute; left: 50%; top: 0; width: 520px; height: 520px; transform: translateX(-50%) scale(var(--k)); transform-origin: top center; }
+  @media (max-width: 639px) { .fan-wrap { --k: .7; } }
+  .deck { position: absolute; left: 50%; top: 70px; width: 248px; height: 340px; margin-left: -124px; --dx: 30px; --dr: 6.5deg; cursor: pointer; border-radius: 22px; outline: none; }
+  .deck:hover, .deck:focus-visible { --dx: 54px; --dr: 11deg; }
+  .deck:focus-visible::before { content: ""; position: absolute; inset: -18px -150px -24px; border-radius: 28px; border: 2px dashed rgba(28,25,23,.35); }
+  .card { position: absolute; inset: 0; padding: 10px; border-radius: 22px; background: #fff; transform-origin: 50% 105%;
+    transform: translate(calc(var(--s) * var(--dx)), calc(var(--a) * 7px)) rotate(calc(var(--s) * var(--dr)));
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 0 0 1px rgba(28,25,23,.06), 0 24px 50px -24px rgba(28,25,23,.45), 0 6px 14px -8px rgba(28,25,23,.18);
+    transition: transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .3s; }
+  .card.lift { transform: translate(40px, -86px) rotate(9deg) !important; transition-duration: .28s; }
+  .card.lift-l { transform: translate(-190px, -40px) rotate(-22deg) !important; transition-duration: .28s; }
+  .card .art { height: 236px; border-radius: 14px; overflow: hidden; }
+  .card .art svg { width: 100%; height: 100%; display: block; }
+  .card.front { box-shadow: 0 0 0 1px rgba(28,25,23,.06), 0 40px 70px -30px rgba(28,25,23,.55), 0 10px 20px -10px rgba(28,25,23,.2); }
+  .card.front .go { background: #1c1917; color: #fff; }
+  .badge { animation: turn 22s linear infinite; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .card { transition-duration: .01s !important; }
+    .badge, .live::after { animation: none; }
+  }
+</style>
+</head>
+<body class="font-sans text-stone-900 min-h-screen relative overflow-x-hidden antialiased">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="blob w-[520px] h-[420px] right-[4%] top-[120px] bg-[#ffd3b5]/70"></div>
+    <div class="blob w-[420px] h-[360px] right-[26%] top-[340px] bg-[#d9d3ff]/70"></div>
+    <div class="blob w-[360px] h-[300px] left-[-120px] top-[-80px] bg-[#e4ecd6]/80"></div>
+    <div class="dots absolute inset-0"></div>
+  </div>
+
+  <header class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 h-[72px] flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5 font-serif text-[24px] leading-none tracking-tight" aria-label="Noa Halvorsen, home"><span class="w-9 h-9 rounded-full bg-stone-900 text-[#f5f3ee] grid place-items-center italic text-[19px] pb-0.5" aria-hidden="true">nh</span>Halvorsen</a>
+    <nav aria-label="Main" class="hidden md:flex items-center gap-1 rounded-full bg-white/60 ring-1 ring-stone-900/[.06] p-1 text-[13.5px] font-medium text-stone-600 backdrop-blur">
+      <a href="#" aria-current="page" class="px-3.5 py-1.5 rounded-full bg-stone-900 text-white">Work</a><a href="#" class="px-3.5 py-1.5 rounded-full hover:bg-stone-900/5 transition">Services</a><a href="#" class="px-3.5 py-1.5 rounded-full hover:bg-stone-900/5 transition">About</a><a href="#" class="px-3.5 py-1.5 rounded-full hover:bg-stone-900/5 transition">Journal</a>
+    </nav>
+    <a href="#" class="inline-flex items-center gap-1.5 text-[14px] font-semibold border-b border-stone-900/30 hover:border-stone-900 pb-0.5 transition">Let’s talk<iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></a>
+  </header>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 grid lg:grid-cols-[1fr_520px] gap-8 items-center pt-6 lg:pt-10 pb-14">
+    <section class="text-center lg:text-left">
+      <div class="inline-flex items-center gap-3 rounded-full bg-white/80 ring-1 ring-stone-900/[.07] p-1 pr-4 shadow-[0_8px_24px_-14px_rgba(28,25,23,.35)]">
+        <span class="w-10 h-10 rounded-full overflow-hidden shrink-0" aria-hidden="true">
+          <svg viewBox="0 0 40 40" class="w-10 h-10"><rect width="40" height="40" fill="#f7c9a6"/><path d="M6 40c1.5-8 7-12 14-12s12.5 4 14 12z" fill="#3b4a3f"/><circle cx="20" cy="18" r="7.2" fill="#e0a882"/><path d="M12.4 19c-.8-7 3-11 7.6-11s9 3.4 7.8 11c-1.4-3.6-4-5.2-7.8-5.2s-6.2 1.6-7.6 5.2z" fill="#2a211c"/></svg>
+        </span>
+        <span class="text-left leading-tight">
+          <span class="block text-[13.5px] font-bold">Noa Halvorsen</span>
+          <span class="hidden sm:block text-[12px] text-stone-500">Brand &amp; product designer, Oslo</span>
+        </span>
+        <span class="inline-flex items-center gap-2 ml-1 pl-3 border-l border-stone-900/10 text-[12px] font-semibold text-emerald-700">
+          <span class="live relative w-2 h-2 rounded-full bg-emerald-500"></span>Booking Feb 2027
+        </span>
+      </div>
+      <h1 class="mt-7 font-serif text-[52px] leading-[.98] sm:text-[72px] lg:text-[82px] tracking-[-0.02em]">Brands &amp; interfaces with a <i class="text-[#d4552b]">quiet</i> kind of confidence.</h1>
+      <p class="mt-6 max-w-[500px] mx-auto lg:mx-0 text-[16px] leading-relaxed text-stone-600">I help founders turn rough ideas into identities, apps and websites that feel considered down to the last pixel. Nine years, 48 launches, and zero templates.</p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+        <a href="#" class="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-stone-900 text-white text-[14.5px] font-semibold shadow-[0_12px_30px_-12px_rgba(28,25,23,.6)] hover:bg-stone-800 transition">See selected work<iconify-icon icon="lucide:arrow-right" width="16" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+        <a href="#" class="inline-flex items-center gap-2 h-12 px-5 rounded-full bg-white/70 ring-1 ring-stone-900/10 text-[14.5px] font-semibold hover:bg-white transition"><iconify-icon icon="lucide:calendar-days" width="16" class="text-stone-500"></iconify-icon>Book a 20-min intro</a>
+      </div>
+      <dl class="mt-10 flex justify-center lg:justify-start divide-x divide-stone-900/10 text-left">
+        <div class="pr-6"><dt class="text-[12px] text-stone-500">Launches</dt><dd class="font-serif text-[30px] leading-tight">48</dd></div>
+        <div class="px-6"><dt class="text-[12px] text-stone-500">Client rating</dt><dd class="font-serif text-[30px] leading-tight">4.9<span class="text-stone-400 text-[20px]">/5</span></dd></div>
+        <div class="pl-6"><dt class="text-[12px] text-stone-500">Repeat clients</dt><dd class="font-serif text-[30px] leading-tight">71%</dd></div>
+      </dl>
+    </section>
+
+    <section class="fan-wrap" aria-label="Selected projects">
+      <div class="fan">
+        <svg class="badge absolute right-[18px] top-[6px] w-[104px] h-[104px] z-20" viewBox="0 0 100 100" aria-hidden="true">
+          <defs><path id="circ" d="M50 50m-38 0a38 38 0 1 1 76 0a38 38 0 1 1-76 0"/></defs>
+          <circle cx="50" cy="50" r="49" fill="#1c1917"/>
+          <text font-size="9" font-weight="700" fill="#f5f3ee"><textPath href="#circ" textLength="236" lengthAdjust="spacing">OPEN FOR WORK · BOOKING 2027 ·</textPath></text>
+          <path d="M50 38l3 9h9l-7.4 5.4 2.8 8.8L50 55.8l-7.4 5.4 2.8-8.8L38 47h9z" fill="#d4552b"/>
+        </svg>
+
+        <div id="deck" class="deck" tabindex="0" role="button" aria-roledescription="card deck" aria-describedby="deck-hint" aria-label="Shuffle projects">
+          <article class="card" data-name="Ember Roasters" data-meta="Packaging system">
+            <div class="art"><svg viewBox="0 0 228 236" aria-hidden="true"><rect width="228" height="236" fill="#ec6a3a"/><circle cx="114" cy="250" r="128" fill="#f6a65e"/><circle cx="114" cy="250" r="94" fill="#f9cf93"/><circle cx="114" cy="250" r="60" fill="#fff1dc"/><g fill="#ec6a3a"><rect y="176" width="228" height="7"/><rect y="196" width="228" height="5"/><rect y="212" width="228" height="4"/></g><text x="18" y="50" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#fff1dc">Ember</text><text x="20" y="68" font-family="Manrope" font-size="8" font-weight="700" letter-spacing="2" fill="#fff1dc" opacity=".8">ROASTERS · LOT 04 · 250G</text></svg></div>
+            <div class="flex items-center justify-between px-1.5 pt-3"><div><h3 class="text-[14.5px] font-bold">Ember Roasters</h3><p class="text-[12px] text-stone-500">Packaging · 2026</p></div><span class="go w-8 h-8 rounded-full bg-stone-100 grid place-items-center transition"><iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></span></div>
+          </article>
+          <article class="card" data-name="Tidewell" data-meta="Banking app">
+            <div class="art"><svg viewBox="0 0 228 236" aria-hidden="true"><rect width="228" height="236" fill="#12223d"/><circle cx="160" cy="70" r="80" fill="#2dd4bf" opacity=".18"/><rect x="66" y="26" width="96" height="196" rx="18" fill="#1b3155" stroke="#fff" stroke-opacity=".14"/><rect x="98" y="34" width="32" height="7" rx="3.5" fill="#0b1629"/><rect x="78" y="56" width="34" height="5" rx="2.5" fill="#fff" opacity=".35"/><text x="78" y="82" font-family="Manrope" font-weight="700" font-size="17" fill="#fff">$8,214</text><path d="M78 128c10-4 14-18 24-16s12 12 22 6 12-20 26-24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round"/><g fill="#fff" opacity=".1"><rect x="78" y="146" width="72" height="18" rx="6"/><rect x="78" y="170" width="72" height="18" rx="6"/><rect x="78" y="194" width="72" height="18" rx="6"/></g><circle cx="88" cy="155" r="4" fill="#5eead4"/><circle cx="88" cy="179" r="4" fill="#fbbf24"/><circle cx="88" cy="203" r="4" fill="#f472b6"/></svg></div>
+            <div class="flex items-center justify-between px-1.5 pt-3"><div><h3 class="text-[14.5px] font-bold">Tidewell</h3><p class="text-[12px] text-stone-500">Banking app · 2025</p></div><span class="go w-8 h-8 rounded-full bg-stone-100 grid place-items-center transition"><iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></span></div>
+          </article>
+          <article class="card" data-name="Grove Atlas" data-meta="Wayfinding">
+            <div class="art"><svg viewBox="0 0 228 236" aria-hidden="true"><rect width="228" height="236" fill="#cfdcbb"/><g fill="none" stroke="#3a5634" stroke-opacity=".55"><ellipse cx="128" cy="118" rx="22" ry="14" transform="rotate(-24 128 118)"/><ellipse cx="124" cy="120" rx="44" ry="30" transform="rotate(-18 124 120)"/><ellipse cx="120" cy="122" rx="68" ry="48" transform="rotate(-12 120 122)"/><ellipse cx="116" cy="126" rx="94" ry="68" transform="rotate(-8 116 126)"/><ellipse cx="112" cy="130" rx="122" ry="90" transform="rotate(-4 112 130)"/><ellipse cx="108" cy="134" rx="152" ry="114"/></g><path d="M30 210c40-30 70-10 96-44s44-36 72-40" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/><path d="M128 84c-11 0-19 8-19 18 0 14 19 30 19 30s19-16 19-30c0-10-8-18-19-18z" fill="#e2552f"/><circle cx="128" cy="102" r="6.5" fill="#fff"/><text x="18" y="30" font-family="Manrope" font-size="8.5" font-weight="700" letter-spacing="1.6" fill="#3a5634">TRAIL 07 · 2.4 KM</text></svg></div>
+            <div class="flex items-center justify-between px-1.5 pt-3"><div><h3 class="text-[14.5px] font-bold">Grove Atlas</h3><p class="text-[12px] text-stone-500">Wayfinding · 2025</p></div><span class="go w-8 h-8 rounded-full bg-stone-100 grid place-items-center transition"><iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></span></div>
+          </article>
+          <article class="card" data-name="Mono Type Co." data-meta="Type foundry identity">
+            <div class="art"><svg viewBox="0 0 228 236" aria-hidden="true"><rect width="228" height="236" fill="#1c1b19"/><g stroke="#fff" stroke-opacity=".08"><path d="M0 60h228M0 172h228M40 0v236M188 0v236"/></g><text x="28" y="172" font-family="Instrument Serif" font-size="150" fill="#f3ede2">Aa</text><circle cx="190" cy="58" r="13" fill="#e5484d"/><text x="20" y="214" font-family="Manrope" font-size="8.5" font-weight="700" letter-spacing="2" fill="#f3ede2" opacity=".55">MONO TYPE CO. · SPECIMEN</text></svg></div>
+            <div class="flex items-center justify-between px-1.5 pt-3"><div><h3 class="text-[14.5px] font-bold">Mono Type Co.</h3><p class="text-[12px] text-stone-500">Identity · 2024</p></div><span class="go w-8 h-8 rounded-full bg-stone-100 grid place-items-center transition"><iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></span></div>
+          </article>
+          <article class="card" data-name="Halo Clinic" data-meta="Website">
+            <div class="art"><svg viewBox="0 0 228 236" aria-hidden="true"><defs><linearGradient id="halo" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#f9a8d4"/></linearGradient></defs><rect width="228" height="236" fill="#ddd7ff"/><rect x="18" y="30" width="192" height="176" rx="12" fill="#fff"/><g fill="#e7e5e4"><circle cx="31" cy="42" r="3"/><circle cx="41" cy="42" r="3"/><circle cx="51" cy="42" r="3"/></g><circle cx="160" cy="112" r="38" fill="url(#halo)"/><circle cx="160" cy="112" r="50" fill="none" stroke="url(#halo)" stroke-opacity=".4"/><rect x="32" y="78" width="78" height="10" rx="5" fill="#1c1917"/><rect x="32" y="94" width="60" height="10" rx="5" fill="#1c1917"/><g fill="#d6d3d1"><rect x="32" y="114" width="74" height="5" rx="2.5"/><rect x="32" y="124" width="64" height="5" rx="2.5"/></g><rect x="32" y="140" width="50" height="16" rx="8" fill="#7c3aed"/><g fill="#f5f5f4"><rect x="32" y="172" width="52" height="22" rx="6"/><rect x="90" y="172" width="52" height="22" rx="6"/><rect x="148" y="172" width="50" height="22" rx="6"/></g></svg></div>
+            <div class="flex items-center justify-between px-1.5 pt-3"><div><h3 class="text-[14.5px] font-bold">Halo Clinic</h3><p class="text-[12px] text-stone-500">Website · 2024</p></div><span class="go w-8 h-8 rounded-full bg-stone-100 grid place-items-center transition"><iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></span></div>
+          </article>
+        </div>
+
+        <div class="absolute inset-x-0 bottom-0 flex items-center justify-center gap-3">
+          <button id="prev" class="w-10 h-10 rounded-full bg-white ring-1 ring-stone-900/10 grid place-items-center hover:bg-stone-50 transition shadow-sm" aria-label="Previous project"><iconify-icon icon="lucide:arrow-left" width="17"></iconify-icon></button>
+          <div class="min-w-[200px] text-center" aria-live="polite" aria-atomic="true">
+            <div class="text-[11px] font-bold tracking-[.16em] text-stone-400"><span id="idx">01</span> / 05</div>
+            <div class="text-[14px] font-semibold"><span id="pname">Ember Roasters</span> <span class="font-serif italic font-normal text-stone-500 text-[16px]" id="pmeta">Packaging system</span></div>
+          </div>
+          <button id="next" class="w-10 h-10 rounded-full bg-stone-900 text-white grid place-items-center hover:bg-stone-800 transition shadow-sm" aria-label="Next project"><iconify-icon icon="lucide:arrow-right" width="17"></iconify-icon></button>
+        </div>
+        <p id="deck-hint" class="sr-only">Press Enter, Space or the right arrow for the next project, left arrow for the previous one.</p>
+      </div>
+    </section>
+  </main>
+
+<script>
+(function () {
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var deck = document.getElementById('deck');
+  var cards = [].slice.call(deck.querySelectorAll('.card'));
+  var n = cards.length, busy = false;
+  // order[slot] = card index; slot n-1 is the front (rightmost, on top)
+  var order = cards.map(function (_, i) { return n - 1 - i; });
+
+  function layout() {
+    order.forEach(function (ci, slot) {
+      var c = cards[ci], s = slot - (n - 1) / 2;
+      c.style.setProperty('--s', s); c.style.setProperty('--a', Math.abs(s));
+      c.style.zIndex = slot + 1;
+      c.classList.toggle('front', slot === n - 1);
+      c.setAttribute('aria-hidden', String(slot !== n - 1));
+    });
+    var top = cards[order[n - 1]];
+    document.getElementById('idx').textContent = '0' + (order[n - 1] + 1);
+    document.getElementById('pname').textContent = top.dataset.name;
+    document.getElementById('pmeta').textContent = top.dataset.meta;
+  }
+
+  function next() {
+    if (busy) return; busy = true;
+    var c = cards[order[n - 1]];
+    c.classList.add('lift');
+    setTimeout(function () {
+      c.classList.remove('lift');
+      order.unshift(order.pop()); layout();
+      setTimeout(function () { busy = false; }, reduce ? 0 : 260);
+    }, reduce ? 0 : 240);
+  }
+  function prev() {
+    if (busy) return; busy = true;
+    var c = cards[order[0]];
+    c.classList.add('lift-l');
+    setTimeout(function () {
+      c.style.zIndex = n + 2; c.classList.remove('lift-l');
+      order.push(order.shift()); layout();
+      setTimeout(function () { busy = false; }, reduce ? 0 : 260);
+    }, reduce ? 0 : 240);
+  }
+
+  deck.addEventListener('click', next);
+  deck.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+  });
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+  layout();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Light Beams Background | Falling light along a faint grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root { --cell: 72px; }
+  @media (max-width: 640px) { :root { --cell: 48px; } }
+  .layer { position: absolute; inset: 0; }
+  .grid-v { background-image: linear-gradient(to right, rgba(148,180,255,.07) 1px, transparent 1px); background-size: var(--cell) 100%; background-position: calc(50% - var(--cell) / 2) 0; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent); }
+  .grid-h { background-image: linear-gradient(to bottom, rgba(148,180,255,.045) 1px, transparent 1px); background-size: 100% var(--cell); -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 80%); mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 80%); }
+  .beams { -webkit-mask-image: linear-gradient(to bottom, transparent 1%, #000 13%, #000 72%, transparent 92%); mask-image: linear-gradient(to bottom, transparent 1%, #000 13%, #000 72%, transparent 92%); }
+  .beams i { position: absolute; top: 0; left: calc(50% + var(--x) * var(--cell)); width: var(--w, 1.5px); height: var(--h, 160px); margin-left: calc(var(--w, 1.5px) / -2); opacity: var(--o, .9); background: linear-gradient(to bottom, transparent, var(--c) 72%, #fff); animation: fall var(--d) linear var(--l) infinite; will-change: transform; }
+  .beams i::before { content: ""; position: absolute; left: 50%; bottom: 0; width: 8px; height: 60%; transform: translateX(-50%); background: linear-gradient(to bottom, transparent, var(--c)); filter: blur(5px); opacity: .6; }
+  .beams i::after { content: ""; position: absolute; left: 50%; bottom: -2px; width: 4px; height: 4px; transform: translateX(-50%); border-radius: 50%; background: #fff; box-shadow: 0 0 8px 2px var(--c), 0 0 24px 6px var(--c); }
+  @keyframes fall { 0% { transform: translateY(-100%); } 82%, 100% { transform: translateY(100vh); } }
+  .marks b { position: absolute; left: calc(50% + var(--x) * var(--cell)); top: calc(var(--y) * var(--cell)); width: 9px; height: 9px; margin: -4px 0 0 -4px; background: linear-gradient(rgba(190,215,255,.55), rgba(190,215,255,.55)) center / 1px 100% no-repeat, linear-gradient(rgba(190,215,255,.55), rgba(190,215,255,.55)) center / 100% 1px no-repeat; animation: twinkle var(--t, 4s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+  @keyframes twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  .horizon { background: radial-gradient(55% 32% at 50% 104%, rgba(80,130,255,.32), rgba(130,90,255,.1) 55%, transparent 75%); }
+  .arc { position: absolute; left: 50%; top: 86vh; width: 170vw; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, #04050a 97%, transparent); box-shadow: 0 -1px 0 rgba(170,200,255,.55), 0 -8px 40px -4px rgba(90,140,255,.45), inset 0 18px 40px -20px rgba(90,140,255,.45); }
+  .vignette { background: radial-gradient(ellipse 80% 75% at 50% 42%, transparent 45%, rgba(4,5,10,.92) 100%), linear-gradient(to bottom, rgba(4,5,10,.85), transparent 16%); }
+  .scrim { background: radial-gradient(ellipse 36% 26% at 50% 46%, rgba(4,5,10,.82), rgba(4,5,10,.45) 55%, transparent 80%); }
+  .title { background: linear-gradient(180deg, #fff 35%, rgba(200,215,255,.6)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .enter { animation: enter .9s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--e, 0s); }
+  @keyframes enter { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+  .cta-primary { box-shadow: 0 0 0 1px rgba(255,255,255,.3), 0 10px 40px -10px rgba(125,190,255,.75); }
+  a:focus-visible { outline: 2px solid #9cc3ff; outline-offset: 3px; border-radius: 10px; }
+  @media (prefers-reduced-motion: reduce) { .beams i { animation-play-state: paused; } .marks b, .enter { animation: none; } .marks b { opacity: .5; } }
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden bg-[#04050a] font-sans text-white antialiased">
+  <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+    <div class="layer grid-h"></div>
+    <div class="layer grid-v"></div>
+    <div class="layer horizon"></div>
+    <div class="layer beams">
+      <i style="--x:-12;--d:8.4s;--l:-3.1s;--h:150px;--c:#a5b4fc;--o:.6"></i>
+      <i style="--x:-10;--d:7.8s;--l:-6.9s;--h:170px;--c:#c4b5fd;--o:.7"></i>
+      <i style="--x:-9;--d:8.6s;--l:-2s;--h:120px;--c:#7dd3fc;--o:.6"></i>
+      <i style="--x:-7;--d:6s;--l:-4.1s;--h:210px;--c:#67e8f9"></i>
+      <i style="--x:-7;--d:9.2s;--l:-0.4s;--h:110px;--c:#a5b4fc;--o:.5"></i>
+      <i style="--x:-6;--d:10s;--l:-7.5s;--h:140px;--c:#a5b4fc;--o:.75"></i>
+      <i style="--x:-4;--d:7.2s;--l:-1.6s;--h:250px;--c:#7dd3fc;--w:2px"></i>
+      <i style="--x:-3;--d:9.4s;--l:-5.6s;--h:120px;--c:#c4b5fd;--o:.6"></i>
+      <i style="--x:-2;--d:5.6s;--l:-3.9s;--h:160px;--c:#67e8f9;--o:.8"></i>
+      <i style="--x:-1;--d:6.6s;--l:-0.9s;--h:190px;--c:#67e8f9"></i>
+      <i style="--x:0;--d:12s;--l:-9.5s;--h:300px;--c:#e0f2fe;--o:.45"></i>
+      <i style="--x:1;--d:8.1s;--l:-6.4s;--h:260px;--c:#a5b4fc"></i>
+      <i style="--x:2;--d:5.4s;--l:-1.1s;--h:130px;--c:#7dd3fc;--o:.85"></i>
+      <i style="--x:3;--d:10.6s;--l:-3.4s;--h:140px;--c:#67e8f9;--o:.55"></i>
+      <i style="--x:4;--d:7.7s;--l:-2.8s;--h:220px;--c:#c4b5fd"></i>
+      <i style="--x:5;--d:11s;--l:-8.2s;--h:150px;--c:#67e8f9;--o:.65"></i>
+      <i style="--x:6;--d:6.9s;--l:-5.3s;--h:120px;--c:#a5b4fc;--o:.6"></i>
+      <i style="--x:7;--d:6.3s;--l:-1.4s;--h:200px;--c:#7dd3fc;--w:2px"></i>
+      <i style="--x:8;--d:9s;--l:-4.2s;--h:120px;--c:#a5b4fc;--o:.7"></i>
+      <i style="--x:10;--d:7s;--l:-2.4s;--h:170px;--c:#67e8f9;--o:.7"></i>
+      <i style="--x:11;--d:8.8s;--l:-6.1s;--h:140px;--c:#c4b5fd;--o:.6"></i>
+      <i style="--x:-5;--d:6.8s;--l:-2.2s;--h:180px;--c:#a5b4fc;--o:.8"></i>
+      <i style="--x:-1;--d:9.8s;--l:-7.2s;--h:130px;--c:#c4b5fd;--o:.6"></i>
+      <i style="--x:3;--d:6.2s;--l:-4.4s;--h:230px;--c:#7dd3fc;--w:2px"></i>
+      <i style="--x:-8;--d:7.6s;--l:-5.1s;--h:200px;--c:#67e8f9;--w:2px"></i>
+      <i style="--x:9;--d:5.8s;--l:-3.6s;--h:210px;--c:#7dd3fc;--w:2px"></i>
+      <i style="--x:13;--d:7.4s;--l:-0.8s;--h:180px;--c:#7dd3fc;--o:.6"></i>
+    </div>
+    <div class="layer marks">
+      <b style="--x:-8;--y:3;--t:5s"></b><b style="--x:-5;--y:6;--t:4s;--dl:-1s"></b><b style="--x:-2;--y:2;--t:6s;--dl:-2.5s"></b>
+      <b style="--x:3;--y:7;--t:4.5s;--dl:-.5s"></b><b style="--x:6;--y:3;--t:5.5s;--dl:-3s"></b><b style="--x:9;--y:5;--t:4s;--dl:-1.8s"></b>
+      <b style="--x:-11;--y:5;--t:6s;--dl:-4s"></b><b style="--x:12;--y:2;--t:5s;--dl:-2s"></b>
+    </div>
+    <div class="arc"></div>
+    <div class="layer scrim"></div>
+    <div class="layer vignette"></div>
+  </div>
+
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <header class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
+      <a href="#" class="flex items-center gap-2.5 text-[16px] font-semibold tracking-[-0.02em]">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0f2fe"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs><path d="M12 1.5c.6 5.6 2.6 9 6.4 10.5-3.8 1.5-5.8 4.9-6.4 10.5-.6-5.6-2.6-9-6.4-10.5C9.4 10.5 11.4 7.1 12 1.5Z" fill="url(#lg)"/><path d="M12 17v6" stroke="#7dd3fc" stroke-width="1" opacity=".6"/></svg>
+        Starling
+      </a>
+      <nav aria-label="Primary" class="hidden items-center gap-8 text-[14px] text-slate-400 md:flex">
+        <a href="#" class="transition hover:text-white">Product</a>
+        <a href="#" class="transition hover:text-white">Benchmarks</a>
+        <a href="#" class="transition hover:text-white">Docs</a>
+        <a href="#" class="transition hover:text-white">Pricing</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="#" class="hidden rounded-lg px-3 py-1.5 text-[13.5px] text-slate-300 transition hover:text-white sm:block">Sign in</a>
+        <a href="#" class="rounded-lg border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-[13.5px] text-white backdrop-blur transition hover:border-white/25">Start free</a>
+      </div>
+    </header>
+
+    <main class="flex flex-1 flex-col items-center justify-center px-6 pb-36 pt-4 text-center">
+      <a href="#" class="enter group inline-flex items-center gap-2.5 rounded-full border border-sky-300/20 bg-sky-300/[.06] py-1 pl-1 pr-3 text-[12.5px] text-slate-300 backdrop-blur transition hover:border-sky-300/40" style="--e:.05s">
+        <span class="rounded-full bg-sky-300/15 px-2 py-0.5 font-mono text-[10.5px] font-medium uppercase tracking-wider text-sky-200">New</span>
+        Replay any stream to the millisecond
+        <iconify-icon icon="lucide:arrow-right" width="13" class="text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-sky-200" aria-hidden="true"></iconify-icon>
+      </a>
+      <h1 class="enter title mt-7 max-w-4xl text-[clamp(2.5rem,7vw,5.4rem)] font-semibold leading-[1] tracking-[-0.045em]" style="--e:.14s">Every event, landing<br class="hidden sm:block"> exactly once.</h1>
+      <p class="enter mx-auto mt-6 max-w-xl text-[16px] leading-relaxed text-slate-400 sm:text-[17.5px]" style="--e:.26s">Starling streams millions of events per second across regions, in order, with exactly-once delivery and ninety days of instant replay.</p>
+      <div class="enter mt-9 flex flex-wrap items-center justify-center gap-3" style="--e:.36s">
+        <a href="#" class="cta-primary inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-[14.5px] font-medium text-[#04050a] transition hover:bg-sky-50">Start streaming<iconify-icon icon="lucide:arrow-right" width="16" aria-hidden="true"></iconify-icon></a>
+        <a href="#" class="inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[.03] px-5 text-[14.5px] text-slate-200 backdrop-blur transition hover:border-white/25 hover:text-white"><iconify-icon icon="lucide:gauge" width="16" aria-hidden="true"></iconify-icon>See the benchmarks</a>
+      </div>
+    </main>
+
+    <dl class="enter absolute inset-x-0 bottom-8 mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-6 font-mono text-[11.5px] uppercase tracking-wider text-slate-500" style="--e:.5s">
+      <div class="flex items-center gap-2"><dt class="sr-only">Throughput</dt><dd><span class="text-slate-200">4.2M</span> events / sec</dd></div>
+      <div class="flex items-center gap-2"><dt class="sr-only">Latency</dt><dd><span class="text-slate-200">11ms</span> p99 end to end</dd></div>
+      <div class="flex items-center gap-2"><dt class="sr-only">Durability</dt><dd><span class="text-slate-200">99.999%</span> durability</dd></div>
+    </dl>
+  </div>
+</body>
+</html>

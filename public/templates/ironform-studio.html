@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ironform — Strength &amp; Conditioning in Eastgate</title>
+  <meta name="description" content="Coached barbell training, conditioning and Olympic lifting in a 12,000 sq ft Eastgate warehouse. Your first week is free.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { display: ['Anton', 'Impact', 'sans-serif'], sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        colors: { char: { DEFAULT: '#121212', 2: '#191919', 3: '#242424' }, signal: { DEFAULT: '#ff3b1f', deep: '#d62a10' }, chalk: { DEFAULT: '#f1ede4', dim: '#a19d94' } },
+        boxShadow: { hot: '0 18px 40px -16px rgba(255,59,31,.65)' }
+      } }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    :focus-visible { outline: 2px solid #ff3b1f; outline-offset: 3px; }
+    .disp { font-family: Anton, Impact, sans-serif; text-transform: uppercase; font-weight: 400; letter-spacing: .005em; }
+    .h2 { font-family: Anton, Impact, sans-serif; text-transform: uppercase; font-size: 3.4rem; line-height: .9; }
+    @media (min-width: 768px) { .h2 { font-size: 5.25rem; } }
+    .eyebrow { display: flex; align-items: center; gap: .75rem; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .22em; color: #a19d94; }
+    .eyebrow::before { content: ''; width: 1.75rem; height: 3px; background: #ff3b1f; }
+    .outline-text { color: transparent; -webkit-text-stroke: 2px #f1ede4; }
+    .cut { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; padding: 1rem 1.5rem; font-size: .875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; transition: background .2s, color .2s, border-color .2s; }
+    .btn-r { background: #ff3b1f; color: #121212; } .btn-r:hover { background: #f1ede4; }
+    .btn-o { border: 1px solid rgba(241,237,228,.3); color: #f1ede4; } .btn-o:hover { border-color: #f1ede4; }
+    .card { border: 1px solid rgba(241,237,228,.08); background: #191919; }
+    .speckle { background-image: radial-gradient(rgba(241,237,228,.05) 1px, transparent 1.6px); background-size: 7px 7px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { transform-origin: 320px 320px; animation: spin 70s linear infinite; }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+    .marquee { animation: marquee 32s linear infinite; }
+    @keyframes enter { from { opacity: 0; transform: translateY(24px); } }
+    .enter { animation: enter .9s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes pulse { 50% { opacity: .3; } }
+    .live { animation: pulse 1.2s ease-in-out infinite; }
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+    .tab[aria-selected=true] { background: #ff3b1f; color: #121212; border-color: #ff3b1f; }
+    .fchip[aria-pressed=true] { background: #f1ede4; color: #121212; border-color: #f1ede4; }
+    .seg button[aria-pressed=true] { background: #ff3b1f; color: #121212; }
+    .bar > i { display: block; height: 100%; background: #ff3b1f; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+    .field { margin-top: .5rem; width: 100%; border: 1px solid rgba(241,237,228,.15); background: #121212; padding: .8rem 1rem; color: #f1ede4; }
+    .field::placeholder { color: #6d6a64; }
+    .field[aria-invalid=true] { border-color: #ff3b1f; }
+    .err { margin-top: .4rem; font-size: .8rem; color: #ff7a63; }
+    .goal { cursor: pointer; border: 1px solid rgba(241,237,228,.15); padding: .7rem .5rem; text-align: center; font-size: .85rem; font-weight: 600; transition: .2s; }
+    .goal:has(:checked) { background: #ff3b1f; border-color: #ff3b1f; color: #121212; } .goal:has(:focus-visible) { outline: 2px solid #ff3b1f; outline-offset: 2px; }
+    .faq details { border-top: 1px solid rgba(241,237,228,.1); padding: 1.4rem 0; }
+    .faq summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: 1.5rem; font-size: 1.15rem; font-weight: 600; list-style: none; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: '+'; font-family: Anton, sans-serif; font-size: 1.75rem; line-height: 1; color: #ff3b1f; transition: transform .3s; }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+    .faq p { margin-top: .75rem; max-width: 44rem; color: #a19d94; }
+    footer li { margin-top: .5rem; } footer a:hover { color: #ff3b1f; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } .reveal { opacity: 1; transform: none; } }
+  </style>
+</head>
+<body class="bg-char font-sans text-chalk antialiased selection:bg-signal selection:text-char">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-signal focus:px-4 focus:py-2 focus:text-char">Skip to content</a>
+
+  <header class="sticky top-0 z-50 border-b border-white/[0.07] bg-char/85 backdrop-blur-xl">
+    <nav class="mx-auto flex max-w-[1360px] items-center justify-between px-5 py-4 md:px-8" aria-label="Primary">
+      <a href="#" class="flex items-center gap-2.5"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#ff3b1f"/><circle cx="15" cy="15" r="9" fill="none" stroke="#121212" stroke-width="1.5" opacity=".5"/><circle cx="15" cy="15" r="4.5" fill="#121212"/></svg><span class="disp text-2xl tracking-[0.06em]">Ironform</span></a>
+      <ul class="hidden items-center gap-9 text-sm font-medium text-chalk/70 lg:flex">
+        <li><a href="#programs" class="hover:text-chalk">Programs</a></li><li><a href="#schedule" class="hover:text-chalk">Schedule</a></li><li><a href="#coaches" class="hover:text-chalk">Coaches</a></li><li><a href="#membership" class="hover:text-chalk">Membership</a></li><li><a href="#faq" class="hover:text-chalk">FAQ</a></li>
+      </ul>
+      <div class="flex items-center gap-3">
+        <a href="#" class="hidden text-sm font-medium text-chalk/70 hover:text-chalk sm:block">Member login</a>
+        <a href="#trial" class="btn btn-r cut hidden !py-3 sm:inline-flex">Free trial</a>
+        <button id="menuBtn" class="grid h-11 w-11 place-items-center border border-white/15 lg:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon></button>
+      </div>
+    </nav>
+    <div id="mobileMenu" class="hidden border-t border-white/10 px-5 pb-6 lg:hidden">
+      <ul class="disp divide-y divide-white/10 text-3xl"><li><a href="#programs" class="block py-3">Programs</a></li><li><a href="#schedule" class="block py-3">Schedule</a></li><li><a href="#coaches" class="block py-3">Coaches</a></li><li><a href="#membership" class="block py-3">Membership</a></li><li><a href="#faq" class="block py-3">FAQ</a></li></ul>
+      <a href="#trial" class="btn btn-r cut mt-4 w-full">Start your free week</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="relative isolate overflow-hidden">
+      <div aria-hidden="true" class="speckle absolute inset-0 -z-10 [mask-image:linear-gradient(#000,transparent)]"></div>
+      <div aria-hidden="true" class="absolute -right-40 top-0 -z-10 h-[900px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(255,59,31,.22),transparent)]"></div>
+      <div class="relative mx-auto max-w-[1360px] px-5 pb-12 pt-10 md:px-8 lg:min-h-[772px] lg:pb-0 lg:pt-12">
+        <div class="relative z-10">
+          <p class="eyebrow enter"><span class="live h-2 w-2 rounded-full bg-signal"></span>Eastgate strength club · Est. 2016</p>
+          <h1 class="disp enter mt-6 text-[4.9rem] leading-[0.93] sm:text-[7.5rem] lg:text-[9.4rem]" style="animation-delay:.06s">Stronger<br><span class="outline-text">than last</span><br><span class="text-signal">week.</span></h1>
+          <p class="enter mt-7 max-w-md text-lg leading-relaxed text-chalk/70" style="animation-delay:.14s">Coached barbell training and conditioning in a 12,000 sq ft Eastgate warehouse. Programs written by humans, adjusted every week, built around the lifts that keep you capable for decades.</p>
+          <div class="enter mt-9 flex flex-wrap gap-3" style="animation-delay:.2s">
+            <a href="#trial" class="btn btn-r cut shadow-hot">Start your free week<iconify-icon icon="lucide:arrow-right" class="text-lg"></iconify-icon></a>
+            <a href="#schedule" class="btn btn-o">See the schedule</a>
+          </div>
+        </div>
+        <div class="relative mx-auto mt-12 aspect-square w-full max-w-[560px] lg:absolute lg:right-[-10px] lg:top-6 lg:mt-0 lg:w-[640px] lg:max-w-none">
+          <svg viewBox="0 0 640 640" class="h-full w-full drop-shadow-[0_50px_60px_rgba(0,0,0,.7)]" role="img" aria-label="A red 20 kilogram Ironform bumper plate stacked on a barbell">
+            <defs>
+              <radialGradient id="rub" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#ff5a3a"/><stop offset=".55" stop-color="#e8321b"/><stop offset="1" stop-color="#a11b0c"/></radialGradient>
+              <radialGradient id="steel" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#fbfbfb"/><stop offset=".45" stop-color="#bdbdbd"/><stop offset="1" stop-color="#555"/></radialGradient>
+              <radialGradient id="shine" cx=".3" cy=".25" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+              <path id="ring" d="M320 320m-240 0a240 240 0 1 1 480 0a240 240 0 1 1-480 0"/>
+            </defs>
+            <circle cx="368" cy="292" r="282" fill="#191919" stroke="#2c2c2c" stroke-width="3"/>
+            <circle cx="344" cy="306" r="292" fill="#7a150a"/>
+            <g class="spin">
+              <circle cx="320" cy="320" r="300" fill="url(#rub)"/>
+              <circle cx="320" cy="320" r="291" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="4"/>
+              <circle cx="320" cy="320" r="270" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="2"/>
+              <circle cx="320" cy="320" r="206" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="4"/>
+              <text font-family="Anton" font-size="27" fill="#f1ede4" fill-opacity=".92"><textPath href="#ring" textLength="1490" lengthAdjust="spacing">IRONFORM STRENGTH CO. ✦ CALIBRATED 20 KG ✦ 44 LB ✦ EASTGATE ✦ IRONFORM STRENGTH CO. ✦ IWF SPEC ✦</textPath></text>
+              <g font-family="Anton" fill="#f1ede4" text-anchor="middle"><text x="320" y="204" font-size="104">20</text><text x="320" y="504" font-size="74">KG</text><text x="168" y="334" font-size="34" fill-opacity=".7">44</text><text x="472" y="334" font-size="34" fill-opacity=".7">LB</text></g>
+              <circle cx="320" cy="320" r="100" fill="url(#steel)"/>
+              <circle cx="320" cy="320" r="86" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="2"/>
+              <g fill="#3a3a3a" stroke="#ddd" stroke-opacity=".5"><circle cx="390" cy="320" r="6"/><circle cx="369.5" cy="369.5" r="6"/><circle cx="320" cy="390" r="6"/><circle cx="270.5" cy="369.5" r="6"/><circle cx="250" cy="320" r="6"/><circle cx="270.5" cy="270.5" r="6"/><circle cx="320" cy="250" r="6"/><circle cx="369.5" cy="270.5" r="6"/></g>
+            </g>
+            <circle cx="320" cy="320" r="50" fill="#8e8e8e" stroke="#555" stroke-width="3"/><circle cx="320" cy="320" r="34" fill="#0b0b0b"/><circle cx="320" cy="320" r="28" fill="url(#steel)"/><circle cx="320" cy="320" r="14" fill="#6f6f6f"/><circle cx="320" cy="320" r="6" fill="#1a1a1a"/>
+            <circle cx="320" cy="320" r="300" fill="url(#shine)"/>
+          </svg>
+          <div class="enter relative mx-auto -mt-20 w-[300px] border border-white/10 bg-char/80 p-5 backdrop-blur-xl lg:absolute lg:bottom-12 lg:left-[-30px] lg:mt-0" style="animation-delay:.3s" aria-label="Live rep counter from platform 3">
+            <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-chalk/55"><span class="flex items-center gap-2"><span class="live h-2 w-2 rounded-full bg-signal"></span>Live · Platform 3</span><span>Set <b id="set" class="text-chalk">3</b>/5</span></div>
+            <p class="mt-3 text-sm text-chalk/70">Back squat · <b class="text-chalk">142.5 kg</b> · Jordan K.</p>
+            <div class="mt-1 flex items-end justify-between">
+              <p class="disp text-[5.2rem] leading-none" aria-live="polite"><span id="rep">03</span><span class="text-3xl text-chalk/35">/05</span></p>
+              <div class="pb-2 text-right"><p class="text-[11px] uppercase tracking-[0.18em] text-chalk/50">Bar speed</p><p class="disp text-3xl text-signal"><span id="vel">0.62</span><span class="text-base text-chalk/50"> m/s</span></p></div>
+            </div>
+            <div id="dots" class="mt-3 grid grid-cols-5 gap-1.5"></div>
+            <p class="mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-xs text-chalk/55">Lifted here this month<b id="kg" class="disp text-xl tracking-wide text-chalk">1,284,560 kg</b></p>
+          </div>
+        </div>
+      </div>
+      <div class="relative z-10 overflow-hidden bg-signal py-3.5 text-char" aria-hidden="true">
+        <div class="marquee disp flex w-max gap-10 whitespace-nowrap text-2xl tracking-[0.04em]" id="marquee"></div>
+      </div>
+    </section>
+
+    <!-- Social proof -->
+    <section class="border-b border-white/[0.07]" aria-label="Press and ratings">
+      <div class="mx-auto flex max-w-[1360px] flex-col items-center gap-6 px-5 py-8 md:px-8 lg:flex-row lg:justify-between">
+        <p class="flex items-center gap-3 text-sm text-chalk/60"><span class="text-lg tracking-[0.15em] text-signal" aria-hidden="true">★★★★★</span><b class="text-chalk">4.9</b> from 640 member reviews</p>
+        <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-chalk/40"><span class="font-serif text-xl italic">The Eastgate Courier</span><span class="disp text-2xl tracking-[0.12em]">Strong Quarterly</span><span class="text-lg font-bold tracking-[0.3em]">RUNWELL</span><span class="text-xl font-semibold tracking-tight">barbell/weekly</span><span class="disp text-2xl">Field &amp; Iron</span></div>
+      </div>
+    </section>
+
+    <!-- Programs -->
+    <section id="programs" class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-6">
+        <div><p class="eyebrow">Programs</p><h2 class="h2 mt-4">Built on<br>the big lifts.</h2></div>
+        <p class="max-w-sm text-chalk/60">Every session is coached, capped and written in-house. Pick a lane or mix them. Unlimited members do both.</p>
+      </div>
+      <div id="progs" class="mt-14 grid gap-px bg-white/[0.07] sm:grid-cols-2 lg:grid-cols-4"></div>
+    </section>
+
+    <!-- Schedule -->
+    <section id="schedule" class="border-y border-white/[0.07] bg-char-2">
+      <div class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+        <div class="reveal flex flex-wrap items-end justify-between gap-6">
+          <div><p class="eyebrow">Class schedule</p><h2 class="h2 mt-4">This week<br>on the floor.</h2></div>
+          <p class="max-w-sm text-chalk/60">Classes cap at 10–18 so a coach sees every rep. Reserve up to 7 days ahead; free cancellation until 2 hours before.</p>
+        </div>
+        <div class="reveal mt-12">
+          <div id="days" class="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Day of the week"></div>
+          <div class="mt-5 flex flex-wrap items-center gap-2" role="group" aria-label="Filter by class type" id="filters"></div>
+          <div id="classes" class="mt-6 border-t border-white/10" role="tabpanel" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coaches -->
+    <section id="coaches" class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-6">
+        <div><p class="eyebrow">Coaches</p><h2 class="h2 mt-4">People who<br>watch your reps.</h2></div>
+        <p class="max-w-sm text-chalk/60">Four full-time coaches, no rotating cast. Combined, 52 years on the platform and more than 3,000 lifters taught to squat.</p>
+      </div>
+      <div id="coachGrid" class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+    </section>
+
+    <!-- Results -->
+    <section class="relative overflow-hidden bg-signal text-char" aria-labelledby="resHead">
+      <div class="mx-auto grid max-w-[1360px] gap-12 px-5 py-24 md:px-8 lg:grid-cols-[1fr_1.15fr]">
+        <div class="reveal">
+          <p class="eyebrow !text-char/70 before:!bg-char">Results</p>
+          <h2 id="resHead" class="h2 mt-4">Numbers you<br>can put on<br>a bar.</h2>
+          <p class="mt-6 max-w-md font-medium text-char/75">Median change across 1,140 members who completed intake and re-test sessions (1RM testing plus body scans) between 2023 and 2026.</p>
+          <div class="seg mt-8 inline-flex border-2 border-char p-1" role="group" aria-label="Time on program"><button type="button" data-w="0" class="px-4 py-2 text-sm font-bold uppercase tracking-wider">12 weeks</button><button type="button" data-w="1" class="px-4 py-2 text-sm font-bold uppercase tracking-wider">6 months</button><button type="button" data-w="2" class="px-4 py-2 text-sm font-bold uppercase tracking-wider">1 year</button></div>
+        </div>
+        <div id="stats" class="reveal grid gap-px self-center bg-char/20 sm:grid-cols-2"></div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="mx-auto max-w-[1360px] px-5 py-24 md:px-8" aria-labelledby="tHead">
+      <p class="eyebrow reveal">Members</p>
+      <h2 id="tHead" class="h2 reveal mt-4">Heard on<br>the platform.</h2>
+      <div class="mt-14 grid gap-4 lg:grid-cols-3">
+        <figure class="card reveal flex flex-col p-8"><p class="disp text-6xl text-signal">60 → 140<span class="text-2xl text-chalk/50"> kg</span></p><p class="text-xs uppercase tracking-[0.2em] text-chalk/45">Deadlift · 14 months</p><blockquote class="mt-6 text-lg leading-relaxed">“I came in unable to pull the empty bar without my back complaining. Last month I deadlifted 140 kg at our in-house meet with the whole 6am crew yelling.”</blockquote><figcaption class="mt-auto flex items-center gap-3 pt-8 text-sm"><span class="grid h-11 w-11 place-items-center bg-signal font-bold text-char">TA</span><span><b class="block">Tamsin Achebe</b><span class="text-chalk/50">Barbell Club, 6:00 AM</span></span></figcaption></figure>
+        <figure class="card reveal flex flex-col p-8"><p class="disp text-6xl text-signal">−11<span class="text-2xl text-chalk/50"> kg</span></p><p class="text-xs uppercase tracking-[0.2em] text-chalk/45">Body weight · 9 months</p><blockquote class="mt-6 text-lg leading-relaxed">“Coaches actually watch your reps and fix them in the moment. I stopped treating the gym like a punishment and started treating it like practice.”</blockquote><figcaption class="mt-auto flex items-center gap-3 pt-8 text-sm"><span class="grid h-11 w-11 place-items-center bg-chalk font-bold text-char">MA</span><span><b class="block">Mateo Alvarez</b><span class="text-chalk/50">Engine &amp; Barbell Club</span></span></figcaption></figure>
+        <figure class="card reveal flex flex-col p-8"><p class="disp text-6xl text-signal">61<span class="text-2xl text-chalk/50"> years old</span></p><p class="text-xs uppercase tracking-[0.2em] text-chalk/45">First pull-up · 2026</p><blockquote class="mt-6 text-lg leading-relaxed">“My doctor told me to lift for my bones. Hannah got me from the wall-sit to a strict pull-up in a year. I’m the loudest person at Sunday Reset.”</blockquote><figcaption class="mt-auto flex items-center gap-3 pt-8 text-sm"><span class="grid h-11 w-11 place-items-center bg-char-3 font-bold">GP</span><span><b class="block">Gloria Pemberton</b><span class="text-chalk/50">Foundations graduate</span></span></figcaption></figure>
+      </div>
+    </section>
+
+    <!-- Membership -->
+    <section id="membership" class="border-t border-white/[0.07] bg-char-2">
+      <div class="mx-auto max-w-[1360px] px-5 py-24 md:px-8">
+        <div class="reveal flex flex-wrap items-end justify-between gap-6">
+          <div><p class="eyebrow">Membership</p><h2 class="h2 mt-4">Pick your<br>commitment.</h2></div>
+          <div class="seg inline-flex border border-white/15 p-1" role="group" aria-label="Billing period"><button type="button" data-bill="m" class="px-5 py-2.5 text-sm font-bold uppercase tracking-wider">Monthly</button><button type="button" data-bill="a" class="px-5 py-2.5 text-sm font-bold uppercase tracking-wider">Annual · 2 months free</button></div>
+        </div>
+        <div id="tiers" class="mt-12 grid gap-4 lg:grid-cols-3"></div>
+        <p class="mt-6 text-sm text-chalk/45">All plans: no joining fee, freeze up to 8 weeks a year, cancel with 30 days’ notice. Student, NHS and over-65 rates at the front desk.</p>
+      </div>
+    </section>
+
+    <!-- Free trial -->
+    <section id="trial" class="mx-auto grid max-w-[1360px] gap-12 px-5 py-24 md:px-8 lg:grid-cols-2">
+      <div class="reveal">
+        <p class="eyebrow">Free trial</p>
+        <h2 class="h2 mt-4">Your first<br>week is <span class="text-signal">on us.</span></h2>
+        <ul class="mt-8 space-y-4 text-lg text-chalk/80">
+          <li class="flex gap-4"><span class="disp text-2xl text-signal">01</span>A 30-minute intro with a coach: movement screen, goals, no sales pitch.</li>
+          <li class="flex gap-4"><span class="disp text-2xl text-signal">02</span>Seven days of unlimited classes and open gym.</li>
+          <li class="flex gap-4"><span class="disp text-2xl text-signal">03</span>No card required. If it isn’t for you, just don’t come back.</li>
+        </ul>
+      </div>
+      <div class="card reveal relative p-6 md:p-9">
+        <form id="trialForm" novalidate>
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div><label for="fName" class="text-sm font-semibold">First name</label><input id="fName" name="name" autocomplete="given-name" class="field" placeholder="Jordan" aria-describedby="fNameErr"><p id="fNameErr" class="err hidden"></p></div>
+            <div><label for="fEmail" class="text-sm font-semibold">Email</label><input id="fEmail" name="email" type="email" autocomplete="email" class="field" placeholder="jordan@mail.com" aria-describedby="fEmailErr"><p id="fEmailErr" class="err hidden"></p></div>
+            <div><label for="fPhone" class="text-sm font-semibold">Phone <span class="font-normal text-chalk/45">(optional)</span></label><input id="fPhone" name="phone" type="tel" autocomplete="tel" class="field" placeholder="(555) 018-4420" aria-describedby="fPhoneErr"><p id="fPhoneErr" class="err hidden"></p></div>
+            <div><label for="fTime" class="text-sm font-semibold">Best time to train</label><select id="fTime" name="time" class="field"><option>Early (5–8am)</option><option>Midday (11am–2pm)</option><option selected>Evening (5–8pm)</option><option>Weekends</option></select></div>
+          </div>
+          <fieldset class="mt-6" aria-describedby="fGoalErr"><legend class="text-sm font-semibold">Main goal</legend>
+            <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"><label class="goal"><input type="radio" name="goal" value="Get stronger" class="sr-only">Get stronger</label><label class="goal"><input type="radio" name="goal" value="Lose fat" class="sr-only">Lose fat</label><label class="goal"><input type="radio" name="goal" value="Learn to lift" class="sr-only">Learn to lift</label><label class="goal"><input type="radio" name="goal" value="Sport prep" class="sr-only">Sport prep</label></div>
+            <p id="fGoalErr" class="err hidden"></p>
+          </fieldset>
+          <label class="mt-6 flex items-start gap-3 text-sm text-chalk/70"><input id="fOk" type="checkbox" class="mt-0.5 h-4 w-4 accent-[#ff3b1f]" aria-describedby="fOkErr">I’m happy for a coach to text or email me to book my intro session.</label>
+          <p id="fOkErr" class="err hidden"></p>
+          <button class="btn btn-r cut mt-7 w-full !py-4 text-base">Claim my free week<iconify-icon icon="lucide:arrow-right"></iconify-icon></button>
+        </form>
+        <div id="pass" class="hidden" tabindex="-1" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="border-t border-white/[0.07]">
+      <div class="mx-auto grid max-w-[1360px] gap-10 px-5 py-24 md:px-8 lg:grid-cols-[1fr_2fr]">
+        <div class="reveal"><p class="eyebrow">FAQ</p><h2 class="h2 mt-4">Before you<br>walk in.</h2></div>
+        <div class="faq reveal border-b border-white/10">
+          <details open><summary>I’ve never lifted a barbell. Is this for me?</summary><p>That’s who most of our members were. Everyone starts with Foundations: six small-group sessions on the squat, hinge, press and pull before joining regular classes. You’ll start with a PVC pipe if that’s what your body needs.</p></details>
+          <details><summary>What should I bring to my first session?</summary><p>Flat shoes, water and clothes you can squat in. We have chalk, belts, lifting shoes in most sizes, towels and lockers. Showers are on site.</p></details>
+          <details><summary>How big are the classes?</summary><p>Barbell Club caps at 14, Olympic Lifting at 10 and Engine at 18. Every class has a dedicated coach, and busy times get a second one on the floor.</p></details>
+          <details><summary>Can I pause my membership?</summary><p>Yes. Freeze for up to eight weeks a year for travel, injury or life, at no cost. Coached members keep their program and 1:1 slots on hold.</p></details>
+          <details><summary>Is there parking?</summary><p>Twenty free spaces behind the warehouse, secure bike racks inside, and the Eastgate tram stop is a four-minute walk.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/[0.07] text-sm text-chalk/55">
+    <div class="mx-auto grid max-w-[1360px] gap-10 px-5 py-16 md:grid-cols-5 md:px-8">
+      <div class="md:col-span-2"><p class="disp text-2xl tracking-[0.06em] text-chalk">Ironform</p><p class="mt-4 max-w-xs leading-relaxed">Unit 4, 88 Foundry Lane<br>Eastgate, Halverton HV3 7RP<br><a href="#">(555) 018-4400</a> · <a href="#">coach@ironform.fit</a></p></div>
+      <div><h3 class="font-semibold text-chalk">Hours</h3><ul class="mt-4"><li>Mon–Fri · 5am–10pm</li><li>Sat · 7am–6pm</li><li>Sun · 8am–2pm</li></ul></div>
+      <nav aria-label="Train"><h3 class="font-semibold text-chalk">Train</h3><ul class="mt-4"><li><a href="#programs">Programs</a></li><li><a href="#schedule">Schedule</a></li><li><a href="#membership">Membership</a></li><li><a href="#trial">Free trial</a></li></ul></nav>
+      <nav aria-label="Club"><h3 class="font-semibold text-chalk">Club</h3><ul class="mt-4"><li><a href="#coaches">Coaches</a></li><li><a href="#">Careers</a></li><li><a href="#">Instagram</a></li><li><a href="#">YouTube</a></li></ul></nav>
+    </div>
+    <p class="disp select-none overflow-hidden whitespace-nowrap px-3 text-[22vw] leading-[0.8] text-white/[0.04]" aria-hidden="true">Ironform</p>
+    <div class="mx-auto flex max-w-[1360px] flex-wrap justify-between gap-4 border-t border-white/[0.07] px-5 py-6 text-xs text-chalk/40 md:px-8"><span>© 2026 Ironform Strength Co. Ltd.</span><span class="flex gap-5"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Waiver</a></span></div>
+  </footer>
+
+  <script>
+    const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Mobile menu
+    const menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
+    menuBtn.addEventListener('click', () => { const open = menu.classList.toggle('hidden') === false; menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); menuBtn.firstElementChild.setAttribute('icon', open ? 'lucide:x' : 'lucide:menu'); });
+    $$('#mobileMenu a').forEach((a) => a.addEventListener('click', () => menuBtn.click()));
+
+    // Marquee
+    const words = ['Barbell Club', 'Engine conditioning', 'Olympic lifting', 'Foundations', 'Open gym 5am–10pm', 'Mobility'];
+    $('#marquee').innerHTML = [...words, ...words].map((w) => `<span class="flex items-center gap-10">${w}<svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="9" cy="9" r="2.5" fill="currentColor"/></svg></span>`).join('');
+
+    // Live rep counter: reps tick up, bar speed drops with fatigue, the month's total counts up
+    const VEL = [0.71, 0.67, 0.62, 0.58, 0.53], dots = $('#dots');
+    dots.innerHTML = VEL.map(() => '<i class="block h-1.5 bg-white/15 transition-colors duration-300"></i>').join('');
+    let rep = 3, set = 3;
+    const showRep = () => { $('#rep').textContent = String(rep).padStart(2, '0'); $('#set').textContent = set; $('#vel').textContent = VEL[rep - 1].toFixed(2); [...dots.children].forEach((d, i) => d.classList.toggle('!bg-signal', i < rep)); };
+    showRep();
+    if (!reduce) setInterval(() => { rep = rep === 5 ? 1 : rep + 1; if (rep === 1) set = set === 5 ? 1 : set + 1; showRep(); }, 1500);
+    const kg = $('#kg'), KG = 1284560, t0 = performance.now();
+    const count = (t) => { const k = reduce ? 1 : Math.min(1, (t - t0) / 1300); kg.textContent = Math.round(KG * (1 - (1 - k) ** 4)).toLocaleString('en-US') + ' kg'; if (k < 1) requestAnimationFrame(count); };
+    requestAnimationFrame(count);
+
+    // Programs
+    const PROGS = [['01', 'Barbell Club', 'lucide:dumbbell', 'Squat, bench, deadlift and press on a 12-week periodised cycle. Test day every quarter.', '60 min · All levels', 4], ['02', 'Engine', 'lucide:heart-pulse', 'Rowers, bikes, sleds and kettlebells. Intervals scaled to your heart-rate zones.', '45 min · All levels', 5], ['03', 'Olympic Lifting', 'lucide:zap', 'Snatch and clean & jerk, taught from the hang up. Bumper platforms for every lifter.', '75 min · Intermediate', 3], ['04', 'Foundations', 'lucide:sprout', 'Six small-group sessions to learn the lifts safely before you join regular classes.', '60 min · Beginners', 2]];
+    $('#progs').innerHTML = PROGS.map(([n, name, icon, desc, meta, lvl]) => `<article class="reveal group flex flex-col bg-char p-7 transition hover:bg-char-2"><div class="flex items-start justify-between"><span class="disp text-5xl text-white/15 transition group-hover:text-signal">${n}</span><iconify-icon icon="${icon}" class="text-3xl text-signal"></iconify-icon></div><h3 class="disp mt-10 text-4xl">${name}</h3><p class="mt-3 text-[15px] text-chalk/60">${desc}</p><div class="mt-auto flex items-center justify-between pt-8 text-xs font-semibold uppercase tracking-[0.15em] text-chalk/50"><span>${meta}</span><span class="flex gap-1" aria-label="Intensity ${lvl} of 5">${[1, 2, 3, 4, 5].map((i) => `<i class="h-3 w-1.5 ${i <= lvl ? 'bg-signal' : 'bg-white/15'}"></i>`).join('')}</span></div></article>`).join('');
+
+    // Coaches (portraits drawn in SVG)
+    const COACHES = [['Dele Okafor', 'Head coach · Barbell', 'Deadlift 290 kg', 'BWL Level 3 · 12 yrs coaching', '#ff3b1f', '#6e4630', 0], ['Sasha Lindqvist', 'Conditioning lead', 'Row 2k · 6:58', 'CSCS · ex-national rower', '#242424', '#f2d6bc', 1], ['Rui Tanaka-Mendes', 'Olympic lifting', 'Clean & jerk 165 kg', 'IWF Level 2 · national medallist', '#f1ede4', '#c58d64', 2], ['Hannah Brecht', 'Foundations & mobility', 'Taught 1,400 beginners', 'Physio (BSc) · FRC mobility', '#2c2c2c', '#e9c6a2', 3]];
+    const HAIR = ['<rect x="128" y="62" width="64" height="18" rx="9"/>', '<path d="M122 92c0-38 76-38 76 0v40c-6-30-14-40-38-40s-32 10-38 40z"/>', '<path d="M124 84c4-30 68-34 72 0-20-10-52-10-72 0z"/>', '<path d="M120 96c0-46 80-46 80 0 0 22-6 70 4 92h-88c10-22 4-70 4-92z"/>'];
+    $('#coachGrid').innerHTML = COACHES.map(([name, role, pr, cert, bg, skin, h]) => { const ink = bg === '#f1ede4' ? '#121212' : '#f1ede4'; return `<article class="card reveal group overflow-hidden"><div class="relative aspect-[4/5] overflow-hidden" style="background:${bg}"><svg viewBox="0 0 320 400" class="absolute inset-0 h-full w-full transition duration-700 group-hover:scale-105" aria-hidden="true"><circle cx="250" cy="90" r="120" fill="none" stroke="${ink}" stroke-opacity=".12" stroke-width="26"/><circle cx="250" cy="90" r="50" fill="none" stroke="${ink}" stroke-opacity=".12" stroke-width="14"/><g fill="#1b1b1b">${h === 3 ? HAIR[3] : ''}</g><path d="M40 400c0-90 50-150 120-150s120 60 120 150z" fill="#121212"/><path d="M60 400c4-70 40-122 100-122s96 52 100 122z" fill="${bg === '#ff3b1f' ? '#2a2a2a' : '#ff3b1f'}"/><rect x="142" y="196" width="36" height="62" rx="16" fill="${skin}"/><ellipse cx="160" cy="146" rx="44" ry="54" fill="${skin}"/><g fill="#1b1b1b">${h < 3 ? HAIR[h] : ''}</g></svg><span class="disp absolute bottom-4 left-5 text-lg" style="color:${ink}">${pr}</span></div><div class="p-6"><h3 class="disp text-3xl">${name}</h3><p class="mt-1 text-sm font-semibold text-signal">${role}</p><p class="mt-3 text-sm text-chalk/55">${cert}</p></div></article>`; }).join('');
+
+    // Schedule: [24h time, class, type, coach index, minutes, capacity, weekdays it runs (0 = Mon)]
+    const TYPES = { S: 'Strength', C: 'Conditioning', O: 'Olympic', M: 'Mobility' };
+    const CL = [['05:30', 'Barbell Club', 'S', 0, 60, 14, '01234'], ['06:30', 'Engine', 'C', 1, 45, 18, '01234'], ['07:30', 'Olympic Lifting', 'O', 2, 75, 10, '024'], ['09:30', 'Mobility Flow', 'M', 3, 45, 16, '135'], ['12:15', 'Lunch Engine', 'C', 1, 40, 16, '01234'], ['17:00', 'Foundations', 'S', 3, 60, 10, '0123'], ['18:00', 'Barbell Club', 'S', 0, 60, 14, '01234'], ['19:00', 'Olympic Lifting', 'O', 2, 75, 10, '13'], ['19:15', 'Engine', 'C', 1, 45, 18, '024'], ['08:00', 'Saturday Throwdown', 'C', 1, 60, 24, '5'], ['09:30', 'Barbell Club', 'S', 0, 75, 16, '5'], ['11:00', 'Olympic Open', 'O', 2, 90, 12, '5'], ['09:00', 'Sunday Reset', 'M', 3, 60, 20, '6'], ['10:30', 'Strongman Social', 'S', 0, 90, 16, '6']];
+    const booked = {}; let day = (new Date().getDay() + 6) % 7, filter = 'all';
+    const fmt = (t) => { const [h, m] = t.split(':').map(Number); return [`${(h + 11) % 12 + 1}:${String(m).padStart(2, '0')}`, h < 12 ? 'AM' : 'PM']; };
+    const monday = new Date(); monday.setDate(monday.getDate() - day);
+    $('#days').innerHTML = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => { const dt = new Date(monday); dt.setDate(monday.getDate() + i); return `<button type="button" role="tab" data-d="${i}" class="tab border border-white/10 py-3 text-center transition hover:border-white/40"><span class="block text-[11px] font-semibold uppercase tracking-[0.18em] opacity-70">${d}</span><span class="disp text-2xl">${dt.getDate()}</span></button>`; }).join('');
+    $('#filters').innerHTML = '<span class="mr-2 text-xs font-semibold uppercase tracking-[0.2em] text-chalk/45">Filter</span>' + [['all', 'All classes'], ...Object.entries(TYPES)].map(([k, v]) => `<button type="button" data-f="${k}" class="fchip border border-white/15 px-4 py-2 text-sm font-semibold transition hover:border-white/40">${v}</button>`).join('');
+    function renderClasses() {
+      $$('.tab').forEach((b) => b.setAttribute('aria-selected', +b.dataset.d === day));
+      $$('.fchip').forEach((b) => b.setAttribute('aria-pressed', b.dataset.f === filter));
+      const rows = CL.map((c, i) => [c, i]).filter(([c]) => c[6].includes(day) && (filter === 'all' || c[2] === filter)).sort((a, b) => a[0][0].localeCompare(b[0][0]));
+      $('#classes').innerHTML = rows.length ? rows.map(([[t, name, type, coach, min, cap], i]) => {
+        const id = day + '-' + i, mine = booked[id], taken = Math.min(cap, (i * 7 + day * 5 + 3) % (cap + 4)) + (mine ? 1 : 0), left = Math.max(0, cap - taken), [hm, ap] = fmt(t);
+        const badge = mine ? ['bg-chalk text-char', 'You’re in'] : left === 0 ? ['bg-white/10 text-chalk/60', 'Full · waitlist'] : left <= 3 ? ['bg-signal text-char', `${left} spot${left > 1 ? 's' : ''} left`] : ['border border-white/15 text-chalk/70', `${left} spots`];
+        return `<div class="grid grid-cols-[5.5rem_1fr] items-center gap-x-4 gap-y-3 border-b border-white/10 py-5 md:grid-cols-[7rem_1.4fr_1fr_9rem_9rem]"><p class="disp text-3xl leading-none">${hm}<span class="ml-1 font-sans text-xs font-semibold text-chalk/45">${ap}</span></p><div><p class="text-lg font-semibold">${name}</p><p class="mt-1 text-xs font-semibold uppercase tracking-[0.16em] ${type === 'S' ? 'text-signal' : 'text-chalk/50'}">${TYPES[type]} · ${min} min</p></div><p class="col-start-2 flex items-center gap-2 text-sm text-chalk/60 md:col-start-auto"><span class="grid h-7 w-7 place-items-center bg-char-3 text-[10px] font-bold text-chalk">${COACHES[coach][0].split(' ').map((w) => w[0]).join('').slice(0, 2)}</span>${COACHES[coach][0]}</p><span class="col-start-2 w-fit px-2.5 py-1 text-xs font-bold uppercase tracking-wider md:col-start-auto ${badge[0]}">${badge[1]}</span><button type="button" data-id="${id}" class="col-start-2 border px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition md:col-start-auto ${mine ? 'border-chalk/30 text-chalk/70 hover:border-chalk' : left ? 'border-signal bg-signal text-char hover:bg-chalk hover:border-chalk' : 'border-white/20 text-chalk hover:border-chalk'}" aria-label="${mine ? 'Cancel' : left ? 'Reserve' : 'Join waitlist for'} ${name} at ${hm} ${ap}">${mine ? 'Cancel' : left ? 'Reserve' : 'Waitlist'}</button></div>`;
+      }).join('') : '<p class="py-12 text-center text-chalk/50">No classes of that type today. Try another day or filter.</p>';
+    }
+    $('#days').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) { day = +b.dataset.d; renderClasses(); } });
+    $('#filters').addEventListener('click', (e) => { const b = e.target.closest('.fchip'); if (b) { filter = b.dataset.f; renderClasses(); } });
+    $('#classes').addEventListener('click', (e) => { const b = e.target.closest('[data-id]'); if (b) { booked[b.dataset.id] = !booked[b.dataset.id]; renderClasses(); } });
+    renderClasses();
+
+    // Results with a time-on-program toggle
+    const STATS = [['Back squat 1RM', ['+18%', '+31%', '+46%'], [18, 31, 46], '72 → 105 kg after a year'], ['Deadlift 1RM', ['+16%', '+28%', '+41%'], [16, 28, 41], '96 → 135 kg after a year'], ['Body fat', ['−3.1 pts', '−5.4 pts', '−7.9 pts'], [16, 27, 40], 'Measured on InBody scans'], ['Resting heart rate', ['−4 bpm', '−7 bpm', '−9 bpm'], [20, 35, 45], 'Engine members, median']];
+    $('#stats').innerHTML = STATS.map(([label, , , note]) => `<div class="bg-signal p-6"><p class="text-xs font-bold uppercase tracking-[0.18em] text-char/70">${label}</p><p class="stat disp mt-3 text-6xl leading-none"></p><div class="bar mt-5 h-2 bg-char/15"><i style="width:0"></i></div><p class="mt-3 text-sm font-medium text-char/70">${note}</p></div>`).join('');
+    const setWeeks = (w) => { $$('[data-w]').forEach((b) => b.setAttribute('aria-pressed', +b.dataset.w === w)); $$('#stats > div').forEach((el, i) => { el.querySelector('.stat').textContent = STATS[i][1][w]; el.querySelector('.bar i').style.width = (STATS[i][2][w] / 50) * 100 + '%'; }); };
+    $$('[data-w]').forEach((b) => b.addEventListener('click', () => setWeeks(+b.dataset.w)));
+    $$('#stats .bar i').forEach((i) => (i.style.background = '#121212'));
+    setWeeks(1);
+
+    // Membership tiers with monthly / annual billing
+    const TIERS = [['Open Gym', 79, 66, 'Train on your own program', ['24/7 keycard access', 'Programming in the app', 'One coached intro session']], ['Unlimited', 179, 149, 'Every class, every day', ['All classes and open gym', 'Quarterly 1RM testing day', 'Body scan every 8 weeks', 'Bring a friend free monthly'], 1], ['Coached', 289, 241, 'Unlimited plus a personal coach', ['Everything in Unlimited', 'Two 1:1 sessions a month', 'Custom program, rewritten weekly', 'Nutrition check-ins']]];
+    function renderTiers(bill) {
+      $$('[data-bill]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.bill === bill));
+      $('#tiers').innerHTML = TIERS.map(([name, m, a, sub, perks, hot]) => `<div class="cut relative flex flex-col p-8 ${hot ? 'bg-signal text-char' : 'card'}">${hot ? '<span class="absolute right-6 top-6 bg-char px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-signal">Most popular</span>' : ''}<h3 class="disp text-4xl">${name}</h3><p class="mt-1 text-sm font-medium ${hot ? 'text-char/70' : 'text-chalk/55'}">${sub}</p><p class="mt-8 flex items-end gap-2"><span class="disp text-7xl leading-none">$${bill === 'a' ? a : m}</span><span class="pb-1 text-sm font-semibold ${hot ? 'text-char/60' : 'text-chalk/45'}">/ month${bill === 'a' ? ', billed yearly' : ''}</span></p><p class="mt-2 h-5 text-sm font-semibold ${hot ? 'text-char' : 'text-signal'}">${bill === 'a' ? `You save $${(m - a) * 12} a year` : ''}</p><ul class="mt-6 space-y-3 text-[15px]">${perks.map((p) => `<li class="flex gap-3"><iconify-icon icon="lucide:check" class="mt-1 ${hot ? '' : 'text-signal'}"></iconify-icon>${p}</li>`).join('')}</ul><a href="#trial" class="btn cut mt-auto ${hot ? 'bg-char text-chalk hover:bg-chalk hover:text-char' : 'btn-o'}" style="margin-top:2.5rem">Start with a free week</a></div>`).join('');
+    }
+    $$('[data-bill]').forEach((b) => b.addEventListener('click', () => renderTiers(b.dataset.bill)));
+    renderTiers('m');
+
+    // Free trial form with inline validation and a trial-pass success state
+    const form = $('#trialForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = (id) => $(id).value.trim(), goal = form.querySelector('[name=goal]:checked');
+      const checks = [['#fName', v('#fName').length >= 2 ? '' : 'Tell us what to call you.'], ['#fEmail', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('#fEmail')) ? '' : 'Enter a valid email so we can send your pass.'], ['#fPhone', !v('#fPhone') || /^[+()\d\s-]{7,}$/.test(v('#fPhone')) ? '' : 'That number looks incomplete.'], ['#fGoal', goal ? '' : 'Pick the goal that fits best.'], ['#fOk', $('#fOk').checked ? '' : 'We need a way to book your intro.']];
+      checks.forEach(([id, msg]) => { const err = $(id + 'Err'), input = id === '#fGoal' ? null : $(id); err.textContent = msg; err.classList.toggle('hidden', !msg); if (input) input.setAttribute('aria-invalid', !!msg); });
+      const bad = checks.find(([, m]) => m);
+      if (bad) return (bad[0] === '#fGoal' ? form.querySelector('[name=goal]') : $(bad[0])).focus();
+      const pass = $('#pass'), no = 'IF-' + String(Math.floor(10000 + Math.random() * 89999));
+      pass.innerHTML = `<div class="border-2 border-dashed border-signal/60 p-7"><div class="flex items-start justify-between"><div><p class="text-xs font-bold uppercase tracking-[0.2em] text-signal">Trial pass · 7 days</p><p class="disp mt-2 text-5xl">${v('#fName')}, you’re in.</p></div><span class="disp text-xl text-chalk/50">#${no}</span></div><p class="mt-5 text-chalk/70">We’ve emailed your pass to <b class="text-chalk">${v('#fEmail')}</b>. A coach will be in touch within one working day to book your intro around your <b class="text-chalk">${$('#fTime').value.toLowerCase()}</b> schedule.</p><div class="mt-6 grid grid-cols-3 gap-px bg-white/10 text-center"><div class="bg-char p-4"><p class="disp text-3xl text-signal">7</p><p class="text-xs uppercase tracking-wider text-chalk/50">Days</p></div><div class="bg-char p-4"><p class="disp text-3xl text-signal">∞</p><p class="text-xs uppercase tracking-wider text-chalk/50">Classes</p></div><div class="bg-char p-4"><p class="disp text-3xl text-signal">1</p><p class="text-xs uppercase tracking-wider text-chalk/50">Intro session</p></div></div><p class="mt-5 text-sm text-chalk/50">Goal on file: ${goal.value}. Bring flat shoes and water.</p></div>`;
+      form.classList.add('hidden'); pass.classList.remove('hidden'); pass.focus();
+    });
+
+    // Scroll reveal (below the fold only; the hero animates on load)
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.1 });
+    $$('.reveal').forEach((x) => io.observe(x));
+  </script>
+</body>
+</html>

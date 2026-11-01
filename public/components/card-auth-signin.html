@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign-in Card - passkey, SSO, email and magic link states</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .stage { background: radial-gradient(55% 45% at 50% 0%, rgba(76,104,255,.38), transparent 70%), radial-gradient(35% 35% at 88% 100%, rgba(167,139,250,.2), transparent 70%), radial-gradient(30% 30% at 8% 90%, rgba(45,212,191,.12), transparent 70%), #060915; }
+    .dots { background-image: radial-gradient(rgba(255,255,255,.13) 1px, transparent 1.2px); background-size: 22px 22px;
+      -webkit-mask-image: radial-gradient(60% 55% at 50% 45%, #000 20%, transparent 75%); mask-image: radial-gradient(60% 55% at 50% 45%, #000 20%, transparent 75%); }
+    .halo { background: conic-gradient(from 210deg, rgba(76,104,255,0), rgba(76,104,255,.55), rgba(167,139,250,.5), rgba(45,212,191,.35), rgba(76,104,255,0)); filter: blur(48px); opacity: .55; }
+    .card { box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 2px 4px rgba(0,0,0,.25), 0 40px 90px -30px rgba(0,0,0,.85); }
+    .chip { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(10px); }
+    .social { transition: background-color .15s, border-color .15s, transform .15s; }
+    .social:hover { background: #f8f8fa; border-color: #d4d4d8; }
+    .social:active { transform: translateY(1px); }
+    .ctl { transition: border-color .15s, box-shadow .15s, background-color .15s; }
+    .ctl:focus-within { border-color: #4c68ff; box-shadow: 0 0 0 4px rgba(76,104,255,.14); background: #fff; }
+    .field[data-state=error] .ctl { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,.11); background: #fffafa; }
+    .field[data-state=ok] .ctl { border-color: #a7f3d0; }
+    .field .ok-ico { opacity: 0; transform: scale(.6); transition: opacity .2s, transform .25s cubic-bezier(.3,1.6,.5,1); }
+    .field[data-state=ok] .ok-ico { opacity: 1; transform: none; }
+    .msg:empty { display: none; }
+    .msg { animation: rise .25s ease; }
+    .check input:checked + .box { background: #111827; border-color: #111827; }
+    .check input:checked + .box iconify-icon { opacity: 1; }
+    .check input:focus-visible + .box { box-shadow: 0 0 0 3px rgba(76,104,255,.35); }
+    .primary { background: linear-gradient(180deg, #5b74ff, #3550f2); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 4px rgba(10,20,90,.25), 0 1px 2px rgba(20,30,90,.3), 0 12px 24px -12px rgba(53,80,242,.9); transition: filter .15s, transform .15s; }
+    .primary:hover { filter: brightness(1.06); }
+    .primary:active { transform: translateY(1px); }
+    .primary[aria-busy=true], .linkbtn[aria-busy=true] { cursor: progress; }
+    .spinner { width: 15px; height: 15px; border-radius: 9999px; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+    .shake { animation: shake .38s cubic-bezier(.36,.07,.19,.97); }
+    .view-in { animation: rise .45s cubic-bezier(.2,.8,.2,1); }
+    .env { animation: float 3s ease-in-out infinite; }
+    .env-ring { animation: ping 2.4s cubic-bezier(0,0,.2,1) infinite; }
+    .bar { animation: load 1.8s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+    @keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+    @keyframes float { 50% { transform: translateY(-4px); } }
+    @keyframes ping { 0% { transform: scale(.85); opacity: .7; } 100% { transform: scale(1.5); opacity: 0; } }
+    @keyframes load { from { width: 6%; } to { width: 100%; } }
+    a:focus-visible, button:focus-visible { outline: 2px solid #4c68ff; outline-offset: 2px; border-radius: 10px; }
+    input:focus-visible { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .msg, .view-in, .shake, .env, .env-ring { animation: none; }
+      .bar { animation-duration: .01s; }
+      .spinner { animation-duration: 1.6s; }
+    }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-3 font-sans antialiased sm:p-8">
+  <main class="stage relative isolate flex w-full max-w-[1040px] items-center overflow-hidden sm:min-h-[700px] rounded-[30px] px-3 py-8 ring-1 ring-white/10 sm:px-8 sm:py-10">
+    <div class="dots pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+    <div class="halo pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true"></div>
+
+    <div class="chip pointer-events-none absolute left-8 top-10 hidden items-center gap-3 rounded-2xl px-3.5 py-3 text-white lg:flex" aria-hidden="true">
+      <span class="grid h-8 w-8 place-items-center rounded-xl bg-[#4c68ff]/25 text-[#a5b4ff]"><iconify-icon icon="lucide:fingerprint" class="text-[17px]"></iconify-icon></span>
+      <span class="leading-tight"><span class="block text-[13px] font-medium">Passkeys are on</span><span class="block text-[12px] text-white/50">Sign in with your fingerprint</span></span>
+    </div>
+    <div class="chip pointer-events-none absolute bottom-10 right-8 hidden items-center gap-3 rounded-2xl px-3.5 py-3 text-white lg:flex" aria-hidden="true">
+      <span class="relative grid h-8 w-8 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><iconify-icon icon="lucide:shield-check" class="text-[17px]"></iconify-icon></span>
+      <span class="leading-tight"><span class="block text-[13px] font-medium">SOC 2 Type II</span><span class="block font-mono text-[11px] text-white/45">SAML · SCIM · audit log</span></span>
+    </div>
+
+    <section class="card relative mx-auto w-full max-w-[400px] rounded-[22px] bg-white p-6 text-zinc-900 sm:p-8" aria-labelledby="authTitle">
+      <div id="viewForm">
+        <header>
+          <svg viewBox="0 0 32 32" class="h-9 w-9" aria-hidden="true">
+            <defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d83ff"/><stop offset="1" stop-color="#3048e8"/></linearGradient></defs>
+            <rect width="32" height="32" rx="9" fill="url(#tg)"/>
+            <path d="M16 7 L24 16 L16 16 Z" fill="#fff"/><path d="M16 16 L24 16 L16 25 Z" fill="#fff" fill-opacity=".55"/><path d="M8 16 L16 16 L16 25 Z" fill="#fff"/><path d="M16 7 L16 16 L8 16 Z" fill="#fff" fill-opacity=".35"/>
+          </svg>
+          <h1 id="authTitle" tabindex="-1" class="mt-5 text-[22px] font-semibold tracking-[-0.02em] outline-none">Welcome back</h1>
+          <p class="mt-1 text-[14px] text-zinc-500">Sign in to your Tessellate workspace.</p>
+        </header>
+
+        <div class="mt-6 grid grid-cols-3 gap-2" role="group" aria-label="Other ways to sign in">
+          <button type="button" class="social inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white text-[13px] font-medium text-zinc-700" data-alt="Waiting for your passkey"><iconify-icon icon="lucide:fingerprint" class="text-[16px]"></iconify-icon>Passkey</button>
+          <button type="button" class="social inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white text-[13px] font-medium text-zinc-700" data-alt="Redirecting to your identity provider"><iconify-icon icon="lucide:building-2" class="text-[16px]"></iconify-icon>SSO</button>
+          <button type="button" class="social inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white text-[13px] font-medium text-zinc-700" data-alt="Texting a code to your phone"><iconify-icon icon="lucide:smartphone" class="text-[16px]"></iconify-icon>Phone</button>
+        </div>
+        <div class="my-5 flex items-center gap-3 text-[12px] text-zinc-400"><span class="h-px flex-1 bg-zinc-200" aria-hidden="true"></span><span id="altStatus" class="transition-colors" aria-live="polite">or with email</span><span class="h-px flex-1 bg-zinc-200" aria-hidden="true"></span></div>
+
+        <form id="form" class="space-y-4" novalidate>
+          <div class="field" data-field="email">
+            <label for="email" class="text-[13px] font-medium text-zinc-700">Work email</label>
+            <div class="ctl mt-1.5 flex h-11 items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50/60 px-3">
+              <iconify-icon icon="lucide:mail" class="text-[16px] text-zinc-400" aria-hidden="true"></iconify-icon>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" class="h-full min-w-0 flex-1 bg-transparent text-[14px] text-zinc-900 placeholder:text-zinc-400" aria-describedby="emailMsg">
+              <iconify-icon icon="lucide:check-circle-2" class="ok-ico text-[16px] text-emerald-500" aria-hidden="true"></iconify-icon>
+            </div>
+            <p id="emailMsg" class="msg mt-1.5 flex items-center gap-1 text-[12.5px] text-red-600"></p>
+          </div>
+
+          <div class="field" data-field="password">
+            <div class="flex items-center justify-between">
+              <label for="password" class="text-[13px] font-medium text-zinc-700">Password</label>
+              <a href="#" class="text-[12.5px] font-medium text-[#3550f2] hover:underline">Forgot password?</a>
+            </div>
+            <div class="ctl mt-1.5 flex h-11 items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50/60 pl-3 pr-1.5">
+              <iconify-icon icon="lucide:lock-keyhole" class="text-[16px] text-zinc-400" aria-hidden="true"></iconify-icon>
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="At least 8 characters" class="h-full min-w-0 flex-1 bg-transparent text-[14px] text-zinc-900 placeholder:text-zinc-400" aria-describedby="passwordMsg">
+              <button type="button" id="reveal" class="grid h-8 w-8 place-items-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-200/70 hover:text-zinc-800" aria-label="Show password" aria-pressed="false" aria-controls="password"><iconify-icon icon="lucide:eye" class="text-[16px]"></iconify-icon></button>
+            </div>
+            <p id="passwordMsg" class="msg mt-1.5 flex items-center gap-1 text-[12.5px] text-red-600"></p>
+          </div>
+
+          <label class="check flex cursor-pointer select-none items-center gap-2.5 text-[13px] text-zinc-600">
+            <input type="checkbox" class="peer sr-only" checked>
+            <span class="box grid h-[18px] w-[18px] place-items-center rounded-[6px] border border-zinc-300 bg-white text-white transition-colors"><iconify-icon icon="lucide:check" class="text-[12px] opacity-0"></iconify-icon></span>
+            Keep me signed in for 30 days
+          </label>
+
+          <button type="submit" id="submit" class="primary inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-medium text-white">Sign in<iconify-icon icon="lucide:arrow-right" class="text-[15px]"></iconify-icon></button>
+          <button type="button" id="magic" class="linkbtn inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 text-[13px] font-medium text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50"><iconify-icon icon="lucide:wand-sparkles" class="text-[15px] text-[#3550f2]"></iconify-icon>Email me a magic link instead</button>
+        </form>
+
+        <p class="mt-6 text-center text-[13px] text-zinc-500">New to Tessellate? <a href="#" class="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-900">Create an account</a></p>
+      </div>
+
+      <div id="viewDone" class="text-center" hidden>
+        <div class="relative mx-auto mt-2 grid h-16 w-16 place-items-center">
+          <span class="env-ring absolute inset-0 rounded-2xl bg-[#4c68ff]/20"></span>
+          <span id="doneIcon" class="env relative grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-b from-[#6d83ff] to-[#3048e8] text-white shadow-[0_12px_30px_-10px_rgba(53,80,242,.8)]"><iconify-icon icon="lucide:mail-check" class="text-[28px]"></iconify-icon></span>
+        </div>
+        <h2 id="doneTitle" tabindex="-1" class="mt-6 text-[22px] font-semibold tracking-[-0.02em] outline-none">Check your inbox</h2>
+        <p id="doneText" class="mx-auto mt-2 max-w-[310px] text-balance text-[14px] leading-relaxed text-zinc-500"></p>
+        <div id="magicExtras">
+          <p class="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 font-mono text-[12px] text-zinc-600"><iconify-icon icon="lucide:timer" class="text-[13px]"></iconify-icon>Link expires in 15 minutes</p>
+          <a href="#" class="primary mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-medium text-white"><iconify-icon icon="lucide:inbox" class="text-[16px]"></iconify-icon>Open mail app</a>
+          <button type="button" id="resend" class="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 text-[13px] font-medium text-zinc-700 transition-colors enabled:hover:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-400"></button>
+        </div>
+        <div id="signedExtras" hidden>
+          <div class="mt-6 h-1.5 overflow-hidden rounded-full bg-zinc-100"><div class="bar h-full rounded-full bg-gradient-to-r from-[#6d83ff] to-[#3048e8]"></div></div>
+          <p class="mt-2 font-mono text-[12px] text-zinc-500">Opening Northbeam Studio…</p>
+        </div>
+        <button type="button" id="back" class="mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-500 hover:text-zinc-900"><iconify-icon icon="lucide:arrow-left" class="text-[14px]"></iconify-icon><span>Use a different email</span></button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var form = $('form'), email = $('email'), pw = $('password'), submit = $('submit'), magic = $('magic');
+      var viewForm = $('viewForm'), viewDone = $('viewDone'), card = document.querySelector('.card');
+      var submitIdle = submit.innerHTML, magicIdle = magic.innerHTML, timer = 0;
+      var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+      function setField(input, msgEl, error) {
+        var field = input.closest('.field');
+        field.dataset.state = error ? 'error' : (input.value ? 'ok' : '');
+        input.setAttribute('aria-invalid', error ? 'true' : 'false');
+        msgEl.innerHTML = error ? '<iconify-icon icon="lucide:alert-circle" aria-hidden="true"></iconify-icon>' + error : '';
+        return !error;
+      }
+      function checkEmail() {
+        var v = email.value.trim();
+        return setField(email, $('emailMsg'), !v ? 'Enter your work email.' : (!EMAIL_RE.test(v) ? 'That email looks incomplete, e.g. maya@northbeam.co' : ''));
+      }
+      function checkPw() {
+        var v = pw.value;
+        return setField(pw, $('passwordMsg'), !v ? 'Enter your password.' : (v.length < 8 ? 'Passwords are at least 8 characters.' : ''));
+      }
+      [[email, checkEmail], [pw, checkPw]].forEach(function (pair) {
+        pair[0].addEventListener('blur', function () { if (pair[0].value) pair[1](); });
+        pair[0].addEventListener('input', function () { if (pair[0].closest('.field').dataset.state) pair[1](); });
+      });
+
+      $('reveal').addEventListener('click', function () {
+        var show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        this.setAttribute('aria-pressed', String(show));
+        this.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        this.querySelector('iconify-icon').setAttribute('icon', show ? 'lucide:eye-off' : 'lucide:eye');
+      });
+
+      function shake() { card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+      function busy(btn, label) {
+        btn.setAttribute('aria-busy', 'true');
+        btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>' + label;
+        form.querySelectorAll('input, button').forEach(function (el) { el.disabled = true; });
+      }
+      function reset() {
+        form.querySelectorAll('input, button').forEach(function (el) { el.disabled = false; });
+        submit.removeAttribute('aria-busy'); magic.removeAttribute('aria-busy');
+        submit.innerHTML = submitIdle; magic.innerHTML = magicIdle;
+      }
+      function show(mode) {
+        var addr = email.value.trim();
+        viewForm.hidden = true; viewDone.hidden = false; viewDone.classList.remove('view-in'); void viewDone.offsetWidth; viewDone.classList.add('view-in');
+        $('magicExtras').hidden = mode !== 'magic';
+        $('signedExtras').hidden = mode === 'magic';
+        $('doneIcon').innerHTML = '<iconify-icon icon="' + (mode === 'magic' ? 'lucide:mail-check' : 'lucide:check') + '" class="text-[28px]"></iconify-icon>';
+        $('doneTitle').textContent = mode === 'magic' ? 'Check your inbox' : 'You’re signed in';
+        $('doneText').innerHTML = mode === 'magic'
+          ? 'We sent a one-tap sign-in link to <strong class="font-medium text-zinc-900"></strong>. It works once, on any device.'
+          : 'Welcome back, <strong class="font-medium text-zinc-900"></strong>. Taking you to your workspace.';
+        $('doneText').querySelector('strong').textContent = addr;
+        $('back').querySelector('span').textContent = mode === 'magic' ? 'Use a different email' : 'Not you? Switch account';
+        if (mode === 'magic') countdown(30);
+        $('doneTitle').focus();
+      }
+      function countdown(s) {
+        var btn = $('resend');
+        clearInterval(timer);
+        function tick() {
+          btn.disabled = s > 0;
+          btn.innerHTML = s > 0 ? '<iconify-icon icon="lucide:rotate-cw" class="text-[14px]"></iconify-icon>Resend in 0:' + String(s).padStart(2, '0') : '<iconify-icon icon="lucide:rotate-cw" class="text-[14px]"></iconify-icon>Resend link';
+          if (s-- <= 0) clearInterval(timer);
+        }
+        tick(); timer = setInterval(tick, 1000);
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var okE = checkEmail(), okP = checkPw();
+        if (!okE || !okP) { shake(); (okE ? pw : email).focus(); return; }
+        busy(submit, 'Signing in…');
+        setTimeout(function () { reset(); show('signed'); }, 1400);
+      });
+      magic.addEventListener('click', function () {
+        setField(pw, $('passwordMsg'), '');
+        if (!checkEmail()) { shake(); email.focus(); return; }
+        busy(magic, 'Sending your link…');
+        setTimeout(function () { reset(); show('magic'); }, 1200);
+      });
+      $('resend').addEventListener('click', function () { countdown(30); });
+      $('back').addEventListener('click', function () {
+        clearInterval(timer);
+        viewDone.hidden = true; viewForm.hidden = false;
+        pw.value = ''; setField(pw, $('passwordMsg'), '');
+        email.focus(); email.select();
+      });
+
+      var altStatus = $('altStatus');
+      document.querySelectorAll('.social').forEach(function (btn) {
+        var idle = btn.innerHTML;
+        btn.addEventListener('click', function () {
+          if (btn.getAttribute('aria-busy')) return;
+          btn.setAttribute('aria-busy', 'true');
+          btn.innerHTML = '<span class="spinner text-zinc-400" aria-hidden="true"></span>' + btn.textContent.trim();
+          altStatus.textContent = btn.dataset.alt + '…'; altStatus.classList.add('text-[#3550f2]');
+          setTimeout(function () { btn.innerHTML = idle; btn.removeAttribute('aria-busy'); altStatus.textContent = 'or with email'; altStatus.classList.remove('text-[#3550f2]'); }, 1600);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forge — Deploy to the edge at the speed of git push</title>
+  <meta name="description" content="Forge builds your app once and runs it in 38 regions. Preview URLs for every pull request, instant rollbacks and logs that stream.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'] },
+          colors: {
+            coal: '#0B0A09', char: '#121110', bone: '#EDE8E2', smoke: '#9A938A', dim: '#6B655E',
+            ember: { 300: '#FF9A6B', 400: '#FF7A45', 500: '#FF5A1F', 600: '#E8470F' },
+            gold: { 300: '#FFCB66', 400: '#FFB020' }
+          },
+          boxShadow: {
+            ember: '0 12px 36px -12px rgba(255,90,31,.75), inset 0 1px 0 rgba(255,255,255,.25)',
+            deep: '0 40px 100px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,237,220,.06)'
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    :focus-visible { outline: 2px solid #FFB020; outline-offset: 3px; border-radius: 8px; }
+    .grid-bg { background-image: linear-gradient(rgba(255,237,220,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,237,220,.045) 1px, transparent 1px); background-size: 56px 56px; -webkit-mask-image: radial-gradient(ellipse 85% 75% at 70% 25%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse 85% 75% at 70% 25%, #000 20%, transparent 75%); }
+    .glow { background: radial-gradient(closest-side, rgba(255,90,31,.30), rgba(255,90,31,.07) 55%, transparent); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; padding: 12px 18px; font-weight: 500; transition: filter .2s, background-color .2s, border-color .2s, transform .2s; }
+    .btn-e { background: linear-gradient(180deg, #FF6A2B, #E8470F); color: #fff; box-shadow: 0 12px 36px -12px rgba(255,90,31,.75), inset 0 1px 0 rgba(255,255,255,.25); } .btn-e:hover { filter: brightness(1.1); }
+    .btn-g { border: 1px solid rgba(255,237,220,.14); background: rgba(255,237,220,.03); color: #EDE8E2; } .btn-g:hover { background: rgba(255,237,220,.08); }
+    .panel { border: 1px solid rgba(255,237,220,.09); background: linear-gradient(180deg, rgba(255,237,220,.045), rgba(255,237,220,.012)); border-radius: 16px; }
+    .eb { font: 500 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .14em; color: #FF7A45; }
+    .h2 { margin-top: 12px; color: #EDE8E2; font-size: clamp(2.1rem, 4vw, 3.25rem); font-weight: 600; line-height: 1.04; letter-spacing: -.04em; }
+    .chip { position: absolute; z-index: 5; border: 1px solid rgba(255,237,220,.1); background: rgba(18,17,16,.72); border-radius: 12px; padding: 10px 14px; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    .term { border: 1px solid rgba(255,237,220,.1); background: rgba(14,12,11,.92); border-radius: 14px; box-shadow: 0 40px 100px -30px rgba(0,0,0,.9), 0 0 60px -20px rgba(255,90,31,.25); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+    .dots3 i { width: 10px; height: 10px; border-radius: 99px; background: rgba(255,237,220,.14); }
+    #log > div { display: flex; gap: 14px; white-space: pre; animation: lineIn .25s ease-out; }
+    @media (max-width: 639px) { #log > div { white-space: pre-wrap; gap: 10px; } }
+    #log .t { color: #4F4A44; flex-shrink: 0; width: 34px; text-align: right; }
+    .lp { color: #EDE8E2; } .ld { color: #6B655E; } .lo { color: #FFCB66; } .lr { color: #9A938A; } .lu { color: #FF9A6B; text-decoration: underline; text-underline-offset: 3px; }
+    @keyframes lineIn { from { opacity: 0; transform: translateX(-6px); } }
+    .live-dot { width: 7px; height: 7px; border-radius: 99px; background: #FFB020; box-shadow: 0 0 0 0 rgba(255,176,32,.6); animation: ping 1.6s infinite; }
+    @keyframes ping { 70% { box-shadow: 0 0 0 7px rgba(255,176,32,0); } 100% { box-shadow: 0 0 0 0 rgba(255,176,32,0); } }
+    .caret { display: inline-block; width: .5em; height: .9em; margin-left: .08em; vertical-align: -.06em; background: #FF5A1F; animation: blink 1.1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    /* Globe */
+    .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2.4s ease-out infinite; }
+    @keyframes pulse { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(3.4); opacity: 0; } }
+    .comet { stroke-dasharray: 10 90; animation: comet 2.8s linear infinite; }
+    @keyframes comet { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+    .glabel { font: 500 11px "JetBrains Mono", monospace; fill: #EDE8E2; paint-order: stroke; stroke: #0B0A09; stroke-width: 4px; }
+    /* Sections */
+    .cell { background: #0B0A09; padding: 32px; transition: background-color .3s; } .cell:hover { background: #100E0D; }
+    .cell h3 { margin-top: 20px; color: #EDE8E2; font-size: 19px; font-weight: 600; letter-spacing: -.02em; } .cell p { margin-top: 8px; line-height: 1.6; }
+    .ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(255,90,31,.3); background: rgba(255,90,31,.08); color: #FF7A45; font-size: 19px; }
+    .lat th { padding: 0 clamp(8px, 2vw, 16px) 12px; font: 500 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .12em; color: #6B655E; text-align: left; }
+    .lat td { padding: 13px clamp(8px, 2vw, 16px); border-top: 1px solid rgba(255,237,220,.07); font-variant-numeric: tabular-nums; }
+    .lat tbody tr { transition: background-color .3s; } .lat tbody tr:hover { background: rgba(255,237,220,.025); }
+    .lat .bar { display: block; height: 6px; width: 100%; min-width: 60px; border-radius: 99px; background: rgba(255,237,220,.07); overflow: hidden; }
+    .lat .bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #FF5A1F, #FFB020); transition: width .8s cubic-bezier(.2,.8,.2,1); }
+    .flash { animation: flash 1s ease-out; } @keyframes flash { from { color: #FFB020; text-shadow: 0 0 12px rgba(255,176,32,.6); } }
+    [role="tab"] { border-radius: 8px; padding: 6px 12px; color: #9A938A; transition: color .2s, background-color .2s; } [role="tab"]:hover { color: #EDE8E2; }
+    [role="tab"][aria-selected="true"] { background: rgba(255,237,220,.08); color: #EDE8E2; box-shadow: inset 0 0 0 1px rgba(255,237,220,.1); }
+    pre.code { overflow-x: auto; padding: 24px; font: 13px/1.85 "JetBrains Mono", monospace; color: #C9C2BA; }
+    .c { color: #5E5852; } .s { color: #FFCB66; } .k { color: #FF7A45; } .p { color: #6B655E; user-select: none; }
+    .mq { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+    .marquee { display: flex; width: max-content; animation: marq 46s linear infinite; } .mq:hover .marquee, .mq:focus-within .marquee { animation-play-state: paused; }
+    @keyframes marq { to { transform: translateX(-50%); } }
+    .marquee ul { display: flex; gap: 12px; padding-right: 12px; }
+    .marquee li a { display: flex; align-items: center; gap: 12px; white-space: nowrap; border: 1px solid rgba(255,237,220,.09); border-radius: 99px; padding: 10px 18px 10px 10px; transition: border-color .2s; } .marquee li a:hover { border-color: rgba(255,90,31,.5); }
+    .tag { border-radius: 99px; padding: 3px 9px; font: 500 11px "JetBrains Mono", monospace; background: rgba(255,90,31,.12); color: #FF9A6B; }
+    .pl { margin: 24px 0 32px; display: grid; gap: 12px; font-size: 15px; flex: 1; align-content: start; }
+    .pl li { display: flex; gap: 10px; } .pl iconify-icon { margin-top: 3px; color: #FF7A45; }
+    .faq { border-bottom: 1px solid rgba(255,237,220,.09); padding: 22px 0; }
+    .faq summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: 16px; color: #EDE8E2; font-size: 17px; font-weight: 500; list-style: none; }
+    .faq summary::-webkit-details-marker { display: none; } .faq p { margin-top: 12px; max-width: 46rem; line-height: 1.7; }
+    .faq iconify-icon { flex-shrink: 0; color: #FF7A45; transition: transform .25s; } details[open] iconify-icon { transform: rotate(45deg); }
+    .fl { margin-top: 16px; display: grid; gap: 10px; } .fl a:hover, .nl a:hover { color: #EDE8E2; }
+    @keyframes heroIn { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } }
+    .hero-in { animation: heroIn .8s cubic-bezier(.2,.7,.2,1) both; }
+    .reveal { transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+    .rv .reveal:not(.in) { opacity: 0; transform: translateY(24px); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+      .rv .reveal:not(.in) { opacity: 1; transform: none; }
+      .mq { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body class="bg-coal font-sans text-smoke antialiased selection:bg-ember-500/30 selection:text-white">
+<a href="#main" class="sr-only z-[100] rounded-lg bg-ember-500 px-4 py-2 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+
+<header class="sticky top-0 z-50 border-b border-white/[.06] bg-coal/75 backdrop-blur-xl">
+  <nav class="mx-auto flex max-w-[1320px] items-center justify-between px-5 py-3.5 md:px-8" aria-label="Primary">
+    <a href="#" class="flex items-center gap-2.5 text-bone" aria-label="Forge home">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB020"/><stop offset="1" stop-color="#FF5A1F"/></linearGradient></defs><path d="M14 2 25 8.5v11L14 26 3 19.5v-11Z" fill="none" stroke="url(#lg)" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 7.5c.8 2.8 4.6 4.6 4.6 8.4a4.6 4.6 0 0 1-9.2 0c0-1.9.9-3 1.9-3.9 0 1.8.9 2.8 1.9 2.8-.9-2.6-.1-5.3.8-7.3Z" fill="url(#lg)"/></svg>
+      <span class="text-[19px] font-semibold tracking-tight">forge</span>
+    </a>
+    <ul class="nl hidden items-center gap-8 text-sm md:flex">
+      <li><a href="#platform">Platform</a></li><li><a href="#network">Network</a></li><li><a href="#docs">Docs</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#changelog">Changelog</a></li>
+    </ul>
+    <div class="flex items-center gap-2">
+      <a href="#" class="hidden px-3 py-2 text-sm text-bone/80 hover:text-bone sm:block">Sign in</a>
+      <a href="#pricing" class="btn btn-e hidden !py-2 text-sm sm:inline-flex">Start deploying</a>
+      <button id="menu-btn" class="grid h-10 w-10 place-items-center rounded-lg border border-white/10 text-xl text-bone md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><iconify-icon icon="lucide:menu"></iconify-icon></button>
+    </div>
+  </nav>
+  <div id="mobile-menu" class="hidden border-t border-white/[.06] px-5 pb-6 pt-2 md:hidden">
+    <ul class="text-lg text-bone [&_a]:block [&_a]:py-3">
+      <li><a href="#platform">Platform</a></li><li><a href="#network">Network</a></li><li><a href="#docs">Docs</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#changelog">Changelog</a></li>
+    </ul>
+    <div class="mt-4 grid grid-cols-2 gap-2"><a href="#" class="btn btn-g">Sign in</a><a href="#pricing" class="btn btn-e">Start deploying</a></div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero -->
+  <section class="relative isolate overflow-hidden" aria-labelledby="hero-title">
+    <div aria-hidden="true" class="grid-bg absolute inset-0 -z-10"></div>
+    <div aria-hidden="true" class="glow absolute -right-[10%] top-[-8%] -z-10 h-[900px] w-[1000px]"></div>
+    <div class="mx-auto grid max-w-[1320px] grid-cols-1 items-center gap-10 px-5 pb-16 pt-12 md:px-8 lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-6 lg:pb-14 lg:pt-12">
+      <div>
+        <a href="#changelog" class="hero-in inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] py-1 pl-1 pr-3 text-xs text-bone/85 transition hover:border-ember-500/50">
+          <span class="rounded-full bg-ember-500/15 px-2 py-0.5 font-mono text-[11px] text-ember-300">v4.2</span>Edge KV is generally available<iconify-icon icon="lucide:arrow-right"></iconify-icon>
+        </a>
+        <h1 id="hero-title" class="hero-in mt-7 text-[46px] [text-wrap:balance] font-semibold leading-[1] tracking-[-0.045em] text-bone sm:text-6xl xl:text-[76px]" style="animation-delay:.08s">The edge, at the speed of <span class="whitespace-nowrap"><span class="bg-gradient-to-r from-ember-500 to-gold-400 bg-clip-text font-mono text-[.84em] font-medium tracking-[-0.06em] text-transparent">git push</span><span class="caret" aria-hidden="true"></span></span></h1>
+        <p class="hero-in mt-6 max-w-[34rem] text-lg leading-relaxed" style="animation-delay:.16s">Forge builds your app once and runs it in 38 regions, a few milliseconds from every user. Preview URLs for every pull request, instant rollbacks, and logs that stream while you watch.</p>
+        <div class="hero-in mt-8 flex flex-wrap items-center gap-3" style="animation-delay:.24s">
+          <a href="#pricing" class="btn btn-e group">Start deploying <iconify-icon icon="lucide:arrow-right" class="transition group-hover:translate-x-0.5"></iconify-icon></a>
+          <div class="flex items-center gap-1 rounded-[10px] border border-white/10 bg-char py-1.5 pl-4 pr-1.5 font-mono text-[13px] text-bone/90"><span class="text-dim">$</span>&nbsp;forge deploy --prod<button class="copy ml-3 grid h-8 w-8 place-items-center rounded-md text-smoke transition hover:bg-white/10 hover:text-bone" data-copy="forge deploy --prod" aria-label="Copy deploy command"><iconify-icon icon="lucide:copy"></iconify-icon></button></div>
+        </div>
+        <dl class="hero-in mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/[.08] pt-6" style="animation-delay:.32s">
+          <div><dt class="font-mono text-[11px] uppercase tracking-widest text-dim">Regions</dt><dd class="mt-1 text-3xl font-semibold tracking-tight text-bone">38</dd></div>
+          <div><dt class="font-mono text-[11px] uppercase tracking-widest text-dim">Global p50</dt><dd class="mt-1 text-3xl font-semibold tracking-tight text-bone"><span data-gp50>15</span><span class="text-lg text-smoke">ms</span></dd></div>
+          <div><dt class="font-mono text-[11px] uppercase tracking-widest text-dim">Uptime SLA</dt><dd class="mt-1 text-3xl font-semibold tracking-tight text-bone">99.995<span class="text-lg text-smoke">%</span></dd></div>
+        </dl>
+      </div>
+
+      <!-- Globe + live deploy log -->
+      <div class="hero-in relative lg:h-[640px]" style="animation-delay:.12s">
+        <svg id="globe" viewBox="0 0 600 600" class="relative mx-auto block w-full max-w-[540px] lg:absolute lg:right-[-10px] lg:top-[-8px] lg:w-[600px] lg:max-w-none" role="img" aria-label="Wireframe globe showing Forge edge regions with live traffic arcs between them">
+          <defs>
+            <radialGradient id="gs" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#22170F"/><stop offset=".6" stop-color="#110E0C"/><stop offset="1" stop-color="#0B0A09"/></radialGradient>
+            <radialGradient id="gh"><stop offset=".76" stop-color="#FF5A1F" stop-opacity="0"/><stop offset=".8" stop-color="#FF5A1F" stop-opacity=".28"/><stop offset="1" stop-color="#FF5A1F" stop-opacity="0"/></radialGradient>
+            <linearGradient id="ga" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF5A1F"/><stop offset="1" stop-color="#FFB020"/></linearGradient>
+          </defs>
+          <circle cx="300" cy="300" r="290" fill="url(#gh)"/>
+          <circle cx="300" cy="300" r="230" fill="url(#gs)" stroke="rgba(255,138,61,.4)"/>
+          <path id="g-back" fill="none" stroke="rgba(255,176,32,.08)"/>
+          <path id="g-front" fill="none" stroke="rgba(255,176,32,.27)"/>
+          <g id="g-arcs" fill="none" stroke-linecap="round"></g>
+          <g id="g-dots"></g>
+        </svg>
+        <div class="chip left-[2%] top-[3%] hidden sm:block" aria-hidden="true">
+          <p class="font-mono text-[10px] uppercase tracking-widest text-dim">Edge requests / s</p>
+          <p class="mt-0.5 font-mono text-xl text-bone" id="rps">1.28M</p>
+          <div id="spark" class="mt-2 flex h-6 items-end gap-[3px]"></div>
+        </div>
+        <div class="chip right-0 top-[4%] hidden sm:block" aria-hidden="true">
+          <p class="font-mono text-[10px] uppercase tracking-widest text-dim">Cache hit</p>
+          <p class="mt-0.5 font-mono text-xl text-bone"><span id="hit">97.4</span><span class="text-sm text-smoke">%</span></p>
+          <p class="mt-1 flex items-center gap-1.5 font-mono text-[11px] text-gold-300"><span class="live-dot"></span>38/38 healthy</p>
+        </div>
+        <div class="term relative z-10 -mt-24 w-full sm:mx-auto sm:max-w-[480px] lg:absolute lg:bottom-0 lg:left-0 lg:mt-0 lg:w-[440px]">
+          <div class="flex items-center gap-3 border-b border-white/[.07] px-4 py-3">
+            <span class="dots3 flex gap-1.5" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="truncate font-mono text-xs text-smoke">~/storefront — forge deploy</span>
+            <span id="log-status" class="ml-auto inline-flex items-center gap-1.5 rounded-full border border-gold-400/25 bg-gold-400/10 px-2 py-0.5 font-mono text-[11px] text-gold-300"><span class="live-dot"></span><span>Building</span></span>
+          </div>
+          <div id="log" class="h-[330px] sm:h-[288px] overflow-hidden px-4 py-3.5 font-mono text-[11px] leading-[1.8] sm:text-[12px]" role="log" aria-live="off" aria-label="Live deploy log"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logos -->
+  <section class="mx-auto max-w-[1320px] px-5 pb-20 md:px-8" aria-label="Customers">
+    <div class="flex flex-col items-center gap-6 border-t border-white/[.07] pt-8 lg:flex-row lg:justify-between">
+      <p class="font-mono text-xs uppercase tracking-widest text-dim">Shipping on Forge</p>
+      <div class="grid w-full grid-cols-2 items-center gap-x-8 gap-y-5 text-lg font-semibold text-bone/45 sm:grid-cols-3 lg:flex lg:w-auto lg:gap-14 [&>span]:flex [&>span]:items-center [&>span]:justify-center [&>span]:gap-2">
+        <span><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><path d="M1 11c3-4 5-4 8 0s5 4 8 0v5H1z"/><path d="M1 6c3-4 5-4 8 0s5 4 8 0" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Tidewell</span>
+        <span class="font-mono font-medium tracking-tight">parcelo_</span>
+        <span><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><path d="M9 1 17 9 9 17 1 9z" opacity=".5"/><path d="M9 5l4 4-4 4-4-4z"/></svg>Corvid&amp;Co</span>
+        <span class="tracking-[0.2em]">QUARRY</span>
+        <span><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 2v14" stroke="currentColor" stroke-width="2"/></svg>Halden</span>
+        <span class="max-sm:!hidden italic tracking-tight">wrenly</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform -->
+  <section id="platform" class="mx-auto max-w-[1320px] px-5 py-16 md:px-8 md:py-24">
+    <div class="reveal flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-2xl"><p class="eb">Platform</p><h2 class="h2">Everything between <span class="font-mono text-[.86em] font-medium text-ember-400">git push</span> and global.</h2></div>
+      <p class="max-w-sm">Builds, previews, edge compute, storage and observability. One CLI, one bill, zero YAML archaeology.</p>
+    </div>
+    <div class="reveal mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/[.08] bg-white/[.08] md:grid-cols-2 lg:grid-cols-3">
+      <article class="cell">
+        <span class="ico"><iconify-icon icon="lucide:git-pull-request"></iconify-icon></span>
+        <h3>A preview for every pull request</h3>
+        <p>Each push gets an immutable URL with production data rules, so reviewers click instead of checking out branches.</p>
+        <div class="mt-5 rounded-lg border border-white/[.08] bg-char p-3 font-mono text-[11.5px]"><p class="flex justify-between"><span class="text-bone">#1182 checkout-redesign</span><span class="text-gold-300">Ready · 38s</span></p><p class="mt-1 truncate text-ember-300">pr-1182.storefront.forgeedge.app</p></div>
+      </article>
+      <article class="cell">
+        <span class="ico"><iconify-icon icon="lucide:history"></iconify-icon></span>
+        <h3>Instant rollbacks</h3>
+        <p>Every build stays warm for 30 days. Roll back globally in under a second, from the CLI or one click.</p>
+        <ul class="mt-5 space-y-1.5 font-mono text-[11.5px]">
+          <li class="flex items-center justify-between rounded-lg border border-ember-500/30 bg-ember-500/[.07] px-3 py-2"><span class="text-bone">dpl_9xT4m · main</span><span class="text-ember-300">current</span></li>
+          <li class="flex items-center justify-between rounded-lg border border-white/[.07] px-3 py-2"><span>dpl_8KQ2v · main</span><span class="text-dim">2h ago</span></li>
+        </ul>
+      </article>
+      <article class="cell">
+        <span class="ico"><iconify-icon icon="lucide:cpu"></iconify-icon></span>
+        <h3>Edge functions</h3>
+        <p>Standard Request and Response APIs, cold starts under 5ms, and streaming by default. Bring TypeScript, Rust or Go.</p>
+        <pre class="mt-5 overflow-x-auto rounded-lg border border-white/[.08] bg-char p-3 font-mono text-[11.5px] leading-relaxed text-smoke"><span class="k">export default</span> (req) =&gt;
+  Response.json({ geo: req.geo.city })</pre>
+      </article>
+      <article class="cell">
+        <span class="ico"><iconify-icon icon="lucide:database-zap"></iconify-icon></span>
+        <h3>Edge KV</h3>
+        <p>A globally replicated key-value store with sub-millisecond reads and writes that land everywhere in about 300ms.</p>
+        <p class="mt-5 flex items-center gap-3 font-mono text-[11.5px]"><span class="rounded-md border border-white/[.08] bg-char px-2.5 py-1.5 text-bone">flags:checkout-v2</span><span class="text-gold-300">read 0.8ms</span></p>
+      </article>
+      <article class="cell">
+        <span class="ico"><iconify-icon icon="lucide:activity"></iconify-icon></span>
+        <h3>Logs and traces that stream</h3>
+        <p>Tail any region live, follow a request across functions and KV, and keep 30 days of history on Pro.</p>
+        <div class="mt-5 space-y-1.5" aria-hidden="true"><span class="block h-2 w-[72%] rounded-full bg-gradient-to-r from-ember-500 to-gold-400"></span><span class="ml-[18%] block h-2 w-[34%] rounded-full bg-ember-500/50"></span><span class="ml-[40%] block h-2 w-[22%] rounded-full bg-gold-400/50"></span></div>
+      </article>
+      <article class="cell">
+        <span class="ico"><iconify-icon icon="lucide:shield-check"></iconify-icon></span>
+        <h3>Shielded by default</h3>
+        <p>Automatic TLS, layer-7 DDoS mitigation and a programmable firewall on every plan. No extra add-ons to forget.</p>
+        <p class="mt-5 font-mono text-[11.5px]"><span class="text-bone">2.1M</span> hostile requests dropped this week</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Network: live latency table -->
+  <section id="network" class="relative overflow-hidden border-y border-white/[.07] bg-char/60 py-16 md:py-24">
+    <div aria-hidden="true" class="glow absolute -left-60 top-0 h-[600px] w-[700px] opacity-60"></div>
+    <div class="relative mx-auto grid max-w-[1320px] gap-12 px-5 md:px-8 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+      <div class="reveal">
+        <p class="eb">Network</p>
+        <h2 class="h2">38 regions.<br>Measured right now.</h2>
+        <p class="mt-5 max-w-md text-lg leading-relaxed">These numbers come from real production traffic, sampled every second. Forge routes each request to the closest healthy region, then fails over in under 50ms if one stumbles.</p>
+        <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[.08] bg-white/[.08] [&>div]:bg-coal [&>div]:p-5 [&_dt]:font-mono [&_dt]:text-[11px] [&_dt]:uppercase [&_dt]:tracking-widest [&_dt]:text-dim [&_dd]:mt-1 [&_dd]:text-3xl [&_dd]:font-semibold [&_dd]:tracking-tight [&_dd]:text-bone">
+          <div><dt>Global p50</dt><dd><span data-gp50>15</span><span class="text-base text-smoke"> ms</span></dd></div>
+          <div><dt>Requests today</dt><dd id="req-today">2.18B</dd></div>
+        </dl>
+      </div>
+      <div class="reveal panel overflow-x-auto p-2 pt-5 md:p-4 md:pt-6">
+        <table class="lat w-full whitespace-nowrap text-sm sm:min-w-[560px]">
+          <caption class="sr-only">Live latency by region</caption>
+          <thead><tr><th scope="col">Region</th><th scope="col">p50</th><th scope="col" class="max-sm:hidden">p95</th><th scope="col" class="w-[28%]">Load</th><th scope="col" class="max-sm:hidden">Status</th></tr></thead>
+          <tbody id="lat-body"></tbody>
+        </table>
+        <p class="px-4 pt-4 font-mono text-xs text-dim">+ 28 more regions · updated <span id="lat-age">just now</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Developers: tabbed code -->
+  <section id="docs" class="mx-auto grid max-w-[1320px] items-center gap-12 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)]">
+    <div class="reveal">
+      <p class="eb">Developers</p>
+      <h2 class="h2">Your workflow,<br>not ours.</h2>
+      <p class="mt-5 max-w-md text-lg leading-relaxed">Push from git, script it from CI, or drive everything through the API. Forge detects 40+ frameworks and needs a config file only when you want one.</p>
+      <ul class="mt-8 space-y-3 text-bone/90 [&>li]:flex [&>li]:gap-3 [&_iconify-icon]:mt-1 [&_iconify-icon]:text-ember-400">
+        <li><iconify-icon icon="lucide:terminal"></iconify-icon>One CLI for deploys, logs, secrets and rollbacks</li>
+        <li><iconify-icon icon="lucide:file-code-2"></iconify-icon>Optional <code class="font-mono text-sm text-gold-300">forge.toml</code> checked in next to your code</li>
+        <li><iconify-icon icon="lucide:webhook"></iconify-icon>REST API and signed webhooks for every event</li>
+      </ul>
+    </div>
+    <div class="reveal term overflow-hidden">
+      <div class="flex items-center justify-between gap-3 border-b border-white/[.07] px-3 py-2.5">
+        <div role="tablist" aria-label="Code samples" class="flex gap-1 font-mono text-[13px]">
+          <button role="tab" id="tab-cli" aria-controls="pane-cli" aria-selected="true">CLI</button>
+          <button role="tab" id="tab-cfg" aria-controls="pane-cfg" aria-selected="false" tabindex="-1">forge.toml</button>
+          <button role="tab" id="tab-api" aria-controls="pane-api" aria-selected="false" tabindex="-1">API</button>
+        </div>
+        <button id="copy-code" class="copy inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1.5 font-mono text-xs text-smoke transition hover:text-bone" aria-label="Copy code sample"><iconify-icon icon="lucide:copy"></iconify-icon><span>Copy</span></button>
+      </div>
+<pre class="code" role="tabpanel" id="pane-cli" aria-labelledby="tab-cli" tabindex="0"><span class="c"># install once</span>
+<span class="p">$ </span>curl -fsSL https://forgeedge.dev/install | sh
+
+<span class="c"># link this repo and ship it</span>
+<span class="p">$ </span>forge link
+<span class="p">$ </span>forge deploy <span class="k">--prod</span>
+<span class="s">✓ Live in 38 regions · 4.1s</span>
+
+<span class="c"># changed your mind? roll back globally</span>
+<span class="p">$ </span>forge rollback <span class="s">dpl_8KQ2v</span></pre>
+<pre class="code" role="tabpanel" id="pane-cfg" aria-labelledby="tab-cfg" tabindex="0" hidden><span class="k">name</span> = <span class="s">"storefront"</span>
+<span class="k">framework</span> = <span class="s">"auto"</span>
+
+[<span class="k">build</span>]
+<span class="k">command</span> = <span class="s">"make build"</span>
+<span class="k">output</span>  = <span class="s">"dist"</span>
+
+[<span class="k">edge</span>]
+<span class="k">regions</span> = [<span class="s">"all"</span>]
+<span class="k">cache</span>   = { <span class="k">html</span> = <span class="s">"60s"</span>, <span class="k">assets</span> = <span class="s">"1y"</span> }
+
+[[<span class="k">routes</span>]]
+<span class="k">path</span>     = <span class="s">"/api/*"</span>
+<span class="k">function</span> = <span class="s">"api/index.ts"</span></pre>
+<pre class="code" role="tabpanel" id="pane-api" aria-labelledby="tab-api" tabindex="0" hidden><span class="p">$ </span>curl -X POST https://api.forgeedge.dev/v1/deployments \
+    -H <span class="s">"Authorization: Bearer $FORGE_TOKEN"</span> \
+    -d <span class="s">'{"project":"storefront","ref":"main","target":"production"}'</span>
+
+<span class="c"># response</span>
+{
+  <span class="k">"id"</span>: <span class="s">"dpl_9xT4m"</span>,
+  <span class="k">"status"</span>: <span class="s">"building"</span>,
+  <span class="k">"regions"</span>: 38,
+  <span class="k">"url"</span>: <span class="s">"https://storefront.forgeedge.app"</span>
+}</pre>
+      <p id="copy-live" class="sr-only" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="mx-auto max-w-[1320px] px-5 py-16 md:px-8" aria-labelledby="t-title">
+    <h2 id="t-title" class="reveal h2 max-w-2xl">Teams that stopped babysitting deploys.</h2>
+    <div class="mt-12 grid gap-4 md:grid-cols-3">
+      <figure class="reveal panel flex flex-col justify-between p-7"><blockquote class="text-[17px] leading-relaxed text-bone/90">“We moved 140 services off a hand-rolled container cluster in six weeks. Our on-call pages dropped by two thirds.”</blockquote><figcaption class="mt-8 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-ember-500 to-gold-400 text-sm font-semibold text-coal">KM</span><span class="text-sm"><b class="block font-medium text-bone">Kofi Mensah</b>CTO, Tidewell</span></figcaption></figure>
+      <figure class="reveal panel flex flex-col justify-between p-7"><blockquote class="text-[17px] leading-relaxed text-bone/90">“Preview URLs changed how we review. Designers comment on the real thing, and nobody asks ‘can you deploy my branch?’ anymore.”</blockquote><figcaption class="mt-8 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-gold-300 to-ember-400 text-sm font-semibold text-coal">ID</span><span class="text-sm"><b class="block font-medium text-bone">Inês Duarte</b>Staff Engineer, Parcelo</span></figcaption></figure>
+      <figure class="reveal panel flex flex-col justify-between p-7"><blockquote class="text-[17px] leading-relaxed text-bone/90">“Checkout p95 in São Paulo went from 410ms to 48ms the day we switched. Conversion followed within the week.”</blockquote><figcaption class="mt-8 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-ember-600 to-ember-300 text-sm font-semibold text-coal">HS</span><span class="text-sm"><b class="block font-medium text-bone">Hana Sato</b>Platform Lead, Wrenly</span></figcaption></figure>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="mx-auto max-w-[1320px] px-5 py-16 md:px-8 md:py-24">
+    <div class="reveal text-center"><p class="eb">Pricing</p><h2 class="h2">Start free. Pay for traffic, not seats you forget.</h2><p class="mx-auto mt-4 max-w-xl">Every plan runs on the full global network. Overage is billed by the million, with alerts long before it matters.</p></div>
+    <div class="mt-12 grid gap-4 md:grid-cols-3">
+      <div class="reveal panel flex flex-col p-8">
+        <h3 class="font-medium text-bone">Hobby</h3>
+        <p class="mt-4 text-5xl font-semibold tracking-tight text-bone">$0</p><p class="mt-1 text-sm">for personal projects</p>
+        <ul class="pl"><li><iconify-icon icon="lucide:check"></iconify-icon>1M edge requests / month</li><li><iconify-icon icon="lucide:check"></iconify-icon>100 GB bandwidth</li><li><iconify-icon icon="lucide:check"></iconify-icon>Preview URLs &amp; automatic TLS</li></ul>
+        <a href="#" class="btn btn-g">Start for free</a>
+      </div>
+      <div class="reveal relative flex flex-col rounded-2xl border border-ember-500/50 bg-gradient-to-b from-ember-500/[.16] via-ember-500/[.04] to-transparent p-8 shadow-[0_40px_90px_-40px_rgba(255,90,31,.7)]">
+        <span class="absolute right-6 top-6 rounded-full bg-ember-500 px-2.5 py-0.5 font-mono text-[11px] text-white">Most teams</span>
+        <h3 class="font-medium text-bone">Pro</h3>
+        <p class="mt-4 text-5xl font-semibold tracking-tight text-bone">$20<span class="text-base font-normal text-smoke"> / member / mo</span></p><p class="mt-1 text-sm">plus usage beyond included</p>
+        <ul class="pl text-bone/90"><li><iconify-icon icon="lucide:check"></iconify-icon>25M edge requests / month</li><li><iconify-icon icon="lucide:check"></iconify-icon>1 TB bandwidth &amp; Edge KV</li><li><iconify-icon icon="lucide:check"></iconify-icon>30-day logs, traces &amp; rollbacks</li><li><iconify-icon icon="lucide:check"></iconify-icon>Firewall rules &amp; spend limits</li></ul>
+        <a href="#" class="btn btn-e">Start 14-day trial</a>
+      </div>
+      <div class="reveal panel flex flex-col p-8">
+        <h3 class="font-medium text-bone">Enterprise</h3>
+        <p class="mt-4 text-5xl font-semibold tracking-tight text-bone">Custom</p><p class="mt-1 text-sm">for regulated, high-traffic teams</p>
+        <ul class="pl"><li><iconify-icon icon="lucide:check"></iconify-icon>99.995% uptime SLA</li><li><iconify-icon icon="lucide:check"></iconify-icon>SSO, SCIM &amp; audit logs</li><li><iconify-icon icon="lucide:check"></iconify-icon>Region pinning &amp; data residency</li><li><iconify-icon icon="lucide:check"></iconify-icon>24/7 support with 15-min response</li></ul>
+        <a href="#" class="btn btn-g">Talk to sales</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Changelog strip -->
+  <section id="changelog" class="border-y border-white/[.07] py-10" aria-labelledby="cl-title">
+    <div class="mx-auto mb-6 flex max-w-[1320px] items-center justify-between px-5 md:px-8"><h2 id="cl-title" class="flex items-center gap-2.5 font-mono text-xs uppercase tracking-widest text-dim"><span class="live-dot"></span>Changelog</h2><a href="#" class="font-mono text-xs text-ember-300 hover:text-ember-400">All releases →</a></div>
+    <div class="mq overflow-hidden">
+      <div class="marquee text-sm">
+        <ul>
+          <li><a href="#"><span class="tag">v4.2</span><span class="text-bone">Edge KV is generally available</span><span class="font-mono text-xs text-dim">Oct 28</span></a></li>
+          <li><a href="#"><span class="tag">region</span><span class="text-bone">jnb1 Johannesburg is live</span><span class="font-mono text-xs text-dim">Oct 21</span></a></li>
+          <li><a href="#"><span class="tag">v4.1.3</span><span class="text-bone">Streaming logs keep 30 days on Pro</span><span class="font-mono text-xs text-dim">Oct 14</span></a></li>
+          <li><a href="#"><span class="tag">cli</span><span class="text-bone">forge rollback --to picks any build</span><span class="font-mono text-xs text-dim">Oct 07</span></a></li>
+          <li><a href="#"><span class="tag">v4.1</span><span class="text-bone">Comments on preview deployments</span><span class="font-mono text-xs text-dim">Sep 30</span></a></li>
+          <li><a href="#"><span class="tag">perf</span><span class="text-bone">Cold starts down 38% for Rust functions</span><span class="font-mono text-xs text-dim">Sep 23</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="mx-auto grid max-w-[1320px] gap-10 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-[1fr_1.6fr]">
+    <div class="reveal"><p class="eb">FAQ</p><h2 class="h2">Before you ship.</h2><p class="mt-4 max-w-sm">Still unsure? Our engineers answer in the community forum, usually within the hour.</p></div>
+    <div class="reveal border-t border-white/[.09]">
+      <details class="faq" open><summary>Which frameworks does Forge support?<iconify-icon icon="lucide:plus" class="text-xl"></iconify-icon></summary><p>Forge auto-detects more than 40 frameworks and static site generators. Anything that produces static files, a long-running server, or Request/Response handlers deploys without configuration.</p></details>
+      <details class="faq"><summary>How do instant rollbacks work?<iconify-icon icon="lucide:plus" class="text-xl"></iconify-icon></summary><p>Builds are immutable and stay cached in every region for 30 days. A rollback just repoints traffic, so it completes globally in under a second with no rebuild.</p></details>
+      <details class="faq"><summary>Can I keep data in a specific region?<iconify-icon icon="lucide:plus" class="text-xl"></iconify-icon></summary><p>Yes. Pin functions and Edge KV to EU-only or US-only region groups per project, while static assets stay cached globally. Enterprise adds contractual data residency.</p></details>
+      <details class="faq"><summary>Do I need to rewrite my app for the edge?<iconify-icon icon="lucide:plus" class="text-xl"></iconify-icon></summary><p>Usually not. Standard runtime APIs cover most libraries, and anything that truly needs a long-running process can run in our regional containers right beside the edge.</p></details>
+      <details class="faq"><summary>What happens if I go over my plan?<iconify-icon icon="lucide:plus" class="text-xl"></iconify-icon></summary><p>Nothing breaks. Extra requests are billed at $2 per million and bandwidth at $0.06 per GB. Spend limits and alerts let you cap it hard if you prefer.</p></details>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="px-3 pb-16 md:px-5">
+    <div class="reveal relative isolate mx-auto max-w-[1360px] overflow-hidden rounded-3xl border border-white/[.08] px-6 py-16 text-center md:py-24">
+      <div aria-hidden="true" class="grid-bg absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_60%_80%_at_50%_100%,#000,transparent)]"></div>
+      <div aria-hidden="true" class="glow absolute bottom-[-380px] left-1/2 -z-10 h-[700px] w-[1100px] -translate-x-1/2"></div>
+      <h2 class="mx-auto max-w-3xl text-4xl font-semibold leading-[1.04] tracking-[-0.04em] text-bone md:text-6xl">Your next deploy is four seconds away.</h2>
+      <p class="mx-auto mt-5 max-w-lg text-lg">Connect a repository, push to main, and watch it light up 38 regions. Free until you have real traffic.</p>
+      <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"><a href="#pricing" class="btn btn-e">Start deploying free</a><a href="#" class="btn btn-g">Book an architecture review</a></div>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-white/[.07] text-sm">
+  <div class="mx-auto grid max-w-[1320px] gap-10 px-5 py-14 md:grid-cols-5 md:px-8">
+    <div class="md:col-span-2">
+      <a href="#" class="flex items-center gap-2.5 text-bone" aria-label="Forge home"><svg width="24" height="24" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2 25 8.5v11L14 26 3 19.5v-11Z" fill="none" stroke="#FF7A45" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 7.5c.8 2.8 4.6 4.6 4.6 8.4a4.6 4.6 0 0 1-9.2 0c0-1.9.9-3 1.9-3.9 0 1.8.9 2.8 1.9 2.8-.9-2.6-.1-5.3.8-7.3Z" fill="#FFB020"/></svg><span class="text-lg font-semibold">forge</span></a>
+      <p class="mt-4 max-w-xs">The edge platform for teams who would rather ship than babysit servers. Built in Oslo and Montréal.</p>
+      <p class="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 font-mono text-xs text-bone/80"><span class="live-dot"></span>All systems normal</p>
+    </div>
+    <div><h3 class="font-medium text-bone">Platform</h3><ul class="fl"><li><a href="#platform">Previews</a></li><li><a href="#platform">Edge functions</a></li><li><a href="#platform">Edge KV</a></li><li><a href="#network">Network</a></li></ul></div>
+    <div><h3 class="font-medium text-bone">Developers</h3><ul class="fl"><li><a href="#docs">Docs</a></li><li><a href="#docs">CLI reference</a></li><li><a href="#docs">API</a></li><li><a href="#changelog">Changelog</a></li></ul></div>
+    <div><h3 class="font-medium text-bone">Company</h3><ul class="fl"><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Security</a></li><li><a href="#">Status</a></li></ul></div>
+  </div>
+  <div class="mx-auto flex max-w-[1320px] flex-col justify-between gap-4 border-t border-white/[.06] px-5 py-6 text-xs text-dim sm:flex-row sm:items-center md:px-8">
+    <p>© 2026 Forge Edge, Inc. · <a href="#" class="hover:text-bone">Privacy</a> · <a href="#" class="hover:text-bone">Terms</a> · <a href="#" class="hover:text-bone">DPA</a></p>
+    <div class="flex gap-4 text-base"><a href="#" class="hover:text-bone" aria-label="Community forum"><iconify-icon icon="lucide:messages-square"></iconify-icon></a><a href="#" class="hover:text-bone" aria-label="Engineering blog RSS feed"><iconify-icon icon="lucide:rss"></iconify-icon></a><a href="#" class="hover:text-bone" aria-label="Email the team"><iconify-icon icon="lucide:mail"></iconify-icon></a></div>
+  </div>
+</footer>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  // Mobile menu
+  const menuBtn = $('#menu-btn'), menu = $('#mobile-menu');
+  const setMenu = (open) => {
+    menuBtn.setAttribute('aria-expanded', open);
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    $('iconify-icon', menuBtn).setAttribute('icon', open ? 'lucide:x' : 'lucide:menu');
+    menu.classList.toggle('hidden', !open);
+  };
+  menuBtn.onclick = () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true');
+  $$('a', menu).forEach((a) => (a.onclick = () => setMenu(false)));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') { setMenu(false); menuBtn.focus(); } });
+
+  // Scroll reveal: anything already on screen is revealed first, so nothing above the fold is ever hidden.
+  const reveals = $$('.reveal');
+  reveals.forEach((el) => { const r = el.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) el.classList.add('in'); });
+  if ('IntersectionObserver' in window && !reduce) {
+    document.documentElement.classList.add('rv');
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach((el) => el.classList.contains('in') || io.observe(el));
+  }
+
+  // Regions: shared by the globe and the latency table.
+  const REGIONS = [
+    ['iad1', 'Ashburn, US', 38.9, -77.4, 12], ['sfo1', 'San Francisco, US', 37.6, -122.4, 14], ['gru1', 'São Paulo, BR', -23.4, -46.5, 19],
+    ['lhr1', 'London, UK', 51.5, -0.1, 11], ['fra1', 'Frankfurt, DE', 50.1, 8.7, 10], ['jnb1', 'Johannesburg, ZA', -26.1, 28.2, 24],
+    ['bom1', 'Mumbai, IN', 19.1, 72.9, 21], ['sin1', 'Singapore, SG', 1.35, 103.9, 13], ['hnd1', 'Tokyo, JP', 35.6, 139.8, 15], ['syd1', 'Sydney, AU', -33.9, 151.2, 18]
+  ].map(([code, city, lat, lon, base]) => ({ code, city, lat, lon, base, p50: base, p95: Math.round(base * 2.6), load: Math.round(rand(28, 64)) }));
+  const byCode = Object.fromEntries(REGIONS.map((r) => [r.code, r]));
+  const EXTRA = [[45.5, -73.6], [59.3, 18.1], [25.3, 55.4], [37.5, 127], [-36.8, 174.8], [6.5, 3.4], [19.4, -99.1], [40.4, -3.7]];
+
+  // Globe: orthographic projection drawn into inline SVG.
+  const NS = 'http://www.w3.org/2000/svg', R = 230, C = 300, TILT = 0.4;
+  const svgEl = (tag, attrs, parent) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent && parent.appendChild(el); return el; };
+  let rot = 20;
+  const project = (lat, lon, alt = 1) => {
+    const p = (lat * Math.PI) / 180, l = ((lon + rot) * Math.PI) / 180;
+    const x = Math.cos(p) * Math.sin(l), y = Math.sin(p), z = Math.cos(p) * Math.cos(l);
+    const y2 = y * Math.cos(TILT) - z * Math.sin(TILT), z2 = y * Math.sin(TILT) + z * Math.cos(TILT);
+    return [C + R * alt * x, C - R * alt * y2, z2, alt];
+  };
+  const lines = [];
+  for (let lon = -180; lon < 180; lon += 20) { const pts = []; for (let lat = -90; lat <= 90; lat += 5) pts.push([lat, lon]); lines.push(pts); }
+  for (let lat = -60; lat <= 60; lat += 20) { const pts = []; for (let lon = -180; lon <= 180; lon += 5) pts.push([lat, lon]); lines.push(pts); }
+  const ARCS = [['iad1', 'fra1'], ['fra1', 'sin1'], ['sin1', 'syd1'], ['iad1', 'gru1'], ['sfo1', 'hnd1'], ['lhr1', 'bom1'], ['fra1', 'jnb1'], ['sfo1', 'iad1']];
+  const toVec = (lat, lon) => { const p = (lat * Math.PI) / 180, l = (lon * Math.PI) / 180; return [Math.cos(p) * Math.sin(l), Math.sin(p), Math.cos(p) * Math.cos(l)]; };
+  const arcPts = ARCS.map(([a, b]) => {
+    const A = toVec(byCode[a].lat, byCode[a].lon), B = toVec(byCode[b].lat, byCode[b].lon);
+    const w = Math.acos(Math.min(1, A[0] * B[0] + A[1] * B[1] + A[2] * B[2])), pts = [];
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40, s1 = Math.sin((1 - t) * w) / Math.sin(w), s2 = Math.sin(t * w) / Math.sin(w);
+      const v = [A[0] * s1 + B[0] * s2, A[1] * s1 + B[1] * s2, A[2] * s1 + B[2] * s2];
+      pts.push([(Math.asin(v[1]) * 180) / Math.PI, (Math.atan2(v[0], v[2]) * 180) / Math.PI, 1 + 0.16 * w * Math.sin(Math.PI * t)]);
+    }
+    return pts;
+  });
+  const gArcs = $('#g-arcs'), gDots = $('#g-dots');
+  const arcEls = arcPts.map((_, i) => [svgEl('path', { stroke: 'url(#ga)', 'stroke-opacity': '.3', 'stroke-width': '1.2' }, gArcs), svgEl('path', { class: 'comet', stroke: '#FFCB66', 'stroke-width': '2.2', pathLength: '100', style: `animation-delay:${-i * 0.7}s` }, gArcs)]);
+  const dotEls = [...REGIONS, ...EXTRA.map(([lat, lon]) => ({ lat, lon, minor: true }))].map((r, i) => {
+    const g = svgEl('g', {}, gDots);
+    if (!r.minor) svgEl('circle', { r: 4, fill: 'none', stroke: '#FF5A1F', 'stroke-width': 1.5, class: 'pulse', style: `animation-delay:${-i * 0.37}s` }, g);
+    svgEl('circle', { r: r.minor ? 2.2 : 3.4, fill: r.minor ? '#FF7A45' : '#FFB020' }, g);
+    const label = ['iad1', 'fra1', 'sin1', 'gru1', 'hnd1'].includes(r.code) ? svgEl('text', { class: 'glabel', dx: 9, dy: 4 }, g) : null;
+    return { r, g, label };
+  });
+  const runs = (pts, visible) => {
+    let d = '', on = false;
+    pts.forEach((p) => { if (visible(p)) { d += `${on ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`; on = true; } else on = false; });
+    return d;
+  };
+  const drawGlobe = () => {
+    let front = '', back = '';
+    lines.forEach((ln) => { const pts = ln.map(([la, lo]) => project(la, lo)); front += runs(pts, (p) => p[2] >= 0); back += runs(pts, (p) => p[2] < 0); });
+    $('#g-front').setAttribute('d', front);
+    $('#g-back').setAttribute('d', back);
+    arcPts.forEach((pts, i) => {
+      const d = runs(pts.map(([la, lo, alt]) => project(la, lo, alt)), (p) => p[2] > -0.08 || Math.hypot(p[0] - C, p[1] - C) > R * 1.01);
+      arcEls[i].forEach((el) => el.setAttribute('d', d || 'M0 0'));
+      arcEls[i][1].style.visibility = d ? 'visible' : 'hidden';
+    });
+    dotEls.forEach(({ r, g, label }) => {
+      const [x, y, z] = project(r.lat, r.lon);
+      g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      g.style.opacity = z < 0 ? 0 : Math.min(1, z * 3);
+      if (label) label.textContent = `${r.code} ${r.p50}ms`;
+    });
+  };
+  let globeOn = true, last = performance.now();
+  new IntersectionObserver(([e]) => (globeOn = e.isIntersecting)).observe($('#globe'));
+  const spin = (now) => {
+    if (globeOn) { rot += (now - last) * 0.006; drawGlobe(); }
+    last = now;
+    requestAnimationFrame(spin);
+  };
+  drawGlobe();
+  if (!reduce) requestAnimationFrame(spin);
+
+  // Live deploy log
+  const COMMITS = [['9f3c2e1', 'Tighten checkout copy'], ['a41d7b0', 'Cache images for 1y'], ['c08e5f2', 'Add KV feature flags']];
+  let run = 0;
+  const script = (sha, msg) => [
+    ['0.00', 'lp', '$ forge deploy --prod'], ['0.04', 'ld', 'Forge CLI 4.2.0 · tidewell/storefront'],
+    ['0.19', '', `› Linked main @ ${sha} “${msg}”`], ['0.46', '', '› Restored build cache · 1,204 files'],
+    ['1.84', 'lo', '✓ Built 214 modules in 1.38s'], ['2.03', 'lo', '✓ Bundled 96.2 kB brotli · 3 edge functions'],
+    ['2.11', '', '› Uploading to 38 regions'], ['2.68', 'lr', '  iad1 182ms  fra1 204ms  sin1 231ms'],
+    ['3.07', 'lr', '  gru1 246ms  syd1 262ms  +33 more'], ['3.72', 'lo', '✓ Health checks passing 38/38'],
+    ['4.10', 'lo', '✓ Promoted to production in 4.1s'], ['4.11', 'lu', '→ https://storefront.forgeedge.app']
+  ];
+  const log = $('#log'), status = $('#log-status');
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const addLine = ([t, cls, text]) => {
+    const row = document.createElement('div');
+    row.innerHTML = `<span class="t">${t}</span><span class="${cls}">${esc(text).replace(/\b([a-z]{3}\d)\b/g, '<span class="text-ember-400">$1</span>')}</span>`;
+    log.appendChild(row);
+    while (log.scrollHeight > log.clientHeight + 1 && log.children.length > 1) log.firstElementChild.remove();
+  };
+  const setStatus = (live) => {
+    status.className = `ml-auto inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[11px] ${live ? 'border-ember-500/40 bg-ember-500/15 text-ember-300' : 'border-gold-400/25 bg-gold-400/10 text-gold-300'}`;
+    status.lastElementChild.textContent = live ? 'Live' : 'Building';
+  };
+  const deploy = () => {
+    const lines = script(...COMMITS[run++ % COMMITS.length]);
+    log.innerHTML = ''; setStatus(false);
+    lines.slice(0, 5).forEach(addLine); // the first lines appear at once, so the log is never empty
+    if (reduce) { lines.slice(5).forEach(addLine); setStatus(true); return; }
+    let i = 5;
+    const next = () => {
+      if (i < lines.length) { addLine(lines[i++]); setTimeout(next, rand(220, 520)); }
+      else { setStatus(true); setTimeout(deploy, 5200); }
+    };
+    setTimeout(next, 350);
+  };
+  deploy();
+
+  // Latency table: live-updating p50/p95/load, shared with the globe labels and the global p50 stats.
+  const tbody = $('#lat-body');
+  tbody.innerHTML = REGIONS.map((r) => `<tr data-code="${r.code}"><td><span class="font-mono text-ember-300">${r.code}</span><span class="ml-3 text-bone/85">${r.city.replace(/, \w+$/, '<span class="max-sm:hidden">$&</span>')}</span></td><td class="font-mono text-bone" data-k="p50">${r.p50} ms</td><td class="font-mono max-sm:hidden" data-k="p95">${r.p95} ms</td><td><span class="bar"><i style="width:${r.load}%"></i></span></td><td class="max-sm:hidden"><span class="inline-flex items-center gap-2 font-mono text-xs text-gold-300"><span class="live-dot"></span>Healthy</span></td></tr>`).join('');
+  const gp50 = () => { const v = Math.round(REGIONS.reduce((s, r) => s + r.p50, 0) / REGIONS.length); $$('[data-gp50]').forEach((el) => (el.textContent = v)); };
+  const flash = (el, text) => { if (el.textContent === text) return; el.textContent = text; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+  let reqToday = 2184903118;
+  const tickTable = () => {
+    for (let n = 0; n < 3; n++) {
+      const r = REGIONS[Math.floor(Math.random() * REGIONS.length)], row = $(`tr[data-code="${r.code}"]`, tbody);
+      r.p50 = Math.max(r.base - 3, Math.min(r.base + 5, r.p50 + Math.round(rand(-2, 2))));
+      r.p95 = Math.round(r.p50 * rand(2.3, 2.9));
+      r.load = Math.max(12, Math.min(92, r.load + Math.round(rand(-8, 8))));
+      flash($('[data-k="p50"]', row), `${r.p50} ms`);
+      flash($('[data-k="p95"]', row), `${r.p95} ms`);
+      $('.bar i', row).style.width = `${r.load}%`;
+    }
+    gp50();
+    reqToday += Math.round(rand(9e5, 1.6e6));
+    $('#req-today').textContent = `${(reqToday / 1e9).toFixed(3)}B`;
+    if (reduce) drawGlobe();
+  };
+  gp50();
+  setInterval(tickTable, 1300);
+
+  // Hero chips: requests per second sparkline and cache hit rate.
+  const spark = $('#spark'), bars = Array.from({ length: 18 }, () => rand(35, 95));
+  const drawSpark = () => (spark.innerHTML = bars.map((h, i) => `<i class="block w-[5px] rounded-sm ${i === bars.length - 1 ? 'bg-gold-400' : 'bg-ember-500/60'}" style="height:${h}%"></i>`).join(''));
+  drawSpark();
+  setInterval(() => {
+    const v = rand(1.21, 1.36);
+    $('#rps').textContent = `${v.toFixed(2)}M`;
+    bars.shift(); bars.push(((v - 1.15) / 0.22) * 100);
+    drawSpark();
+    $('#hit').textContent = rand(96.9, 97.8).toFixed(1);
+  }, 1100);
+
+  // Tabs with arrow-key support, and copy buttons.
+  const tabs = $$('[role="tab"]');
+  const select = (tab) => {
+    tabs.forEach((t) => { const on = t === tab; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; $('#' + t.getAttribute('aria-controls')).hidden = !on; });
+  };
+  tabs.forEach((t, i) => {
+    t.onclick = () => select(t);
+    t.onkeydown = (e) => {
+      const dir = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (!dir) return;
+      const next = tabs[(i + dir + tabs.length) % tabs.length];
+      select(next); next.focus(); e.preventDefault();
+    };
+  });
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); }
+    catch { const ta = Object.assign(document.createElement('textarea'), { value: text }); document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  };
+  // Shell samples copy only the commands (prompts stripped, backslash continuations kept); config copies whole.
+  const codeOf = (pane) => {
+    const ls = pane.textContent.split('\n');
+    if (!ls.some((l) => l.startsWith('$ '))) return pane.textContent.trim();
+    const out = []; let cont = false;
+    ls.forEach((l) => { if (l.startsWith('$ ') || cont) { out.push(l.replace(/^\$ /, '')); cont = l.trimEnd().endsWith('\\'); } });
+    return out.join('\n');
+  };
+  $$('.copy').forEach((btn) => btn.addEventListener('click', async () => {
+    await copyText(btn.dataset.copy || codeOf($('[role="tabpanel"]:not([hidden])')));
+    const icon = $('iconify-icon', btn), label = $('span', btn);
+    icon.setAttribute('icon', 'lucide:check');
+    if (label) label.textContent = 'Copied';
+    $('#copy-live').textContent = 'Copied to clipboard';
+    setTimeout(() => { icon.setAttribute('icon', 'lucide:copy'); if (label) label.textContent = 'Copy'; $('#copy-live').textContent = ''; }, 1600);
+  }));
+</script>
+</body>
+</html>

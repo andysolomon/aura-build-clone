@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hollis - Light sitemap footer with theme switch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: { sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      colors: { bg: 'rgb(var(--bg) / <alpha-value>)', fg: 'rgb(var(--fg) / <alpha-value>)', mut: 'rgb(var(--mut) / <alpha-value>)', line: 'rgb(var(--line) / <alpha-value>)', card: 'rgb(var(--card) / <alpha-value>)', soft: 'rgb(var(--soft) / <alpha-value>)', acc: 'rgb(var(--acc) / <alpha-value>)' }
+    } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    :root { --bg: 250 250 248; --fg: 24 24 27; --mut: 113 113 122; --line: 228 228 225; --card: 255 255 255; --soft: 243 243 240; --acc: 47 98 62; --ok: 22 163 74; --err: 225 29 72; color-scheme: light; }
+    :root[data-theme="dark"] { --bg: 13 13 15; --fg: 244 244 245; --mut: 150 150 160; --line: 38 38 42; --card: 22 22 25; --soft: 30 30 34; --acc: 150 220 160; --ok: 74 222 128; --err: 251 113 133; color-scheme: dark; }
+    body { -webkit-font-smoothing: antialiased; transition: background-color .35s ease, color .35s ease; }
+    .flink { color: rgb(var(--mut)); transition: color .15s ease; }
+    .flink:hover { color: rgb(var(--fg)); }
+    .seg button[aria-checked="true"] { background: rgb(var(--card)); color: rgb(var(--fg)); box-shadow: 0 0 0 1px rgb(var(--line)), 0 1px 2px rgb(0 0 0 / .06); }
+    .field { box-shadow: 0 0 0 1px rgb(var(--line)); transition: box-shadow .15s ease; }
+    .field:focus-within { box-shadow: 0 0 0 1px rgb(var(--acc) / .7), 0 0 0 4px rgb(var(--acc) / .14); }
+    .field.bad { box-shadow: 0 0 0 1px rgb(var(--err)), 0 0 0 4px rgb(var(--err) / .12); }
+    .uptime i { display: block; width: 3px; height: 12px; border-radius: 2px; background: rgb(var(--ok) / .75); }
+    .uptime i.warn { background: #f59e0b; }
+    .dot { animation: breathe 2.4s ease-in-out infinite; }
+    @keyframes breathe { 50% { box-shadow: 0 0 0 5px rgb(var(--ok) / 0); } 0%, 100% { box-shadow: 0 0 0 0 rgb(var(--ok) / .35); } }
+    .shake { animation: shake .35s ease; }
+    @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid rgb(var(--acc)); outline-offset: 2px; border-radius: 6px; }
+    select option { background: rgb(var(--card)); color: rgb(var(--fg)); }
+    @media (prefers-reduced-motion: reduce) { body { transition: none; } .dot, .shake { animation: none; } }
+  </style>
+</head>
+<body class="bg-bg font-sans text-fg">
+  <footer class="mx-auto flex min-h-screen max-w-6xl flex-col px-5 sm:px-8" aria-labelledby="ft-title">
+    <div class="grid gap-14 pb-10 pt-14 sm:pt-[4.5rem] lg:grid-cols-[1.12fr_1.2fr] lg:gap-14">
+      <div>
+        <a href="#" class="inline-flex items-center gap-2.5 text-[18px] font-extrabold tracking-[-0.04em]" aria-label="Hollis home">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" class="fill-fg"/><path d="M14 6a8 8 0 0 1 0 16Z" class="fill-bg"/><circle cx="14" cy="14" r="8" fill="none" class="stroke-bg" stroke-width="1.6"/></svg>
+          Hollis
+        </a>
+        <h2 id="ft-title" class="mt-7 max-w-[32rem] text-[2.1rem] font-bold leading-[1.06] tracking-[-0.045em] sm:text-[2.6rem]">Calm software for teams<br class="hidden sm:block"> that write things down.</h2>
+
+        <form id="news" class="mt-8 max-w-md" novalidate>
+          <label for="email" class="text-[13px] font-semibold">The Hollis Letter</label>
+          <p id="news-desc" class="mt-1 text-[13px] leading-relaxed text-mut">One thoughtful email a month on writing, planning and quieter ways to work.</p>
+          <div id="field" class="field mt-3 flex items-center gap-1.5 rounded-xl bg-card p-1.5">
+            <iconify-icon icon="lucide:mail" class="ml-2 text-[16px] text-mut" aria-hidden="true"></iconify-icon>
+            <input id="email" type="email" autocomplete="email" placeholder="you@company.com" aria-describedby="news-desc msg" class="h-9 min-w-0 flex-1 bg-transparent px-1.5 text-[14px] text-fg placeholder:text-mut/70 focus:outline-none">
+            <button id="sub" type="submit" class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-fg px-3.5 text-[13px] font-semibold text-bg transition hover:opacity-85">Subscribe</button>
+          </div>
+          <p id="msg" class="mt-2 flex min-h-[18px] items-center gap-1.5 text-[12px] text-mut" aria-live="polite">No spam. Unsubscribe with one click.</p>
+        </form>
+      </div>
+
+      <div>
+      <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
+        <nav aria-label="Product"><p class="text-[13px] font-semibold">Product</p><ul class="mt-5 space-y-3.5 text-[14px]"><li><a href="#" class="flink">Docs</a></li><li><a href="#" class="flink">Projects</a></li><li><a href="#" class="flink">Meeting notes</a></li><li><a href="#" class="flink">Integrations</a></li><li><a href="#" class="flink inline-flex items-center gap-1.5">What's new<span class="rounded-full bg-acc/10 px-1.5 py-px text-[10px] font-bold text-acc">3</span></a></li><li><a href="#" class="flink">Pricing</a></li></ul></nav>
+        <nav aria-label="Teams"><p class="text-[13px] font-semibold">Teams</p><ul class="mt-5 space-y-3.5 text-[14px]"><li><a href="#" class="flink">Engineering</a></li><li><a href="#" class="flink">Product</a></li><li><a href="#" class="flink">Design</a></li><li><a href="#" class="flink">Operations</a></li><li><a href="#" class="flink">Nonprofits</a></li><li><a href="#" class="flink">Startups</a></li></ul></nav>
+        <nav aria-label="Resources"><p class="text-[13px] font-semibold">Resources</p><ul class="mt-5 space-y-3.5 text-[14px]"><li><a href="#" class="flink">Help center</a></li><li><a href="#" class="flink">Templates</a></li><li><a href="#" class="flink">Writing guide</a></li><li><a href="#" class="flink">API docs</a></li><li><a href="#" class="flink">Community</a></li><li><a href="#" class="flink">Webinars</a></li></ul></nav>
+        <nav aria-label="Company"><p class="text-[13px] font-semibold">Company</p><ul class="mt-5 space-y-3.5 text-[14px]"><li><a href="#" class="flink">About</a></li><li><a href="#" class="flink">Manifesto</a></li><li><a href="#" class="flink inline-flex items-center gap-1.5">Careers<span class="rounded-full bg-soft px-1.5 py-px text-[10px] font-bold text-mut ring-1 ring-line">Hiring</span></a></li><li><a href="#" class="flink">Customers</a></li><li><a href="#" class="flink">Press</a></li><li><a href="#" class="flink">Contact</a></li></ul></nav>
+      </div>
+      <a href="#" class="group mt-10 flex items-center gap-4 rounded-2xl bg-card p-4 pr-5 ring-1 ring-line transition hover:ring-mut/40">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-acc text-[13px] font-extrabold tracking-[-0.02em] text-bg">3.0</span>
+        <span class="min-w-0 flex-1 text-[13.5px] leading-snug"><span class="block font-semibold">Hollis 3.0 is here</span><span class="block text-mut">Offline docs, instant search and a much quieter inbox.</span></span>
+        <span class="hidden shrink-0 items-center gap-1.5 text-[13px] font-semibold sm:inline-flex">Changelog<iconify-icon icon="lucide:arrow-right" class="transition-transform group-hover:translate-x-0.5"></iconify-icon></span>
+      </a>
+      </div>
+    </div>
+
+    <div class="mt-auto grid gap-px overflow-hidden rounded-2xl bg-line ring-1 ring-line sm:grid-cols-3">
+      <a href="#" class="group flex items-center gap-3.5 bg-card p-5 transition hover:bg-soft">
+        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-soft text-[18px] ring-1 ring-line"><iconify-icon icon="lucide:laptop"></iconify-icon></span>
+        <span class="min-w-0 flex-1"><span class="block text-[14px] font-semibold">Desktop and mobile apps</span><span class="block text-[12.5px] text-mut">macOS, Windows, iOS and Android</span></span>
+        <iconify-icon icon="lucide:arrow-up-right" class="text-mut transition group-hover:text-fg"></iconify-icon>
+      </a>
+      <a href="#" class="group flex items-center gap-3.5 bg-card p-5 transition hover:bg-soft">
+        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-soft text-[18px] ring-1 ring-line"><iconify-icon icon="lucide:life-buoy"></iconify-icon></span>
+        <span class="min-w-0 flex-1"><span class="block text-[14px] font-semibold">Talk to a human</span><span class="block text-[12.5px] text-mut">Replies in under 2 hours, weekdays</span></span>
+        <iconify-icon icon="lucide:arrow-up-right" class="text-mut transition group-hover:text-fg"></iconify-icon>
+      </a>
+      <a href="#" class="group flex items-center gap-3.5 bg-card p-5 transition hover:bg-soft">
+        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-soft text-[18px] ring-1 ring-line"><iconify-icon icon="lucide:map-pin"></iconify-icon></span>
+        <span class="min-w-0 flex-1"><span class="block text-[14px] font-semibold">14 Rope Walk, Bristol</span><span class="block text-[12.5px] text-mut">Remote-first, coffee on Thursdays</span></span>
+        <iconify-icon icon="lucide:arrow-up-right" class="text-mut transition group-hover:text-fg"></iconify-icon>
+      </a>
+    </div>
+
+    <div class="mt-10 flex flex-col gap-4 border-b border-line pb-5 text-[13px] sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <a href="#" class="group inline-flex h-9 items-center gap-2.5 rounded-lg bg-card px-3 ring-1 ring-line transition hover:ring-mut/40" aria-label="System status: all systems operational, 99.98 percent uptime over 90 days">
+          <span class="dot h-2 w-2 rounded-full bg-[rgb(var(--ok))]"></span>
+          <span class="font-medium text-fg">All systems operational</span>
+          <span class="uptime hidden items-end gap-[2px] sm:flex" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="warn"></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        </a>
+        <span class="text-[12.5px] text-mut">Last incident resolved 23 days ago</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2.5">
+        <label class="relative inline-flex h-9 items-center rounded-lg bg-card ring-1 ring-line transition hover:ring-mut/40">
+          <span class="sr-only">Language</span>
+          <iconify-icon icon="lucide:globe" class="pointer-events-none absolute left-3 text-[15px]" aria-hidden="true"></iconify-icon>
+          <select id="lang" class="h-full cursor-pointer appearance-none rounded-lg bg-transparent pl-9 pr-8 text-[13px] font-medium text-fg focus:outline-none">
+            <option value="en">English</option><option value="de">Deutsch</option><option value="fr">Fran&ccedil;ais</option><option value="es">Espa&ntilde;ol</option><option value="ja">日本語</option>
+          </select>
+          <iconify-icon icon="lucide:chevron-down" class="pointer-events-none absolute right-2.5 text-[14px]" aria-hidden="true"></iconify-icon>
+        </label>
+        <div id="theme" class="seg flex h-9 items-center gap-0.5 rounded-lg bg-soft p-1 ring-1 ring-line" role="radiogroup" aria-label="Color theme">
+          <button type="button" role="radio" aria-checked="true" data-mode="light" class="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[12.5px] font-semibold text-mut transition hover:text-fg"><iconify-icon icon="lucide:sun" class="text-[14px]"></iconify-icon><span>Light</span></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="dark" class="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[12.5px] font-semibold text-mut transition hover:text-fg"><iconify-icon icon="lucide:moon" class="text-[14px]"></iconify-icon><span>Dark</span></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="system" class="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[12.5px] font-semibold text-mut transition hover:text-fg"><iconify-icon icon="lucide:monitor" class="text-[14px]"></iconify-icon><span>Auto</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col gap-4 py-5 text-[13px] text-mut sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <span id="copy">&copy; 2026 Hollis Software Ltd. All rights reserved.</span>
+        <a href="#" class="flink">Privacy</a><a href="#" class="flink">Terms</a><a href="#" class="flink">Cookies</a><a href="#" class="flink">Accessibility</a>
+      </div>
+      <div class="flex items-center gap-1">
+        <a href="#" aria-label="Newsletter archive" class="flink grid h-8 w-8 place-items-center rounded-lg transition hover:bg-soft"><iconify-icon icon="lucide:newspaper" class="text-[16px]"></iconify-icon></a>
+        <a href="#" aria-label="Community forum" class="flink grid h-8 w-8 place-items-center rounded-lg transition hover:bg-soft"><iconify-icon icon="lucide:messages-square" class="text-[16px]"></iconify-icon></a>
+        <a href="#" aria-label="Product videos" class="flink grid h-8 w-8 place-items-center rounded-lg transition hover:bg-soft"><iconify-icon icon="lucide:circle-play" class="text-[16px]"></iconify-icon></a>
+        <a href="#" aria-label="RSS feed" class="flink grid h-8 w-8 place-items-center rounded-lg transition hover:bg-soft"><iconify-icon icon="lucide:rss" class="text-[16px]"></iconify-icon></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+
+      // Theme: light, dark or follow the OS. Arrow keys move between options (radiogroup pattern).
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      var radios = [].slice.call(document.querySelectorAll('#theme [role=radio]'));
+      var mode = 'light';
+      function apply() { root.dataset.theme = mode === 'system' ? (mq.matches ? 'dark' : 'light') : mode; }
+      function choose(btn, focus) {
+        mode = btn.dataset.mode;
+        radios.forEach(function (r) { var on = r === btn; r.setAttribute('aria-checked', on ? 'true' : 'false'); r.tabIndex = on ? 0 : -1; });
+        if (focus) btn.focus();
+        apply();
+      }
+      radios.forEach(function (r, i) {
+        r.addEventListener('click', function () { choose(r); });
+        r.addEventListener('keydown', function (e) {
+          var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+          if (d) { e.preventDefault(); choose(radios[(i + d + radios.length) % radios.length], true); }
+        });
+      });
+      (mq.addEventListener ? mq.addEventListener.bind(mq, 'change') : mq.addListener.bind(mq))(function () { if (mode === 'system') apply(); });
+
+      // Language: updates the document language and the legal line.
+      var copy = { en: 'All rights reserved.', de: 'Alle Rechte vorbehalten.', fr: 'Tous droits réservés.', es: 'Todos los derechos reservados.', ja: '無断複写・転載を禁じます。' };
+      document.getElementById('lang').addEventListener('change', function (e) {
+        root.lang = e.target.value;
+        document.getElementById('copy').textContent = '© 2026 Hollis Software Ltd. ' + copy[e.target.value];
+      });
+
+      // Newsletter validation.
+      var form = document.getElementById('news'), input = document.getElementById('email');
+      var field = document.getElementById('field'), msg = document.getElementById('msg'), btn = document.getElementById('sub');
+      var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      function say(text, color, icon) {
+        msg.style.color = color ? 'rgb(var(' + color + '))' : '';
+        msg.innerHTML = (icon ? '<iconify-icon icon="' + icon + '" aria-hidden="true"></iconify-icon>' : '') + '<span></span>';
+        msg.querySelector('span').textContent = text;
+      }
+      input.addEventListener('input', function () {
+        if (field.classList.contains('bad') && EMAIL.test(input.value.trim())) { field.classList.remove('bad'); input.removeAttribute('aria-invalid'); say('Looks good. Press Subscribe when ready.', '--ok', 'lucide:circle-check'); }
+      });
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var v = input.value.trim();
+        if (!EMAIL.test(v)) {
+          field.classList.add('bad'); input.setAttribute('aria-invalid', 'true');
+          field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake');
+          say(v ? 'That address is missing something. Try name@company.com.' : 'Add your email address to subscribe.', '--err', 'lucide:circle-alert');
+          input.focus();
+          return;
+        }
+        field.classList.remove('bad'); input.removeAttribute('aria-invalid');
+        btn.innerHTML = '<iconify-icon icon="lucide:check" aria-hidden="true"></iconify-icon>Subscribed';
+        btn.disabled = true; input.readOnly = true;
+        say('Thanks! The next letter arrives on the first Tuesday of the month.', '--ok', 'lucide:circle-check');
+      });
+    })();
+  </script>
+</body>
+</html>

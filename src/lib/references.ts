@@ -15,6 +15,7 @@ export interface ReferenceItem {
 
 export const MAX_REFERENCES = 2;
 export const MAX_SKILLS = 4;
+const MAX_REFERENCE_CHARS = 70_000;
 
 export function componentRef(slug: string): string {
   return `component:${slug}`;
@@ -35,9 +36,9 @@ export async function resolveReference(ref: string): Promise<ReferenceInput> {
     const index = await loadJson<ComponentEntry[]>("/components/index.json");
     const title = index.find((c) => c.slug === slug)?.title ?? slug;
     const res = await fetch(componentHtmlUrl(slug));
-    return { title: `${title} (component)`, html: res.ok ? (await res.text()).slice(0, 60_000) : "" };
+    return { title: `${title} (component)`, html: res.ok ? (await res.text()).slice(0, MAX_REFERENCE_CHARS) : "" };
   }
-  return { title: findTemplate(ref)?.title ?? ref, html: (await fetchTemplateHtml(ref)).slice(0, 60_000) };
+  return { title: findTemplate(ref)?.title ?? ref, html: (await fetchTemplateHtml(ref)).slice(0, MAX_REFERENCE_CHARS) };
 }
 
 /** Skill instructions for the generation request. */

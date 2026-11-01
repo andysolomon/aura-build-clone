@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liquid Glass Buttons - specular highlight, press depth and toggles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    .base { background: linear-gradient(130deg, #ff9b5e 0%, #ff4f8b 34%, #8a5cff 66%, #2cc4ff 100%); }
+    .blob { position: absolute; border-radius: 9999px; filter: blur(50px); animation: drift 16s ease-in-out infinite alternate; }
+    .blob.two { animation-duration: 21s; animation-direction: alternate-reverse; }
+    @keyframes drift { to { transform: translate(14%, 10%) scale(1.2); } }
+    .sun { background: radial-gradient(circle at 35% 30%, #fff3b8, #ffd04d 45%, #ff9f2e); box-shadow: 0 30px 60px -20px rgba(160,40,0,.5); }
+    .stripes { background: repeating-linear-gradient(90deg, rgba(255,255,255,.28) 0 2px, transparent 2px 16px); transform: rotate(-12deg); }
+    .cap { text-shadow: 0 1px 2px rgba(50,10,80,.35); }
+    .word { font-size: clamp(120px, 24vw, 300px); line-height: .8; letter-spacing: -.06em; color: rgba(255,255,255,.2); }
+
+    .glass { --mx: 30%; --my: 0%; --ang: 160deg; position: relative; isolation: isolate; color: #fff; text-shadow: 0 1px 2px rgba(50,10,80,.3);
+      background: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,.07) 50%, rgba(255,255,255,.16));
+      -webkit-backdrop-filter: blur(11px) saturate(135%) brightness(1.12); backdrop-filter: blur(11px) saturate(135%) brightness(1.12);
+      box-shadow: inset 0 1.5px .5px rgba(255,255,255,.95), inset 0 -1.5px .5px rgba(255,255,255,.5), inset 0 14px 18px -14px rgba(255,255,255,.9), inset 0 -12px 16px -10px rgba(70,10,110,.24),
+        0 1px 1px rgba(50,10,80,.15), 0 18px 34px -14px rgba(50,10,80,.55);
+      transition: transform .3s cubic-bezier(.3,1.5,.5,1), box-shadow .25s, background .25s, color .25s; -webkit-tap-highlight-color: transparent; }
+    .glass::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; transition: opacity .3s;
+      background: radial-gradient(60% 85% at var(--mx) var(--my), rgba(255,255,255,.9), rgba(255,255,255,.22) 34%, transparent 66%); opacity: .75; }
+    .glass::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.2px; pointer-events: none;
+      background: linear-gradient(var(--ang), rgba(255,255,255,1), rgba(255,255,255,.08) 42%, rgba(255,255,255,.08) 62%, rgba(255,255,255,.65));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+    .glass:hover { transform: translateY(-1px); }
+    .glass:hover::before { opacity: 1; }
+    .glass:active, .glass.pressing { transform: translateY(2px) scale(.965); transition-duration: .08s;
+      box-shadow: inset 0 3px 8px rgba(50,10,80,.28), inset 0 1px .5px rgba(255,255,255,.7), inset 0 -1px .5px rgba(255,255,255,.5), 0 1px 2px rgba(50,10,80,.2), 0 6px 14px -8px rgba(50,10,80,.45); }
+    .glass.tint { background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.22) 55%, rgba(255,255,255,.32)); }
+    .glass.danger { background: linear-gradient(180deg, rgba(255,110,110,.8), rgba(232,36,72,.62)); }
+    .tile .bub { background: rgba(255,255,255,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.5); transition: background .25s, color .25s; }
+    .tile[aria-pressed=true] { color: #1c1530; text-shadow: none; background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72)); }
+    .tile[aria-pressed=true] .bub { background: var(--tone); color: #fff; box-shadow: 0 6px 14px -4px var(--tone); }
+    .tile[aria-pressed=true] .st { color: rgba(28,21,48,.55); }
+    .glass:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) { .blob { animation: none; } .glass, .glass::before { transition: none; } }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-3 font-sans antialiased sm:p-8">
+  <main id="panel" class="relative isolate w-full max-w-[1040px] overflow-hidden rounded-[32px] shadow-[0_30px_80px_-30px_rgba(80,20,120,.55)] ring-1 ring-black/5">
+    <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+      <div class="base absolute inset-0"></div>
+      <div class="blob left-[45%] top-[-10%] h-[50%] w-[40%] bg-[#ffcf5a]/70"></div>
+      <div class="blob two bottom-[-15%] left-[-5%] h-[55%] w-[45%] bg-[#5b3cff]/60"></div>
+      <div class="stripes absolute left-[-10%] top-[34%] h-[120px] w-[120%]"></div>
+      <div class="sun absolute left-[6%] top-[9%] h-[180px] w-[180px] rounded-full sm:h-[230px] sm:w-[230px]"></div>
+      <div class="absolute bottom-[14%] right-[11%] h-[180px] w-[180px] rounded-full bg-[#1fd6c1]/80"></div>
+      <p class="word absolute -bottom-6 left-1/2 -translate-x-1/2 select-none font-extrabold">liquid</p>
+    </div>
+
+    <div class="flex flex-col items-center gap-9 px-4 py-10 sm:px-10 sm:py-14">
+      <div class="flex w-full flex-wrap items-center justify-between gap-3">
+        <span class="glass inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[13px] font-medium"><iconify-icon icon="lucide:droplet" class="text-[15px]"></iconify-icon>Glass material · v1</span>
+        <span class="hidden text-[13px] font-medium text-white/90 [text-shadow:0_1px_2px_rgba(50,10,80,.3)] sm:inline">Move your cursor, the light follows</span>
+      </div>
+
+      <section class="flex flex-col items-center gap-3" aria-label="Pill buttons">
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button type="button" class="glass tint inline-flex h-14 items-center gap-2.5 rounded-full px-7 text-[17px] font-medium"><iconify-icon icon="lucide:play" class="text-[18px]"></iconify-icon>Start session</button>
+          <button type="button" class="glass inline-flex h-14 items-center gap-2.5 rounded-full px-6 text-[17px] font-medium"><iconify-icon icon="lucide:user-plus" class="text-[18px]"></iconify-icon>Invite</button>
+        </div>
+        <p class="cap text-[12px] font-medium uppercase tracking-[0.18em] text-white/90">Pill · 56px · tinted &amp; clear</p>
+      </section>
+
+      <section class="flex flex-col items-center gap-3" aria-label="Call controls">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <button type="button" class="glass call grid h-14 w-14 place-items-center rounded-full" aria-pressed="false" aria-label="Mute microphone" data-on="lucide:mic-off" data-off="lucide:mic"><iconify-icon icon="lucide:mic" class="text-[22px]"></iconify-icon></button>
+          <button type="button" class="glass call grid h-14 w-14 place-items-center rounded-full" aria-pressed="false" aria-label="Stop camera" data-on="lucide:video-off" data-off="lucide:video"><iconify-icon icon="lucide:video" class="text-[22px]"></iconify-icon></button>
+          <button type="button" class="glass grid h-14 w-14 place-items-center rounded-full" aria-label="Share screen"><iconify-icon icon="lucide:monitor-up" class="text-[22px]"></iconify-icon></button>
+          <button type="button" class="glass grid h-14 w-14 place-items-center rounded-full" aria-label="Reactions"><iconify-icon icon="lucide:smile-plus" class="text-[22px]"></iconify-icon></button>
+          <button type="button" class="glass danger grid h-14 w-[72px] place-items-center rounded-full" aria-label="Leave call"><iconify-icon icon="lucide:phone-off" class="text-[22px]"></iconify-icon></button>
+        </div>
+        <p class="cap text-[12px] font-medium uppercase tracking-[0.18em] text-white/90">Icon · 56px · press depth</p>
+      </section>
+
+      <section class="flex flex-col items-center gap-3" aria-label="Toggle buttons">
+        <div class="grid grid-cols-3 gap-3">
+          <button type="button" class="glass tile flex h-[104px] w-[104px] flex-col justify-between rounded-[26px] p-3 text-left sm:w-[128px]" aria-pressed="true" style="--tone:#2f7bff"><span class="bub grid h-9 w-9 place-items-center rounded-full"><iconify-icon icon="lucide:wifi" class="text-[18px]"></iconify-icon></span><span class="leading-tight"><span class="block text-[14px] font-semibold">Wi-Fi</span><span class="st block text-[12px] text-white/75">Orchard 5G</span></span></button>
+          <button type="button" class="glass tile flex h-[104px] w-[104px] flex-col justify-between rounded-[26px] p-3 text-left sm:w-[128px]" aria-pressed="false" style="--tone:#8b5cf6"><span class="bub grid h-9 w-9 place-items-center rounded-full"><iconify-icon icon="lucide:moon-star" class="text-[18px]"></iconify-icon></span><span class="leading-tight"><span class="block text-[14px] font-semibold">Focus</span><span class="st block text-[12px] text-white/75">Off</span></span></button>
+          <button type="button" class="glass tile flex h-[104px] w-[104px] flex-col justify-between rounded-[26px] p-3 text-left sm:w-[128px]" aria-pressed="true" style="--tone:#f59e0b"><span class="bub grid h-9 w-9 place-items-center rounded-full"><iconify-icon icon="lucide:sun-dim" class="text-[18px]"></iconify-icon></span><span class="leading-tight"><span class="block text-[14px] font-semibold">Night shift</span><span class="st block text-[12px] text-white/75">Until 7:00</span></span></button>
+        </div>
+        <p class="cap text-[12px] font-medium uppercase tracking-[0.18em] text-white/90">Toggle · aria-pressed</p>
+      </section>
+    </div>
+    <p id="live" class="sr-only" aria-live="polite"></p>
+  </main>
+
+  <script>
+    (function () {
+      var panel = document.getElementById('panel'), live = document.getElementById('live');
+      var glass = [].slice.call(panel.querySelectorAll('.glass')), raf = 0, pt = null;
+
+      // Every surface reads the cursor as a single light source
+      function light() {
+        raf = 0;
+        glass.forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          if (!pt) { el.style.removeProperty('--mx'); el.style.removeProperty('--my'); el.style.removeProperty('--ang'); return; }
+          var x = (pt.x - r.left) / r.width * 100, y = (pt.y - r.top) / r.height * 100;
+          el.style.setProperty('--mx', Math.max(-30, Math.min(130, x)).toFixed(1) + '%');
+          el.style.setProperty('--my', Math.max(-40, Math.min(140, y)).toFixed(1) + '%');
+          var ang = Math.atan2(pt.x - (r.left + r.width / 2), -(pt.y - (r.top + r.height / 2))) * 180 / Math.PI + 180;
+          el.style.setProperty('--ang', ang.toFixed(1) + 'deg');
+        });
+      }
+      panel.addEventListener('pointermove', function (e) { pt = { x: e.clientX, y: e.clientY }; if (!raf) raf = requestAnimationFrame(light); });
+      panel.addEventListener('pointerleave', function () { pt = null; if (!raf) raf = requestAnimationFrame(light); });
+
+      // Keyboard presses get the same depth as pointer presses
+      glass.forEach(function (el) {
+        if (el.tagName !== 'BUTTON') return;
+        el.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') el.classList.add('pressing'); });
+        ['keyup', 'blur'].forEach(function (t) { el.addEventListener(t, function () { el.classList.remove('pressing'); }); });
+      });
+
+      panel.querySelectorAll('.tile').forEach(function (t) {
+        var st = t.querySelector('.st'), onText = st.textContent === 'Off' ? 'On' : st.textContent;
+        t.addEventListener('click', function () {
+          var on = t.getAttribute('aria-pressed') !== 'true';
+          t.setAttribute('aria-pressed', String(on));
+          st.textContent = on ? onText : 'Off';
+          live.textContent = t.querySelector('.font-semibold').textContent + (on ? ' on' : ' off');
+        });
+      });
+      panel.querySelectorAll('.call').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var on = b.getAttribute('aria-pressed') !== 'true';
+          b.setAttribute('aria-pressed', String(on));
+          b.querySelector('iconify-icon').setAttribute('icon', on ? b.dataset.on : b.dataset.off);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

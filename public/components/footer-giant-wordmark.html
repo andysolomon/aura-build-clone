@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arcwell - Footer with CTA band and giant wordmark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } } };
+  </script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { -webkit-font-smoothing: antialiased; background: #09080b; }
+    .cta { background: radial-gradient(55% 130% at 100% 0%, rgb(255 106 61 / .30), transparent 62%), radial-gradient(45% 110% at 0% 100%, rgb(180 92 255 / .22), transparent 65%), radial-gradient(rgb(255 255 255 / .06) 1px, transparent 1.3px) 0 0 / 16px 16px, #121015; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08), inset 0 1px 0 rgb(255 255 255 / .08), 0 40px 80px -40px rgb(255 106 61 / .35); }
+    .ember { background: linear-gradient(90deg, #ffb347, #ff6a3d 40%, #ff3d77 70%, #b45cff); }
+    .ember-text { background: linear-gradient(90deg, #ffc47a, #ff7a4d 45%, #ff4d86); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .flink { color: #a1a1aa; transition: color .15s ease; }
+    .flink:hover { color: #fff; }
+    .wm { display: block; outline: none; }
+    .wm text { font-family: Sora, sans-serif; font-weight: 700; letter-spacing: -0.045em; }
+    .wm .wm-stroke { fill: #0b0a0d; stroke: rgb(255 255 255 / .24); stroke-width: 2.4px; paint-order: stroke; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+    .wm .liquid { --rest: 40px; --full: -260px; transform: translateY(var(--rest)); transition: transform 1.15s cubic-bezier(.3,.7,.2,1); }
+    .wm .wave { animation: wave 2.6s linear infinite; }
+    .wm:hover .liquid, .wm:focus-visible .liquid { transform: translateY(var(--full)); }
+    .wm:focus-visible { box-shadow: 0 0 0 2px rgb(255 122 77 / .7); border-radius: 16px; }
+    @keyframes wave { to { transform: translateX(-160px); } }
+    .ping { animation: ping 1.8s cubic-bezier(0,0,.2,1) infinite; }
+    @keyframes ping { 75%, 100% { transform: scale(2.2); opacity: 0; } }
+    a:focus-visible, button:focus-visible { outline: 2px solid #ff7a4d; outline-offset: 3px; border-radius: 8px; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .wm .wave, .ping { animation: none; }
+      .wm .liquid { transition: none; }
+    }
+  </style>
+</head>
+<body class="font-sans text-zinc-400">
+  <footer id="top" class="relative overflow-hidden" aria-labelledby="cta-title">
+    <div class="pointer-events-none absolute left-1/2 top-[58%] h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(255_90_60_/_.10),transparent)]" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-6xl px-5 pt-8 sm:px-8">
+      <!-- CTA band -->
+      <section class="cta relative grid gap-8 overflow-hidden rounded-[28px] p-7 sm:p-8 lg:grid-cols-[1.25fr_1fr] lg:items-end">
+        <div>
+          <p class="inline-flex items-center gap-2 rounded-full bg-white/[.06] py-1 pl-1 pr-3 text-[12px] text-zinc-300 ring-1 ring-inset ring-white/10"><span class="ember rounded-full px-2 py-0.5 text-[11px] font-semibold text-black">New</span>Per-frame billing is live for every plan</p>
+          <h2 id="cta-title" tabindex="-1" class="mt-5 max-w-xl text-[2rem] font-semibold leading-[1.06] tracking-[-0.045em] text-white outline-none sm:text-[2.6rem]">Render your next frame on <span class="ember-text">Arcwell.</span></h2>
+          <p class="mt-3 max-w-lg text-[14.5px] leading-relaxed text-zinc-400">Spin up 2,000 GPUs in under a minute and pay only for frames that finish. No queue, no idle nodes, no surprise invoices.</p>
+        </div>
+        <div class="lg:justify-self-end">
+          <div class="flex flex-wrap gap-3">
+            <a href="#" class="group inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-[14px] font-semibold text-black shadow-[0_10px_30px_-10px_rgb(255_255_255_/_.5)] transition hover:bg-zinc-100">Start rendering free<iconify-icon icon="lucide:arrow-up-right" class="text-[17px] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></iconify-icon></a>
+            <a href="#" class="inline-flex h-12 items-center gap-2 rounded-full px-5 text-[14px] font-medium text-white ring-1 ring-inset ring-white/15 transition hover:bg-white/[.06]"><iconify-icon icon="lucide:calendar-days" class="text-[16px]"></iconify-icon>Book a studio demo</a>
+          </div>
+          <p class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-zinc-500"><span class="inline-flex items-center gap-1.5"><iconify-icon icon="lucide:check" class="text-orange-300"></iconify-icon>50 free GPU hours</span><span class="inline-flex items-center gap-1.5"><iconify-icon icon="lucide:check" class="text-orange-300"></iconify-icon>No card required</span></p>
+        </div>
+      </section>
+
+      <!-- Link columns -->
+      <div class="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:grid-cols-[1.55fr_repeat(4,minmax(0,1fr))]">
+        <div class="col-span-2 sm:col-span-4 lg:col-span-1">
+          <a href="#" class="inline-flex items-center gap-2.5 text-[18px] font-semibold tracking-[-0.04em] text-white" aria-label="Arcwell home">
+            <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset=".55" stop-color="#ff4d6d"/><stop offset="1" stop-color="#b45cff"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lg)"/><path d="M8 23a8 8 0 0 1 16 0" fill="none" stroke="#0b0a0d" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="11" r="2.6" fill="#0b0a0d"/></svg>
+            Arcwell
+          </a>
+          <p class="mt-3 max-w-[17rem] text-[13.5px] leading-relaxed text-zinc-500">The render farm that bills by the frame. Built in Lisbon and Montr&eacute;al for studios of every size.</p>
+          <div class="mt-4 flex gap-2">
+            <a href="#" aria-label="Newsletter" class="grid h-9 w-9 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:text-white hover:ring-white/25"><iconify-icon icon="lucide:mail"></iconify-icon></a>
+            <a href="#" aria-label="Community forum" class="grid h-9 w-9 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:text-white hover:ring-white/25"><iconify-icon icon="lucide:messages-square"></iconify-icon></a>
+            <a href="#" aria-label="Video tutorials" class="grid h-9 w-9 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:text-white hover:ring-white/25"><iconify-icon icon="lucide:circle-play"></iconify-icon></a>
+            <a href="#" aria-label="RSS feed" class="grid h-9 w-9 place-items-center rounded-full text-zinc-400 ring-1 ring-inset ring-white/10 transition hover:text-white hover:ring-white/25"><iconify-icon icon="lucide:rss"></iconify-icon></a>
+          </div>
+        </div>
+        <nav aria-label="Platform"><p class="text-[12px] font-medium uppercase tracking-[.14em] text-zinc-600">Platform</p><ul class="mt-4 space-y-2 text-[14px]"><li><a href="#" class="flink">GPU farm</a></li><li><a href="#" class="flink">Render queue</a></li><li><a href="#" class="flink">Per-frame pricing</a></li><li><a href="#" class="flink">CLI and API</a></li><li><a href="#" class="flink inline-flex items-center gap-1.5">Changelog<span class="rounded-full bg-orange-400/10 px-1.5 text-[10px] font-semibold text-orange-300">New</span></a></li></ul></nav>
+        <nav aria-label="Studios"><p class="text-[12px] font-medium uppercase tracking-[.14em] text-zinc-600">Studios</p><ul class="mt-4 space-y-2 text-[14px]"><li><a href="#" class="flink">Animation</a></li><li><a href="#" class="flink">Visual effects</a></li><li><a href="#" class="flink">Architecture</a></li><li><a href="#" class="flink">Game cinematics</a></li><li><a href="#" class="flink">Education</a></li></ul></nav>
+        <nav aria-label="Resources"><p class="text-[12px] font-medium uppercase tracking-[.14em] text-zinc-600">Resources</p><ul class="mt-4 space-y-2 text-[14px]"><li><a href="#" class="flink">Documentation</a></li><li><a href="#" class="flink">GPU benchmarks</a></li><li><a href="#" class="flink">Scene optimizer</a></li><li><a href="#" class="flink">Community</a></li><li><a href="#" class="flink">Farm status</a></li></ul></nav>
+        <nav aria-label="Company"><p class="text-[12px] font-medium uppercase tracking-[.14em] text-zinc-600">Company</p><ul class="mt-4 space-y-2 text-[14px]"><li><a href="#" class="flink">About</a></li><li><a href="#" class="flink inline-flex items-center gap-1.5">Careers<span class="rounded-full bg-white/[.08] px-1.5 text-[10px] font-semibold text-zinc-300">5 open</span></a></li><li><a href="#" class="flink">Press kit</a></li><li><a href="#" class="flink">Partners</a></li><li><a href="#" class="flink">Contact</a></li></ul></nav>
+      </div>
+
+      <!-- Giant wordmark: outline at rest, a gradient "liquid" rises to fill it on hover or focus -->
+      <a href="#top" class="wm relative mt-8 sm:mt-7" aria-label="Arcwell, back to the top">
+        <svg id="wmSvg" viewBox="-3 -226 1130 232" class="block h-auto w-full" aria-hidden="true">
+          <defs>
+            <linearGradient id="fillGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb347"/><stop offset=".38" stop-color="#ff6a3d"/><stop offset=".68" stop-color="#ff3d77"/><stop offset="1" stop-color="#b45cff"/></linearGradient>
+            <mask id="liquidMask" maskUnits="userSpaceOnUse" x="-400" y="-900" width="4000" height="1800"><g class="liquid"><path id="wave" class="wave" fill="#fff" d=""/></g></mask>
+          </defs>
+          <text id="wmText" class="wm-stroke" x="0" y="0" font-size="300">arcwell</text>
+          <text class="wm-fill" x="0" y="0" font-size="300" fill="url(#fillGrad)" mask="url(#liquidMask)">arcwell</text>
+        </svg>
+      </a>
+
+      <!-- Bottom bar -->
+      <div class="flex flex-col gap-4 border-t border-white/[.07] py-6 text-[12.5px] text-zinc-500 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <span>&copy; 2026 Arcwell Render Co.</span>
+          <p class="inline-flex items-center gap-2 rounded-full bg-emerald-400/[.07] px-2.5 py-1 text-[12px] text-emerald-300 ring-1 ring-inset ring-emerald-400/15"><span class="relative flex h-2 w-2"><span class="ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span></span>Farm online, 1,842 GPUs idle</p>
+          <a href="#" class="flink">Privacy</a><a href="#" class="flink">Terms</a><a href="#" class="flink">Security</a><a href="#" class="flink">Cookie settings</a>
+        </div>
+        <button id="toTop" type="button" class="group inline-flex items-center gap-3 self-start rounded-full py-1 pl-4 pr-1 text-[13px] font-medium text-zinc-300 ring-1 ring-inset ring-white/10 transition hover:text-white hover:ring-white/25 md:self-auto">
+          Back to top
+          <span class="ember grid h-8 w-8 place-items-center rounded-full text-black transition-transform group-hover:-translate-y-0.5"><iconify-icon icon="lucide:arrow-up" class="text-[15px]"></iconify-icon></span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      // Liquid surface: a repeating quadratic wave whose period (160) matches the keyframe shift.
+      var d = 'M-400 0';
+      for (var x = -400; x < 3200; x += 160) d += ' q40 -13 80 0 t80 0';
+      document.getElementById('wave').setAttribute('d', d + ' V900 H-400 Z');
+      // Fit the viewBox to the rendered glyphs so the wordmark spans the container edge to edge.
+      var svg = document.getElementById('wmSvg'), text = document.getElementById('wmText');
+      var liquid = svg.querySelector('.liquid');
+      function fit() {
+        var b = text.getBBox(); if (!b.width) return;
+        // getBBox covers the whole em box; canvas metrics give the tight ink height of these glyphs.
+        var ctx = document.createElement('canvas').getContext('2d');
+        ctx.font = '700 300px Sora, sans-serif';
+        var m = ctx.measureText(text.textContent);
+        var top = -(m.actualBoundingBoxAscent || 230), bottom = m.actualBoundingBoxDescent || 6, pad = 3;
+        svg.setAttribute('viewBox', [b.x - pad, top - pad, b.width + pad * 2, bottom - top + pad * 2].join(' '));
+        liquid.style.setProperty('--rest', (bottom + 24) + 'px');
+        liquid.style.setProperty('--full', (top - 22) + 'px');
+      }
+      fit();
+      if (document.fonts) document.fonts.ready.then(fit);
+      document.getElementById('toTop').addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+        // Move keyboard focus to the top of the footer so the next Tab starts there.
+        document.getElementById('cta-title').focus({ preventScroll: true });
+      });
+    })();
+  </script>
+</body>
+</html>
