@@ -1,4 +1,5 @@
 import {
+  Activity,
   AppWindow,
   AppWindowMac,
   BadgeDollarSign,
@@ -30,6 +31,23 @@ import {
   Sun,
   Tablet,
   UserRound,
+  Bookmark,
+  Brain,
+  ChartColumn,
+  Cpu,
+  Gauge,
+  GitBranch,
+  Lightbulb,
+  Link2,
+  ListChecks,
+  ListTodo,
+  Paperclip,
+  Play,
+  Repeat,
+  Camera,
+  ShieldCheck,
+  ThumbsUp,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
@@ -287,5 +305,108 @@ export function SceneGlyph({ scene }: { scene: string }) {
         </span>
       ))}
     </span>
+  );
+}
+
+const AGENT_PART_ICONS: Record<string, LucideIcon> = {
+  Reasoning: Brain,
+  "Tool Calls": Wrench,
+  Approvals: ShieldCheck,
+  "Generative UI": ChartColumn,
+  Sources: Link2,
+  Plan: ListChecks,
+  "Task Queue": ListTodo,
+  Attachments: Paperclip,
+  Suggestions: Lightbulb,
+  Branching: GitBranch,
+  "Model Picker": Cpu,
+  "Context Meter": Gauge,
+  Checkpoints: Bookmark,
+  Feedback: ThumbsUp,
+};
+
+const AGENT_RUN_ICONS: Record<string, LucideIcon> = { "Scripted on Send": Play, "Autoplay Demo": Repeat, "Static Snapshot": Camera };
+
+export function AgentPartGlyph({ name }: { name: string }) {
+  const Icon = AGENT_PART_ICONS[name] ?? AGENT_RUN_ICONS[name] ?? Activity;
+  return <Icon className="h-5 w-5 text-muted" strokeWidth={1.6} />;
+}
+
+/** Mini wireframes of agent surfaces: panels as blocks, message bubbles as bars. */
+export function AgentSurfaceGlyph({ name }: { name: string }) {
+  const block = { fill: "currentColor", opacity: 0.18 };
+  const ink = { fill: "currentColor", opacity: 0.55 };
+  const accent = { fill: "var(--color-accent)", opacity: 0.85 };
+  const bubbles = (x: number, w: number) => (
+    <>
+      <rect x={x + w - w * 0.45} y={6} width={w * 0.45} height={4} rx={2} style={block} />
+      <rect x={x} y={13} width={w * 0.8} height={3} rx={1.5} style={ink} />
+      <rect x={x} y={18} width={w * 0.6} height={3} rx={1.5} style={ink} />
+      <rect x={x} y={26} width={w} height={5} rx={2.5} style={block} />
+    </>
+  );
+  const shapes: Record<string, ReactNode> = {
+    "Chat Thread": bubbles(14, 28),
+    "App Shell": (
+      <>
+        <rect x={2} y={2} width={13} height={30} rx={2} style={block} />
+        {bubbles(19, 34)}
+      </>
+    ),
+    "Copilot Sidebar": (
+      <>
+        <rect x={2} y={2} width={32} height={30} rx={2} style={{ ...block, opacity: 0.1 }} />
+        <rect x={36} y={2} width={18} height={30} rx={2} style={block} />
+        <rect x={39} y={8} width={12} height={3} rx={1.5} style={ink} />
+        <rect x={39} y={14} width={9} height={3} rx={1.5} style={ink} />
+        <rect x={38} y={26} width={14} height={4} rx={2} style={accent} />
+      </>
+    ),
+    "Chat + Artifact": (
+      <>
+        {bubbles(3, 20)}
+        <rect x={27} y={2} width={27} height={30} rx={2} style={block} />
+        <rect x={30} y={6} width={6} height={2} rx={1} style={accent} />
+        <rect x={30} y={11} width={20} height={17} rx={1.5} style={{ ...block, opacity: 0.3 }} />
+      </>
+    ),
+    "Floating Widget": (
+      <>
+        <rect x={2} y={2} width={52} height={30} rx={2} style={{ ...block, opacity: 0.1 }} />
+        <rect x={32} y={5} width={18} height={21} rx={2.5} style={block} />
+        <rect x={35} y={10} width={11} height={2.5} rx={1.25} style={ink} />
+        <rect x={35} y={15} width={8} height={2.5} rx={1.25} style={ink} />
+        <circle cx={48} cy={29.5} r={2.5} style={accent} />
+      </>
+    ),
+    "Voice Agent": (
+      <>
+        <circle cx={28} cy={14} r={9} style={{ ...accent, opacity: 0.35 }} />
+        <circle cx={28} cy={14} r={6} style={accent} />
+        <rect x={16} y={27} width={24} height={3} rx={1.5} style={ink} />
+      </>
+    ),
+    "Workflow Canvas": (
+      <>
+        <path d="M14 10 C 22 10, 20 24, 28 24 M 36 24 C 42 24, 40 10, 46 10" stroke="currentColor" strokeOpacity={0.5} fill="none" strokeWidth={1.2} />
+        <rect x={4} y={6} width={12} height={8} rx={2} style={block} />
+        <rect x={24} y={20} width={12} height={8} rx={2} style={accent} />
+        <rect x={42} y={6} width={11} height={8} rx={2} style={block} />
+      </>
+    ),
+    "Agent Console": (
+      <>
+        <rect x={2} y={2} width={16} height={30} rx={2} style={block} />
+        <rect x={22} y={6} width={20} height={3.5} rx={1.75} style={accent} />
+        <rect x={26} y={12} width={12} height={3.5} rx={1.75} style={ink} />
+        <rect x={30} y={18} width={18} height={3.5} rx={1.75} style={ink} />
+        <rect x={38} y={24} width={14} height={3.5} rx={1.75} style={accent} />
+      </>
+    ),
+  };
+  return (
+    <svg viewBox="0 0 56 34" className="h-[34px] w-[56px] text-fg" aria-hidden="true">
+      {shapes[name] ?? bubbles(14, 28)}
+    </svg>
   );
 }

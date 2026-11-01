@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parcelwise - Floating support copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --accent: #ea580c; --accent-soft: #fff1e8; --fg: #18181b; --muted: #71717a; --faint: #a1a1aa; --line: #e4e4e7; }
+  body { background: #fafaf9; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel { box-shadow: 0 0 0 1px rgba(24,24,27,.07), 0 8px 16px -6px rgba(24,24,27,.1), 0 32px 64px -20px rgba(24,24,27,.32); transform-origin: bottom right; transition: width .22s ease, height .22s ease; }
+  .open-anim { animation: pop .22s cubic-bezier(.2,.9,.3,1.1) both; } @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.97) } }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0 } to { background-position: -150% 0 } }
+  .caret::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -.15em; background: var(--accent); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0 } }
+  .rise { animation: rise .3s cubic-bezier(.2,.8,.2,1) both; } @keyframes rise { from { opacity: 0; transform: translateY(6px) } }
+  .pulse-ring { animation: ring 2s ease-out infinite; } @keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.5) } 80%, 100% { box-shadow: 0 0 0 6px rgba(16,185,129,0) } }
+  .cite { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; margin: 0 1px; border-radius: 6px; background: var(--accent-soft); color: #c2410c; font: 500 10.5px/1 'Geist Mono', monospace; vertical-align: 1.5px; transition: background-color .15s; }
+  .cite:hover, .cite:focus-visible { background: #fed7aa; }
+  .scroll::-webkit-scrollbar { width: 6px; } .scroll::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 6px; }
+  @media (max-width: 639px) { .panel { position: fixed !important; inset: 0 !important; width: 100% !important; height: 100dvh !important; max-height: none !important; border-radius: 0 !important; } }
+  @media (prefers-reduced-motion: reduce) { .open-anim, .shimmer, .caret::after, .rise, .pulse-ring { animation: none; } .shimmer { color: var(--muted); background: none; } .panel { transition: none; } }
+</style>
+</head>
+<body class="font-sans text-[14px]">
+  <!-- The host page: a quiet docs site, so the widget reads as embedded -->
+  <div aria-hidden="true" class="pointer-events-none min-h-screen select-none opacity-[.72]">
+    <header class="border-b border-stone-200 bg-white/80">
+      <div class="mx-auto flex h-14 max-w-[1240px] items-center gap-7 px-6 text-[13.5px]">
+        <span class="flex items-center gap-2 text-[15px] font-semibold tracking-tight"><span class="grid h-6 w-6 place-items-center rounded-md bg-[var(--accent)] text-white"><iconify-icon icon="lucide:package" width="14"></iconify-icon></span>Parcelwise</span>
+        <span class="hidden gap-6 text-stone-500 sm:flex"><span class="font-medium text-stone-900">Docs</span><span>API reference</span><span>Carriers</span><span>Pricing</span></span>
+        <span class="ml-auto hidden h-8 w-52 items-center gap-2 rounded-lg border border-stone-200 px-3 text-stone-400 md:flex"><iconify-icon icon="lucide:search" width="14"></iconify-icon>Search docs</span>
+      </div>
+    </header>
+    <div class="mx-auto grid max-w-[1240px] grid-cols-1 gap-10 px-6 py-10 md:grid-cols-[200px_1fr]">
+      <nav class="hidden space-y-5 text-[13px] text-stone-500 md:block">
+        <div><p class="mb-2 font-medium text-stone-900">Get started</p><p class="mb-1.5">Quickstart</p><p class="mb-1.5">Authentication</p><p>Test mode</p></div>
+        <div><p class="mb-2 font-medium text-stone-900">Shipments</p><p class="mb-1.5">Create a shipment</p><p class="mb-1.5">Buy a label</p><p class="mb-1.5">Track a parcel</p><p>Returns</p></div>
+        <div><p class="mb-2 font-medium text-stone-900">Events</p><p class="mb-1.5 font-medium text-[var(--accent)]">Webhooks</p><p>Retries and signing</p></div>
+      </nav>
+      <article class="max-w-[620px]">
+        <p class="text-[12.5px] font-medium text-[var(--accent)]">Events</p>
+        <h1 class="mt-2 text-[34px] font-semibold leading-tight tracking-[-.025em]">Webhooks</h1>
+        <p class="mt-3 text-[15.5px] leading-relaxed text-stone-600">Parcelwise sends an event to your endpoint whenever a shipment changes state, so you never have to poll for tracking updates.</p>
+        <div class="mt-6 overflow-hidden rounded-xl bg-stone-900 p-4 font-mono text-[12.5px] leading-relaxed text-stone-300">
+          <p><span class="text-orange-300">POST</span> /v2/webhook_endpoints</p>
+          <p class="mt-2 text-stone-500">{</p>
+          <p>&nbsp;&nbsp;"url": <span class="text-emerald-300">"https://acme.dev/hooks/parcels"</span>,</p>
+          <p>&nbsp;&nbsp;"events": [<span class="text-emerald-300">"shipment.delivered"</span>, <span class="text-emerald-300">"label.purchased"</span>]</p>
+          <p class="text-stone-500">}</p>
+        </div>
+        <h2 class="mt-8 text-[20px] font-semibold tracking-tight">Event delivery</h2>
+        <p class="mt-2 text-[15px] leading-relaxed text-stone-600">Respond with any 2xx status within 10 seconds to acknowledge an event. Unacknowledged events are retried automatically, and every attempt is listed in your dashboard.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Widget -->
+  <section id="panel" aria-label="Ask Parcelwise support chat" class="panel open-anim fixed bottom-[92px] right-6 z-50 flex h-[600px] max-h-[calc(100dvh-112px)] w-[380px] flex-col overflow-hidden rounded-2xl bg-white">
+    <header class="flex shrink-0 items-center gap-2.5 border-b border-[var(--line)] px-3.5 py-3">
+      <span class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white"><iconify-icon icon="lucide:package" width="17"></iconify-icon><span class="pulse-ring absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500"></span></span>
+      <span class="min-w-0 flex-1"><span class="block truncate text-[14px] font-semibold tracking-tight">Ask Parcelwise</span><span id="presence" class="block truncate text-[12px] text-[var(--muted)]">Online · answers from the docs</span></span>
+      <button id="expand" aria-pressed="false" class="hidden h-8 w-8 place-items-center rounded-lg text-[var(--muted)] transition-colors hover:bg-zinc-100 hover:text-[var(--fg)] sm:grid" aria-label="Expand chat"><iconify-icon id="expandIcon" icon="lucide:maximize-2" width="15"></iconify-icon></button>
+      <button id="close" class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] transition-colors hover:bg-zinc-100 hover:text-[var(--fg)]" aria-label="Close chat"><iconify-icon icon="lucide:x" width="17"></iconify-icon></button>
+    </header>
+
+    <div id="log" role="log" aria-live="polite" aria-label="Conversation" class="scroll min-h-0 flex-1 space-y-3.5 overflow-y-auto px-3.5 py-4"></div>
+
+    <div class="shrink-0 border-t border-[var(--line)] p-2.5">
+      <form id="composer" class="flex items-end gap-1.5 rounded-xl border border-[var(--line)] bg-white p-1.5 transition-colors focus-within:border-zinc-400">
+        <label for="input" class="sr-only">Ask a question</label>
+        <textarea id="input" rows="1" placeholder="Ask about labels, tracking, webhooks…" class="scroll max-h-24 min-w-0 flex-1 resize-none bg-transparent px-2 py-1.5 text-[13.5px] leading-snug outline-none placeholder:text-[var(--faint)]"></textarea>
+        <button id="send" type="submit" disabled class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--accent)] text-white transition-opacity hover:opacity-90 disabled:opacity-30" aria-label="Send message"><iconify-icon id="sendIcon" icon="lucide:arrow-up" width="16"></iconify-icon></button>
+      </form>
+      <p class="mt-1.5 text-center text-[11px] text-[var(--faint)]">AI answers can be wrong. Check the linked docs.</p>
+    </div>
+  </section>
+
+  <button id="launcher" aria-expanded="true" aria-controls="panel" aria-label="Close support chat" class="fixed bottom-6 right-6 z-50 grid h-14 w-14 place-items-center rounded-full bg-[var(--accent)] text-white shadow-[0_12px_28px_-8px_rgba(234,88,12,.7)] transition-transform hover:scale-105 active:scale-95">
+    <iconify-icon id="launcherIcon" icon="lucide:chevron-down" width="24"></iconify-icon>
+    <span id="unread" hidden class="absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-white bg-red-500"></span>
+  </button>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const log = $('log'), input = $('input'), send = $('send'), panel = $('panel');
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = (n, w, c) => '<iconify-icon icon="lucide:' + n + '" width="' + (w || 14) + '"' + (c ? ' class="' + c + '"' : '') + '></iconify-icon>';
+  const node = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  let running = false, stopped = false, uid = 0;
+
+  const SOURCES = {
+    retries: { title: 'Retries and signing', url: 'docs.parcelwise.dev/events/retries', snippet: 'Failed events retry up to 8 times over 24 hours with exponential backoff.' },
+    delivery: { title: 'Event delivery', url: 'docs.parcelwise.dev/events/webhooks', snippet: 'Respond with any 2xx status within 10 seconds to acknowledge an event.' },
+    replay: { title: 'Replay an event', url: 'docs.parcelwise.dev/api/events#replay', snippet: 'POST /v2/events/{id}/replay re-sends a stored event for up to 30 days.' },
+    labels: { title: 'Buy a label', url: 'docs.parcelwise.dev/shipments/labels', snippet: 'Labels are purchased from a rate and returned as PDF, PNG or ZPL.' },
+    voids: { title: 'Void a label', url: 'docs.parcelwise.dev/shipments/voids', snippet: 'Unused labels can be voided within 30 days and refunded to your balance.' },
+    track: { title: 'Track a parcel', url: 'docs.parcelwise.dev/shipments/tracking', snippet: 'GET /v2/trackers/{code} returns normalized events from every carrier.' },
+    keys: { title: 'Authentication', url: 'docs.parcelwise.dev/start/auth', snippet: 'Create restricted keys under Settings, API keys. Test keys start with pw_test_.' },
+    limits: { title: 'Rate limits', url: 'docs.parcelwise.dev/api/limits', snippet: 'Live keys allow 100 requests per second per account, with a burst of 200.' },
+  };
+  const ANSWERS = [
+    { match: /webhook|retr|event|hook/, sources: ['delivery', 'retries', 'replay'], text: 'If your endpoint doesn\'t return a 2xx within 10 seconds [1], Parcelwise retries the event up to 8 times over 24 hours with exponential backoff [2].\n\nAfter that the event is marked failed, but you can still re-send it for 30 days with the replay endpoint [3].' },
+    { match: /label|void|refund|zpl|print/, sources: ['labels', 'voids'], text: 'Buy a label from any rate on a shipment, and choose PDF, PNG or ZPL as the format [1].\n\nIf the parcel never ships, void the label within 30 days and the cost goes back to your balance [2].' },
+    { match: /track|where|parcel|shipment|deliver/, sources: ['track', 'delivery'], text: 'Call `GET /v2/trackers/{code}` to get normalized tracking events from any carrier [1].\n\nTo skip polling, subscribe to `shipment.delivered` and the other tracker events with a webhook endpoint [2].' },
+    { match: /key|auth|token|login|sign/, sources: ['keys'], text: 'Create a key under Settings, then API keys. Test keys start with `pw_test_` and never buy real postage [1].\n\nUse a restricted key in production so it can only reach the endpoints it needs.' },
+    { match: /limit|rate|429|throttle/, sources: ['limits'], text: 'Live keys allow 100 requests per second per account, with short bursts up to 200 [1].\n\nIf you get a 429, wait for the number of seconds in the `Retry-After` header before trying again.' },
+  ];
+  const FALLBACK = { sources: ['delivery', 'track'], text: 'I couldn\'t find an exact match in the docs. The closest pages cover event delivery [1] and tracking [2].\n\nIf neither helps, I can connect you with someone on the support team.' };
+  const QUICK = ['Track a shipment', 'Void a label', 'Get an API key', 'Rate limits'];
+
+  const fmt = (s) => esc(s).replace(/`([^`]+)`/g, '<code class="rounded bg-zinc-100 px-1 py-px font-mono text-[12px]">$1</code>');
+  function linkCites(text, sources) {
+    return text.split(/\n\n/).map((para) => '<p>' + fmt(para).replace(/\[(\d)\]/g, (m, n) => {
+      const s = SOURCES[sources[n - 1]];
+      return s ? '<a href="#" class="cite" data-cite="' + n + '" title="' + esc(s.title) + ': ' + esc(s.snippet) + '" aria-label="Source ' + n + ': ' + esc(s.title) + '">' + n + '</a>' : '';
+    }) + '</p>').join('');
+  }
+  const bot = () => '<span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">' + icon('package', 13) + '</span>';
+  const user = (t) => node('<div class="rise flex justify-end"><div class="max-w-[82%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-zinc-900 px-3 py-2 text-[13.5px] leading-snug text-white">' + esc(t) + '</div></div>');
+  function sourcesBlock(keys) {
+    const id = 'src' + (++uid);
+    return '<div class="sources mt-2"><button class="srcBtn inline-flex items-center gap-1 text-[12px] font-medium text-[var(--accent)] hover:underline" aria-expanded="false" aria-controls="' + id + '">Used ' + keys.length + (keys.length === 1 ? ' source' : ' sources') + icon('chevron-down', 13, 'chev transition-transform') + '</button><ol id="' + id + '" hidden class="mt-1.5 space-y-1">' + keys.map((k, i) => { const s = SOURCES[k]; return '<li><a href="#" class="srcLink flex gap-2 rounded-lg border border-[var(--line)] p-2 transition-colors hover:bg-zinc-50"><span class="mt-px font-mono text-[11px] text-[var(--faint)]">' + (i + 1) + '</span><span class="min-w-0"><span class="block truncate text-[12.5px] font-medium">' + esc(s.title) + '</span><span class="block truncate font-mono text-[11px] text-[var(--muted)]">' + esc(s.url) + '</span></span></a></li>'; }).join('') + '</ol></div>';
+  }
+  const feedback = () => '<div class="feedback mt-2 flex items-center gap-1 text-[12px] text-[var(--muted)]"><span class="mr-1">Was this helpful?</span><button data-vote="up" class="grid h-6 w-6 place-items-center rounded-md hover:bg-zinc-100 hover:text-[var(--fg)]" aria-label="Yes, helpful">' + icon('thumbs-up', 13) + '</button><button data-vote="down" class="grid h-6 w-6 place-items-center rounded-md hover:bg-zinc-100 hover:text-[var(--fg)]" aria-label="No, not helpful">' + icon('thumbs-down', 13) + '</button></div>';
+  const handoffCard = () => '<div class="handoff mt-2 flex items-center gap-2.5 rounded-xl border border-[var(--line)] p-2.5"><span class="flex -space-x-1.5"><span class="grid h-7 w-7 place-items-center rounded-full border-2 border-white bg-sky-200 text-[10.5px] font-semibold text-sky-900">MO</span><span class="grid h-7 w-7 place-items-center rounded-full border-2 border-white bg-violet-200 text-[10.5px] font-semibold text-violet-900">TR</span></span><span class="min-w-0 flex-1"><span class="block text-[12.5px] font-medium">Still stuck?</span><span class="block truncate text-[11.5px] text-[var(--muted)]">Replies in about 4 min</span></span><button data-handoff class="shrink-0 rounded-lg bg-zinc-900 px-2.5 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-zinc-700">Talk to a human</button></div>';
+
+  function answerShell() {
+    return node('<div class="rise flex gap-2" aria-busy="true">' + bot() + '<div class="min-w-0 flex-1"><div class="status text-[12.5px]"><span class="shimmer font-medium">Searching the docs…</span></div><div class="body space-y-2 text-[13.5px] leading-[1.55]"></div><div class="after"></div></div></div>');
+  }
+  function finishAnswer(el, answer, showHandoff) {
+    el.removeAttribute('aria-busy');
+    el.querySelector('.status').remove();
+    el.querySelector('.body').innerHTML = linkCites(answer.text, answer.sources);
+    el.querySelector('.after').innerHTML = sourcesBlock(answer.sources) + feedback() + (showHandoff ? handoffCard() : '');
+  }
+  const atBottom = () => log.scrollHeight - log.scrollTop - log.clientHeight < 70;
+  const follow = () => { if (atBottom()) log.scrollTop = log.scrollHeight; };
+  function setRunning(on) {
+    running = on;
+    $('sendIcon').setAttribute('icon', on ? 'lucide:square' : 'lucide:arrow-up');
+    send.setAttribute('aria-label', on ? 'Stop generating' : 'Send message');
+    send.disabled = !on && !input.value.trim();
+  }
+  async function ask(text) {
+    if (running) return;
+    const chips = $('chips'); if (chips) chips.remove();
+    log.appendChild(user(text));
+    log.scrollTop = log.scrollHeight;
+    const answer = ANSWERS.find((a) => a.match.test(text.toLowerCase())) || FALLBACK;
+    const el = answerShell();
+    log.appendChild(el); log.scrollTop = log.scrollHeight;
+    stopped = false; setRunning(true);
+    await sleep(850);
+    const status = el.querySelector('.status');
+    if (!stopped) status.innerHTML = '<span class="flex items-center gap-1.5 text-[var(--muted)]">' + icon('book-open', 13) + 'Read ' + answer.sources.length + (answer.sources.length === 1 ? ' page' : ' pages') + '</span>';
+    const p = node('<p class="caret"></p>');
+    el.querySelector('.body').appendChild(p);
+    let out = '';
+    for (const w of answer.text.split(/(\s+)/)) {
+      if (stopped) break;
+      out += w;
+      p.innerHTML = fmt(out).replace(/\n/g, '<br>');
+      follow();
+      if (w.trim()) await sleep(26);
+    }
+    if (stopped) {
+      p.classList.remove('caret');
+      p.innerHTML = fmt(out.replace(/\s*\[\d\]/g, ''));
+      status.remove(); el.removeAttribute('aria-busy');
+      el.querySelector('.body').insertAdjacentHTML('beforeend', '<p class="text-[12px] text-[var(--faint)]">Stopped</p>');
+    } else {
+      finishAnswer(el, answer, answer === FALLBACK);
+    }
+    setRunning(false); follow();
+  }
+  async function handoff(btn) {
+    const card = btn.closest('.handoff'); card.remove();
+    const sys = (html) => { const n = node('<div class="rise mx-auto w-fit max-w-[92%] rounded-full bg-zinc-100 px-3 py-1 text-center text-[12px] text-[var(--muted)]">' + html + '</div>'); log.appendChild(n); log.scrollTop = log.scrollHeight; return n; };
+    const waiting = sys('<span class="shimmer font-medium">Connecting you to Maya from Support…</span>');
+    $('presence').textContent = 'Connecting to a teammate…';
+    await sleep(1700);
+    waiting.remove();
+    sys(icon('user-check', 12, 'mr-1 align-[-1px]') + 'Maya joined the conversation');
+    $('presence').textContent = 'Maya Okafor · Support';
+    await sleep(600);
+    log.appendChild(node('<div class="rise flex gap-2"><span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-200 text-[9.5px] font-semibold text-sky-900">MO</span><div class="min-w-0 rounded-2xl rounded-tl-md bg-zinc-100 px-3 py-2 text-[13.5px] leading-snug"><span class="mb-0.5 block text-[11.5px] font-medium text-[var(--muted)]">Maya</span>Hi! I can see this conversation, so no need to repeat anything. Which account or shipment ID should I look at?</div></div>'));
+    log.scrollTop = log.scrollHeight;
+  }
+  function toggle(open) {
+    panel.hidden = !open;
+    if (open) { panel.classList.remove('open-anim'); void panel.offsetWidth; panel.classList.add('open-anim'); }
+    $('launcher').setAttribute('aria-expanded', String(open));
+    $('launcher').setAttribute('aria-label', open ? 'Close support chat' : 'Open support chat');
+    $('launcherIcon').setAttribute('icon', open ? 'lucide:chevron-down' : 'lucide:message-circle');
+    $('launcher').classList.toggle('max-sm:hidden', open);
+    $('unread').hidden = true;
+    if (open) input.focus({ preventScroll: true });
+  }
+
+  // First paint: a complete exchange, with quick actions below it.
+  log.appendChild(node('<div class="flex gap-2">' + bot() + '<div class="min-w-0 text-[13.5px] leading-[1.55]"><p>Hi! I\'m the Parcelwise assistant. I answer from the docs and can pull in the team when you need a person.</p></div></div>'));
+  log.appendChild(user('How do webhook retries work?'));
+  const first = answerShell(); log.appendChild(first);
+  finishAnswer(first, ANSWERS[0], true);
+  log.appendChild(node('<div id="chips" class="flex flex-wrap gap-1.5 pl-8">' + QUICK.map((q) => '<button data-quick class="rounded-full border border-[var(--line)] bg-white px-2.5 py-1 text-[12.5px] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]">' + q + '</button>').join('') + '</div>'));
+
+  log.addEventListener('click', (e) => {
+    const t = e.target.closest('a, button'); if (!t) return;
+    if (t.tagName === 'A') e.preventDefault();
+    if (t.classList.contains('cite')) {
+      const box = t.closest('.flex').querySelector('.srcBtn');
+      if (box.getAttribute('aria-expanded') !== 'true') box.click();
+      const item = document.getElementById(box.getAttribute('aria-controls')).children[+t.dataset.cite - 1];
+      item.firstElementChild.classList.add('bg-orange-50');
+      setTimeout(() => item.firstElementChild.classList.remove('bg-orange-50'), 1200);
+      return;
+    }
+    if (t.classList.contains('srcBtn')) {
+      const list = document.getElementById(t.getAttribute('aria-controls'));
+      list.hidden = !list.hidden;
+      t.setAttribute('aria-expanded', String(!list.hidden));
+      t.querySelector('.chev').style.transform = list.hidden ? '' : 'rotate(180deg)';
+      return;
+    }
+    if ('quick' in t.dataset) { ask(t.textContent); return; }
+    if ('handoff' in t.dataset) { handoff(t); return; }
+    if (t.dataset.vote) {
+      t.closest('.feedback').innerHTML = icon(t.dataset.vote === 'up' ? 'circle-check' : 'message-square', 13, t.dataset.vote === 'up' ? 'text-emerald-600' : '') + '<span class="ml-1">' + (t.dataset.vote === 'up' ? 'Thanks for the feedback' : 'Thanks. We\'ll use this to improve the docs') + '</span>';
+    }
+  });
+  $('composer').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (running) { stopped = true; return; }
+    const text = input.value.trim(); if (!text) return;
+    input.value = ''; input.style.height = '';
+    ask(text);
+  });
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 96) + 'px'; if (!running) send.disabled = !input.value.trim(); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && running) stopped = true; });
+  $('launcher').addEventListener('click', () => toggle(panel.hidden));
+  $('close').addEventListener('click', () => { toggle(false); $('launcher').focus(); });
+  $('expand').addEventListener('click', (e) => {
+    const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+    e.currentTarget.setAttribute('aria-pressed', String(on));
+    e.currentTarget.setAttribute('aria-label', on ? 'Shrink chat' : 'Expand chat');
+    $('expandIcon').setAttribute('icon', on ? 'lucide:minimize-2' : 'lucide:maximize-2');
+    panel.style.width = on ? '560px' : '';
+    panel.style.height = on ? '760px' : '';
+  });
+  $('launcher').classList.add('max-sm:hidden');
+  log.scrollTop = log.scrollHeight;
+})();
+</script>
+</body>
+</html>

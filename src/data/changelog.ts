@@ -11,6 +11,18 @@ export interface Release {
 /** Release history of this clone, newest first. */
 export const RELEASES: Release[] = [
   {
+    version: "0.8.0",
+    date: "2026-11-01",
+    title: "Agentic interfaces",
+    summary: "Build the interface an AI agent lives in: streaming threads, tool calls, approvals, sources and artifacts, simulated with a scripted run you can click through.",
+    changes: [
+      { kind: "new", text: "Agent UI page with starter briefs and a kit of 14 components, also available as @ references." },
+      { kind: "new", text: "Agent UI section in the Prompt Builder: pick a surface, message parts and run behavior, with a live preview." },
+      { kind: "new", text: "Agentic interfaces skill, attached automatically when a brief asks for a chat, copilot or agent interface." },
+      { kind: "improved", text: "The prompt enhancer has an Agent interface project type, and the offline demo builds a working agent app for agent briefs." },
+    ],
+  },
+  {
     version: "0.7.0",
     date: "2026-11-01",
     title: "A bigger library",

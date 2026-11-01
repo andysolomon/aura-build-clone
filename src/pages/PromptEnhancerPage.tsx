@@ -8,7 +8,7 @@ import { setPrefill } from "../lib/prefill";
 import { refreshAppConfig, usableModel, useAppConfig } from "../lib/projects";
 import { cx, useDismiss } from "../lib/util";
 
-const PROJECT_TYPES = ["Landing page", "SaaS website", "Mobile screen", "Portfolio", "Ecommerce", "DESIGN.md direction"];
+const PROJECT_TYPES = ["Landing page", "SaaS website", "Agent interface", "Mobile screen", "Portfolio", "Ecommerce", "DESIGN.md direction"];
 const OUTPUT_STYLES = ["Full prompt", "Concise prompt", "Design-heavy", "Conversion-heavy"];
 const EXAMPLES = [
   "A modern SaaS landing page for a meeting notes app with a clean dashboard hero.",

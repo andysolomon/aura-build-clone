@@ -6,7 +6,8 @@ A working clone of [aura.build](https://www.aura.build/), the AI landing page bu
 Claude streams back a complete HTML + Tailwind document, and you refine it by chatting, by visual editing
 in Design mode, or in the code view. When it's ready you export it or publish it to a shareable link.
 
-The architecture was reconstructed from Aura's shipped frontend using REA; see
+The architecture was reconstructed from Aura's shipped frontend using REA, and the Agent UI kit
+drew on a REA study of three public agent UI libraries; see
 [docs/reverse-engineering.md](docs/reverse-engineering.md). This is an independent, educational project
 and is not affiliated with Aura.
 
@@ -33,6 +34,12 @@ and is not affiliated with Aura.
 - **Components** (`/components`): original HTML/Tailwind components (heroes, buttons, cards, pricing,
   forms and more), each with a preview (white or black backdrop, device sizes), code view, copy,
   download, Remix, and "Use in prompt" as an `@` reference.
+- **Agent UI** (`/agent-ui`): build working chat, copilot and agent interfaces.
+  - A kit of 14 original components: threads, app shell, composer, reasoning, tool lifecycle,
+    sources, approvals, plan and queue, artifact workspace, run inspector, voice and workflow canvas.
+  - Starter briefs, an Agent UI section in the Prompt Builder, and an `agentic-interfaces` skill that
+    attaches itself when a brief asks for an agent interface.
+  - Generated interfaces simulate the agent with a scripted run in vanilla JS; they don't call a model.
 - **Assets** (`/assets`): 60 original procedural SVG backgrounds across 5 aspect ratios, with
   SVG/PNG download and "Attach to prompt". Regenerate them with `npm run assets`.
 - **Skills** (`/skills`): agent skills (Markdown in `content/skills/`). Reference them with `@` and
@@ -76,6 +83,7 @@ Models are discovered from each CLI and cached for five minutes; the refresh but
 picker re-detects them after you sign in. If nothing is available, the app falls back to an
 **offline demo generator**, which composes pages from the prompt and supports structured edits
 such as "make it dark", "use a blue accent", "add pricing", "remove the FAQ" and "headline: …".
+Agent briefs get a working agent app with a scripted run instead of a landing page.
 
 ## Running it
 
@@ -101,7 +109,7 @@ shared/         Types shared by client and server: models, design systems, SSE p
 src/pages/      Marketing pages: home, templates, pricing, design systems, projects
 src/editor/     Editor: chat, preview frame and Design-mode bridge, inspector, code view, header
 public/templates/  Original template HTML and thumbnails (re-render with `npm run thumbs`)
-public/components/ Component library: HTML, thumbnails and index.json
+public/components/ Component library: HTML, thumbnails, index.json and the Agent UI kit's agent-ui.json
 public/assets/     Generated SVG assets (scripts/generate-assets.ts) and index.json
 content/           Markdown for Learn docs and agent skills
 data/           Runtime storage for projects and published pages (gitignored)

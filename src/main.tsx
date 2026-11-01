@@ -26,6 +26,7 @@ const router = createBrowserRouter([
       { path: "/templates/:slug", element: <TemplateDetailPage /> },
       { path: "/components", lazy: page(() => import("./pages/ComponentsPage"), (m) => m.ComponentsPage) },
       { path: "/components/:slug", lazy: page(() => import("./pages/ComponentDetailPage"), (m) => m.ComponentDetailPage) },
+      { path: "/agent-ui", lazy: page(() => import("./pages/AgentUIPage"), (m) => m.AgentUIPage) },
       { path: "/assets", lazy: page(() => import("./pages/AssetsPage"), (m) => m.AssetsPage) },
       { path: "/skills", lazy: page(() => import("./pages/SkillsPage"), (m) => m.SkillsPage) },
       { path: "/skills/:slug", lazy: page(() => import("./pages/SkillsPage"), (m) => m.SkillDetailPage) },

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Copilot - Agent app shell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'monospace'] } } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  :root { --bg: #09090b; --surface: #111113; --raised: #18181b; --line: rgba(255,255,255,.08); --line-strong: rgba(255,255,255,.16); --fg: #fafafa; --muted: #a1a1aa; --faint: #71717a; --accent: #a3e635; --on-accent: #101a00; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; }
+  ::selection { background: rgba(163,230,53,.28); }
+  .scroll::-webkit-scrollbar { width: 8px; height: 8px; } .scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 8px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .shimmer { background: linear-gradient(90deg, var(--faint) 35%, var(--fg) 50%, var(--faint) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0 } to { background-position: -150% 0 } }
+  .caret::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -.15em; background: var(--accent); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0 } }
+  .spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg) } }
+  .rise { animation: rise .32s cubic-bezier(.2,.8,.2,1) both; } @keyframes rise { from { opacity: 0; transform: translateY(6px) } }
+  .draw { stroke-dasharray: 400; animation: draw 1s ease-out both; } @keyframes draw { from { stroke-dashoffset: 400 } to { stroke-dashoffset: 0 } }
+  @media (prefers-reduced-motion: reduce) { .shimmer, .caret::after, .spin, .rise, .draw { animation: none; } .shimmer { color: var(--muted); background: none; } }
+</style>
+</head>
+<body class="font-sans text-[14px]">
+<div class="flex h-[100dvh] overflow-hidden">
+  <!-- Thread list -->
+  <aside id="sidebar" aria-label="Threads" class="fixed inset-y-0 left-0 z-40 flex w-[272px] -translate-x-full flex-col border-r border-[var(--line)] bg-[var(--surface)] transition-transform duration-200 md:static md:translate-x-0">
+    <div class="flex h-14 shrink-0 items-center gap-2.5 px-4">
+      <span class="grid h-7 w-7 place-items-center rounded-lg bg-[var(--accent)] text-[var(--on-accent)]"><iconify-icon icon="lucide:compass" width="16"></iconify-icon></span>
+      <span class="min-w-0 flex-1 truncate text-[14px] font-semibold tracking-tight">Northwind Copilot</span>
+      <button id="closeSidebar" class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Hide threads"><iconify-icon icon="lucide:panel-left-close" width="17"></iconify-icon></button>
+    </div>
+    <div class="space-y-2 px-3">
+      <button id="newThread" class="flex h-9 w-full items-center gap-2 rounded-lg border border-[var(--line-strong)] px-3 text-[13px] font-medium transition-colors hover:bg-white/5"><iconify-icon icon="lucide:plus" width="15"></iconify-icon>New thread</button>
+      <label class="flex h-9 items-center gap-2 rounded-lg bg-white/[.04] px-3 text-[var(--muted)]">
+        <iconify-icon icon="lucide:search" width="14"></iconify-icon>
+        <span class="sr-only">Search threads</span>
+        <input id="threadSearch" placeholder="Search threads" class="w-full bg-transparent text-[13px] text-[var(--fg)] outline-none placeholder:text-[var(--faint)]">
+      </label>
+    </div>
+    <nav id="threadList" class="scroll mt-4 min-h-0 flex-1 overflow-y-auto px-2 pb-3" aria-label="Thread history"></nav>
+    <div class="flex items-center gap-2.5 border-t border-[var(--line)] p-3">
+      <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-lime-300 to-emerald-500 text-[12px] font-semibold text-black">IB</span>
+      <span class="min-w-0 flex-1"><span class="block truncate text-[13px] font-medium">Imani Brooks</span><span class="block truncate text-[12px] text-[var(--faint)]">Fulfilment Ops · Northwind</span></span>
+      <button class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Workspace settings"><iconify-icon icon="lucide:settings-2" width="16"></iconify-icon></button>
+    </div>
+  </aside>
+  <div id="scrim" class="fixed inset-0 z-30 hidden bg-black/60 md:hidden"></div>
+
+  <main class="relative flex min-w-0 flex-1 flex-col">
+    <header class="flex h-14 shrink-0 items-center gap-2 border-b border-[var(--line)] px-3 sm:px-4">
+      <button id="openSidebar" class="hidden h-8 w-8 shrink-0 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)] max-md:grid" aria-label="Show threads" aria-expanded="false" aria-controls="sidebar"><iconify-icon icon="lucide:menu" width="18"></iconify-icon></button>
+      <h1 id="threadTitle" class="min-w-0 flex-1 truncate text-[14px] font-medium"></h1>
+      <div class="relative">
+        <button id="modelBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="modelPanel" class="flex h-8 items-center gap-1.5 rounded-lg border border-[var(--line)] px-2.5 font-mono text-[12px] transition-colors hover:bg-white/5">
+          <span class="h-1.5 w-1.5 rounded-full bg-[var(--accent)]"></span><span id="modelName">ops-1-deep</span><iconify-icon icon="lucide:chevrons-up-down" width="13" class="text-[var(--faint)]"></iconify-icon>
+        </button>
+        <div id="modelPanel" hidden class="absolute right-0 top-10 z-30 w-[290px] max-w-[calc(100vw-24px)] overflow-hidden rounded-xl border border-[var(--line-strong)] bg-[var(--raised)] shadow-2xl shadow-black/60">
+          <label class="flex items-center gap-2 border-b border-[var(--line)] px-3 py-2.5 text-[var(--muted)]">
+            <iconify-icon icon="lucide:search" width="14"></iconify-icon><span class="sr-only">Search models</span>
+            <input id="modelSearch" placeholder="Search models" class="w-full bg-transparent text-[13px] text-[var(--fg)] outline-none placeholder:text-[var(--faint)]" role="combobox" aria-controls="modelList" aria-expanded="true">
+          </label>
+          <div id="modelList" role="listbox" aria-label="Models" class="scroll max-h-[280px] overflow-y-auto p-1.5"></div>
+        </div>
+      </div>
+      <button id="shareBtn" class="hidden h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-[var(--muted)] transition-colors hover:bg-white/5 hover:text-[var(--fg)] sm:flex"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>Share</button>
+      <button class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="More options"><iconify-icon icon="lucide:ellipsis" width="17"></iconify-icon></button>
+    </header>
+
+    <div id="scroller" class="scroll min-h-0 flex-1 overflow-y-auto">
+      <div id="thread" role="log" aria-live="polite" aria-label="Conversation" class="mx-auto w-full max-w-[780px] space-y-6 px-4 py-7"></div>
+    </div>
+
+    <button id="toLatest" tabindex="-1" class="pointer-events-none absolute bottom-[132px] left-1/2 z-10 grid h-9 w-9 -translate-x-1/2 place-items-center rounded-full border border-[var(--line-strong)] bg-[var(--raised)] opacity-0 shadow-xl transition-opacity" aria-label="Scroll to latest message"><iconify-icon icon="lucide:arrow-down" width="16"></iconify-icon></button>
+
+    <div class="shrink-0 px-3 pb-3 sm:px-4 sm:pb-4">
+      <form id="composer" class="mx-auto w-full max-w-[780px] rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] p-2 transition-colors focus-within:border-white/30">
+        <label for="input" class="sr-only">Message Northwind Copilot</label>
+        <textarea id="input" rows="1" placeholder="Ask about orders, carriers or inventory…" class="scroll block max-h-44 w-full resize-none bg-transparent px-2.5 py-2 text-[14.5px] leading-relaxed outline-none placeholder:text-[var(--faint)]"></textarea>
+        <div class="flex items-center gap-1 px-0.5">
+          <button type="button" id="attachBtn" class="grid h-8 w-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-[var(--fg)]" aria-label="Attach a file"><iconify-icon icon="lucide:plus" width="17"></iconify-icon></button>
+          <button type="button" id="liveData" aria-pressed="true" class="flex h-8 items-center gap-1.5 rounded-lg px-2 text-[12.5px] text-[var(--accent)] transition-colors hover:bg-white/5"><iconify-icon icon="lucide:database" width="14"></iconify-icon>Live data</button>
+          <span class="ml-auto hidden font-mono text-[11px] text-[var(--faint)] sm:block">Enter to send · Esc to stop</span>
+          <button id="send" type="submit" disabled class="ml-2 grid h-8 w-8 place-items-center rounded-full bg-[var(--accent)] text-[var(--on-accent)] transition-opacity hover:opacity-90 disabled:opacity-30 max-sm:ml-auto" aria-label="Send message"><iconify-icon id="sendIcon" icon="lucide:arrow-up" width="17"></iconify-icon></button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<div id="toast" role="status" class="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border border-[var(--line-strong)] bg-[var(--raised)] px-3.5 py-1.5 text-[12.5px] opacity-0 transition-opacity"></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const thread = $('thread'), scroller = $('scroller'), input = $('input'), send = $('send'), sendIcon = $('sendIcon');
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const icon = (name, w, cls) => '<iconify-icon icon="lucide:' + name + '" width="' + (w || 14) + '"' + (cls ? ' class="' + cls + '"' : '') + '></iconify-icon>';
+  const node = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const bold = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
+
+  // ---------- Generative UI: tool results rendered as cards ----------
+  function spark(series) {
+    const w = 220, h = 56, max = Math.max.apply(null, series), min = Math.min.apply(null, series);
+    const pts = series.map((v, i) => [(i / (series.length - 1)) * w, h - 6 - ((v - min) / (max - min || 1)) * (h - 12)]);
+    const line = pts.map((p) => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" class="h-14 w-full" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#a3e635" stop-opacity=".28"/><stop offset="1" stop-color="#a3e635" stop-opacity="0"/></linearGradient></defs><polygon points="0,' + h + ' ' + line + ' ' + w + ',' + h + '" fill="url(#fill)"/><polyline class="draw" points="' + line + '" fill="none" stroke="#a3e635" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>';
+  }
+  function metricsCard(c) {
+    const stats = c.stats.map((s) => '<div class="min-w-0"><div class="truncate text-[11.5px] text-[var(--faint)]">' + esc(s.label) + '</div><div class="mt-0.5 text-[19px] font-semibold tabular-nums tracking-tight">' + esc(s.value) + '</div><div class="text-[11.5px] tabular-nums ' + (s.bad ? 'text-red-400' : 'text-emerald-400') + '">' + esc(s.delta) + '</div></div>').join('');
+    return '<figure class="rise overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">'
+      + '<figcaption class="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-2.5 text-[12.5px]"><span class="flex min-w-0 items-center gap-2 font-medium">' + icon('activity', 14, 'text-[var(--accent)]') + '<span class="truncate">' + esc(c.title) + '</span></span><span class="shrink-0 font-mono text-[11px] text-[var(--faint)]">' + esc(c.source) + '</span></figcaption>'
+      + '<div class="grid gap-4 p-4 sm:grid-cols-[1.05fr_1fr] sm:items-center"><div class="grid grid-cols-3 gap-3">' + stats + '</div><div>' + spark(c.series) + '<div class="mt-1 flex justify-between font-mono text-[10.5px] text-[var(--faint)]"><span>' + esc(c.from) + '</span><span>' + esc(c.to) + '</span></div></div></div></figure>';
+  }
+  const TONES = { late: 'bg-red-500/10 text-red-300 ring-red-400/25', risk: 'bg-amber-500/10 text-amber-300 ring-amber-400/25', ok: 'bg-emerald-500/10 text-emerald-300 ring-emerald-400/25' };
+  function tableCard(c) {
+    const head = c.columns.map((h, i) => '<th scope="col" class="whitespace-nowrap px-4 py-2 font-medium ' + (i ? 'text-right' : 'text-left') + '">' + esc(h) + '</th>').join('');
+    const rows = c.rows.map((r) => '<tr class="border-t border-[var(--line)]">' + r.map((v, i) => {
+      if (v && v.tone) return '<td class="px-4 py-2.5 text-right"><span class="inline-flex rounded-full px-2 py-0.5 text-[11.5px] font-medium ring-1 ' + TONES[v.tone] + '">' + esc(v.text) + '</span></td>';
+      return '<td class="whitespace-nowrap px-4 py-2.5 tabular-nums ' + (i ? 'text-right text-[var(--muted)]' : 'font-medium') + '">' + esc(v) + '</td>';
+    }).join('') + '</tr>').join('');
+    return '<figure class="rise overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]"><figcaption class="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-2.5 text-[12.5px]"><span class="flex min-w-0 items-center gap-2 font-medium">' + icon('table-2', 14, 'text-[var(--accent)]') + '<span class="truncate">' + esc(c.title) + '</span></span><span class="shrink-0 font-mono text-[11px] text-[var(--faint)]">' + esc(c.source) + '</span></figcaption><div class="scroll overflow-x-auto"><table class="w-full text-[13px]"><thead class="text-[11.5px] text-[var(--faint)]"><tr>' + head + '</tr></thead><tbody>' + rows + '</tbody></table></div></figure>';
+  }
+  const CARD = { metrics: metricsCard, table: tableCard };
+
+  // ---------- Scripted turns ----------
+  const late = { kind: 'metrics', title: 'Reno DC, on-time dispatch', source: 'warehouse_kpis', stats: [{ label: 'On-time', value: '81.4%', delta: '−9.2 pts', bad: true }, { label: 'Backlog', value: '2,318', delta: '+64%', bad: true }, { label: 'Pick rate', value: '96/hr', delta: '−18%', bad: true }], series: [93, 92, 94, 91, 93, 90, 84, 79, 76, 81, 83, 81], from: 'Oct 20', to: 'Oct 31' };
+  const lanes = { kind: 'table', title: 'Orders at risk by lane', source: 'orders · 412 rows', columns: ['Lane', 'Orders', 'Avg delay', 'Status'], rows: [['Reno → Seattle', '184', '31 h', { tone: 'late', text: 'Late' }], ['Reno → Portland', '121', '22 h', { tone: 'risk', text: 'At risk' }], ['Reno → Boise', '67', '14 h', { tone: 'risk', text: 'At risk' }], ['Denver → Seattle', '40', '2 h', { tone: 'ok', text: 'On track' }]] };
+  const SCRIPTS = {
+    carrier: { ask: 'Compare carrier cost per parcel by region', thought: 'Group last month\'s shipments by carrier and region, normalize by weight band, then flag anything more than 8% above the contract rate.', tools: [['query_shipments', 'Reading 48,210 shipments', '48,210 rows · 0.8 s'], ['fetch_rate_cards', 'Loading 3 contracts', '3 contracts']], card: { kind: 'table', title: 'Cost per parcel, October', source: 'shipments', columns: ['Region', 'Harbor Freight', 'Ridgeline', 'vs contract'], rows: [['West', '$6.42', '$7.18', { tone: 'risk', text: '+9%' }], ['Mountain', '$7.05', '$6.88', { tone: 'ok', text: '−1%' }], ['Midwest', '$5.71', '$5.94', { tone: 'ok', text: '+2%' }], ['Northeast', '$8.33', '$8.02', { tone: 'late', text: '+14%' }]] }, text: ['**Northeast is the outlier**, running 14% above contract on Harbor Freight because of fuel surcharges added on Oct 6. West is also over the line at 9%.', 'Moving 30% of Northeast volume to Ridgeline would save about **$41k a month**. Want me to draft the note to their account team?'], followups: ['Draft the carrier note', 'Model a 30% shift', 'Show surcharge history'] },
+    stock: { ask: 'Which SKUs will stock out this week?', thought: 'Project days of cover from the 14-day sales rate and open purchase orders, then keep anything below the supplier lead time.', tools: [['forecast_demand', 'Projecting 6,402 SKUs', '6,402 SKUs'], ['list_open_pos', 'Matching purchase orders', '118 open POs']], card: { kind: 'table', title: 'Stockout risk, next 7 days', source: 'inventory', columns: ['SKU', 'On hand', 'Days of cover', 'Status'], rows: [['Trail bottle 750 ml', '312', '2.1', { tone: 'late', text: 'Critical' }], ['Merino sock, M', '940', '4.6', { tone: 'risk', text: 'Watch' }], ['Dry bag 20 L', '505', '5.2', { tone: 'risk', text: 'Watch' }], ['Camp mug', '2,140', '11.8', { tone: 'ok', text: 'Covered' }]] }, text: ['**Trail bottle 750 ml** runs out in about two days, and the next PO lands on Nov 7. It\'s the only critical SKU this week.', 'A 600-unit transfer from Denver would cover the gap without hurting their stock.'], followups: ['Plan the Denver transfer', 'Email the supplier', 'Show Merino demand'] },
+    review: { ask: 'Draft the weekly ops summary', thought: 'Pull the week\'s four headline KPIs, compare them to last week, and lead with the single biggest change.', tools: [['fetch_kpis', 'Loading this week and last', '4 KPIs']], card: { kind: 'metrics', title: 'Network, week 44', source: 'warehouse_kpis', stats: [{ label: 'On-time', value: '91.2%', delta: '−3.1 pts', bad: true }, { label: 'Cost/parcel', value: '$6.71', delta: '−$0.12' }, { label: 'Returns', value: '4.3%', delta: '−0.4 pts' }], series: [95, 94, 94, 93, 94, 93, 92, 91, 90, 91, 91, 91], from: 'Week 41', to: 'Week 44' }, text: ['**Summary:** on-time dispatch fell 3.1 points to 91.2%, almost entirely from the Reno conveyor outage. Cost per parcel improved by 12 cents and returns eased to 4.3%.', '**Next week:** clear the Reno backlog by Thursday and confirm the Northeast surcharge review with Harbor Freight.'], followups: ['Make it shorter', 'Add a risks section', 'Send to #ops-leads'] },
+    reroute: { ask: 'Reroute at-risk Seattle orders through Denver', thought: 'Check Denver capacity before moving anything, then estimate how many of the 184 Seattle orders can still make their promise date.', tools: [['check_capacity', 'Reading Denver wave plan', '1,200 slots free'], ['simulate_reroute', 'Simulating 184 orders', '171 recovered']], card: { kind: 'metrics', title: 'Reroute simulation, Seattle lane', source: 'simulation', stats: [{ label: 'Recovered', value: '171', delta: '93% of orders' }, { label: 'Extra cost', value: '$1,240', delta: '$7.25 per order', bad: true }, { label: 'New on-time', value: '94.8%', delta: '+13.4 pts' }], series: [81, 82, 84, 85, 87, 88, 90, 91, 92, 93, 94, 95], from: 'Today', to: '+48 h' }, text: ['Rerouting through Denver recovers **171 of 184** Seattle orders for about **$1,240** in extra freight.', 'The remaining 13 are already past the cut-off, so I\'d send those customers a proactive delay notice. Should I queue both?'], followups: ['Queue the reroute', 'Draft the delay notice', 'Try Boise too'] },
+  };
+  const SUGGESTIONS = [['carrier', 'badge-dollar-sign', 'Compare carrier costs', 'Cost per parcel by region'], ['stock', 'package-search', 'Find stockout risks', 'SKUs running out this week'], ['review', 'file-text', 'Draft the ops summary', 'KPIs and next steps'], ['reroute', 'route', 'Reroute late orders', 'Simulate a Denver reroute']];
+
+  const pick = (text) => {
+    const t = text.toLowerCase();
+    if (/carrier|cost|freight|rate/.test(t)) return SCRIPTS.carrier;
+    if (/stock|sku|inventory|transfer/.test(t)) return SCRIPTS.stock;
+    if (/summar|review|report|shorter|risks section/.test(t)) return SCRIPTS.review;
+    if (/reroute|denver|queue|delay|boise|late|seattle/.test(t)) return SCRIPTS.reroute;
+    const keys = Object.keys(SCRIPTS);
+    return SCRIPTS[keys[(pickCount++) % keys.length]];
+  };
+  let pickCount = 0;
+
+  // ---------- Thread store ----------
+  let threads = [
+    { id: 't1', title: 'Why did Reno dispatch slip?', group: 'Today', turns: [{ user: 'Why did on-time dispatch at Reno slip this week, and which orders are at risk?', seconds: 5, tools: [['query_warehouse_kpis', '', '12 days · 1 DC'], ['list_at_risk_orders', '', '412 orders']], parts: [{ text: 'On-time dispatch at Reno dropped **9.2 points** after the conveyor outage on Oct 26. The pick rate still hasn\'t recovered, so the backlog keeps growing.' }, { card: late }, { card: lanes }, { text: 'Seattle is the most exposed lane, with **184 orders** averaging 31 hours late. Routing them through Denver looks like the fastest fix.' }], followups: ['Reroute at-risk Seattle orders through Denver', 'Compare carrier costs', 'Draft the ops summary'] }] },
+    { id: 't2', title: 'Carrier cost by region', group: 'Today', turns: [scriptTurn(SCRIPTS.carrier, 4)] },
+    { id: 't3', title: 'Stockouts next week', group: 'Previous 7 days', turns: [scriptTurn(SCRIPTS.stock, 3)] },
+    { id: 't4', title: 'Week 44 ops summary', group: 'Previous 7 days', turns: [scriptTurn(SCRIPTS.review, 2)] },
+    { id: 't5', title: 'Seattle reroute plan', group: 'Previous 7 days', turns: [scriptTurn(SCRIPTS.reroute, 4)] },
+  ];
+  function scriptTurn(s, seconds) { return { user: s.ask, seconds: seconds, tools: s.tools, parts: [{ card: s.card }].concat(s.text.map((t) => ({ text: t }))), followups: s.followups }; }
+  let activeId = 't1', running = false, stopped = false, nextId = 6, filter = '', openMenu = null;
+  const active = () => threads.find((t) => t.id === activeId);
+
+  // ---------- Rendering ----------
+  const toolLine = (t, state) => '<div class="tool flex min-w-0 items-center gap-2 text-[12.5px]">'
+    + (state === 'done' ? icon('circle-check', 14, 'shrink-0 text-emerald-400') : icon('loader-circle', 14, 'spin shrink-0 text-sky-400'))
+    + '<span class="truncate font-mono text-[12px]">' + esc(t[0]) + '</span><span class="min-w-0 truncate ' + (state === 'done' ? 'text-[var(--faint)]' : 'shimmer') + '">' + esc(state === 'done' ? t[2] : t[1]) + '</span></div>';
+  const userBubble = (text) => node('<div class="rise flex justify-end"><div class="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl bg-white/[.07] px-4 py-2.5 text-[14.5px] leading-relaxed">' + esc(text) + '</div></div>');
+  function reasoningRow(seconds, body) {
+    const id = 'r' + Math.random().toString(36).slice(2, 8);
+    return '<div><button class="reason flex items-center gap-1.5 text-[12.5px] text-[var(--muted)] transition-colors hover:text-[var(--fg)]" aria-expanded="false" aria-controls="' + id + '">' + icon('brain', 14) + '<span class="label">Thought for ' + seconds + ' seconds</span>' + icon('chevron-down', 13, 'chev transition-transform') + '</button><p id="' + id + '" hidden class="mt-2 border-l-2 border-[var(--line-strong)] pl-3 text-[13px] leading-relaxed text-[var(--muted)]">' + esc(body || 'Checked the warehouse KPIs first, then pulled the orders whose promise date falls inside the current delay window.') + '</p></div>';
+  }
+  const actions = () => '<div class="actions flex items-center gap-0.5 text-[var(--faint)]">' + [['copy', 'Copy reply'], ['refresh-cw', 'Regenerate'], ['thumbs-up', 'Good response'], ['thumbs-down', 'Bad response']].map((a) => '<button data-act="' + a[0] + '" class="grid h-7 w-7 place-items-center rounded-md transition-colors hover:bg-white/5 hover:text-[var(--fg)]" aria-label="' + a[1] + '" aria-pressed="false">' + icon(a[0], 14) + '</button>').join('') + '</div>';
+  const followups = (items) => '<div class="flex flex-wrap gap-1.5">' + items.map((f) => '<button data-follow class="rounded-full border border-[var(--line-strong)] px-3 py-1.5 text-[12.5px] text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--fg)]">' + esc(f) + '</button>').join('') + '</div>';
+  function renderTurn(turn) {
+    thread.appendChild(userBubble(turn.user));
+    const parts = turn.parts.map((p) => p.card ? CARD[p.card.kind](p.card) : '<p class="text-[14.5px] leading-[1.65] text-zinc-200">' + bold(p.text) + '</p>').join('');
+    thread.appendChild(node('<article class="space-y-3">' + reasoningRow(turn.seconds, turn.thought) + '<div class="space-y-1.5">' + turn.tools.map((t) => toolLine(t, 'done')).join('') + '</div>' + parts + actions() + followups(turn.followups) + '</article>'));
+  }
+  function emptyState() {
+    thread.appendChild(node('<div id="empty" class="rise pt-[9vh] text-center"><span class="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--on-accent)]">' + icon('compass', 22) + '</span><h2 class="mt-4 text-[26px] font-semibold tracking-tight">What needs attention today, Imani?</h2><p class="mt-1.5 text-[14px] text-[var(--muted)]">Connected to orders, inventory and three carrier accounts.</p><div class="mx-auto mt-7 grid max-w-[600px] gap-2.5 text-left sm:grid-cols-2">' + SUGGESTIONS.map((s) => '<button data-suggest="' + s[0] + '" class="group flex items-start gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3.5 text-left transition-colors hover:border-[var(--line-strong)] hover:bg-white/[.04]"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/[.06] text-[var(--muted)] group-hover:text-[var(--accent)]">' + icon(s[1], 16) + '</span><span class="min-w-0"><span class="block text-[13.5px] font-medium">' + esc(s[2]) + '</span><span class="mt-0.5 block text-[12.5px] text-[var(--faint)]">' + esc(s[3]) + '</span></span></button>').join('') + '</div></div>'));
+  }
+  function renderThread() {
+    thread.innerHTML = '';
+    const t = active();
+    $('threadTitle').textContent = t ? t.title : 'New thread';
+    if (!t || !t.turns.length) emptyState();
+    else t.turns.forEach(renderTurn);
+    scroller.scrollTop = scroller.scrollHeight;
+    syncLatest();
+  }
+  function renderList() {
+    const q = filter.toLowerCase();
+    const groups = {};
+    threads.filter((t) => t.title.toLowerCase().includes(q)).forEach((t) => (groups[t.group] = groups[t.group] || []).push(t));
+    const html = Object.keys(groups).map((g) => '<div class="mb-3"><div class="px-2.5 pb-1 text-[11px] font-medium text-[var(--faint)]">' + esc(g) + '</div>' + groups[g].map((t) => {
+      const on = t.id === activeId;
+      return '<div class="group relative"><button data-open="' + t.id + '"' + (on ? ' aria-current="true"' : '') + ' class="block w-full truncate rounded-lg py-2 pl-2.5 pr-9 text-left text-[13px] transition-colors ' + (on ? 'bg-white/[.08] text-white' : 'text-[var(--muted)] hover:bg-white/[.04] hover:text-[var(--fg)]') + '">' + esc(t.title) + '</button><button data-menu="' + t.id + '" class="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-md text-[var(--muted)] transition-opacity hover:bg-white/10 hover:text-[var(--fg)] md:opacity-0 md:focus:opacity-100 md:group-hover:opacity-100" aria-label="Options for ' + esc(t.title) + '" aria-haspopup="menu" aria-expanded="' + (openMenu === t.id) + '">' + icon('ellipsis', 15) + '</button>'
+        + (openMenu === t.id ? '<div role="menu" class="absolute right-1 top-9 z-20 w-36 rounded-lg border border-[var(--line-strong)] bg-[var(--raised)] p-1 shadow-xl shadow-black/50">' + [['rename', 'pencil', 'Rename'], ['archive', 'archive', 'Archive'], ['delete', 'trash-2', 'Delete']].map((m) => '<button role="menuitem" data-do="' + m[0] + '" data-id="' + t.id + '" class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[12.5px] hover:bg-white/5 ' + (m[0] === 'delete' ? 'text-red-300' : '') + '">' + icon(m[1], 13) + m[2] + '</button>').join('') + '</div>' : '') + '</div>';
+    }).join('') + '</div>').join('');
+    $('threadList').innerHTML = html || '<p class="px-3 py-6 text-center text-[12.5px] text-[var(--faint)]">No threads match.</p>';
+  }
+
+  // ---------- Scripted run ----------
+  const nearBottom = () => scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 80;
+  const follow = () => { if (nearBottom()) scroller.scrollTop = scroller.scrollHeight; };
+  function setRunning(on) {
+    running = on;
+    sendIcon.setAttribute('icon', on ? 'lucide:square' : 'lucide:arrow-up');
+    send.setAttribute('aria-label', on ? 'Stop generating' : 'Send message');
+    send.disabled = !on && !input.value.trim();
+  }
+  async function streamInto(el, text) {
+    el.classList.add('caret');
+    const words = text.split(/(\s+)/);
+    let out = '';
+    for (const w of words) {
+      if (stopped) break;
+      out += w;
+      el.innerHTML = bold(out);
+      follow();
+      if (w.trim()) await sleep(24);
+    }
+    el.classList.remove('caret');
+    return out;
+  }
+  async function run(text) {
+    if (running) return;
+    let t = active();
+    if (!t) {
+      t = { id: 't' + nextId++, title: text.length > 34 ? text.slice(0, 32) + '…' : text, group: 'Today', turns: [] };
+      threads.unshift(t);
+      activeId = t.id;
+      $('threadTitle').textContent = t.title;
+      renderList();
+    }
+    const empty = $('empty'); if (empty) empty.remove();
+    const script = pick(text);
+    const owner = t.id;
+    thread.appendChild(userBubble(text));
+    scroller.scrollTop = scroller.scrollHeight;
+    stopped = false; setRunning(true);
+    const art = node('<article class="space-y-3" aria-busy="true"><div class="flex items-center gap-1.5 text-[12.5px] text-[var(--muted)]">' + icon('brain', 14) + '<span class="shimmer font-mono">&gt; thinking</span></div><div class="tools space-y-1.5"></div><div class="parts space-y-3"></div></article>');
+    thread.appendChild(art); follow();
+    const started = Date.now();
+    await sleep(900);
+    const tools = art.querySelector('.tools');
+    for (const tool of script.tools) {
+      if (stopped) break;
+      const row = node(toolLine(tool, 'run')); tools.appendChild(row); follow();
+      await sleep(850);
+      row.replaceWith(node(toolLine(tool, stopped ? 'run' : 'done')));
+    }
+    const seconds = Math.max(1, Math.round((Date.now() - started) / 1000));
+    art.firstElementChild.replaceWith(node(reasoningRow(seconds, script.thought)));
+    const partsEl = art.querySelector('.parts');
+    const parts = [];
+    if (!stopped) { partsEl.insertAdjacentHTML('beforeend', CARD[script.card.kind](script.card)); parts.push({ card: script.card }); follow(); await sleep(300); }
+    for (const p of script.text) {
+      if (stopped) break;
+      const el = node('<p class="text-[14.5px] leading-[1.65] text-zinc-200"></p>');
+      partsEl.appendChild(el);
+      const said = await streamInto(el, p);
+      if (said) parts.push({ text: said });
+    }
+    if (stopped) art.insertAdjacentHTML('beforeend', '<p class="text-[12.5px] text-[var(--faint)]">' + icon('circle-stop', 13, 'mr-1 align-[-2px]') + 'Stopped</p>');
+    art.removeAttribute('aria-busy');
+    art.insertAdjacentHTML('beforeend', actions() + (stopped ? '' : followups(script.followups)));
+    const owned = threads.find((x) => x.id === owner);
+    if (owned) owned.turns.push({ user: text, seconds: seconds, thought: script.thought, tools: script.tools, parts: parts, followups: stopped ? [] : script.followups });
+    setRunning(false); follow();
+  }
+
+  // ---------- Model palette ----------
+  const MODELS = [['Northwind', 'ops-1-deep', 'Best for multi-step analysis'], ['Northwind', 'ops-1-fast', 'Quick lookups, lowest cost'], ['Meridian', 'meridian-4', 'Long documents and reports'], ['Meridian', 'meridian-4-mini', 'Balanced speed and depth'], ['Local', 'onprem-llama', 'Runs inside your VPC']];
+  let modelQuery = '', modelIndex = 0, model = 'ops-1-deep';
+  const modelsShown = () => MODELS.filter((m) => (m[0] + ' ' + m[1] + ' ' + m[2]).toLowerCase().includes(modelQuery.toLowerCase()));
+  function renderModels() {
+    const shown = modelsShown();
+    modelIndex = Math.min(modelIndex, Math.max(0, shown.length - 1));
+    let last = '';
+    $('modelList').innerHTML = shown.map((m, i) => {
+      const head = m[0] !== last ? '<div class="px-2 pb-1 pt-2 text-[11px] font-medium text-[var(--faint)]">' + esc(m[0]) + '</div>' : '';
+      last = m[0];
+      return head + '<button role="option" data-model="' + m[1] + '" aria-selected="' + (m[1] === model) + '" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ' + (i === modelIndex ? 'bg-white/[.08]' : 'hover:bg-white/[.04]') + '"><span class="min-w-0 flex-1"><span class="block font-mono text-[12.5px]">' + esc(m[1]) + '</span><span class="block truncate text-[11.5px] text-[var(--faint)]">' + esc(m[2]) + '</span></span>' + (m[1] === model ? icon('check', 14, 'text-[var(--accent)]') : '') + '</button>';
+    }).join('') || '<p class="px-2 py-5 text-center text-[12.5px] text-[var(--faint)]">No models found.</p>';
+  }
+  function modelMenu(open) {
+    $('modelPanel').hidden = !open;
+    $('modelBtn').setAttribute('aria-expanded', String(open));
+    if (open) { modelQuery = ''; $('modelSearch').value = ''; modelIndex = 0; renderModels(); $('modelSearch').focus(); }
+  }
+  function chooseModel(id) { model = id; $('modelName').textContent = id; modelMenu(false); toast('Switched to ' + id); input.focus(); }
+
+  // ---------- Misc UI ----------
+  let toastTimer;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.opacity = '1'; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1600); }
+  function syncLatest() { const show = !nearBottom(); const b = $('toLatest'); b.style.opacity = show ? '1' : '0'; b.style.pointerEvents = show ? 'auto' : 'none'; b.tabIndex = show ? 0 : -1; }
+  function drawer(open) {
+    const mobile = matchMedia('(max-width: 767px)').matches;
+    if (mobile) {
+      $('sidebar').classList.toggle('-translate-x-full', !open);
+      $('scrim').classList.toggle('hidden', !open);
+      $('openSidebar').setAttribute('aria-expanded', String(open));
+    }
+  }
+  function collapse(hidden) {
+    if (matchMedia('(max-width: 767px)').matches) { drawer(!hidden); return; }
+    $('sidebar').style.display = hidden ? 'none' : '';
+    $('openSidebar').classList.toggle('md:grid', hidden);
+    $('openSidebar').setAttribute('aria-expanded', String(!hidden));
+  }
+
+  $('composer').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (running) { stopped = true; return; }
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = ''; input.style.height = '';
+    run(text);
+  });
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 176) + 'px'; if (!running) send.disabled = !input.value.trim(); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); } });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (running) stopped = true;
+    if (!$('modelPanel').hidden) { modelMenu(false); $('modelBtn').focus(); }
+    if (openMenu) { openMenu = null; renderList(); }
+    drawer(false);
+  });
+  document.addEventListener('click', (e) => {
+    if (!$('modelPanel').hidden && !e.target.closest('#modelPanel, #modelBtn')) modelMenu(false);
+    if (openMenu && !e.target.closest('[data-menu], [role=menu]')) { openMenu = null; renderList(); }
+  });
+  thread.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.suggest) { run(SCRIPTS[b.dataset.suggest].ask); return; }
+    if ('follow' in b.dataset) { run(b.textContent); return; }
+    if (b.classList.contains('reason')) {
+      const body = document.getElementById(b.getAttribute('aria-controls'));
+      body.hidden = !body.hidden;
+      b.setAttribute('aria-expanded', String(!body.hidden));
+      b.querySelector('.chev').style.transform = body.hidden ? '' : 'rotate(180deg)';
+      return;
+    }
+    const act = b.dataset.act;
+    if (act === 'copy') {
+      const text = b.closest('article').querySelector('.parts, p')?.innerText || '';
+      if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+      b.innerHTML = icon('check', 14, 'text-emerald-400');
+      setTimeout(() => { b.innerHTML = icon('copy', 14); }, 1200);
+    } else if (act === 'thumbs-up' || act === 'thumbs-down') {
+      const on = b.getAttribute('aria-pressed') !== 'true';
+      b.parentElement.querySelectorAll('[data-act^=thumbs]').forEach((x) => { x.setAttribute('aria-pressed', 'false'); x.style.color = ''; });
+      b.setAttribute('aria-pressed', String(on));
+      b.style.color = on ? 'var(--accent)' : '';
+    } else if (act === 'refresh-cw' && !running) {
+      const prev = b.closest('article').previousElementSibling;
+      if (prev) run(prev.innerText.trim());
+    }
+  });
+  $('threadList').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.open) { if (running) { toast('Stop this run first'); return; } activeId = b.dataset.open; openMenu = null; renderList(); renderThread(); drawer(false); return; }
+    if (b.dataset.menu) { openMenu = openMenu === b.dataset.menu ? null : b.dataset.menu; renderList(); return; }
+    if (b.dataset.do) {
+      const t = threads.find((x) => x.id === b.dataset.id);
+      openMenu = null;
+      if (b.dataset.do === 'rename') {
+        renderList();
+        const row = $('threadList').querySelector('[data-open="' + t.id + '"]');
+        const field = node('<input class="block w-full rounded-lg border border-[var(--accent)] bg-transparent px-2.5 py-[7px] text-[13px] outline-none" aria-label="Thread name">');
+        field.value = t.title; row.replaceWith(field); field.focus(); field.select();
+        const commit = () => { t.title = field.value.trim() || t.title; if (t.id === activeId) $('threadTitle').textContent = t.title; renderList(); };
+        field.addEventListener('blur', commit);
+        field.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') field.blur(); });
+        return;
+      }
+      threads = threads.filter((x) => x !== t);
+      toast(b.dataset.do === 'archive' ? 'Thread archived' : 'Thread deleted');
+      if (activeId === t.id) { activeId = threads[0] ? threads[0].id : null; renderThread(); }
+      renderList();
+    }
+  });
+  $('newThread').addEventListener('click', () => { if (running) { toast('Stop this run first'); return; } activeId = null; renderList(); renderThread(); drawer(false); input.focus(); });
+  $('threadSearch').addEventListener('input', (e) => { filter = e.target.value; renderList(); });
+  $('modelBtn').addEventListener('click', () => modelMenu($('modelPanel').hidden));
+  $('modelSearch').addEventListener('input', (e) => { modelQuery = e.target.value; modelIndex = 0; renderModels(); });
+  $('modelSearch').addEventListener('keydown', (e) => {
+    const shown = modelsShown();
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (shown.length) modelIndex = (modelIndex + (e.key === 'ArrowDown' ? 1 : shown.length - 1)) % shown.length; renderModels(); }
+    if (e.key === 'Enter' && shown[modelIndex]) { e.preventDefault(); chooseModel(shown[modelIndex][1]); }
+  });
+  $('modelList').addEventListener('click', (e) => { const b = e.target.closest('[data-model]'); if (b) chooseModel(b.dataset.model); });
+  $('shareBtn').addEventListener('click', () => { if (navigator.clipboard) navigator.clipboard.writeText('https://copilot.northwind.example/t/' + (activeId || 'new')).catch(() => {}); toast('Link copied'); });
+  $('attachBtn').addEventListener('click', () => toast('Attachments are off in this demo'));
+  $('liveData').addEventListener('click', (e) => { const b = e.currentTarget, on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on)); b.style.color = on ? '' : 'var(--muted)'; });
+  $('closeSidebar').addEventListener('click', () => collapse(true));
+  $('openSidebar').addEventListener('click', () => { const mobile = matchMedia('(max-width: 767px)').matches; if (mobile) drawer($('openSidebar').getAttribute('aria-expanded') !== 'true'); else collapse($('sidebar').style.display !== 'none'); });
+  $('scrim').addEventListener('click', () => drawer(false));
+  scroller.addEventListener('scroll', syncLatest);
+  $('toLatest').addEventListener('click', () => scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' }));
+
+  renderList();
+  renderThread();
+})();
+</script>
+</body>
+</html>

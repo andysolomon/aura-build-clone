@@ -1,5 +1,6 @@
 import { parseModelRef } from "../shared/models";
 import { splitGeneration, type GenerateRequest, type StreamEvent } from "../shared/protocol";
+import { withAgenticSkill } from "./agentic";
 import { enhanceDemo, generateDemo } from "./demo";
 import { ENHANCE_SYSTEM_PROMPT, ENHANCE_TOOL_SYSTEM_PROMPT, SYSTEM_PROMPT, enhanceToolRequest, renderRequest } from "./prompts";
 import { discoverProviders, getProvider } from "./providers";
@@ -41,10 +42,14 @@ export async function* generate(req: GenerateRequest, signal: AbortSignal): Asyn
   if (req.webAccess && !target.provider.web) {
     yield { type: "reasoning", text: `${target.provider.label} can't browse the web, so this runs without web access.\n` };
   }
+  const agentic = withAgenticSkill(req);
+  if (agentic.attached) {
+    yield { type: "reasoning", text: "This is an agent interface, so the Agentic interfaces skill is attached.\n" };
+  }
   let raw = "";
   let writing = false;
   const events = target.provider.stream(
-    { model: target.model, system: SYSTEM_PROMPT, prompt: renderRequest({ ...req, webAccess }), images: req.images ?? [], effort: "medium", webAccess },
+    { model: target.model, system: SYSTEM_PROMPT, prompt: renderRequest({ ...agentic.req, webAccess }), images: req.images ?? [], effort: "medium", webAccess },
     signal,
   );
   for await (const event of events) {

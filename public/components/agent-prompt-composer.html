@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Composer - Agent UI composer states</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'] },
+    colors: { ink: '#18181b', muted: '#71717a', faint: '#a1a1aa', line: '#e4e4e7', line2: '#d4d4d8', fill: '#f4f4f5', accent: 'rgb(var(--accent-rgb) / <alpha-value>)' }
+  } } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root { --accent-rgb: 79 70 229; --accent: rgb(var(--accent-rgb)); --fg: #18181b; --muted: #a1a1aa; }
+  body { background: #fafafa; -webkit-font-smoothing: antialiased; }
+  .page-glow { background: radial-gradient(ellipse 60% 100% at 30% 0%, rgb(var(--accent-rgb) / .07), transparent 70%); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  textarea:focus-visible, input:focus-visible { outline: none; }
+  kbd { font: 500 11.5px/1 "Geist Mono", monospace; padding: 3px 5px; border-radius: 5px; background: #fff; border: 1px solid #e4e4e7; border-bottom-width: 2px; color: #18181b; }
+  .stage { background-color: #f4f4f5; background-image: radial-gradient(rgba(24,24,27,.075) 1px, transparent 1px); background-size: 16px 16px; }
+  .composer { position: relative; background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; box-shadow: 0 1px 2px rgba(24,24,27,.04), 0 10px 28px -14px rgba(24,24,27,.16); transition: border-color .15s, box-shadow .15s; }
+  .composer:focus-within { border-color: rgb(var(--accent-rgb) / .45); box-shadow: 0 0 0 4px rgb(var(--accent-rgb) / .10), 0 10px 28px -14px rgba(24,24,27,.16); }
+  .tbtn { height: 32px; min-width: 32px; padding: 0 8px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: #71717a; font-size: 13px; font-weight: 500; transition: background .15s, color .15s, box-shadow .15s; }
+  .tbtn:hover { background: #f4f4f5; color: #18181b; }
+  .tbtn:active { transform: translateY(.5px); }
+  .tbtn[aria-pressed="true"] { background: rgb(var(--accent-rgb) / .09); color: var(--accent); box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / .22); }
+  .tbtn[aria-pressed="true"].mic-on { background: #fef2f2; color: #dc2626; box-shadow: inset 0 0 0 1px rgba(220,38,38,.2); }
+  .send { width: 32px; height: 32px; border-radius: 9999px; display: inline-grid; place-items: center; background: #18181b; color: #fff; flex: none; transition: background .15s, transform .1s, box-shadow .15s; }
+  .send:hover { background: #3f3f46; }
+  .send:active { transform: scale(.94); }
+  .send[data-state="submitted"] { background: #52525b; }
+  .send[data-state="streaming"] { background: #18181b; box-shadow: 0 0 0 4px rgba(24,24,27,.08); }
+  .send[data-state="error"] { background: #dc2626; box-shadow: 0 0 0 4px rgba(220,38,38,.12); }
+  .send:disabled { background: #e4e4e7; color: #a1a1aa; cursor: not-allowed; transform: none; box-shadow: none; }
+  .stop-sq { width: 10px; height: 10px; border-radius: 2px; background: currentColor; }
+  .spin { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  .pop { animation: pop .16s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(4px) scale(.98); } }
+  .opt[aria-selected="true"] { background: #f4f4f5; }
+  .opt[aria-selected="true"] .opt-enter { opacity: 1; }
+  .tip { opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity .15s, transform .15s, visibility .15s; }
+  .ctx-wrap:hover .tip, .ctx-wrap:focus-within .tip { opacity: 1; visibility: visible; transform: none; }
+  .drop { display: none; }
+  .composer.dragging .drop { display: flex; }
+  .tile-x { opacity: .9; }
+  .tile:hover .tile-x { opacity: 1; }
+  .hl { white-space: pre; overflow: hidden; color: transparent; }
+  .hl mark { color: transparent; background: rgb(var(--accent-rgb) / .13); border-bottom: 2px solid rgb(var(--accent-rgb) / .55); border-radius: 3px 3px 0 0; }
+  .chip mark { background: rgb(var(--accent-rgb) / .12); color: var(--accent); border-radius: 3px; padding: 0 1px; }
+  .chip.dim { opacity: .45; }
+  .chip[aria-pressed="true"] { border-color: rgb(var(--accent-rgb) / .35); color: var(--accent); background: rgb(var(--accent-rgb) / .05); }
+  .rec-dot { width: 8px; height: 8px; border-radius: 9999px; background: #dc2626; box-shadow: 0 0 0 0 rgba(220,38,38,.5); animation: rec 1.4s ease-out infinite; }
+  .rec-dot.off { background: #a1a1aa; animation: none; }
+  @keyframes rec { 70% { box-shadow: 0 0 0 7px rgba(220,38,38,0); } 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); } }
+  .wave { -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%); mask-image: linear-gradient(90deg, transparent, #000 18%); }
+  .wave i { display: block; flex: none; width: 3px; height: 40px; border-radius: 3px; background: #18181b; transform-origin: center; transition: transform .09s linear; }
+  .wave.paused i { background: #d4d4d8; }
+  .toast { transition: opacity .2s, transform .2s; }
+  .toast[data-show="false"] { opacity: 0; transform: translate(-50%, 8px); pointer-events: none; }
+  .scroll-x { scrollbar-width: none; }
+  .scroll-x::-webkit-scrollbar { display: none; }
+  .tok-k { color: #7c3aed; } .tok-s { color: #047857; } .tok-n { color: #c2410c; } .tok-b { color: #2563eb; }
+  @media (prefers-reduced-motion: reduce) {
+    .spin, .shimmer, .rec-dot, .pop { animation: none !important; }
+    .shimmer { color: #71717a; background: none; }
+    .wave i, .tip, .toast { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans text-ink min-h-screen relative overflow-x-hidden">
+  <div class="page-glow pointer-events-none absolute inset-x-0 top-0 h-[420px]" aria-hidden="true"></div>
+
+  <main class="relative mx-auto max-w-[1200px] px-4 sm:px-8 pt-8 sm:pt-10 pb-24">
+    <header class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+      <div class="max-w-[620px]">
+        <p class="font-mono text-[11.5px] uppercase tracking-[.14em] text-muted flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-accent"></span>Agent UI &middot; Composer</p>
+        <h1 class="mt-3 text-[28px] sm:text-[34px] leading-[1.12] font-semibold tracking-[-0.025em]">Prompt composer, every state wired up</h1>
+        <p class="mt-2.5 text-[15px] leading-relaxed text-muted">Attachments, model routing, context budget, mentions, quick prompts and dictation. Type <kbd>@</kbd> or <kbd>/</kbd> in a field, drop a file on the first composer, and press <kbd>Enter</kbd> to send.</p>
+      </div>
+      <section aria-labelledby="legend-title" class="shrink-0 rounded-2xl border border-line bg-white px-4 py-3 shadow-[0_1px_2px_rgba(24,24,27,.04)]">
+        <div class="flex items-center justify-between gap-6">
+          <h2 id="legend-title" class="font-mono text-[11px] uppercase tracking-[.12em] text-muted">Submit states</h2>
+          <span class="text-[11.5px] text-faint">click to preview on 01</span>
+        </div>
+        <div class="mt-2.5 flex gap-5" id="legend">
+          <button type="button" data-preview="ready" class="group flex flex-col items-center gap-1.5" aria-label="Preview ready state"><span class="send" data-state="ready"><iconify-icon icon="lucide:arrow-up" width="16"></iconify-icon></span><span class="font-mono text-[11px] text-muted group-hover:text-ink">ready</span></button>
+          <button type="button" data-preview="submitted" class="group flex flex-col items-center gap-1.5" aria-label="Preview submitted state"><span class="send" data-state="submitted"><iconify-icon icon="lucide:loader-circle" width="16" class="spin"></iconify-icon></span><span class="font-mono text-[11px] text-muted group-hover:text-ink">submitted</span></button>
+          <button type="button" data-preview="streaming" class="group flex flex-col items-center gap-1.5" aria-label="Preview streaming state"><span class="send" data-state="streaming"><span class="stop-sq"></span></span><span class="font-mono text-[11px] text-muted group-hover:text-ink">streaming</span></button>
+          <button type="button" data-preview="error" class="group flex flex-col items-center gap-1.5" aria-label="Preview error state"><span class="send" data-state="error"><iconify-icon icon="lucide:triangle-alert" width="15"></iconify-icon></span><span class="font-mono text-[11px] text-muted group-hover:text-ink">error</span></button>
+        </div>
+      </section>
+    </header>
+
+    <div class="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <!-- 01 Full composer -->
+      <section class="stage min-w-0 lg:col-span-7 rounded-2xl border border-line p-4 sm:p-5 flex flex-col" aria-labelledby="t1">
+        <div class="flex items-center gap-3">
+          <span class="font-mono text-[11px] text-faint">01</span>
+          <h2 id="t1" class="text-[14px] font-semibold">Full composer</h2>
+          <span class="hidden sm:inline text-[12.5px] text-muted">attachments &middot; model &middot; context</span>
+          <button type="button" id="reset1" class="ml-auto inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[12px] text-muted hover:bg-white hover:text-ink transition"><iconify-icon icon="lucide:rotate-ccw" width="13"></iconify-icon>Reset</button>
+        </div>
+
+        <div class="composer mt-4" id="c1">
+          <div class="drop absolute inset-0 z-20 rounded-[15px] border-2 border-dashed border-accent/60 bg-white/90 backdrop-blur-[2px] flex-col items-center justify-center gap-1.5 text-accent" aria-hidden="true">
+            <iconify-icon icon="lucide:upload" width="22"></iconify-icon>
+            <span class="text-[13.5px] font-medium">Drop files to attach</span>
+            <span class="text-[11.5px] text-muted">Images, CSV, PDF up to 20 MB</span>
+          </div>
+          <div id="tiles1" class="flex flex-wrap gap-2.5 px-3 pt-3"></div>
+          <label for="ta1" class="sr-only">Message</label>
+          <textarea id="ta1" rows="1" class="block w-full resize-none bg-transparent px-4 pt-3 pb-1 text-[15px] leading-6 placeholder:text-faint focus:outline-none" placeholder="Ask anything, @ to mention, / for commands" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pop1">Compare Q3 churn by plan tier using this export and the dashboard capture. Flag any cohort that moved more than two points after the March price change.</textarea>
+          <div class="flex items-center gap-1 px-2 pb-2 pt-1">
+            <button type="button" class="tbtn" id="attach1" aria-label="Attach files"><iconify-icon icon="lucide:plus" width="18"></iconify-icon></button>
+            <input type="file" id="file1" class="hidden" multiple>
+            <button type="button" class="tbtn" id="search1" aria-pressed="true"><iconify-icon icon="lucide:globe" width="15"></iconify-icon><span class="hidden sm:inline">Search</span></button>
+            <div class="relative">
+              <button type="button" class="tbtn !pl-1.5 !pr-2 text-ink" id="modelBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="palette"><span id="modelGlyph"></span><span id="modelName" class="max-w-[96px] truncate">Aster 3</span><iconify-icon icon="lucide:chevrons-up-down" width="13" class="text-faint"></iconify-icon></button>
+              <div id="palette" hidden class="pop absolute left-0 top-full mt-2 z-40 w-[300px] max-w-[calc(100vw-48px)] rounded-xl border border-line bg-white shadow-[0_16px_40px_-12px_rgba(24,24,27,.28)] overflow-hidden">
+                <div class="flex items-center gap-2 px-3 h-11 border-b border-line">
+                  <iconify-icon icon="lucide:search" width="15" class="text-faint"></iconify-icon>
+                  <input id="modelSearch" class="flex-1 min-w-0 bg-transparent text-[13.5px] placeholder:text-faint focus:outline-none" placeholder="Search models or providers" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="modelList" autocomplete="off">
+                  <kbd>esc</kbd>
+                </div>
+                <ul id="modelList" role="listbox" aria-label="Models" class="relative max-h-[280px] overflow-y-auto p-1.5"></ul>
+              </div>
+            </div>
+            <div class="ml-auto flex items-center gap-1">
+              <div class="ctx-wrap relative">
+                <button type="button" class="tbtn font-mono !text-[12px] tabular-nums" aria-describedby="ctxTip" aria-label="Context usage">
+                  <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="#e4e4e7" stroke-width="2.5"/><circle id="ring" cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="47.12" stroke-dashoffset="32.5" transform="rotate(-90 10 10)" class="text-accent transition-[stroke-dashoffset] duration-500"/></svg>
+                  <span id="ctxPct">31%</span>
+                </button>
+                <div id="ctxTip" role="tooltip" class="tip absolute right-0 bottom-full mb-2 z-40 w-[272px] rounded-xl border border-line bg-white p-3.5 shadow-[0_16px_40px_-12px_rgba(24,24,27,.28)]"></div>
+              </div>
+              <button type="button" class="tbtn" id="mic1" aria-pressed="false" aria-label="Dictate"><iconify-icon icon="lucide:mic" width="16"></iconify-icon></button>
+              <button type="button" class="send" id="send1" data-state="ready" aria-label="Send message"><iconify-icon icon="lucide:arrow-up" width="16"></iconify-icon></button>
+            </div>
+          </div>
+          <div id="pop1" hidden role="listbox" class="pop absolute left-2 right-2 sm:right-auto sm:w-[340px] top-[calc(100%+8px)] z-30"></div>
+        </div>
+
+        <div class="mt-4 flex-1 flex flex-col rounded-xl border border-line bg-white overflow-hidden min-h-[176px]">
+          <div class="flex items-center gap-2 h-9 px-3 border-b border-line bg-[#fcfcfc]">
+            <iconify-icon icon="lucide:braces" width="14" class="text-faint"></iconify-icon>
+            <span class="font-mono text-[12px] text-muted">request.json</span>
+            <span class="font-mono text-[11px] text-faint">live</span>
+            <button type="button" id="copyJson" class="ml-auto tbtn !h-7 !min-w-7 !px-1.5" aria-label="Copy request JSON"><iconify-icon icon="lucide:copy" width="14"></iconify-icon></button>
+          </div>
+          <pre id="json" class="flex-1 overflow-x-auto px-4 py-3 font-mono text-[12.5px] leading-[1.65] text-ink"></pre>
+        </div>
+      </section>
+
+      <!-- 02 Mentions & commands -->
+      <section class="stage min-w-0 lg:col-span-5 rounded-2xl border border-line p-4 sm:p-5 flex flex-col" aria-labelledby="t2">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-3">
+          <span class="font-mono text-[11px] text-faint">02</span>
+          <h2 id="t2" class="text-[14px] font-semibold">Mentions &amp; commands</h2>
+          <div role="tablist" aria-label="Popover type" class="ml-auto inline-flex p-0.5 rounded-full bg-white border border-line">
+            <button type="button" role="tab" id="tabMention" aria-selected="true" class="tab h-7 px-3 rounded-full font-mono text-[12px] whitespace-nowrap transition">@ mention</button>
+            <button type="button" role="tab" id="tabCommand" aria-selected="false" class="tab h-7 px-3 rounded-full font-mono text-[12px] whitespace-nowrap transition">/ command</button>
+          </div>
+        </div>
+        <div class="relative flex-1 flex flex-col justify-end mt-4 min-h-[420px]">
+          <div class="space-y-3 pb-4" aria-hidden="true">
+            <div class="flex justify-end"><div class="max-w-[80%] rounded-2xl bg-white border border-line px-3.5 py-2 text-[13.5px] text-muted">Why did Team-tier churn spike in April?</div></div>
+            <div class="text-[13.5px] leading-relaxed text-muted pr-6">Team tier lost <span class="text-ink font-medium">1.8 pts</span> after the March change, mostly in seats under 10. Want me to pull the cohort table and loop someone in?</div>
+          </div>
+          <div class="composer" id="c2">
+            <div id="ctx2" class="flex flex-wrap gap-1.5 px-3 pt-3"></div>
+            <label for="ta2" class="sr-only">Message with mentions</label>
+            <textarea id="ta2" rows="1" class="block w-full resize-none bg-transparent px-4 pt-2.5 pb-1 text-[14.5px] leading-6 placeholder:text-faint focus:outline-none" placeholder="Type @ to add context, / for commands" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pop2"></textarea>
+            <div class="flex items-center gap-1 px-2 pb-2">
+              <button type="button" class="tbtn font-mono" data-insert="@" aria-label="Insert mention"><iconify-icon icon="lucide:at-sign" width="15"></iconify-icon></button>
+              <button type="button" class="tbtn font-mono" data-insert="/" aria-label="Insert command"><iconify-icon icon="lucide:slash" width="15"></iconify-icon></button>
+              <span class="hidden sm:inline ml-1 text-[11.5px] text-faint"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> to move, <kbd>&crarr;</kbd> to pick</span>
+              <button type="button" class="send ml-auto" id="send2" data-state="ready" aria-label="Send message"><iconify-icon icon="lucide:arrow-up" width="16"></iconify-icon></button>
+            </div>
+            <div id="pop2" hidden role="listbox" class="pop absolute left-0 right-0 bottom-[calc(100%+8px)] z-30"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 Quick prompt pill -->
+      <section class="stage min-w-0 lg:col-span-7 rounded-2xl border border-line p-4 sm:p-5" aria-labelledby="t3">
+        <div class="flex items-center gap-3">
+          <span class="font-mono text-[11px] text-faint">03</span>
+          <h2 id="t3" class="text-[14px] font-semibold">Quick prompt</h2>
+          <span class="hidden sm:inline text-[12.5px] text-muted">single line &middot; suggestions filter as you type</span>
+        </div>
+        <div class="composer mt-4 !rounded-full flex items-center h-12 pl-1.5 pr-1.5">
+          <button type="button" class="tbtn" aria-label="Add context"><iconify-icon icon="lucide:plus" width="18"></iconify-icon></button>
+          <div class="relative flex-1 min-w-0 h-full">
+            <div id="hl3" class="hl absolute inset-0 px-2 text-[14.5px] leading-[46px]" aria-hidden="true"></div>
+            <label for="in3" class="sr-only">Quick prompt</label>
+            <input id="in3" autocomplete="off" class="absolute inset-0 w-full h-full bg-transparent px-2 text-[14.5px] placeholder:text-faint focus:outline-none" placeholder="Ask the workspace agent...">
+          </div>
+          <button type="button" class="send" id="send3" data-state="ready" aria-label="Send prompt"><iconify-icon icon="lucide:arrow-up" width="16"></iconify-icon></button>
+        </div>
+        <div id="chips3" class="scroll-x mt-3 flex gap-2 overflow-x-auto sm:flex-wrap pb-0.5"></div>
+      </section>
+
+      <!-- 04 Dictation -->
+      <section class="stage min-w-0 lg:col-span-5 rounded-2xl border border-line p-4 sm:p-5" aria-labelledby="t4">
+        <div class="flex items-center gap-3">
+          <span class="font-mono text-[11px] text-faint">04</span>
+          <h2 id="t4" class="text-[14px] font-semibold">Dictation</h2>
+          <span class="ml-auto font-mono text-[11.5px] text-faint flex items-center gap-1.5"><iconify-icon icon="lucide:mic" width="12"></iconify-icon>MacBook mic</span>
+        </div>
+        <div class="composer mt-4 p-3.5">
+          <div class="flex items-center gap-2">
+            <span id="recDot" class="rec-dot"></span>
+            <span id="dictStatus" class="text-[13px] font-medium">Listening</span>
+            <span id="dictTime" class="ml-auto font-mono text-[13px] tabular-nums text-ink">0:07</span>
+          </div>
+          <p id="dictText" class="mt-2.5 min-h-[48px] text-[14px] leading-6 text-ink" aria-live="polite"></p>
+          <div id="wave" class="wave mt-2 h-11 flex items-center gap-[2px] overflow-hidden" aria-hidden="true"></div>
+          <div class="mt-3 flex items-center gap-2" id="dictActions"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" data-show="false" class="toast fixed left-1/2 bottom-6 -translate-x-1/2 z-50 inline-flex items-center gap-2 rounded-full bg-ink text-white text-[13px] pl-3 pr-4 h-10 shadow-[0_16px_40px_-12px_rgba(24,24,27,.5)] max-w-[calc(100vw-32px)]">
+    <iconify-icon id="toastIcon" icon="lucide:check" width="15" class="text-emerald-400 shrink-0"></iconify-icon><span id="toastText" class="truncate">Sent</span>
+  </div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function fmt(n) { return n.toLocaleString('en-US'); }
+  function keepInView(el, box) {
+    if (!el || !box) return;
+    if (el.offsetTop < box.scrollTop) box.scrollTop = el.offsetTop - 6;
+    else if (el.offsetTop + el.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = el.offsetTop + el.offsetHeight - box.clientHeight + 6;
+  }
+
+  /* ---------- toast ---------- */
+  var toastTimer;
+  function toast(text, icon, tone) {
+    $('#toastText').textContent = text;
+    $('#toastIcon').setAttribute('icon', icon || 'lucide:check');
+    $('#toastIcon').className = 'shrink-0 ' + (tone || 'text-emerald-400');
+    $('#toast').dataset.show = 'true';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('#toast').dataset.show = 'false'; }, 2200);
+  }
+
+  /* ---------- shared helpers ---------- */
+  function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 168) + 'px'; ta.style.overflowY = ta.scrollHeight > 168 ? 'auto' : 'hidden'; }
+  var SUBMIT = {
+    ready: ['<iconify-icon icon="lucide:arrow-up" width="16"></iconify-icon>', 'Send message'],
+    submitted: ['<iconify-icon icon="lucide:loader-circle" width="16" class="spin"></iconify-icon>', 'Sending'],
+    streaming: ['<span class="stop-sq"></span>', 'Stop generating'],
+    error: ['<iconify-icon icon="lucide:triangle-alert" width="15"></iconify-icon>', 'Failed to send, retry']
+  };
+  function setSubmit(btn, state) { btn.dataset.state = state; btn.innerHTML = SUBMIT[state][0]; btn.setAttribute('aria-label', SUBMIT[state][1]); }
+  function copyText(btn, text) {
+    var done = function () { var old = btn.innerHTML; btn.innerHTML = '<iconify-icon icon="lucide:check" width="14" class="text-emerald-600"></iconify-icon>'; setTimeout(function () { btn.innerHTML = old; }, 1200); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done); else done();
+  }
+
+  /* ---------- data ---------- */
+  var PROVIDERS = {
+    Lumora: { icon: 'lucide:sun', cls: 'bg-amber-100 text-amber-700' },
+    Kestrel: { icon: 'lucide:feather', cls: 'bg-sky-100 text-sky-700' },
+    Fjord: { icon: 'lucide:mountain', cls: 'bg-emerald-100 text-emerald-700' }
+  };
+  var MODELS = [
+    { id: 'aster-3', name: 'Aster 3', p: 'Lumora', tag: 'Balanced', win: 128000, price: [2.5, 10, 1.25] },
+    { id: 'aster-3-reason', name: 'Aster 3 Reason', p: 'Lumora', tag: 'Reasoning', win: 200000, price: [6, 24, 3] },
+    { id: 'aster-3-mini', name: 'Aster 3 Mini', p: 'Lumora', tag: 'Fast', win: 128000, price: [.4, 1.6, .1] },
+    { id: 'kestrel-xl', name: 'Kestrel XL', p: 'Kestrel', tag: 'Vision', win: 1000000, price: [3, 15, .75] },
+    { id: 'kestrel-flash', name: 'Kestrel Flash', p: 'Kestrel', tag: 'Fast', win: 1000000, price: [.3, 1.2, .08] },
+    { id: 'fjord-70b', name: 'Fjord 70B', p: 'Fjord', tag: 'Open weights', win: 64000, price: [.6, .8, .6] },
+    { id: 'fjord-coder', name: 'Fjord Coder', p: 'Fjord', tag: 'Code', win: 64000, price: [.9, 1.2, .9] }
+  ];
+  var MENTIONS = [
+    { g: 'Files', name: 'q3-churn-by-plan.csv', meta: '248 KB', icon: 'lucide:sheet', cls: 'bg-emerald-50 text-emerald-700', mono: true },
+    { g: 'Files', name: 'pricing-change-memo.md', meta: 'Mar 4', icon: 'lucide:file-text', cls: 'bg-zinc-100 text-zinc-600', mono: true },
+    { g: 'Files', name: 'src/billing/tiers.ts', meta: 'main', icon: 'lucide:file-code', cls: 'bg-sky-50 text-sky-700', mono: true },
+    { g: 'Agents', name: 'Analyst', meta: 'SQL + charts', icon: 'lucide:chart-column', cls: 'bg-violet-50 text-violet-700' },
+    { g: 'Agents', name: 'Researcher', meta: 'web + docs', icon: 'lucide:telescope', cls: 'bg-amber-50 text-amber-700' },
+    { g: 'People', name: 'Priya Raman', meta: 'Finance', initials: 'PR', cls: 'bg-rose-100 text-rose-700' },
+    { g: 'People', name: 'Theo Okafor', meta: 'Growth', initials: 'TO', cls: 'bg-indigo-100 text-indigo-700' }
+  ];
+  var COMMANDS = [
+    { g: 'Commands', name: 'summarize', meta: 'Condense this thread', icon: 'lucide:text-quote' },
+    { g: 'Commands', name: 'chart', meta: 'Plot data from a file', icon: 'lucide:chart-line' },
+    { g: 'Commands', name: 'plan', meta: 'Draft step-by-step plan', icon: 'lucide:list-checks' },
+    { g: 'Commands', name: 'sql', meta: 'Query the warehouse', icon: 'lucide:database' },
+    { g: 'Commands', name: 'translate', meta: 'Rewrite in another language', icon: 'lucide:languages' },
+    { g: 'Commands', name: 'clear', meta: 'Start a fresh thread', icon: 'lucide:eraser' }
+  ];
+  var SUGGESTIONS = [
+    { text: 'Summarize the open pull requests', icon: 'lucide:git-pull-request' },
+    { text: 'Draft release notes for v2.4', icon: 'lucide:notebook-pen' },
+    { text: 'Explain this stack trace', icon: 'lucide:bug' },
+    { text: 'Write a SQL query for weekly actives', icon: 'lucide:database' },
+    { text: 'Plan the Postgres 16 upgrade', icon: 'lucide:list-checks' },
+    { text: 'Turn meeting notes into a spec', icon: 'lucide:file-pen' }
+  ];
+  var USAGE = { input: 24310, output: 3980, reasoning: 8640, cached: 2750 };
+  var DEMO_FILES = [
+    { name: 'dashboard-q3.png', kind: 'image', size: '412 KB', art: true },
+    { name: 'q3-churn-by-plan.csv', kind: 'file', size: '248 KB', ext: 'CSV' }
+  ];
+  var DEMO_TEXT = $('#ta1').value;
+
+  /* ---------- composer 01 ---------- */
+  var c1 = { model: MODELS[0], search: true, files: DEMO_FILES.slice(), timers: [], dictating: false };
+  var ta1 = $('#ta1'), send1 = $('#send1');
+
+  function glyph(p, size) {
+    var pr = PROVIDERS[p];
+    return '<span class="w-' + size + ' h-' + size + ' rounded-md grid place-items-center shrink-0 ' + pr.cls + '"><iconify-icon icon="' + pr.icon + '" width="12"></iconify-icon></span>';
+  }
+  var ART = '<svg viewBox="0 0 56 56" class="w-full h-full" aria-hidden="true"><rect width="56" height="56" fill="#eef2ff"/><rect x="6" y="7" width="22" height="4" rx="2" fill="#a5b4fc"/><rect x="6" y="15" width="13" height="3" rx="1.5" fill="#c7d2fe"/><rect x="8" y="34" width="6" height="14" rx="1.5" fill="#818cf8"/><rect x="17" y="27" width="6" height="21" rx="1.5" fill="#6366f1"/><rect x="26" y="31" width="6" height="17" rx="1.5" fill="#818cf8"/><rect x="35" y="22" width="6" height="26" rx="1.5" fill="#4f46e5"/><rect x="44" y="29" width="6" height="19" rx="1.5" fill="#a5b4fc"/></svg>';
+
+  function fileTile(f, i) {
+    var x = '<button type="button" class="tile-x absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-white border border-line2 shadow-sm grid place-items-center text-muted hover:text-ink hover:border-zinc-400 transition" data-remove="' + i + '" aria-label="Remove ' + esc(f.name) + '"><iconify-icon icon="lucide:x" width="11"></iconify-icon></button>';
+    if (f.kind === 'image') {
+      var body = f.url ? '<img src="' + f.url + '" alt="" class="w-full h-full object-cover">' : ART;
+      return '<div class="tile relative w-14 h-14" title="' + esc(f.name) + '"><div class="w-full h-full rounded-[10px] border border-line overflow-hidden bg-fill">' + body + '</div>' + x + '</div>';
+    }
+    var ext = (f.ext || 'FILE').toUpperCase();
+    var tone = ext === 'CSV' ? 'bg-emerald-50 text-emerald-700' : ext === 'PDF' ? 'bg-red-50 text-red-600' : 'bg-zinc-100 text-zinc-600';
+    var icon = ext === 'CSV' ? 'lucide:sheet' : ext === 'PDF' ? 'lucide:file-text' : 'lucide:file';
+    return '<div class="tile relative h-14 max-w-[230px] flex items-center gap-2.5 rounded-[10px] border border-line bg-white pl-2 pr-3.5">' +
+      '<span class="w-9 h-9 rounded-lg grid place-items-center shrink-0 ' + tone + '"><iconify-icon icon="' + icon + '" width="17"></iconify-icon></span>' +
+      '<span class="min-w-0"><span class="block font-mono text-[12.5px] truncate">' + esc(f.name) + '</span><span class="block font-mono text-[11px] text-faint">' + ext + ' &middot; ' + esc(f.size) + '</span></span>' + x + '</div>';
+  }
+  function renderTiles() {
+    var box = $('#tiles1');
+    box.innerHTML = c1.files.map(fileTile).join('');
+    box.classList.toggle('hidden', !c1.files.length);
+    refresh1();
+  }
+  $('#tiles1').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-remove]'); if (!b) return;
+    var f = c1.files.splice(+b.dataset.remove, 1)[0];
+    renderTiles(); toast('Removed ' + f.name, 'lucide:trash-2', 'text-zinc-400'); ta1.focus();
+  });
+  function addFiles(list) {
+    Array.prototype.forEach.call(list, function (file) {
+      var isImg = /^image\//.test(file.type);
+      var kb = file.size > 1048576 ? (file.size / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(file.size / 1024)) + ' KB';
+      c1.files.push({ name: file.name, kind: isImg ? 'image' : 'file', size: kb, ext: (file.name.split('.').pop() || 'file').slice(0, 4), url: isImg ? URL.createObjectURL(file) : null });
+    });
+    renderTiles();
+    if (list.length) toast('Attached ' + list.length + ' file' + (list.length > 1 ? 's' : ''), 'lucide:paperclip');
+  }
+  $('#attach1').addEventListener('click', function () { $('#file1').click(); });
+  $('#file1').addEventListener('change', function (e) { addFiles(e.target.files); e.target.value = ''; });
+
+  var dragDepth = 0, comp1 = $('#c1');
+  comp1.addEventListener('dragenter', function (e) { e.preventDefault(); dragDepth++; comp1.classList.add('dragging'); });
+  comp1.addEventListener('dragleave', function () { if (--dragDepth <= 0) { dragDepth = 0; comp1.classList.remove('dragging'); } });
+  comp1.addEventListener('dragover', function (e) { e.preventDefault(); });
+  comp1.addEventListener('drop', function (e) { e.preventDefault(); dragDepth = 0; comp1.classList.remove('dragging'); if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) { e.preventDefault(); });
+
+  /* search toggle */
+  $('#search1').addEventListener('click', function () {
+    c1.search = !c1.search; this.setAttribute('aria-pressed', c1.search);
+    toast(c1.search ? 'Web search on' : 'Web search off', 'lucide:globe', c1.search ? 'text-emerald-400' : 'text-zinc-400'); refresh1();
+  });
+
+  /* context ring */
+  function usedTokens() { return USAGE.input + USAGE.output + USAGE.reasoning + USAGE.cached; }
+  function renderContext() {
+    var m = c1.model, used = usedTokens(), pct = used / m.win * 100;
+    var cost = (USAGE.input * m.price[0] + (USAGE.output + USAGE.reasoning) * m.price[1] + USAGE.cached * m.price[2]) / 1e6;
+    $('#ctxPct').textContent = (pct < 10 ? pct.toFixed(1) : Math.round(pct)) + '%';
+    $('#ring').setAttribute('stroke-dashoffset', (47.12 * (1 - Math.min(pct, 100) / 100)).toFixed(2));
+    $('#ring').setAttribute('class', 'transition-[stroke-dashoffset] duration-500 ' + (pct > 75 ? 'text-red-600' : pct > 50 ? 'text-amber-500' : 'text-accent'));
+    var rows = [['Input', USAGE.input, '#4f46e5'], ['Output', USAGE.output, '#0ea5e9'], ['Reasoning', USAGE.reasoning, '#a855f7'], ['Cached', USAGE.cached, '#a1a1aa']];
+    var bar = rows.map(function (r) { return '<span style="width:' + (r[1] / m.win * 100) + '%;background:' + r[2] + '"></span>'; }).join('');
+    $('#ctxTip').innerHTML =
+      '<div class="flex items-baseline justify-between"><span class="text-[12.5px] font-semibold">Context window</span><span class="font-mono text-[12px] tabular-nums">' + pct.toFixed(1) + '%</span></div>' +
+      '<div class="mt-0.5 font-mono text-[11.5px] text-muted tabular-nums">' + fmt(used) + ' / ' + fmt(m.win) + ' tokens</div>' +
+      '<div class="mt-2.5 h-1.5 rounded-full bg-fill overflow-hidden flex [&>span]:h-full">' + bar + '</div>' +
+      '<dl class="mt-3 space-y-1.5">' + rows.map(function (r) {
+        return '<div class="flex items-center gap-2 text-[12.5px]"><span class="w-2 h-2 rounded-sm" style="background:' + r[2] + '"></span><dt class="text-muted">' + r[0] + '</dt><dd class="ml-auto font-mono text-[12px] tabular-nums">' + fmt(r[1]) + '</dd></div>';
+      }).join('') + '</dl>' +
+      '<div class="mt-3 pt-2.5 border-t border-line flex items-center justify-between text-[12.5px]"><span class="text-muted">Est. cost &middot; ' + esc(m.name) + '</span><span class="font-mono tabular-nums font-medium">$' + cost.toFixed(3) + '</span></div>';
+  }
+
+  /* model palette */
+  var palette = $('#palette'), modelBtn = $('#modelBtn'), modelSearch = $('#modelSearch'), visibleModels = [], activeModel = 0;
+  function renderModelChip() { $('#modelGlyph').innerHTML = glyph(c1.model.p, 5); $('#modelName').textContent = c1.model.name; }
+  function renderModels() {
+    var q = modelSearch.value.trim().toLowerCase();
+    visibleModels = MODELS.filter(function (m) { return !q || (m.name + ' ' + m.p + ' ' + m.tag).toLowerCase().indexOf(q) > -1; });
+    activeModel = Math.min(activeModel, Math.max(visibleModels.length - 1, 0));
+    if (!visibleModels.length) { $('#modelList').innerHTML = '<li class="px-3 py-6 text-center text-[13px] text-muted">No models match &ldquo;' + esc(q) + '&rdquo;</li>'; modelSearch.removeAttribute('aria-activedescendant'); return; }
+    var html = '', last = '';
+    visibleModels.forEach(function (m, i) {
+      if (m.p !== last) { last = m.p; html += '<li role="presentation" class="flex items-center gap-2 px-2 pt-2.5 pb-1 font-mono text-[10.5px] uppercase tracking-[.12em] text-faint">' + m.p + '</li>'; }
+      var sel = m.id === c1.model.id;
+      html += '<li role="option" id="mo-' + m.id + '" data-i="' + i + '" aria-selected="' + (i === activeModel) + '" class="opt flex items-center gap-2.5 h-9 px-2 rounded-lg cursor-pointer text-[13.5px]">' + glyph(m.p, 5) +
+        '<span class="font-medium">' + esc(m.name) + '</span><span class="text-[11.5px] text-muted">' + m.tag + '</span>' +
+        '<span class="ml-auto font-mono text-[11px] text-faint tabular-nums">' + (m.win >= 1e6 ? '1M' : m.win / 1000 + 'K') + '</span>' +
+        '<iconify-icon icon="lucide:check" width="14" class="' + (sel ? 'text-accent' : 'invisible') + '"></iconify-icon></li>';
+    });
+    $('#modelList').innerHTML = html;
+    modelSearch.setAttribute('aria-activedescendant', 'mo-' + visibleModels[activeModel].id);
+    keepInView($('#mo-' + visibleModels[activeModel].id), $('#modelList'));
+  }
+  function openPalette() { palette.hidden = false; modelBtn.setAttribute('aria-expanded', 'true'); modelSearch.value = ''; activeModel = MODELS.indexOf(c1.model); renderModels(); modelSearch.focus(); }
+  function closePalette(focusBtn) { palette.hidden = true; modelBtn.setAttribute('aria-expanded', 'false'); if (focusBtn) modelBtn.focus(); }
+  function pickModel(m) { c1.model = m; renderModelChip(); renderContext(); refresh1(); closePalette(true); toast('Routing to ' + m.name, 'lucide:cpu'); }
+  modelBtn.addEventListener('click', function () { palette.hidden ? openPalette() : closePalette(); });
+  modelSearch.addEventListener('input', function () { activeModel = 0; renderModels(); });
+  modelSearch.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!visibleModels.length) return; activeModel = (activeModel + (e.key === 'ArrowDown' ? 1 : -1) + visibleModels.length) % visibleModels.length; renderModels(); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (visibleModels[activeModel]) pickModel(visibleModels[activeModel]); }
+    else if (e.key === 'Escape') { e.preventDefault(); closePalette(true); }
+  });
+  $('#modelList').addEventListener('mousemove', function (e) { var o = e.target.closest('[data-i]'); if (o && +o.dataset.i !== activeModel) { activeModel = +o.dataset.i; renderModels(); } });
+  $('#modelList').addEventListener('click', function (e) { var o = e.target.closest('[data-i]'); if (o) pickModel(visibleModels[+o.dataset.i]); });
+
+  /* request preview */
+  function refresh1() {
+    var hasContent = ta1.value.trim() || c1.files.length;
+    if (send1.dataset.state === 'ready') send1.disabled = !hasContent;
+    var files = c1.files.map(function (f) { return '<span class="tok-s">"' + esc(f.name) + '"</span>'; }).join(', ');
+    $('#json').innerHTML = '{\n' +
+      '  <span class="tok-k">"model"</span>: <span class="tok-s">"' + c1.model.id + '"</span>,\n' +
+      '  <span class="tok-k">"tools"</span>: { <span class="tok-k">"web_search"</span>: <span class="tok-b">' + c1.search + '</span> },\n' +
+      '  <span class="tok-k">"attachments"</span>: [' + files + '],\n' +
+      '  <span class="tok-k">"prompt_chars"</span>: <span class="tok-n">' + ta1.value.length + '</span>,\n' +
+      '  <span class="tok-k">"context_used"</span>: <span class="tok-s">"' + (usedTokens() / c1.model.win * 100).toFixed(1) + '%"</span>\n}';
+  }
+  $('#copyJson').addEventListener('click', function () { copyText(this, $('#json').textContent); });
+
+  /* send / stop */
+  function clearTimers() { c1.timers.forEach(clearTimeout); c1.timers = []; }
+  function stop1(silent) { clearTimers(); setSubmit(send1, 'ready'); refresh1(); if (!silent) toast('Generation stopped', 'lucide:square', 'text-zinc-300'); }
+  function send() {
+    var text = ta1.value.trim();
+    if (!text && !c1.files.length) return;
+    var n = c1.files.length, failing = /\b(error|fail)/i.test(text);
+    send1.disabled = false; setSubmit(send1, 'submitted');
+    ta1.value = ''; c1.files = []; renderTiles(); autoGrow(ta1); closePop(trig1);
+    c1.timers.push(setTimeout(function () {
+      if (failing) { setSubmit(send1, 'error'); toast('Could not reach ' + c1.model.name + '. Press to retry', 'lucide:triangle-alert', 'text-red-400'); return; }
+      setSubmit(send1, 'streaming');
+      toast('Sent to ' + c1.model.name + (n ? ' with ' + n + ' file' + (n > 1 ? 's' : '') : '') + (c1.search ? ' + web' : ''), 'lucide:send');
+      USAGE.input += Math.round(text.length / 3.6) + 180 * n; USAGE.output += 420; renderContext();
+      c1.timers.push(setTimeout(function () { stop1(true); }, 2400));
+    }, 650));
+  }
+  send1.addEventListener('click', function () {
+    var s = send1.dataset.state;
+    if (s === 'streaming' || s === 'submitted') stop1();
+    else if (s === 'error') { setSubmit(send1, 'ready'); refresh1(); toast('Ready to retry', 'lucide:rotate-ccw', 'text-zinc-300'); }
+    else send();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && (send1.dataset.state === 'streaming' || send1.dataset.state === 'submitted')) stop1();
+  });
+
+  /* mic in 01: fake dictation append */
+  $('#mic1').addEventListener('click', function () {
+    var b = this; if (c1.dictating) return;
+    c1.dictating = true; b.setAttribute('aria-pressed', 'true'); b.classList.add('mic-on'); toast('Listening...', 'lucide:mic', 'text-red-400');
+    setTimeout(function () {
+      ta1.value = (ta1.value.trim() ? ta1.value.trim() + ' ' : '') + 'Keep the chart under 600 pixels wide.';
+      autoGrow(ta1); refresh1(); c1.dictating = false; b.setAttribute('aria-pressed', 'false'); b.classList.remove('mic-on'); ta1.focus();
+    }, 1800);
+  });
+
+  /* legend preview */
+  $('#legend').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-preview]'); if (!b) return;
+    clearTimers(); send1.disabled = false; setSubmit(send1, b.dataset.preview);
+    if (b.dataset.preview === 'ready') refresh1();
+    toast('Previewing "' + b.dataset.preview + '" on composer 01', 'lucide:eye', 'text-sky-300');
+  });
+
+  $('#reset1').addEventListener('click', function () {
+    clearTimers(); setSubmit(send1, 'ready'); c1.files = DEMO_FILES.slice(); c1.model = MODELS[0]; c1.search = true;
+    $('#search1').setAttribute('aria-pressed', 'true'); USAGE = { input: 24310, output: 3980, reasoning: 8640, cached: 2750 };
+    ta1.value = DEMO_TEXT; renderModelChip(); renderContext(); renderTiles(); autoGrow(ta1);
+  });
+
+  /* ---------- @ and / popovers (shared) ---------- */
+  function makeTrigger(ta, pop, onPick) {
+    var t = { ta: ta, pop: pop, mode: null, items: [], active: 0, start: 0, onPick: onPick };
+    ta.addEventListener('input', function () { detect(t); });
+    ta.addEventListener('click', function () { detect(t); });
+    ta.addEventListener('blur', function () { setTimeout(function () { if (document.activeElement !== ta) closePop(t); }, 120); });
+    pop.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    pop.addEventListener('mousemove', function (e) { var o = e.target.closest('[data-i]'); if (o && +o.dataset.i !== t.active) { t.active = +o.dataset.i; renderPop(t); } });
+    pop.addEventListener('click', function (e) { var o = e.target.closest('[data-i]'); if (o) pick(t, +o.dataset.i); });
+    return t;
+  }
+  function detect(t) {
+    var pos = t.ta.selectionStart, before = t.ta.value.slice(0, pos);
+    var m = before.match(/(?:^|\s)([@/])([\w.\-\/]*)$/);
+    if (!m) return closePop(t);
+    openPop(t, m[1] === '@' ? 'mention' : 'command', m[2], pos - m[2].length - 1);
+  }
+  function openPop(t, mode, query, start) {
+    if (t.mode !== mode || t.query !== query) t.active = 0;
+    t.mode = mode; t.query = query; t.start = start;
+    var src = mode === 'mention' ? MENTIONS : COMMANDS, q = query.toLowerCase();
+    t.items = src.filter(function (it) { return !q || (it.name + ' ' + it.meta).toLowerCase().indexOf(q) > -1; });
+    renderPop(t);
+  }
+  function renderPop(t) {
+    var p = t.pop, id = p.id;
+    p.hidden = false; t.ta.setAttribute('aria-expanded', 'true');
+    var head = t.mode === 'mention' ? '<iconify-icon icon="lucide:at-sign" width="13"></iconify-icon>Add context' : '<iconify-icon icon="lucide:slash" width="13"></iconify-icon>Commands';
+    var body = '', last = '';
+    if (!t.items.length) body = '<div class="px-3 py-5 text-center text-[13px] text-muted">Nothing matches <span class="font-mono text-ink">' + esc((t.mode === 'mention' ? '@' : '/') + t.query) + '</span></div>';
+    t.items.forEach(function (it, i) {
+      if (t.mode === 'mention' && it.g !== last) { last = it.g; body += '<div class="px-2 pt-2 pb-1 font-mono text-[10.5px] uppercase tracking-[.12em] text-faint">' + it.g + '</div>'; }
+      var lead = it.initials ? '<span class="w-6 h-6 rounded-full grid place-items-center text-[10px] font-semibold shrink-0 ' + it.cls + '">' + it.initials + '</span>'
+        : '<span class="w-6 h-6 rounded-md grid place-items-center shrink-0 ' + (it.cls || 'bg-zinc-100 text-zinc-600') + '"><iconify-icon icon="' + it.icon + '" width="13"></iconify-icon></span>';
+      var name = t.mode === 'command' ? '<span class="font-mono text-[13px]">/' + it.name + '</span>' : '<span class="' + (it.mono ? 'font-mono text-[12.5px]' : 'text-[13.5px] font-medium') + ' truncate">' + esc(it.name) + '</span>';
+      body += '<div role="option" id="' + id + '-o' + i + '" data-i="' + i + '" aria-selected="' + (i === t.active) + '" class="opt flex items-center gap-2.5 h-[34px] px-2 rounded-lg cursor-pointer">' + lead + name +
+        '<span class="ml-auto pl-2 text-[11.5px] text-muted truncate">' + esc(it.meta) + '</span><iconify-icon icon="lucide:corner-down-left" width="12" class="opt-enter opacity-0 text-faint shrink-0"></iconify-icon></div>';
+    });
+    p.innerHTML = '<div class="rounded-xl border border-line bg-white shadow-[0_16px_40px_-12px_rgba(24,24,27,.28)] overflow-hidden">' +
+      '<div class="flex items-center gap-1.5 h-8 px-3 border-b border-line text-[11.5px] font-medium text-muted">' + head + '<span class="ml-auto font-mono text-faint">' + t.items.length + '</span></div>' +
+      '<div class="pop-list relative max-h-[232px] overflow-y-auto p-1.5">' + body + '</div>' +
+      '<div class="flex items-center gap-3 h-8 px-3 border-t border-line bg-[#fcfcfc] text-[11px] text-faint"><span><kbd>&uarr;&darr;</kbd> navigate</span><span><kbd>&crarr;</kbd> insert</span><span><kbd>esc</kbd> close</span></div></div>';
+    if (t.items.length) { t.ta.setAttribute('aria-activedescendant', id + '-o' + t.active); keepInView(document.getElementById(id + '-o' + t.active), p.querySelector('.pop-list')); }
+  }
+  function closePop(t) { if (!t) return; t.pop.hidden = true; t.mode = null; t.ta.setAttribute('aria-expanded', 'false'); t.ta.removeAttribute('aria-activedescendant'); }
+  function pick(t, i) {
+    var it = t.items[i]; if (!it) return;
+    var token = (t.mode === 'mention' ? '@' : '/') + (it.name.indexOf(' ') > -1 ? it.name.split(' ')[0] : it.name) + ' ';
+    var end = t.ta.selectionStart, v = t.ta.value;
+    t.ta.value = v.slice(0, t.start) + token + v.slice(end);
+    var caret = t.start + token.length; t.ta.focus(); t.ta.setSelectionRange(caret, caret);
+    var mode = t.mode; closePop(t); autoGrow(t.ta);
+    if (t.onPick) t.onPick(it, mode);
+  }
+  function popKeys(t, e) {
+    if (t.pop.hidden || !t.mode) return false;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (t.items.length) { t.active = (t.active + (e.key === 'ArrowDown' ? 1 : -1) + t.items.length) % t.items.length; renderPop(t); } return true; }
+    if ((e.key === 'Enter' || e.key === 'Tab') && t.items.length) { e.preventDefault(); pick(t, t.active); return true; }
+    if (e.key === 'Escape') { e.preventDefault(); closePop(t); return true; }
+    return false;
+  }
+
+  var trig1 = makeTrigger(ta1, $('#pop1'), function () { refresh1(); });
+  ta1.addEventListener('input', function () { autoGrow(ta1); refresh1(); });
+  ta1.addEventListener('keydown', function (e) {
+    if (popKeys(trig1, e)) return;
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (send1.dataset.state === 'ready') send(); }
+  });
+
+  /* ---------- composer 02 ---------- */
+  var ta2 = $('#ta2'), ctx2 = [MENTIONS[1]];
+  function renderCtx2() {
+    $('#ctx2').innerHTML = ctx2.map(function (it, i) {
+      var lead = it.initials ? '<span class="w-4 h-4 rounded-full grid place-items-center text-[8px] font-semibold ' + it.cls + '">' + it.initials + '</span>' : '<iconify-icon icon="' + it.icon + '" width="12" class="text-muted"></iconify-icon>';
+      return '<span class="inline-flex items-center gap-1.5 h-7 pl-2 pr-1 rounded-full border border-line bg-fill/60 text-[12px]">' + lead + '<span class="' + (it.mono ? 'font-mono text-[11.5px]' : 'font-medium') + ' max-w-[160px] truncate">' + esc(it.name) + '</span>' +
+        '<button type="button" data-ctx="' + i + '" class="w-5 h-5 rounded-full grid place-items-center text-faint hover:bg-white hover:text-ink transition" aria-label="Remove ' + esc(it.name) + '"><iconify-icon icon="lucide:x" width="11"></iconify-icon></button></span>';
+    }).join('');
+    $('#ctx2').classList.toggle('hidden', !ctx2.length);
+  }
+  $('#ctx2').addEventListener('click', function (e) { var b = e.target.closest('[data-ctx]'); if (b) { ctx2.splice(+b.dataset.ctx, 1); renderCtx2(); ta2.focus(); } });
+  var trig2 = makeTrigger(ta2, $('#pop2'), function (it, mode) {
+    if (mode === 'mention' && ctx2.indexOf(it) < 0) { ctx2.push(it); renderCtx2(); }
+    if (mode === 'command') toast('/' + it.name + ' will run on send', 'lucide:terminal', 'text-sky-300');
+  });
+  var PRESETS = { mention: 'Pull the April cohort table and loop in @', command: '/' };
+  function setTab(mode, focus) {
+    $('#tabMention').setAttribute('aria-selected', mode === 'mention');
+    $('#tabCommand').setAttribute('aria-selected', mode === 'command');
+    document.querySelectorAll('.tab').forEach(function (b) { var on = b.getAttribute('aria-selected') === 'true'; b.className = 'tab h-7 px-3 rounded-full font-mono text-[12px] whitespace-nowrap transition ' + (on ? 'bg-ink text-white' : 'text-muted hover:text-ink'); });
+    ta2.value = PRESETS[mode]; autoGrow(ta2);
+    if (focus) { ta2.focus(); ta2.setSelectionRange(ta2.value.length, ta2.value.length); }
+    openPop(trig2, mode, '', ta2.value.length - 1);
+  }
+  $('#tabMention').addEventListener('click', function () { setTab('mention', true); });
+  $('#tabCommand').addEventListener('click', function () { setTab('command', true); });
+  document.querySelectorAll('[data-insert]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var ch = b.dataset.insert, pos = ta2.selectionStart || ta2.value.length, v = ta2.value;
+      var pre = v.slice(0, pos), ins = (pre && !/\s$/.test(pre) ? ' ' : '') + ch;
+      ta2.value = pre + ins + v.slice(pos); ta2.focus(); ta2.setSelectionRange(pos + ins.length, pos + ins.length); detect(trig2); autoGrow(ta2);
+    });
+  });
+  function send2() {
+    var text = ta2.value.trim(); if (!text) return;
+    ta2.value = ''; autoGrow(ta2); closePop(trig2);
+    toast('Sent with ' + ctx2.length + ' context item' + (ctx2.length === 1 ? '' : 's'), 'lucide:send');
+    var b = $('#send2'); setSubmit(b, 'submitted'); setTimeout(function () { setSubmit(b, 'ready'); }, 700);
+  }
+  ta2.addEventListener('input', function () { autoGrow(ta2); });
+  ta2.addEventListener('keydown', function (e) { if (popKeys(trig2, e)) return; if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send2(); } });
+  $('#send2').addEventListener('click', send2);
+
+  document.addEventListener('mousedown', function (e) {
+    if (!palette.hidden && !e.target.closest('#palette') && !e.target.closest('#modelBtn')) closePalette();
+    if (!e.target.closest('#c1')) closePop(trig1);
+    if (!e.target.closest('#c2') && !e.target.closest('[role=tablist]')) closePop(trig2);
+  });
+
+  /* ---------- 03 quick prompt ---------- */
+  var in3 = $('#in3'), hl3 = $('#hl3'), mark = null;
+  function renderHl() {
+    var v = in3.value;
+    if (mark && v.slice(mark[0], mark[1]) !== mark[2]) mark = null;
+    hl3.innerHTML = mark ? esc(v.slice(0, mark[0])) + '<mark>' + esc(mark[2]) + '</mark>' + esc(v.slice(mark[1])) : esc(v);
+    hl3.scrollLeft = in3.scrollLeft;
+  }
+  function renderChips() {
+    var q = in3.value.trim().toLowerCase(), typing = !mark && q;
+    $('#chips3').innerHTML = SUGGESTIONS.map(function (s, i) {
+      var t = esc(s.text), idx = typing ? s.text.toLowerCase().indexOf(q) : -1;
+      if (idx > -1) t = esc(s.text.slice(0, idx)) + '<mark>' + esc(s.text.slice(idx, idx + q.length)) + '</mark>' + esc(s.text.slice(idx + q.length));
+      var dim = typing && idx < 0, on = mark && mark[2] === s.text;
+      return '<button type="button" data-s="' + i + '" aria-pressed="' + !!on + '" class="chip shrink-0 inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-white text-[13px] text-zinc-600 hover:border-line2 hover:text-ink active:scale-[.98] transition' + (dim ? ' dim' : '') + '"><iconify-icon icon="' + s.icon + '" width="13" class="text-faint"></iconify-icon><span class="whitespace-nowrap">' + t + '</span></button>';
+    }).join('');
+  }
+  $('#chips3').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-s]'); if (!b) return;
+    var s = SUGGESTIONS[+b.dataset.s].text;
+    in3.value = s + ' '; mark = [0, s.length, s];
+    in3.focus(); in3.setSelectionRange(in3.value.length, in3.value.length); renderHl(); renderChips();
+  });
+  in3.addEventListener('input', function () { renderHl(); renderChips(); });
+  in3.addEventListener('scroll', renderHl);
+  in3.addEventListener('keyup', function () { hl3.scrollLeft = in3.scrollLeft; });
+  function send3() {
+    var v = in3.value.trim(); if (!v) return;
+    var b = $('#send3'); setSubmit(b, 'submitted');
+    setTimeout(function () { setSubmit(b, 'ready'); toast('Sent "' + (v.length > 34 ? v.slice(0, 34) + '...' : v) + '"', 'lucide:send'); }, 600);
+    in3.value = ''; mark = null; renderHl(); renderChips();
+  }
+  in3.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send3(); } });
+  $('#send3').addEventListener('click', send3);
+
+  /* ---------- 04 dictation ---------- */
+  var SPEECH = 'Okay, for the quarterly review pull churn by plan tier, flag anything that moved more than two points, and draft a short note for Priya with the chart attached.'.split(' ');
+  var dict = { state: 'recording', sec: 7, words: 12, amps: [], bars: [], tick: null, clock: null };
+  var wave = $('#wave');
+  function buildWave() {
+    var n = Math.max(24, Math.floor(wave.clientWidth / 5));
+    if (n === dict.bars.length) return;
+    wave.innerHTML = ''; dict.bars = [];
+    for (var i = 0; i < n; i++) { var b = document.createElement('i'); wave.appendChild(b); dict.bars.push(b); }
+    while (dict.amps.length < n) dict.amps.unshift(amp(dict.amps.length));
+    dict.amps = dict.amps.slice(-n); paintWave();
+  }
+  var phase = 0;
+  function amp(k) { phase += .35; var v = .18 + .5 * Math.abs(Math.sin(phase * .7 + k)) * (.55 + .45 * Math.sin(phase * .13)) + Math.random() * .3; return Math.min(1, v); }
+  function paintWave() { dict.bars.forEach(function (b, i) { b.style.transform = 'scaleY(' + Math.max(.08, dict.amps[i] || .08).toFixed(3) + ')'; }); }
+  function renderDictText() {
+    var done = SPEECH.slice(0, Math.max(0, dict.words - 2)).join(' '), interim = SPEECH.slice(Math.max(0, dict.words - 2), dict.words).join(' ');
+    var live = dict.state === 'recording' && dict.words < SPEECH.length;
+    if (!dict.words) { $('#dictText').innerHTML = '<span class="text-faint">Tap the mic and start talking. Words appear as you speak.</span>'; return; }
+    $('#dictText').innerHTML = esc(done) + ' ' + (live ? '<span class="shimmer">' + esc(interim) + '</span>' : esc(interim));
+  }
+  function fmtTime(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  var ACTIONS = {
+    recording: '<button type="button" data-d="discard" class="tbtn !px-3 border border-line" aria-label="Discard recording"><iconify-icon icon="lucide:trash-2" width="14"></iconify-icon><span class="hidden sm:inline">Discard</span></button>' +
+      '<span class="ml-auto"></span><button type="button" data-d="pause" class="tbtn !px-3 border border-line text-ink" aria-label="Stop recording"><span class="stop-sq text-red-600"></span>Stop</button>' +
+      '<button type="button" data-d="confirm" class="tbtn !px-3 !bg-ink !text-white hover:!bg-zinc-700" aria-label="Insert transcript"><iconify-icon icon="lucide:check" width="15"></iconify-icon>Insert</button>',
+    paused: '<button type="button" data-d="discard" class="tbtn !px-3 border border-line" aria-label="Discard recording"><iconify-icon icon="lucide:trash-2" width="14"></iconify-icon><span class="hidden sm:inline">Discard</span></button>' +
+      '<span class="ml-auto"></span><button type="button" data-d="resume" class="tbtn !px-3 border border-line text-ink"><iconify-icon icon="lucide:mic" width="14"></iconify-icon>Resume</button>' +
+      '<button type="button" data-d="confirm" class="tbtn !px-3 !bg-ink !text-white hover:!bg-zinc-700"><iconify-icon icon="lucide:check" width="15"></iconify-icon>Insert</button>',
+    done: '<span class="inline-flex items-center gap-1.5 text-[12.5px] text-emerald-700"><iconify-icon icon="lucide:circle-check" width="15"></iconify-icon>Inserted into composer</span>' +
+      '<button type="button" data-d="restart" class="ml-auto tbtn !px-3 border border-line text-ink"><iconify-icon icon="lucide:mic" width="14"></iconify-icon>Record again</button>',
+    idle: '<button type="button" data-d="restart" class="mx-auto inline-flex items-center gap-2 h-10 px-5 rounded-full bg-ink text-white text-[13.5px] font-medium hover:bg-zinc-700 transition"><iconify-icon icon="lucide:mic" width="16"></iconify-icon>Start dictating</button>'
+  };
+  var STATUS = { recording: 'Listening', paused: 'Paused', done: 'Transcript ready', idle: 'Mic idle' };
+  function setDict(state) {
+    dict.state = state;
+    $('#dictStatus').textContent = STATUS[state];
+    $('#recDot').className = 'rec-dot' + (state === 'recording' ? '' : ' off');
+    wave.classList.toggle('paused', state !== 'recording');
+    wave.style.visibility = state === 'idle' ? 'hidden' : 'visible';
+    $('#dictActions').innerHTML = ACTIONS[state];
+    $('#dictTime').textContent = fmtTime(dict.sec);
+    renderDictText(); loop();
+  }
+  function loop() {
+    clearInterval(dict.tick); clearInterval(dict.clock);
+    if (dict.state !== 'recording') return;
+    dict.clock = setInterval(function () {
+      dict.sec++; $('#dictTime').textContent = fmtTime(dict.sec);
+    }, 1000);
+    var n = 0;
+    dict.tick = setInterval(function () {
+      if (!reduce) { dict.amps.push(amp(dict.amps.length)); dict.amps.shift(); paintWave(); }
+      if (++n % 5 === 0 && dict.words < SPEECH.length) { dict.words++; renderDictText(); }
+    }, 90);
+  }
+  $('#dictActions').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-d]'); if (!b) return;
+    var a = b.dataset.d;
+    if (a === 'pause') { setDict('paused'); $('[data-d=resume]').focus(); }
+    else if (a === 'resume') setDict('recording');
+    else if (a === 'confirm') { dict.words = Math.max(dict.words, 4); setDict('done'); toast('Transcript inserted (' + fmtTime(dict.sec) + ')', 'lucide:mic'); }
+    else if (a === 'discard') { dict.words = 0; dict.sec = 0; setDict('idle'); toast('Recording discarded', 'lucide:trash-2', 'text-zinc-400'); }
+    else if (a === 'restart') { dict.words = 0; dict.sec = 0; setDict('recording'); }
+  });
+  window.addEventListener('resize', buildWave);
+
+  /* ---------- init ---------- */
+  renderModelChip(); renderContext(); renderTiles(); autoGrow(ta1);
+  renderCtx2(); setTab('mention', false);
+  in3.value = 'Summarize the open pull requests for the billing service'; mark = [0, 32, SUGGESTIONS[0].text];
+  renderHl(); renderChips();
+  buildWave(); setDict('recording');
+})();
+</script>
+</body>
+</html>

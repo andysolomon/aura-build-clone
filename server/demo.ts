@@ -5,6 +5,8 @@
 import { DESIGN_SYSTEMS, findDesignSystem, type DesignTokens } from "../shared/design-systems";
 import { DEMO_MODEL_REF } from "../shared/models";
 import type { GenerateRequest, StreamEvent } from "../shared/protocol";
+import { isAgenticBrief } from "./agentic";
+import { applyAgentEdit, initialAgentSpec, readAgentSpec, renderAgentDemo } from "./demo-agent";
 import { CATEGORY_KEYWORDS, COPY, type Category, type CopyPack } from "./demo-content";
 
 const SECTION_IDS = ["logos", "features", "showcase", "stats", "testimonials", "pricing", "faq", "cta"] as const;
@@ -419,8 +421,15 @@ export async function* generateDemo(req: GenerateRequest, signal: AbortSignal): 
   let html: string;
   let summary: string;
   const existing = req.html ? readSpec(req.html) : undefined;
+  const agent = req.html ? readAgentSpec(req.html) : undefined;
 
-  if (req.html && existing) {
+  if (req.html && agent) {
+    const notes = applyAgentEdit(agent, req.prompt, detectAccent(req.prompt.toLowerCase()));
+    html = renderAgentDemo(agent);
+    summary = notes.length
+      ? `Demo mode: ${notes.join(", ")}.`
+      : "Demo mode can restyle this agent: try “make it dark”, “use a blue accent” or “rename it to …”, or switch to an AI model for free-form edits.";
+  } else if (req.html && existing) {
     const notes = applyEdit(existing, req.prompt);
     if (req.designSystemId && findDesignSystem(req.designSystemId) && req.designSystemId !== existing.ds && notes.length === 0) {
       existing.ds = req.designSystemId;
@@ -436,6 +445,13 @@ export async function* generateDemo(req: GenerateRequest, signal: AbortSignal): 
     summary = result.notes.length
       ? `Demo mode: ${result.notes.join(", ")}.`
       : "Demo mode can only make simple edits to this page (headline changes, dark mode). Switch to an AI model for free-form edits.";
+  } else if (isAgenticBrief(req.prompt)) {
+    const spec = initialAgentSpec(req.prompt, { brand: detectBrand(req.prompt), accent: detectAccent(req.prompt.toLowerCase()) });
+    yield { type: "reasoning", text: `Reading the brief as a ${spec.domain} agent interface for ${spec.brand}. ` };
+    await sleep(250);
+    yield { type: "reasoning", text: "Laying out a thread list, a thread with reasoning, a tool call and cited sources, and a composer with a scripted run." };
+    html = renderAgentDemo(spec);
+    summary = `Demo mode: built a working ${spec.domain} agent interface for ${spec.brand} with a scripted run. Pick a Claude Code, Codex, Cursor or OpenCode model to generate with AI.`;
   } else {
     const spec = initialSpec(req);
     const ds = findDesignSystem(spec.ds)!;

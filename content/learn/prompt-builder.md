@@ -28,6 +28,16 @@ Adapt an existing design instead of starting blank. Pick a template, or paste HT
 - **Layout type** is the kind of screen: Landing Page, Hero, Features, Pricing, Dashboard, Login, Blog, FAQ, and more.
 - **Layout configuration** is how the content is arranged: cards, lists, tables, sidebars, splits (1-1, 2-1, 1-2), bento grids (1/3 2/3, Feature Bento, 1×4), a 3-3 grid, carousels, modals, and more.
 
+## Agent UI
+
+Use this section to build a working agent interface instead of a marketing page. See [Agentic interfaces](/learn/agentic-interfaces) for how these fit together.
+
+- **Surface** is the overall shape: chat thread, app shell, copilot sidebar, chat + artifact, floating widget, voice agent, workflow canvas, or agent console.
+- **Message parts** are what each reply shows: reasoning, tool calls, approvals, generative UI, sources, plans, and more. Pick as many as you like.
+- **Run** sets how the scripted agent plays: when you send a message, automatically on load, or as a static snapshot.
+
+The live preview switches to a miniature agent interface as soon as you pick a surface or a part.
+
 ## Framing
 
 How the design is presented:

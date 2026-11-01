@@ -10,6 +10,7 @@ import {
   shadowCss,
   type BuilderState,
 } from "../../data/promptBuilder";
+import { AgentPreview } from "./AgentPreview";
 import { LayoutConfigGlyph, animationName } from "./tiles";
 
 const HEADLINES: Record<string, string> = {
@@ -36,7 +37,7 @@ function px(range: string | null, fallback: number, scale = 0.72): number {
   return Math.round((Number.isFinite(n) ? n : fallback) * scale);
 }
 
-interface Palette {
+export interface Palette {
   dark: boolean;
   page: string;
   surface: string;
@@ -196,6 +197,21 @@ export function BuilderPreview({ s, replay }: { s: BuilderState; replay: number 
   const headline = HEADLINES[s.layoutType ?? ""] ?? "Create Beautiful Designs";
   const card = cardStyle(s, p);
   const glass = s.visualStyle === "Glass";
+
+  if (s.agentSurface || s.agentParts.length) {
+    return (
+      <div key={replay} className="h-full w-full">
+        <Framed s={s} page={p.page}>
+          <div
+            className="relative h-full overflow-hidden"
+            style={{ fontFamily: `'${bodyFont}', system-ui`, color: p.text, background: glass ? `radial-gradient(circle at 20% 20%, ${p.accent}55, transparent 45%), radial-gradient(circle at 80% 60%, #38bdf855, transparent 40%), ${p.page}` : p.page }}
+          >
+            <AgentPreview s={s} p={p} card={card} button={buttonStyle(s, p)} />
+          </div>
+        </Framed>
+      </div>
+    );
+  }
 
   const headingStyle: CSSProperties = {
     fontFamily: `'${headingFont}', system-ui`,

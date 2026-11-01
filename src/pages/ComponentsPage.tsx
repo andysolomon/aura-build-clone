@@ -4,10 +4,10 @@ import { Link, useSearchParams } from "react-router";
 import { FilterChip, LibraryHero, LibraryPanel, PulseRow } from "../components/LibraryHero";
 import { Avatar } from "../components/TemplateCard";
 import { Badge } from "../components/ui";
-import { componentThumbUrl, pseudoStats, useJson, type ComponentEntry } from "../lib/content";
+import { componentThumbUrl, pseudoStats, useComponents, type ComponentEntry } from "../lib/content";
 import { compactNumber, cx } from "../lib/util";
 
-export const COMPONENT_CATEGORIES = ["Hero", "Section", "Button", "Card", "Background", "Header", "Logo", "Feature", "Pricing", "Testimonial", "Footer", "Form", "Heading"];
+export const COMPONENT_CATEGORIES = ["Hero", "Section", "Button", "Card", "Background", "Header", "Logo", "Feature", "Pricing", "Testimonial", "Footer", "Form", "Heading", "Agent"];
 
 export function ComponentCard({ component }: { component: ComponentEntry }) {
   const stats = pseudoStats(component.slug);
@@ -37,7 +37,7 @@ export function ComponentCard({ component }: { component: ComponentEntry }) {
 }
 
 export function ComponentsPage() {
-  const components = useJson<ComponentEntry[]>("/components/index.json", []);
+  const components = useComponents();
   const [params, setParams] = useSearchParams();
   const [seed, setSeed] = useState(0);
   const q = params.get("q") ?? "";
@@ -84,7 +84,7 @@ export function ComponentsPage() {
       <LibraryHero
         eyebrow="Browse components"
         title="Reusable UI components for front-end teams"
-        description="Production-ready HTML and Tailwind components for heroes, buttons, cards, pricing, navbars, forms and more. Copy the code, remix one into a project, or @-reference it in a prompt."
+        description="Production-ready HTML and Tailwind components for heroes, buttons, cards, pricing, navbars, forms, agent interfaces and more. Copy the code, remix one into a project, or @-reference it in a prompt."
         pulseTitle="Component pulse"
         pulse={
           <>

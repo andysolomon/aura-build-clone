@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cobalt - Plan, queue and tasks for a coding agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+        },
+        colors: { accent: 'var(--accent)' }
+      }
+    }
+  };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root { --accent: #6d28d9; --accent-soft: #f5f3ff; --fg: #18181b; --muted: #a1a1aa; }
+  body { background: #fafafa; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  .grid-fade { background-image: linear-gradient(#e4e4e7 1px, transparent 1px), linear-gradient(90deg, #e4e4e7 1px, transparent 1px); background-size: 32px 32px; -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 10%, transparent 75%); mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 10%, transparent 75%); opacity: .55; }
+  .card { box-shadow: 0 1px 2px rgba(24,24,27,.04), 0 12px 32px -18px rgba(24,24,27,.18); }
+  iconify-icon { display: inline-block; flex-shrink: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  .shimmer { background: linear-gradient(90deg, var(--muted) 35%, var(--fg) 50%, var(--muted) 65%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 2.4s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  .caret::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .spin { animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rise { animation: rise .3s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes rise { from { opacity: .2; transform: translateY(4px); } }
+  .fchip { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 7px 0 5px; border-radius: 6px; background: #f4f4f5; box-shadow: inset 0 0 0 1px #e4e4e7; font: 500 11.5px/1 "Geist Mono", ui-monospace, monospace; color: #3f3f46; white-space: nowrap; }
+  .reveal { position: absolute; right: 6px; top: 5px; padding-left: 18px; background: linear-gradient(90deg, rgba(250,250,250,0), #fafafa 16px); opacity: 0; pointer-events: none; transition: opacity .15s ease; }
+  .group:hover .reveal, .group:focus-within .reveal { opacity: 1; pointer-events: auto; }
+  @media (hover: none) { .reveal { position: static; opacity: 1; pointer-events: auto; padding: 0; background: none; } }
+  .step[data-state="done"] .step-title { color: #71717a; }
+  .step[data-state="running"] { background: linear-gradient(90deg, rgba(2,132,199,.05), transparent 70%); }
+  .todo[data-done="true"] .todo-text { text-decoration: line-through; color: #a1a1aa; }
+  .todo[data-done="true"] .todo-desc { text-decoration: line-through; color: #d4d4d8; }
+  .chev { transition: transform .2s ease; }
+  [aria-expanded="false"] > .chev { transform: rotate(-90deg); }
+  .bar-fill { transition: width .45s cubic-bezier(.2,.8,.2,1); }
+  .toast { transition: opacity .2s ease, transform .2s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer { animation: none; background: none; color: var(--fg); }
+    .spin, .rise, .caret::after { animation: none; }
+    .chev, .bar-fill, .toast, .reveal { transition: none; }
+  }
+</style>
+</head>
+<body class="font-sans min-h-screen relative overflow-x-hidden">
+  <div class="grid-fade absolute inset-x-0 top-0 h-[420px] pointer-events-none" aria-hidden="true"></div>
+
+  <!-- Top bar -->
+  <header class="relative max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+    <a href="#" class="flex items-center gap-2 font-semibold text-[15px] tracking-tight">
+      <span class="w-7 h-7 rounded-lg grid place-items-center text-white bg-accent shadow-[0_6px_14px_-6px_rgba(109,40,217,.8)]"><iconify-icon icon="lucide:atom" width="15"></iconify-icon></span>Cobalt
+    </a>
+    <span class="hidden sm:inline text-zinc-300">/</span>
+    <span class="hidden sm:inline font-mono text-[12.5px] text-zinc-600 truncate">northpeak/billing-api</span>
+    <span class="hidden md:inline-flex items-center gap-1 h-6 px-2 rounded-full bg-white ring-1 ring-zinc-200 font-mono text-[11.5px] text-zinc-600"><iconify-icon icon="lucide:git-branch" width="12"></iconify-icon>feat/usage-pricing</span>
+    <div class="ml-auto flex items-center gap-2">
+      <span id="agent-status" class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11.5px] font-medium bg-zinc-100 text-zinc-600 ring-1 ring-zinc-500/15"><iconify-icon icon="lucide:circle" width="12"></iconify-icon><span>Agent idle</span></span>
+      <button id="open-pr" disabled class="hidden sm:inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-white ring-1 ring-zinc-200 text-[13px] font-medium text-zinc-800 hover:bg-zinc-50 active:scale-[.98] transition disabled:opacity-45 disabled:pointer-events-none"><iconify-icon icon="lucide:git-pull-request-arrow" width="14"></iconify-icon>Open PR</button>
+    </div>
+  </header>
+
+  <main class="relative max-w-[1200px] mx-auto px-4 sm:px-6 pb-16 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] items-start">
+    <div class="grid gap-5 min-w-0">
+      <!-- Plan card -->
+      <section id="plan" class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0" aria-labelledby="plan-title">
+        <header class="flex items-start gap-3 px-4 sm:px-5 pt-4 sm:pt-5">
+          <span class="hidden sm:grid w-9 h-9 rounded-[10px] place-items-center text-accent bg-[var(--accent-soft)] ring-1 ring-violet-600/10"><iconify-icon icon="lucide:file-text" width="17"></iconify-icon></span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="plan-badge" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium bg-amber-50 text-amber-700 ring-1 ring-amber-600/15"><iconify-icon icon="lucide:clock" width="12"></iconify-icon>Ready to build</span>
+              <span id="plan-version" class="font-mono text-[11.5px] text-zinc-400">plan v2 · drafted 2 min ago</span>
+            </div>
+            <h1 id="plan-title" class="mt-2 text-[17px] sm:text-[18px] font-semibold tracking-tight leading-snug">Migrate billing to usage-based pricing</h1>
+            <p id="plan-desc" class="mt-1 text-[13.5px] leading-relaxed text-zinc-500"></p>
+          </div>
+          <div class="flex items-center gap-1 -mr-1">
+            <button id="regen" class="inline-flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg text-[12.5px] font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[.97] transition disabled:opacity-40 disabled:pointer-events-none" aria-label="Regenerate plan"><iconify-icon id="regen-icon" icon="lucide:refresh-cw" width="14"></iconify-icon><span class="hidden sm:inline">Regenerate plan</span></button>
+            <button id="plan-toggle" aria-expanded="true" aria-controls="plan-body" aria-label="Collapse plan" class="w-8 h-8 grid place-items-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition"><iconify-icon icon="lucide:chevrons-down-up" width="15"></iconify-icon></button>
+          </div>
+        </header>
+
+        <div id="plan-body">
+          <div class="mt-4 px-4 sm:px-5 flex items-center gap-3 text-[12px] text-zinc-500">
+            <div class="flex-1 h-1.5 rounded-full bg-zinc-100 overflow-hidden" role="progressbar" aria-label="Plan progress" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" id="plan-progress"><div id="plan-bar" class="bar-fill h-full w-0 rounded-full bg-emerald-500"></div></div>
+            <span id="plan-count" class="tabular-nums font-medium text-zinc-700">0 of 5 steps</span>
+            <span class="hidden sm:inline text-zinc-300">·</span>
+            <span class="hidden sm:inline tabular-nums">est. 14 min · 9 files</span>
+          </div>
+          <ol id="steps" class="mt-3" aria-label="Plan steps"></ol>
+        </div>
+
+        <footer class="flex items-center gap-3 border-t border-zinc-100 px-4 sm:px-5 py-3 bg-zinc-50/70 rounded-b-2xl">
+          <span class="inline-flex items-center gap-1.5 h-6 px-2 rounded-full bg-white ring-1 ring-zinc-200 font-mono text-[11px] text-zinc-600"><span class="w-1.5 h-1.5 rounded-full bg-accent"></span>cobalt-code-2</span>
+          <span id="elapsed" class="text-[12px] text-zinc-500 tabular-nums truncate">Waiting for approval to build</span>
+          <button id="build" class="ml-auto inline-flex items-center gap-2 h-9 pl-3.5 pr-2 rounded-[10px] bg-accent text-white text-[13.5px] font-medium shadow-[0_6px_16px_-8px_rgba(109,40,217,.9)] hover:brightness-110 active:scale-[.98] transition disabled:opacity-50 disabled:pointer-events-none">
+            <iconify-icon id="build-icon" icon="lucide:hammer" width="15"></iconify-icon><span id="build-label">Build</span>
+            <kbd class="font-mono text-[11px] h-5 px-1.5 rounded-md bg-white/15 ring-1 ring-white/20 grid place-items-center">⌘↵</kbd>
+          </button>
+        </footer>
+      </section>
+
+      <!-- Task disclosures -->
+      <div class="grid gap-5 md:grid-cols-2">
+        <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0">
+          <button class="w-full flex items-center gap-2 px-4 py-3.5 text-left rounded-2xl hover:bg-zinc-50/80 transition" aria-expanded="true" aria-controls="task-found" data-disclosure>
+            <iconify-icon icon="lucide:folder-search" width="16" class="text-zinc-400"></iconify-icon>
+            <span class="text-[13.5px] font-medium">Found project files</span>
+            <span class="text-[12px] text-zinc-400 tabular-nums">· 9 matches</span>
+            <iconify-icon icon="lucide:chevron-down" width="15" class="chev ml-auto text-zinc-400"></iconify-icon>
+          </button>
+          <ul id="task-found" class="mx-4 mb-4 ml-[25px] border-l border-zinc-200 pl-4 space-y-2.5 text-[12.5px] text-zinc-600">
+            <li class="flex items-center gap-2 flex-wrap"><iconify-icon icon="lucide:search" width="13" class="text-zinc-400"></iconify-icon>Searching <code class="font-mono text-[11.5px] text-zinc-800">"seat_count, stripe.prices"</code></li>
+            <li class="flex items-center gap-1.5 flex-wrap"><iconify-icon icon="lucide:book-open" width="13" class="text-zinc-400"></iconify-icon>Read <span class="fchip"><iconify-icon icon="vscode-icons:file-type-typescript-official" width="12"></iconify-icon>pricing.ts</span><span class="fchip"><iconify-icon icon="vscode-icons:file-type-prisma" width="12"></iconify-icon>schema.prisma</span></li>
+            <li class="flex items-center gap-2 flex-wrap"><iconify-icon icon="lucide:scan-line" width="13" class="text-zinc-400"></iconify-icon>Scanning <span class="tabular-nums">52</span> files in <code class="font-mono text-[11.5px] text-zinc-800">app/(billing)</code></li>
+            <li class="flex items-center gap-2 font-medium text-zinc-900"><iconify-icon icon="lucide:circle-check" width="13" class="text-emerald-600"></iconify-icon>9 files touch seat billing across api, app and prisma</li>
+          </ul>
+        </section>
+
+        <section class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0">
+          <button class="w-full flex items-center gap-2 px-4 py-3.5 text-left rounded-2xl hover:bg-zinc-50/80 transition" aria-expanded="true" aria-controls="task-updated" data-disclosure>
+            <iconify-icon icon="lucide:file-diff" width="16" class="text-zinc-400"></iconify-icon>
+            <span class="text-[13.5px] font-medium">Updated 4 files</span>
+            <span class="font-mono text-[11.5px] tabular-nums"><span class="text-emerald-600">+118</span> <span class="text-red-600">−31</span></span>
+            <iconify-icon icon="lucide:chevron-down" width="15" class="chev ml-auto text-zinc-400"></iconify-icon>
+          </button>
+          <ul id="task-updated" class="mx-4 mb-3 divide-y divide-zinc-100 text-[12.5px]"></ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- Queue panel -->
+    <aside id="queue" class="card rounded-2xl bg-white ring-1 ring-zinc-200 min-w-0 lg:sticky lg:top-4" aria-labelledby="queue-title">
+      <header class="flex items-center gap-2 px-4 h-12 border-b border-zinc-100">
+        <iconify-icon icon="lucide:list-ordered" width="16" class="text-zinc-500"></iconify-icon>
+        <h2 id="queue-title" class="text-[14px] font-semibold">Queue</h2>
+        <span id="queue-total" class="text-[11.5px] font-mono tabular-nums text-zinc-400">9 items</span>
+        <button id="clear-done" class="ml-auto h-7 px-2 rounded-md text-[12px] font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition">Clear done</button>
+      </header>
+
+      <div class="p-2">
+        <button class="w-full flex items-center gap-2 h-9 px-2.5 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-left transition" aria-expanded="true" aria-controls="queued-list" data-disclosure>
+          <iconify-icon icon="lucide:chevron-down" width="14" class="chev text-zinc-400"></iconify-icon>
+          <span class="text-[13px] font-medium"><span id="queued-count" class="tabular-nums">3</span> Queued</span>
+          <span class="ml-auto text-[11.5px] text-zinc-400">sends after current run</span>
+        </button>
+        <ul id="queued-list" class="py-1"></ul>
+
+        <button class="mt-1 w-full flex items-center gap-2 h-9 px-2.5 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-left transition" aria-expanded="true" aria-controls="todo-list" data-disclosure>
+          <iconify-icon icon="lucide:chevron-down" width="14" class="chev text-zinc-400"></iconify-icon>
+          <span class="text-[13px] font-medium"><span id="todo-count" class="tabular-nums">6</span> Todo</span>
+          <span id="todo-done" class="ml-auto text-[11.5px] tabular-nums text-zinc-400">2 done</span>
+        </button>
+        <ul id="todo-list" class="py-1"></ul>
+      </div>
+
+      <form id="queue-form" class="flex items-center gap-2 border-t border-zinc-100 p-3">
+        <label for="queue-input" class="sr-only">Queue a follow-up message</label>
+        <input id="queue-input" autocomplete="off" placeholder="Queue a follow-up…" class="flex-1 min-w-0 h-9 px-3 rounded-[10px] bg-zinc-50 ring-1 ring-zinc-200 text-[13px] placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:bg-white transition">
+        <button id="queue-add" type="submit" disabled aria-label="Add to queue" class="w-9 h-9 grid place-items-center rounded-[10px] bg-zinc-900 text-white hover:bg-zinc-700 active:scale-95 transition disabled:bg-zinc-200 disabled:text-zinc-400"><iconify-icon icon="lucide:corner-down-left" width="15"></iconify-icon></button>
+      </form>
+    </aside>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" class="toast fixed left-1/2 bottom-5 -translate-x-1/2 translate-y-3 opacity-0 pointer-events-none z-50 inline-flex items-center gap-2 h-10 px-4 rounded-full bg-zinc-900 text-white text-[13px] shadow-xl max-w-[92vw]"><iconify-icon icon="lucide:check" width="14" class="text-emerald-400"></iconify-icon><span id="toast-text" class="truncate"></span></div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function wait(ms) { return reduce ? Math.min(ms, 60) : ms; }
+
+  /* ---------- File chips ---------- */
+  function fileIcon(name) {
+    if (/\.test\.ts$/.test(name)) return 'vscode-icons:file-type-vitest';
+    if (/\.tsx$/.test(name)) return 'vscode-icons:file-type-reactts';
+    if (/\.prisma$/.test(name)) return 'vscode-icons:file-type-prisma';
+    if (/\.sql$/.test(name)) return 'vscode-icons:file-type-sql';
+    if (/\.json$/.test(name)) return 'vscode-icons:file-type-json';
+    return 'vscode-icons:file-type-typescript-official';
+  }
+  function chip(name) { return '<span class="fchip"><iconify-icon icon="' + fileIcon(name) + '" width="12"></iconify-icon>' + esc(name) + '</span>'; }
+
+  /* ---------- Status pills ---------- */
+  var PILLS = {
+    idle: ['bg-zinc-100 text-zinc-600 ring-zinc-500/15', 'lucide:circle'],
+    ready: ['bg-amber-50 text-amber-700 ring-amber-600/15', 'lucide:clock'],
+    running: ['bg-sky-50 text-sky-700 ring-sky-600/15', 'lucide:loader-circle'],
+    done: ['bg-emerald-50 text-emerald-700 ring-emerald-600/15', 'lucide:circle-check'],
+    stopped: ['bg-orange-50 text-orange-700 ring-orange-600/15', 'lucide:ban']
+  };
+  function pill(el, kind, text) {
+    var p = PILLS[kind];
+    el.className = 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium ring-1 ' + p[0];
+    el.innerHTML = '<iconify-icon icon="' + p[1] + '" width="12"' + (kind === 'running' ? ' class="spin"' : '') + '></iconify-icon><span>' + esc(text) + '</span>';
+  }
+
+  /* ---------- Plan data ---------- */
+  var PLANS = [
+    {
+      desc: 'Replace per-seat Stripe subscriptions with metered prices driven by API request volume. Existing customers keep their seat price until renewal.',
+      steps: [
+        { t: 'Add a metered_usage table and migration', d: 'Per-request rows keyed by org and billing period.', files: ['schema.prisma', '0042_metered_usage.sql'], est: '2m' },
+        { t: 'Emit usage events from the API gateway', d: 'Batch writes every 5 s, forward totals to Stripe meters.', files: ['meter.ts'], est: '3m' },
+        { t: 'Create metered prices for Starter, Growth and Scale', d: 'Idempotent sync. Legacy seat prices are archived, not deleted.', files: ['stripe-sync.ts', 'tiers.json'], est: '2m' },
+        { t: 'Replace the seat picker with usage tiers at checkout', d: 'Tier cards plus a monthly cost estimator.', files: ['page.tsx', 'TierCard.tsx'], est: '4m' },
+        { t: 'Backfill October invoices and add regression tests', d: 'Backfilled totals must match the ledger within $0.01.', files: ['billing.test.ts'], est: '3m' }
+      ]
+    },
+    {
+      desc: 'Ship metered API pricing behind a feature flag, then move existing customers over in cohorts at their renewal date with dry-run invoices first.',
+      steps: [
+        { t: 'Gate the new pricing behind usage_pricing', d: 'Flag defaults off for every org created before today.', files: ['flags.ts'], est: '1m' },
+        { t: 'Model usage records and daily rollups', d: 'Raw events roll up nightly into org_usage_daily.', files: ['schema.prisma', 'rollup.sql'], est: '3m' },
+        { t: 'Report usage to Stripe from a nightly job', d: 'Retries with idempotency keys on 429 and 5xx.', files: ['report-usage.ts'], est: '3m' },
+        { t: 'Ship the tier picker and cost estimator', d: 'Shows the projected bill from the last 30 days.', files: ['page.tsx', 'Estimator.tsx'], est: '4m' },
+        { t: 'Migrate customers in cohorts with dry runs', d: 'Email a preview invoice 7 days before the switch.', files: ['cohorts.test.ts'], est: '3m' }
+      ]
+    },
+    {
+      desc: 'Start with a hybrid model: a base platform fee plus metered overage, so seat customers see no price change until they pass their included volume.',
+      steps: [
+        { t: 'Add included_requests to every existing plan', d: 'Starter 50k, Growth 500k, Scale 5M per month.', files: ['plans.config.ts'], est: '1m' },
+        { t: 'Track overage with a rolling 30-day counter', d: 'Counter lives in Redis, snapshots to Postgres hourly.', files: ['usage.ts', 'schema.prisma'], est: '3m' },
+        { t: 'Bill overage as a metered add-on price', d: 'One add-on per tier, attached at renewal.', files: ['stripe-sync.ts'], est: '2m' },
+        { t: 'Warn at 80% and 100% of included volume', d: 'In-app banner plus an email to billing admins.', files: ['UsageBanner.tsx'], est: '3m' },
+        { t: 'Snapshot-test invoices for 12 sample orgs', d: 'Covers upgrades, downgrades and mid-cycle changes.', files: ['invoices.test.ts'], est: '3m' }
+      ]
+    }
+  ];
+  var planIdx = 0, version = 2;
+  var stepsEl = $('steps'), buildBtn = $('build'), regenBtn = $('regen');
+  var stepState = [];
+  var busy = null; // 'build' | 'regen' | null
+  var timers = [];
+  function later(fn, ms) { var t = setTimeout(fn, wait(ms)); timers.push(t); return t; }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  var STEP_ICONS = {
+    todo: '<iconify-icon icon="lucide:circle" width="16" class="text-zinc-300"></iconify-icon>',
+    running: '<iconify-icon icon="lucide:loader-circle" width="16" class="spin text-sky-600"></iconify-icon>',
+    done: '<iconify-icon icon="lucide:circle-check" width="16" class="text-emerald-600"></iconify-icon>'
+  };
+
+  function stepHTML(s, i) {
+    return '<li class="step flex gap-3 px-4 sm:px-5 py-3 border-t border-zinc-100 transition-colors" data-state="todo" data-i="' + i + '">' +
+      '<span class="step-icon mt-0.5 w-4 h-4 grid place-items-center">' + STEP_ICONS.todo + '</span>' +
+      '<div class="min-w-0 flex-1">' +
+        '<p class="step-title text-[13.5px] font-medium leading-snug"><span class="font-mono text-[11.5px] text-zinc-400 mr-1.5 tabular-nums">' + (i + 1) + '.</span>' + esc(s.t) + '</p>' +
+        '<div class="mt-1.5 flex items-center gap-1.5 flex-wrap"><span class="step-desc text-[12.5px] text-zinc-500 mr-1">' + esc(s.d) + '</span>' + s.files.map(chip).join('') + '</div>' +
+      '</div>' +
+      '<span class="step-time font-mono text-[11.5px] tabular-nums text-zinc-400 pt-0.5">~' + s.est + '</span>' +
+    '</li>';
+  }
+
+  function renderPlan() {
+    var plan = PLANS[planIdx];
+    $('plan-desc').textContent = plan.desc;
+    stepsEl.innerHTML = plan.steps.map(stepHTML).join('');
+    stepState = plan.steps.map(function () { return 'todo'; });
+    updateProgress();
+  }
+
+  function setStep(i, state, timeText) {
+    var li = stepsEl.children[i];
+    if (!li) return;
+    stepState[i] = state;
+    li.dataset.state = state;
+    li.querySelector('.step-icon').innerHTML = STEP_ICONS[state];
+    li.querySelector('.step-title').classList.toggle('shimmer', state === 'running');
+    var time = li.querySelector('.step-time');
+    time.className = 'step-time font-mono text-[11.5px] tabular-nums pt-0.5 ' + (state === 'running' ? 'text-sky-700' : state === 'done' ? 'text-emerald-700' : 'text-zinc-400');
+    if (timeText) time.textContent = timeText;
+    updateProgress();
+  }
+
+  function doneCount() { return stepState.filter(function (s) { return s === 'done'; }).length; }
+  function updateProgress() {
+    var n = doneCount(), total = stepState.length || 5;
+    $('plan-bar').style.width = (n / total * 100) + '%';
+    $('plan-progress').setAttribute('aria-valuenow', n);
+    $('plan-count').textContent = n + ' of ' + total + ' steps';
+  }
+
+  function fmt(sec) { return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
+
+  /* ---------- Build ---------- */
+  var clock = null, elapsed = 0;
+  function startClock() {
+    stopClock();
+    clock = setInterval(function () { elapsed++; $('elapsed').textContent = 'Elapsed ' + fmt(elapsed); }, 1000);
+  }
+  function stopClock() { if (clock) clearInterval(clock); clock = null; }
+
+  function setBuildButton(mode) {
+    var icon = $('build-icon'), label = $('build-label');
+    buildBtn.classList.toggle('bg-accent', mode !== 'stop');
+    buildBtn.classList.toggle('bg-zinc-900', mode === 'stop');
+    if (mode === 'stop') { icon.setAttribute('icon', 'lucide:square'); label.textContent = 'Stop'; buildBtn.setAttribute('aria-label', 'Stop build'); }
+    else if (mode === 'resume') { icon.setAttribute('icon', 'lucide:play'); label.textContent = 'Resume'; buildBtn.setAttribute('aria-label', 'Resume build'); }
+    else if (mode === 'again') { icon.setAttribute('icon', 'lucide:rotate-ccw'); label.textContent = 'Build again'; buildBtn.setAttribute('aria-label', 'Build again'); }
+    else { icon.setAttribute('icon', 'lucide:hammer'); label.textContent = 'Build'; buildBtn.setAttribute('aria-label', 'Build plan'); }
+  }
+
+  function build() {
+    if (busy === 'regen') return;
+    if (busy === 'build') return stopBuild();
+    if (doneCount() === stepState.length) { renderPlan(); elapsed = 0; }
+    busy = 'build';
+    regenBtn.disabled = true;
+    $('open-pr').disabled = true;
+    setBuildButton('stop');
+    pill($('plan-badge'), 'running', 'Building');
+    startClock();
+    runNext();
+  }
+
+  function runNext() {
+    var i = stepState.indexOf('todo');
+    if (i === -1) return finishBuild();
+    pill($('agent-status'), 'running', 'Building · step ' + (i + 1) + '/' + stepState.length);
+    setStep(i, 'running', 'running');
+    var dur = 1300 + Math.random() * 900;
+    later(function () {
+      setStep(i, 'done', (dur / 1000 * 21).toFixed(0) + 's');
+      later(runNext, 260);
+    }, dur);
+  }
+
+  function finishBuild() {
+    busy = null; stopClock(); clearTimers();
+    regenBtn.disabled = false;
+    $('open-pr').disabled = false;
+    setBuildButton('again');
+    pill($('plan-badge'), 'done', 'Completed');
+    pill($('agent-status'), 'done', 'Build passed');
+    $('elapsed').textContent = 'All steps completed in ' + fmt(Math.max(elapsed, 1));
+    toast('Plan built · ' + stepState.length + ' steps, 0 failing tests');
+  }
+
+  function stopBuild() {
+    clearTimers(); stopClock();
+    stepState.forEach(function (s, i) { if (s === 'running') setStep(i, 'todo', 'stopped'); });
+    busy = null;
+    regenBtn.disabled = false;
+    setBuildButton('resume');
+    pill($('plan-badge'), 'stopped', 'Stopped');
+    pill($('agent-status'), 'stopped', 'Paused at step ' + (stepState.indexOf('todo') + 1));
+    $('elapsed').textContent = 'Stopped after ' + fmt(elapsed) + ' · ' + doneCount() + ' done';
+  }
+
+  buildBtn.addEventListener('click', build);
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); build(); }
+    else if (e.key === 'Escape' && busy === 'build') stopBuild();
+  });
+
+  /* ---------- Regenerate (streams the plan in) ---------- */
+  function streamText(el, text, speed, done) {
+    var words = text.split(' '), n = 0;
+    el.textContent = '';
+    el.classList.add('shimmer', 'caret');
+    (function tick() {
+      n++;
+      el.textContent = words.slice(0, n).join(' ');
+      if (n < words.length) later(tick, speed);
+      else { el.classList.remove('caret'); done && done(); }
+    })();
+  }
+
+  function regenerate() {
+    if (busy) return;
+    busy = 'regen';
+    clearTimers();
+    planIdx = (planIdx + 1) % PLANS.length;
+    version++;
+    var plan = PLANS[planIdx];
+    buildBtn.disabled = true; regenBtn.disabled = true;
+    setBuildButton('build');
+    $('regen-icon').classList.add('spin');
+    pill($('plan-badge'), 'running', 'Drafting');
+    pill($('agent-status'), 'running', 'Planning');
+    $('plan-version').textContent = 'plan v' + version + ' · drafting…';
+    $('elapsed').textContent = 'Reading 9 files…';
+    stepsEl.innerHTML = '';
+    stepState = [];
+    updateProgress();
+    var title = $('plan-title');
+    streamText(title, title.textContent, 70, function () {
+      streamText($('plan-desc'), plan.desc, 40, function () { addStep(0); });
+    });
+
+    function addStep(i) {
+      if (i >= plan.steps.length) return settle();
+      stepsEl.insertAdjacentHTML('beforeend', stepHTML(plan.steps[i], i));
+      var li = stepsEl.lastElementChild;
+      li.classList.add('rise');
+      li.querySelector('.step-title').classList.add('shimmer');
+      li.querySelector('.step-desc').classList.add('shimmer');
+      stepState.push('todo');
+      updateProgress();
+      later(function () { addStep(i + 1); }, 320);
+    }
+    function settle() {
+      document.querySelectorAll('#plan .shimmer').forEach(function (el) { el.classList.remove('shimmer'); });
+      busy = null;
+      buildBtn.disabled = false; regenBtn.disabled = false;
+      $('regen-icon').classList.remove('spin');
+      setBuildButton('build');
+      pill($('plan-badge'), 'ready', 'Ready to build');
+      pill($('agent-status'), 'idle', 'Agent idle');
+      $('plan-version').textContent = 'plan v' + version + ' · drafted just now';
+      $('elapsed').textContent = 'Waiting for approval to build';
+      $('open-pr').disabled = true;
+      elapsed = 0;
+    }
+  }
+  regenBtn.addEventListener('click', regenerate);
+
+  $('plan-toggle').addEventListener('click', function () {
+    var open = this.getAttribute('aria-expanded') !== 'true';
+    this.setAttribute('aria-expanded', open);
+    this.setAttribute('aria-label', open ? 'Collapse plan' : 'Expand plan');
+    this.querySelector('iconify-icon').setAttribute('icon', open ? 'lucide:chevrons-down-up' : 'lucide:chevrons-up-down');
+    $('plan-body').hidden = !open;
+  });
+
+  /* ---------- Updated files task ---------- */
+  var UPDATED = [
+    { f: 'meter.ts', path: 'src/gateway/', add: 42, del: 7 },
+    { f: 'schema.prisma', path: 'prisma/', add: 31, del: 2 },
+    { f: 'page.tsx', path: 'app/(billing)/checkout/', add: 38, del: 19 },
+    { f: 'pricing.ts', path: 'src/lib/', add: 7, del: 3 }
+  ];
+  function diffBlocks(a, d) {
+    var total = a + d, g = Math.round(a / total * 5), out = '';
+    for (var i = 0; i < 5; i++) out += '<span class="w-1.5 h-1.5 rounded-[1.5px] ' + (i < g ? 'bg-emerald-500' : 'bg-red-500') + '"></span>';
+    return '<span class="hidden sm:flex gap-0.5" aria-hidden="true">' + out + '</span>';
+  }
+  $('task-updated').innerHTML = UPDATED.map(function (u) {
+    return '<li class="flex items-center gap-2 py-2">' + chip(u.f) +
+      '<span class="font-mono text-[11px] text-zinc-400 truncate min-w-0">' + esc(u.path) + '</span>' +
+      '<span class="ml-auto font-mono text-[11.5px] tabular-nums whitespace-nowrap"><span class="text-emerald-600">+' + u.add + '</span> <span class="text-red-600">−' + u.del + '</span></span>' +
+      diffBlocks(u.add, u.del) + '</li>';
+  }).join('');
+
+  /* ---------- Disclosures ---------- */
+  document.querySelectorAll('[data-disclosure]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', open);
+      $(btn.getAttribute('aria-controls')).hidden = !open;
+    });
+  });
+
+  /* ---------- Queue ---------- */
+  var uid = 0;
+  var queued = [
+    { id: ++uid, text: 'When the build passes, regenerate the OpenAPI client and bump the SDK minor version' },
+    { id: ++uid, text: 'Use these tier limits for the pricing page', img: 'tiers-v3.png' },
+    { id: ++uid, text: 'Post a summary in #billing-eng with the PR link' }
+  ];
+  var todos = [
+    { id: ++uid, text: 'Audit every seat_count reference', done: true },
+    { id: ++uid, text: 'Confirm meter aggregation is sum, not last', done: true },
+    { id: ++uid, text: 'Handle proration for mid-cycle tier changes', desc: 'An upgrade on day 12 should bill 18 days at the new tier.' },
+    { id: ++uid, text: 'Add a usage chart to Account › Billing' },
+    { id: ++uid, text: 'Rate-limit meter writes per org' },
+    { id: ++uid, text: 'Update the pricing FAQ and changelog' }
+  ];
+
+  var THUMB = '<span class="mt-2 inline-flex items-center gap-2 rounded-lg ring-1 ring-zinc-200 bg-white p-1 pr-2.5">' +
+    '<span class="w-12 h-9 rounded-md bg-gradient-to-br from-violet-100 via-white to-sky-100 ring-1 ring-zinc-200 flex items-end justify-center gap-[3px] p-1" aria-hidden="true">' +
+      '<span class="w-2.5 h-4 rounded-[2px] bg-white ring-1 ring-zinc-200"></span><span class="w-2.5 h-6 rounded-[2px] bg-violet-500/80"></span><span class="w-2.5 h-5 rounded-[2px] bg-white ring-1 ring-zinc-200"></span>' +
+    '</span><span class="font-mono text-[11px] text-zinc-500">tiers-v3.png</span></span>';
+
+  function actions(id, kind) {
+    var btn = 'h-6 px-2 rounded-md text-[11.5px] font-medium transition active:scale-95 ';
+    return '<span class="reveal flex items-center gap-1 shrink-0">' +
+      (kind === 'q' ? '<button data-act="send" data-id="' + id + '" class="' + btn + 'text-accent hover:bg-violet-50">Send now</button>' : '') +
+      '<button data-act="remove" data-kind="' + kind + '" data-id="' + id + '" class="' + btn + 'text-zinc-500 hover:bg-red-50 hover:text-red-600" aria-label="Remove">Remove</button></span>';
+  }
+
+  function renderQueued() {
+    $('queued-list').innerHTML = queued.length ? queued.map(function (q) {
+      return '<li class="group relative flex items-start gap-2.5 px-2.5 py-2 rounded-lg hover:bg-zinc-50 transition" data-id="' + q.id + '">' +
+        '<iconify-icon icon="' + (q.sending ? 'lucide:loader-circle' : 'lucide:circle') + '" width="13" class="mt-[3px] ' + (q.sending ? 'spin text-sky-600' : 'text-zinc-300') + '"></iconify-icon>' +
+        '<div class="min-w-0 flex-1"><p class="text-[13px] leading-snug text-zinc-800">' + esc(q.text) + '</p>' + (q.img ? THUMB : '') + '</div>' +
+        (q.sending ? '<span class="text-[11.5px] text-sky-700 shrink-0">Sending…</span>' : actions(q.id, 'q')) + '</li>';
+    }).join('') : '<li class="px-2.5 py-3 text-[12.5px] text-zinc-400">Nothing queued. Messages you add while Cobalt works land here.</li>';
+    $('queued-count').textContent = queued.length;
+    updateTotal();
+  }
+
+  function renderTodos() {
+    $('todo-list').innerHTML = todos.map(function (t) {
+      return '<li class="todo group relative flex items-start gap-2.5 px-2.5 py-2 rounded-lg hover:bg-zinc-50 transition" data-done="' + !!t.done + '">' +
+        '<button data-act="toggle" data-id="' + t.id + '" role="checkbox" aria-checked="' + !!t.done + '" aria-label="' + esc(t.text) + '" class="mt-[2px] w-[15px] h-[15px] rounded-full grid place-items-center ring-1 transition ' + (t.done ? 'bg-emerald-600 ring-emerald-600 text-white' : 'ring-zinc-300 hover:ring-zinc-500 text-transparent') + '"><iconify-icon icon="lucide:check" width="10"></iconify-icon></button>' +
+        '<div class="min-w-0 flex-1"><p class="todo-text text-[13px] leading-snug text-zinc-800">' + esc(t.text) + '</p>' + (t.desc ? '<p class="todo-desc mt-0.5 text-[12px] text-zinc-500">' + esc(t.desc) + '</p>' : '') + '</div>' +
+        actions(t.id, 't') + '</li>';
+    }).join('');
+    var done = todos.filter(function (t) { return t.done; }).length;
+    $('todo-count').textContent = todos.length;
+    $('todo-done').textContent = done + ' done';
+    updateTotal();
+  }
+
+  function updateTotal() {
+    var n = queued.length + todos.length;
+    $('queue-total').textContent = n + (n === 1 ? ' item' : ' items');
+  }
+
+  $('queue').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b) return;
+    var id = Number(b.dataset.id), act = b.dataset.act;
+    if (act === 'toggle') {
+      todos.forEach(function (t) { if (t.id === id) t.done = !t.done; });
+      renderTodos();
+      var again = document.querySelector('#todo-list [data-id="' + id + '"]');
+      again && again.focus();
+    } else if (act === 'remove') {
+      if (b.dataset.kind === 'q') { queued = queued.filter(function (q) { return q.id !== id; }); renderQueued(); }
+      else { todos = todos.filter(function (t) { return t.id !== id; }); renderTodos(); }
+      toast('Removed from queue');
+    } else if (act === 'send') {
+      var item = queued.filter(function (q) { return q.id === id; })[0];
+      item.sending = true; renderQueued();
+      setTimeout(function () {
+        queued = queued.filter(function (q) { return q.id !== id; });
+        renderQueued();
+        toast('Sent to Cobalt: “' + (item.text.length > 34 ? item.text.slice(0, 34) + '…' : item.text) + '”');
+      }, wait(900));
+    }
+  });
+
+  $('clear-done').addEventListener('click', function () {
+    var before = todos.length;
+    todos = todos.filter(function (t) { return !t.done; });
+    renderTodos();
+    toast(before === todos.length ? 'No finished todos to clear' : 'Cleared ' + (before - todos.length) + ' finished todos');
+  });
+
+  var qInput = $('queue-input');
+  qInput.addEventListener('input', function () { $('queue-add').disabled = !qInput.value.trim(); });
+  $('queue-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = qInput.value.trim();
+    if (!text) return;
+    queued.push({ id: ++uid, text: text });
+    qInput.value = ''; $('queue-add').disabled = true;
+    renderQueued();
+    toast('Queued · sends after the current run');
+  });
+
+  /* ---------- Toast ---------- */
+  var toastTimer;
+  function toast(text) {
+    var t = $('toast');
+    $('toast-text').textContent = text;
+    t.classList.remove('opacity-0', 'translate-y-3');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.add('opacity-0', 'translate-y-3'); }, 2200);
+  }
+
+  renderPlan();
+  renderQueued();
+  renderTodos();
+})();
+</script>
+</body>
+</html>
