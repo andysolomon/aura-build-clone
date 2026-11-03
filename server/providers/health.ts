@@ -7,15 +7,35 @@ const AUTH_ERROR =
   /api key (has )?expired|invalid (x-)?api[- ]?key|api key .*(invalid|revoked)|unauthori[sz]ed|\b401\b|authentication|not logged in|log ?in again|sign ?in again|(token|session|credentials?) (has )?expired/i;
 
 const FIX: Record<ProviderId, string> = {
-  "claude-code": "Run `claude` in a terminal and sign in again.",
+  "claude-code": "Run `claude auth login --claudeai` in a terminal to sign in again.",
   codex: "Run `codex login` in a terminal.",
   cursor: "Run `cursor-agent login` in a terminal.",
-  opencode: "Create a new key in the OpenCode Console, then run `opencode auth login` and paste it.",
+  opencode: "Run `opencode auth login` and reconnect the provider used by this model.",
   anthropic: "Check ANTHROPIC_API_KEY in .env.",
   demo: "",
 };
 
 const failures = new Map<string, string>();
+const modelFailures = new Map<string, string>();
+
+/** A retired or inaccessible model should not disable other models using the same login. */
+export function isModelUnavailableError(message: string): boolean {
+  return /no longer available|model[^\n]*(?:not found|does not exist|not available|not supported)|model_not_found/i.test(message);
+}
+
+export function recordModelFailure(provider: ProviderId, model: string, message: string): string {
+  const reason = `${message} Choose another model in the model picker.`;
+  modelFailures.set(`${provider}:${model}`, reason);
+  return reason;
+}
+
+export function modelFailure(provider: ProviderId, model: string): string | undefined {
+  return modelFailures.get(`${provider}:${model}`);
+}
+
+export function clearModelFailures(): void {
+  modelFailures.clear();
+}
 
 /** OpenCode fronts several upstream providers, each with its own credential. */
 function scope(provider: ProviderId, model: string): string {

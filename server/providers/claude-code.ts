@@ -17,13 +17,13 @@ export const claudeCode: Provider = {
     if (!res) return { available: false, note: "Install Claude Code to use your Claude subscription." };
     try {
       const status = JSON.parse(res.stdout) as { loggedIn?: boolean; authMethod?: string };
-      if (status.loggedIn) {
+      if (res.code === 0 && status.loggedIn) {
         return { available: true, note: status.authMethod === "claude.ai" ? undefined : `Signed in with ${status.authMethod}` };
       }
     } catch {
       // Fall through to the signed-out message.
     }
-    return { available: false, note: "Run `claude` and sign in with your Claude account." };
+    return { available: false, note: "Run `claude auth login --claudeai` to sign in with your Claude subscription." };
   },
 
   async listModels() {
