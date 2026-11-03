@@ -1,6 +1,8 @@
 import { modelRef } from "../../shared/models";
+import { stripVTControlCharacters } from "node:util";
 import { AGENT_PREAMBLE } from "../prompts";
 import { jsonLines, run, stderrSummary, withScratchDir } from "./cli";
+import { isAuthError } from "./health";
 import type { Provider, ProviderEvent } from "./types";
 
 const MODEL_LINE = /^(\S+) - (.+?)(?:\s+\((?:current, )?default\))?$/;
@@ -34,16 +36,20 @@ export const cursor: Provider = {
   async detect() {
     const res = await run("cursor-agent", ["status"]);
     if (!res) return { available: false, note: "Install the Cursor Agent CLI to use your Cursor plan." };
-    if (/logged in/i.test(`${res.stdout}\n${res.stderr}`) && !/not logged in/i.test(res.stdout)) return { available: true };
+    const output = stripVTControlCharacters(`${res.stdout}\n${res.stderr}`);
+    if (res.code === 0 && /logged in/i.test(output) && !/not logged in/i.test(output)) return { available: true };
     return { available: false, note: "Run `cursor-agent login` to sign in." };
   },
 
   async listModels() {
     const res = await run("cursor-agent", ["--list-models"], 45_000);
-    if (!res || res.code !== 0) return [];
+    if (!res) return [];
+    const output = stripVTControlCharacters(`${res.stdout}\n${res.stderr}`);
+    if (isAuthError(output)) throw new Error("Cursor authentication failed. Run `cursor-agent login` to sign in again, then refresh providers.");
+    if (res.code !== 0) throw new Error("Cursor couldn't list models. Try `cursor-agent --list-models` in a terminal.");
     const models = res.stdout
       .split("\n")
-      .map((line) => MODEL_LINE.exec(line.replace(/[\u200b\u001b]|\[\d+m/g, "").trim()))
+      .map((line) => MODEL_LINE.exec(stripVTControlCharacters(line).replace(/\u200b/g, "").trim()))
       .filter((m): m is RegExpExecArray => m !== null)
       // "-fast" variants duplicate their base model at a different speed tier.
       .filter((m) => !m[1].endsWith("-fast"))

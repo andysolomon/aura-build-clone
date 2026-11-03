@@ -11,6 +11,18 @@ export interface Release {
 /** Release history of this clone, newest first. */
 export const RELEASES: Release[] = [
   {
+    version: "0.8.1",
+    date: "2026-11-02",
+    title: "Clearer provider sign-in",
+    summary: "The model picker tells you what's actually wrong when a provider or model can't be used, and OpenCode works with its current CLI.",
+    changes: [
+      { kind: "fixed", text: "OpenCode generation works with current CLI versions, which no longer accept two flags the app was passing." },
+      { kind: "fixed", text: "OpenCode recognizes saved sign-ins in its newer output and lists routed models such as openrouter/anthropic/…." },
+      { kind: "fixed", text: "Claude Code and Cursor only count as signed in when their status command succeeds, and Cursor reports a stale login instead of showing no models." },
+      { kind: "improved", text: "A retired model is disabled on its own, without marking that provider's other models as needing sign-in." },
+    ],
+  },
+  {
     version: "0.8.0",
     date: "2026-11-01",
     title: "Agentic interfaces",

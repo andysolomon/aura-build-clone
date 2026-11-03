@@ -98,7 +98,7 @@ export function ModelPicker({ providers, value, onChange, open, onToggle, side, 
                   )}
                 >
                   <span className="min-w-0 flex-1 truncate">{m.label}</span>
-                  {m.unavailable && <span className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-700 dark:text-amber-300">sign-in needed</span>}
+                  {m.unavailable && <span className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-700 dark:text-amber-300">unavailable</span>}
                   {m.ref === value && <Check className="h-3.5 w-3.5 shrink-0" />}
                 </button>
               ))}

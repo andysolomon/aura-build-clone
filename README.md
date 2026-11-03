@@ -55,7 +55,7 @@ each request is billed to the plan you're already signed in to:
 
 | Provider | CLI | Sign in with | Notes |
 |---|---|---|---|
-| Claude Code | `claude` | `claude` (Claude Pro/Max) | Streams tokens; images supported |
+| Claude Code | `claude` | `claude auth login --claudeai` (Claude Pro/Max) | Streams tokens; images supported |
 | Codex | `codex` | `codex login` (ChatGPT plan) | Returns the page when finished; images supported |
 | Cursor | `cursor-agent` | `cursor-agent login` | Streams tokens; no image input |
 | OpenCode | `opencode` | `opencode auth login` | Any provider OpenCode is signed in to, plus its free models |
@@ -84,6 +84,13 @@ picker re-detects them after you sign in. If nothing is available, the app falls
 **offline demo generator**, which composes pages from the prompt and supports structured edits
 such as "make it dark", "use a blue accent", "add pricing", "remove the FAQ" and "headline: …".
 Agent briefs get a working agent app with a scripted run instead of a landing page.
+
+If sign-in fails, run the provider's sign-in command above and finish the browser flow, then
+press refresh in the model picker. Cursor can report "Logged in" with an unusable credential;
+if model discovery asks for authentication, run `cursor-agent login` again. OpenCode credentials
+belong to each connected provider, so reconnect the provider used by the failing model.
+The missing `.env` message is harmless when using CLI subscriptions; `.env` is only needed for
+optional API access or a custom API server port.
 
 ## Running it
 

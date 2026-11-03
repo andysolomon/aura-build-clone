@@ -3,7 +3,7 @@ import { anthropicApi } from "./anthropic";
 import { claudeCode } from "./claude-code";
 import { codex } from "./codex";
 import { cursor } from "./cursor";
-import { authFailure, clearAuthFailures } from "./health";
+import { authFailure, clearAuthFailures, clearModelFailures, modelFailure } from "./health";
 import { opencode } from "./opencode";
 import type { Provider } from "./types";
 
@@ -49,7 +49,7 @@ function withHealth(infos: ProviderInfo[]): ProviderInfo[] {
   return infos.map((info) => ({
     ...info,
     models: info.models.map((m) => {
-      const unavailable = authFailure(info.id, m.id);
+      const unavailable = authFailure(info.id, m.id) ?? modelFailure(info.id, m.id);
       return unavailable ? { ...m, unavailable } : m;
     }),
   }));
@@ -57,7 +57,10 @@ function withHealth(infos: ProviderInfo[]): ProviderInfo[] {
 
 /** Detects installed, signed-in providers and their models. Cached for a few minutes. */
 export async function discoverProviders(force = false): Promise<ProviderInfo[]> {
-  if (force) clearAuthFailures();
+  if (force) {
+    clearAuthFailures();
+    clearModelFailures();
+  }
   return withHealth(await detectAll(force));
 }
 

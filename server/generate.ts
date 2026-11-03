@@ -4,7 +4,7 @@ import { withAgenticSkill } from "./agentic";
 import { enhanceDemo, generateDemo } from "./demo";
 import { ENHANCE_SYSTEM_PROMPT, ENHANCE_TOOL_SYSTEM_PROMPT, SYSTEM_PROMPT, enhanceToolRequest, renderRequest } from "./prompts";
 import { discoverProviders, getProvider } from "./providers";
-import { isAuthError, recordAuthFailure } from "./providers/health";
+import { isAuthError, isModelUnavailableError, recordAuthFailure, recordModelFailure } from "./providers/health";
 import type { Provider } from "./providers/types";
 
 type Target = { provider: Provider; model: string };
@@ -23,7 +23,9 @@ async function resolve(ref: string): Promise<Target | { error: string } | null> 
 }
 
 function explain(target: Target, message: string): string {
-  return isAuthError(message) ? recordAuthFailure(target.provider.id, target.model, message) : message;
+  if (isAuthError(message)) return recordAuthFailure(target.provider.id, target.model, message);
+  if (isModelUnavailableError(message)) return recordModelFailure(target.provider.id, target.model, message);
+  return message;
 }
 
 export async function* generate(req: GenerateRequest, signal: AbortSignal): AsyncGenerator<StreamEvent> {
