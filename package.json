@@ -12,6 +12,7 @@
     "typecheck": "tsc -b --noEmit",
     "test:auth": "tsx --test server/providers/auth.test.ts",
     "test:agentic": "tsx --test server/agentic.test.ts",
+    "test:prompts": "tsx --test server/prompts.test.ts",
     "assets": "tsx scripts/generate-assets.ts",
     "thumbs": "tsx scripts/generate-thumbs.ts"
   },
