@@ -36,6 +36,21 @@ export const AGENT_PREAMBLE_WEB = `You are running headless inside a website bui
 
 export const agentPreamble = (webAccess?: boolean) => (webAccess ? AGENT_PREAMBLE_WEB : AGENT_PREAMBLE);
 
+/** House style for new pages that arrive with no visual direction at all. */
+export const DEFAULT_AESTHETIC = `<default_aesthetic>
+No design system, reference page or image came with this brief, so use this house style unless the brief or an attached skill sets its own visual direction:
+- Type: one or two readable families from Google Fonts or a web-safe stack, three at most. No novelty or hard-to-read display faces.
+- Neutrals: pick one temperature (warm, cool or neutral) and hold it. Use off-whites and off-blacks rather than pure #fff and #000, with the whites only faintly tinted.
+- Accents: zero to two, defined as oklch() colors in tailwind.config with the same lightness and chroma and different hues.
+- Visuals: no complex hand-drawn SVG illustrations. Keep inline SVG to simple shapes and icons, build product visuals as HTML/CSS mockups, and use picsum.photos for photography.
+The hero still needs one memorable idea: carry it with layout, type scale and composition rather than extra colors.
+</default_aesthetic>`;
+
+/** True when a new page has no design system, references, images or screenshots to steer its look. */
+export function needsDefaultAesthetic(req: GenerateRequest): boolean {
+  return !req.html && !findDesignSystem(req.designSystemId) && !req.references?.length && !req.images?.length && !req.screenshots?.length;
+}
+
 /** Renders a generation request as one self-contained user message. */
 export function renderRequest(req: GenerateRequest): string {
   const parts: string[] = [];
@@ -74,6 +89,7 @@ export function renderRequest(req: GenerateRequest): string {
     }
     parts.push(`Change request: ${req.prompt}`);
   } else {
+    if (needsDefaultAesthetic(req)) parts.push(DEFAULT_AESTHETIC);
     parts.push(`Brief: ${req.prompt}`);
   }
   return parts.join("\n\n");
