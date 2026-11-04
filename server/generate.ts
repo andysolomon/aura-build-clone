@@ -9,6 +9,11 @@ import type { Provider } from "./providers/types";
 
 type Target = { provider: Provider; model: string };
 
+// Model calls in flight. The dev watcher (scripts/dev-api.ts) waits for this to reach zero
+// before restarting the server, since a restart kills the CLI mid-generation.
+let active = 0;
+export const activeGenerations = () => active;
+
 async function resolve(ref: string): Promise<Target | { error: string } | null> {
   const parsed = parseModelRef(ref);
   if (!parsed || parsed.provider === "demo") return null;
@@ -54,19 +59,24 @@ export async function* generate(req: GenerateRequest, signal: AbortSignal): Asyn
     { model: target.model, system: SYSTEM_PROMPT, prompt: renderRequest({ ...agentic.req, webAccess }), images: req.images ?? [], effort: "medium", webAccess },
     signal,
   );
-  for await (const event of events) {
-    if (event.type === "error") {
-      yield { type: "error", message: explain(target, event.message) };
-      return;
-    }
-    if (event.type === "delta") {
-      if (!writing) {
-        writing = true;
-        yield { type: "status", phase: "writing", message: "Writing code" };
+  active++;
+  try {
+    for await (const event of events) {
+      if (event.type === "error") {
+        yield { type: "error", message: explain(target, event.message) };
+        return;
       }
-      raw += event.text;
+      if (event.type === "delta") {
+        if (!writing) {
+          writing = true;
+          yield { type: "status", phase: "writing", message: "Writing code" };
+        }
+        raw += event.text;
+      }
+      yield event;
     }
-    yield event;
+  } finally {
+    active--;
   }
   if (signal.aborted) {
     yield { type: "error", message: "Generation cancelled." };
@@ -88,10 +98,15 @@ const ENHANCE_TIMEOUT_MS = 120_000;
 async function complete(target: Target, system: string, prompt: string): Promise<string> {
   let text = "";
   const signal = AbortSignal.timeout(ENHANCE_TIMEOUT_MS);
-  for await (const event of target.provider.stream({ model: target.model, system, prompt, images: [], effort: "low" }, signal)) {
-    if (signal.aborted) break;
-    if (event.type === "error") throw new Error(explain(target, event.message));
-    if (event.type === "delta") text += event.text;
+  active++;
+  try {
+    for await (const event of target.provider.stream({ model: target.model, system, prompt, images: [], effort: "low" }, signal)) {
+      if (signal.aborted) break;
+      if (event.type === "error") throw new Error(explain(target, event.message));
+      if (event.type === "delta") text += event.text;
+    }
+  } finally {
+    active--;
   }
   if (signal.aborted) throw new Error("The model took too long to respond. Try again, or pick another model.");
   return text;

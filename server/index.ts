@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import { parseModelRef } from "../shared/models";
 import type { AppConfig, GenerateRequest, PublishResponse } from "../shared/protocol";
 import { captureSite, parseCaptureUrl, readCapture } from "./capture";
-import { enhance, enhanceTool, generate } from "./generate";
+import { activeGenerations, enhance, enhanceTool, generate } from "./generate";
 import { OUTPUT_STYLES, PROJECT_TYPES } from "./prompts";
 import { defaultModel, discoverProviders } from "./providers";
 import { currentHtml, deleteProject, getProject, listProjects, saveProject, validProjectId } from "./projects";
@@ -23,6 +23,11 @@ async function config(force = false): Promise<AppConfig> {
     defaultModel: defaultModel(providers),
     providers,
   };
+}
+
+// Polled by scripts/dev-api.ts so file changes don't restart the server mid-generation.
+if (process.env.NODE_ENV !== "production") {
+  app.get("/api/dev/busy", (c) => c.json({ generations: activeGenerations() }));
 }
 
 // ?refresh=1 re-runs detection, e.g. after signing in to a CLI.

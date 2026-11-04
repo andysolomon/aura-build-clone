@@ -19,6 +19,8 @@ import { Inspector } from "./Inspector";
 import { PreviewFrame } from "./PreviewFrame";
 
 const SAVE_DEBOUNCE_MS = 400;
+const SAVE_RETRY_MS = 2_000;
+const SAVE_ATTEMPTS = 10;
 
 function currentVersion(project: Project | null): Version | undefined {
   return project?.versions.find((v) => v.id === project.currentVersionId);
@@ -52,10 +54,17 @@ export function EditorPage() {
 
   // ---------- persistence ----------
 
-  const flushSave = useCallback(() => {
+  const flushSave = useCallback((attempt = 1) => {
     clearTimeout(saveTimer.current);
     saveTimer.current = undefined;
-    if (projectRef.current) void api.saveProject(projectRef.current).catch(() => {});
+    const p = projectRef.current;
+    if (!p) return;
+    void api.saveProject(p).catch(() => {
+      // The API may be restarting. Try again unless a newer save is already queued.
+      if (attempt < SAVE_ATTEMPTS && !saveTimer.current && projectRef.current === p) {
+        saveTimer.current = setTimeout(() => flushSave(attempt + 1), SAVE_RETRY_MS);
+      }
+    });
   }, []);
 
   const commit = useCallback((update: (p: Project) => Project) => {
@@ -65,7 +74,7 @@ export function EditorPage() {
     projectRef.current = next;
     setProject(next);
     clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
+    saveTimer.current = setTimeout(() => flushSave(), SAVE_DEBOUNCE_MS);
   }, [flushSave]);
 
   useEffect(() => {
@@ -78,6 +87,15 @@ export function EditorPage() {
     api.getProject(projectId).then(
       (p) => {
         if (cancelled) return;
+        // A prompt with no reply means its generation died with the server or the tab.
+        // Record that so the turn shows an error and a Retry button instead of nothing.
+        if (!p.pending && p.messages.at(-1)?.role === "user") {
+          p = {
+            ...p,
+            messages: [...p.messages, { id: uid(), role: "assistant", content: "This generation was interrupted before the page finished, so nothing was saved.", error: true, createdAt: now() }],
+          };
+          void api.saveProject(p).catch(() => {});
+        }
         projectRef.current = p;
         setProject(p);
         setComposer((c) => ({ ...c, model: p.model, designSystemId: p.designSystemId }));
